@@ -1,0 +1,26 @@
+# Mac system files
+.DS_Store
+Thumbs.db
+
+# Backup and build archives
+*.zip
+
+# Dev preview files
+logo-preview.html
+
+# Temp/misc files
+ziuSKY1z
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+
+# Future: secrets and env files - never commit these
+.env
+.env.local
+*.key
+credentials.json
