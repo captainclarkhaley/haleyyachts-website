@@ -1,0 +1,43 @@
+# ============================================================
+# Haley Yachts Admin - Password Protection
+# ============================================================
+# This file restricts access to everything inside /admin/.
+# Visitors will be prompted for a username and password before
+# they can see any admin tool.
+#
+# SETUP (do this once, on the GoDaddy server):
+#   1. In cPanel, go to "Directory Privacy" (or "Password
+#      Protect Directories").
+#   2. Browse to the /admin/ folder on public_html.
+#   3. Check "Password protect this directory" and give it a
+#      name like "Haley Yachts Admin".
+#   4. Add a user (e.g., clark) and set a strong password.
+#      cPanel will automatically generate the .htpasswd file.
+#
+# If cPanel creates its own .htaccess, DELETE THIS FILE first
+# so cPanel's version takes over. They do the same thing.
+# ============================================================
+
+AuthType Basic
+AuthName "Haley Yachts Admin - Authorized Access Only"
+
+# NOTE: The AuthUserFile path below is a PLACEHOLDER.
+# cPanel will replace it with the correct server path when you
+# set up Directory Privacy through the cPanel GUI.
+# A typical GoDaddy cPanel path looks like:
+#   /home/YOUR_CPANEL_USERNAME/.htpasswds/public_html/admin/passwd
+AuthUserFile "/home/REPLACE_WITH_CPANEL_USERNAME/.htpasswds/public_html/admin/passwd"
+
+Require valid-user
+
+# ----- Deny direct access to sensitive files -----
+<FilesMatch "^\.(htaccess|htpasswd)$">
+    Require all denied
+</FilesMatch>
+
+<Files "config.yml">
+    Require all denied
+</Files>
+
+# ----- No directory listing -----
+Options -Indexes

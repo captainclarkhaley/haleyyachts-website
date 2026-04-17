@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What Is Your Boat Worth? - Haley Yachts</title>
+    <meta name="description" content="Get a complimentary market analysis of your boat. Clark Haley, licensed Florida yacht broker, Jupiter, Florida.">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="images/brand/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* ===== VALUATION PAGE LAYOUT ===== */
+        .valuation-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 48px;
+            align-items: start;
+        }
+
+        /* Left sidebar - photo & contact */
+        .valuation-sidebar {
+            text-align: center;
+        }
+        .valuation-sidebar img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 4px;
+            margin: 0 auto 20px;
+        }
+        .valuation-sidebar h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .valuation-sidebar .title {
+            font-size: 0.88rem;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        .valuation-sidebar .contact-line {
+            font-size: 0.88rem;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .valuation-sidebar .contact-line a {
+            color: #21cbea;
+        }
+        .valuation-sidebar .contact-line a:hover {
+            color: #1aa8c4;
+        }
+
+        /* Right side - form */
+        .valuation-form-wrap h2 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .valuation-form-wrap h2 strong {
+            font-weight: 700;
+        }
+        .valuation-form-wrap .form-intro {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 32px;
+        }
+
+        .valuation-form .form-section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #21cbea;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e2e2;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 0;
+        }
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 0.9rem;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+            color: #333;
+            background: #fff;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #21cbea;
+        }
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .form-section-spacing {
+            margin-top: 32px;
+        }
+
+        /* Success message */
+        .valuation-success {
+            display: none;
+            text-align: center;
+            padding: 60px 24px;
+        }
+        .valuation-success.visible {
+            display: block;
+        }
+        .valuation-success .check-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #21cbea;
+            color: #fff;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        .valuation-success h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+        .valuation-success p {
+            font-size: 1rem;
+            color: #666;
+            max-width: 420px;
+            margin: 0 auto 24px;
+            line-height: 1.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .valuation-layout {
+                grid-template-columns: 1fr;
+            }
+            .valuation-sidebar {
+                max-width: 320px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header" id="header">
+    <div class="nav-container">
+        <a href="index.html" class="logo">
+            <img src="images/brand/haleyyachtslogo.png" alt="Haley Yachts" class="logo-img">
+        </a>
+        <div class="header-contact">
+            <a href="tel:5618171547"><svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>561-817-1547</a>
+            <span class="header-contact-sep">·</span>
+            <a href="mailto:clark@haleyyachts.com"><svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>clark@haleyyachts.com</a>
+        </div>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="main-nav" id="mainNav">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="buy.html">Buy</a></li>
+            <li><a href="sell.html">Sell</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="articles.html">Articles</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </div>
+</header>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <h1>What Is Your <strong>Boat Worth?</strong></h1>
+    <div class="accent-line"></div>
+    <p>Get an in-depth market analysis of your boat to start a conversation.</p>
+</div>
+
+<!-- VALUATION CONTENT -->
+<section class="section">
+    <div class="container">
+        <div class="valuation-layout">
+
+            <!-- LEFT: Photo & Contact -->
+            <div class="valuation-sidebar">
+                <img src="images/people/clark-haley-headshot.jpg" alt="Clark Haley - Yacht Broker">
+                <h3>Clark Haley</h3>
+                <p class="title">Licensed Yacht Broker</p>
+                <p class="contact-line"><a href="mailto:clark@HaleyYachts.com">clark@HaleyYachts.com</a></p>
+                <p class="contact-line"><a href="tel:+15618171547">+1 (561) 817-1547</a></p>
+                <p class="contact-line">Jupiter, Florida</p>
+            </div>
+
+            <!-- RIGHT: Form -->
+            <div class="valuation-form-wrap" id="formWrap">
+                <h2>Request a <strong>Valuation</strong></h2>
+                <p class="form-intro">Tell us about your boat and we'll provide a complimentary market analysis.</p>
+
+                <form id="valuationForm" action="https://formsubmit.co/clark@HaleyYachts.com" method="POST">
+                    <!-- Formsubmit config -->
+                    <input type="hidden" name="_subject" value="Boat Valuation Inquiry - Haley Yachts">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_template" value="table">
+                    <input type="text" name="_honey" style="display:none">
+
+                    <div class="form-section-label">Your Information</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="v-name">Name *</label>
+                            <input type="text" id="v-name" name="Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="v-email">Email *</label>
+                            <input type="email" id="v-email" name="Email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label for="v-phone">Phone</label>
+                            <input type="tel" id="v-phone" name="Phone">
+                        </div>
+                    </div>
+
+                    <div class="form-section-label form-section-spacing">Yacht Details</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="v-manufacturer">Manufacturer *</label>
+                            <input type="text" id="v-manufacturer" name="Manufacturer" required placeholder="e.g., Riviera, Nordhavn">
+                        </div>
+                        <div class="form-group">
+                            <label for="v-model">Model *</label>
+                            <input type="text" id="v-model" name="Model" required placeholder="e.g., 505 SUV">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="v-vessel-name">Vessel Name</label>
+                            <input type="text" id="v-vessel-name" name="Vessel Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="v-length">Length (ft)</label>
+                            <input type="text" id="v-length" name="Length" placeholder="e.g., 55">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="v-year">Year *</label>
+                            <input type="text" id="v-year" name="Year" required placeholder="e.g., 2020">
+                        </div>
+                        <div class="form-group">
+                            <label for="v-engines">Engines</label>
+                            <input type="text" id="v-engines" name="Engines" placeholder="e.g., Twin Volvo D13">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="v-condition">Boat Condition *</label>
+                            <select id="v-condition" name="Boat Condition" required style="width:100%; padding:10px 14px; font-family:'Open Sans',Arial,sans-serif; font-size:0.9rem; border:1px solid #d0d0d0; border-radius:3px; color:#333; background:#fff;">
+                                <option value="" disabled selected>Select condition</option>
+                                <option value="Shines Like New">Shines Like New</option>
+                                <option value="Average Condition">Average Condition</option>
+                                <option value="Some wear and tear">Some wear and tear</option>
+                                <option value="Rough">Rough</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="v-location">Current Location</label>
+                            <input type="text" id="v-location" name="Current Location" placeholder="e.g., Jupiter, FL">
+                        </div>
+                    </div>
+
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label for="v-message">Additional Information</label>
+                            <textarea id="v-message" name="Additional Information" placeholder="Any additional details about your vessel - recent upgrades, condition, equipment, etc."></textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" style="width:100%; margin-top:8px;" id="submitBtn">Submit Inquiry</button>
+                </form>
+            </div>
+
+            <!-- SUCCESS MESSAGE (replaces form) -->
+            <div class="valuation-success" id="formSuccess">
+                <div class="check-icon">&#10003;</div>
+                <h2>Thank You!</h2>
+                <p>Your boat details have been sent. We will review the information and provide you with a market evaluation shortly.</p>
+                <a href="index.html" class="btn">Return Home</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="footer-brand">
+        <img src="images/brand/haleyyachtslogo.png" alt="Haley Yachts" class="footer-logo">
+    </div>
+    <p>&copy; 2026 Haley Yachts. All rights reserved. &nbsp;|&nbsp; Licensed Florida Yacht Broker &nbsp;|&nbsp; Jupiter, Florida</p>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+    document.getElementById('valuationForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+
+        // Capture all values NOW before anything else happens
+        const name = document.getElementById('v-name').value || '';
+        const email = document.getElementById('v-email').value || '';
+        const phoneField = document.getElementById('v-phone');
+        const phone = phoneField._getFormattedValue ? phoneField._getFormattedValue() : phoneField.value || '';
+        const manufacturer = document.getElementById('v-manufacturer').value || '';
+        const model = document.getElementById('v-model').value || '';
+        const vesselName = document.getElementById('v-vessel-name').value || '';
+        const length = document.getElementById('v-length').value || '';
+        const year = document.getElementById('v-year').value || '';
+        const engines = document.getElementById('v-engines').value || '';
+        const condition = document.getElementById('v-condition').value || '';
+        const location = document.getElementById('v-location').value || '';
+        const message = document.getElementById('v-message').value || '';
+
+        // Validate email before sending
+        if (!isValidEmail(email)) {
+            const emailField = document.getElementById('v-email');
+            emailField.classList.add('field-error');
+            emailField.parentNode.querySelector('.error-msg').classList.add('visible');
+            emailField.focus();
+            submitBtn.textContent = 'Submit Inquiry';
+            submitBtn.disabled = false;
+            return;
+        }
+
+        // Validate phone if provided
+        if (phoneField.value && phoneField._validatePhone && !phoneField._validatePhone()) {
+            phoneField.focus();
+            submitBtn.textContent = 'Submit Inquiry';
+            submitBtn.disabled = false;
+            return;
+        }
+
+        function showSuccess() {
+            document.getElementById('formWrap').style.display = 'none';
+            document.getElementById('formSuccess').classList.add('visible');
+        }
+
+        // Build mailto as fallback
+        function sendMailto() {
+            const subject = encodeURIComponent(`Boat Valuation Inquiry from ${name}`);
+            const body = encodeURIComponent(
+                `Name: ${name}\nEmail: ${email}\nPhone: ${phone}\n\n` +
+                `Manufacturer: ${manufacturer}\nModel: ${model}\n` +
+                `Vessel Name: ${vesselName}\nLength: ${length}\n` +
+                `Year: ${year}\nEngines: ${engines}\n` +
+                `Boat Condition: ${condition}\nLocation: ${location}\n\n` +
+                `Additional Info: ${message}`
+            );
+            window.location.href = `mailto:clark@HaleyYachts.com?subject=${subject}&body=${body}`;
+            setTimeout(showSuccess, 500);
+        }
+
+        const formData = new FormData(this);
+
+        fetch('https://formsubmit.co/ajax/clark@HaleyYachts.com', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.success === 'true') {
+                // Formsubmit confirmed delivery
+                document.getElementById('formWrap').style.display = 'none';
+                document.getElementById('formSuccess').classList.add('visible');
+            } else {
+                // Formsubmit responded but didn't confirm - use mailto
+                sendMailto();
+            }
+        })
+        .catch(error => {
+            sendMailto();
+        });
+    });
+</script>
+</body>
+</html>

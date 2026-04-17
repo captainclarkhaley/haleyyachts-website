@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haley Yachts - Monogram Concepts Round 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Open Sans', sans-serif; background: #f5f5f5; color: #333; }
+
+  .header { text-align: center; padding: 48px 24px 32px; }
+  .header h1 { font-size: 1.6rem; font-weight: 300; letter-spacing: 4px; text-transform: uppercase; color: #555; }
+  .header p { margin-top: 8px; color: #999; font-size: 0.9rem; }
+
+  .concepts { max-width: 960px; margin: 0 auto; padding: 0 24px 60px; }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    margin-bottom: 40px;
+    overflow: hidden;
+  }
+  .card-label {
+    padding: 16px 28px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #21cbea;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .preview-row { display: flex; align-items: stretch; }
+  .preview-light, .preview-dark {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+  }
+  .preview-light { background: #fff; }
+  .preview-dark { background: #1a1a2e; border-left: 1px solid #f0f0f0; }
+
+  .preview-light img, .preview-dark img { width: 180px; height: auto; }
+
+  .preview-col { display: flex; flex-direction: column; align-items: center; }
+  .bg-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #bbb;
+    margin-bottom: 12px;
+  }
+  .preview-dark .bg-label { color: #555; }
+
+  /* Nav mockup strip */
+  .nav-mockup {
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    height: 72px;
+    gap: 16px;
+  }
+  .nav-mockup img { width: 44px; height: 44px; }
+  .nav-mockup .nm-text { display: flex; flex-direction: column; }
+  .nav-mockup .nm-name {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.15rem;
+    font-weight: normal;
+    letter-spacing: 2px;
+    color: #333;
+  }
+  .nav-mockup .nm-sub {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 5px;
+    color: #21cbea;
+    margin-top: 1px;
+  }
+  .nav-mockup .nm-links {
+    margin-left: auto;
+    display: flex;
+    gap: 24px;
+  }
+  .nav-mockup .nm-links span {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #999;
+  }
+
+  /* Dark nav variant */
+  .nav-mockup-dark {
+    background: #1a1a2e;
+    border-top: 1px solid #2a2a3e;
+  }
+  .nav-mockup-dark .nm-name { color: #fff; }
+  .nav-mockup-dark .nm-links span { color: #666; }
+
+  .desc {
+    padding: 20px 28px;
+    font-size: 0.85rem;
+    color: #777;
+    line-height: 1.6;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  @media (max-width: 600px) {
+    .preview-row { flex-direction: column; }
+    .preview-dark { border-left: none; border-top: 1px solid #f0f0f0; }
+    .nav-mockup .nm-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Haley Yachts - Monogram Concepts</h1>
+  <p>Refined serif HY &middot; #333 + #21cbea &middot; Luxury typographic approach</p>
+</div>
+
+<div class="concepts">
+
+  <!-- Concept D -->
+  <div class="card">
+    <div class="card-label">D - Open Serif Monogram</div>
+    <div class="preview-row">
+      <div class="preview-light">
+        <div class="preview-col">
+          <div class="bg-label">Light</div>
+          <img src="images/brand/archive/monogram-d.svg" alt="Monogram D">
+        </div>
+      </div>
+      <div class="preview-dark">
+        <div class="preview-col">
+          <div class="bg-label">Dark</div>
+          <img src="images/brand/archive/monogram-d.svg" alt="Monogram D on dark">
+        </div>
+      </div>
+    </div>
+    <div class="nav-mockup">
+      <img src="images/brand/archive/monogram-d.svg" alt="Monogram D nav">
+      <div class="nm-text">
+        <span class="nm-name">HALEY</span>
+        <span class="nm-sub">YACHTS</span>
+      </div>
+      <div class="nm-links">
+        <span>Buy</span><span>Sell</span><span>Services</span><span>Articles</span><span>About</span><span>Contact</span>
+      </div>
+    </div>
+    <div class="desc">
+      No frame, no fuss. Classic serif H in dark, Y in cyan, slightly overlapping with a thin accent line underneath. Reads like a luxury brand mark - similar to how Denison lets the typography do the work.
+    </div>
+  </div>
+
+  <!-- Concept E -->
+  <div class="card">
+    <div class="card-label">E - Square Border Monogram</div>
+    <div class="preview-row">
+      <div class="preview-light">
+        <div class="preview-col">
+          <div class="bg-label">Light</div>
+          <img src="images/brand/archive/monogram-e.svg" alt="Monogram E">
+        </div>
+      </div>
+      <div class="preview-dark">
+        <div class="preview-col">
+          <div class="bg-label">Dark</div>
+          <img src="images/brand/archive/monogram-e.svg" alt="Monogram E on dark">
+        </div>
+      </div>
+    </div>
+    <div class="nav-mockup">
+      <img src="images/brand/archive/monogram-e.svg" alt="Monogram E nav">
+      <div class="nm-text">
+        <span class="nm-name">HALEY</span>
+        <span class="nm-sub">YACHTS</span>
+      </div>
+      <div class="nm-links">
+        <span>Buy</span><span>Sell</span><span>Services</span><span>Articles</span><span>About</span><span>Contact</span>
+      </div>
+    </div>
+    <div class="desc">
+      Same serif HY, but contained in a thin double-line square - dark outer, cyan inner. Structured and polished. Works well as a favicon or embroidered mark. Gives it that heritage badge quality without being heavy.
+    </div>
+  </div>
+
+  <!-- Concept F -->
+  <div class="card">
+    <div class="card-label">F - Circle Badge Monogram</div>
+    <div class="preview-row">
+      <div class="preview-light">
+        <div class="preview-col">
+          <div class="bg-label">Light</div>
+          <img src="images/brand/monogram-f.svg" alt="Monogram F">
+        </div>
+      </div>
+      <div class="preview-dark">
+        <div class="preview-col">
+          <div class="bg-label">Dark</div>
+          <img src="images/brand/monogram-f.svg" alt="Monogram F on dark">
+        </div>
+      </div>
+    </div>
+    <div class="nav-mockup">
+      <img src="images/brand/monogram-f.svg" alt="Monogram F nav">
+      <div class="nm-text">
+        <span class="nm-name">HALEY</span>
+        <span class="nm-sub">YACHTS</span>
+      </div>
+      <div class="nm-links">
+        <span>Buy</span><span>Sell</span><span>Services</span><span>Articles</span><span>About</span><span>Contact</span>
+      </div>
+    </div>
+    <div class="nav-mockup nav-mockup-dark">
+      <img src="images/brand/monogram-f.svg" alt="Monogram F nav dark">
+      <div class="nm-text">
+        <span class="nm-name">HALEY</span>
+        <span class="nm-sub">YACHTS</span>
+      </div>
+      <div class="nm-links">
+        <span>Buy</span><span>Sell</span><span>Services</span><span>Articles</span><span>About</span><span>Contact</span>
+      </div>
+    </div>
+    <div class="desc">
+      Double-line circle with small accent dots at 3 and 9 o'clock - a subtle nod to a compass or clock face without being literal. Serif HY centered. Classic yacht club feel, works at every size from nav bar to crew gear.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

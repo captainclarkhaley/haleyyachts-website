@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PRIMARY META -->
+    <title>{{ARTICLE_TITLE}} - Haley Yachts</title>
+    <meta name="description" content="{{META_DESCRIPTION}}">
+    <meta name="author" content="Clark Haley">
+    <meta name="keywords" content="{{KEYWORDS}}">
+    <link rel="canonical" href="https://haleyyachts.com/articles/{{CATEGORY_SLUG}}/{{ARTICLE_SLUG}}.html">
+
+    <!-- OPEN GRAPH (Facebook, LinkedIn, iMessage, Slack) -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Haley Yachts">
+    <meta property="og:title" content="{{ARTICLE_TITLE}}">
+    <meta property="og:description" content="{{META_DESCRIPTION}}">
+    <meta property="og:url" content="https://haleyyachts.com/articles/{{CATEGORY_SLUG}}/{{ARTICLE_SLUG}}.html">
+    <meta property="og:image" content="https://haleyyachts.com/articles/{{CATEGORY_SLUG}}/images/{{HERO_IMAGE}}">
+    <meta property="og:image:alt" content="{{HERO_ALT}}">
+    <meta property="article:author" content="Clark Haley">
+    <meta property="article:published_time" content="{{PUBLISHED_DATE_ISO}}">
+    <meta property="article:section" content="{{CATEGORY_LABEL}}">
+    <meta property="article:tag" content="{{PRIMARY_TAG}}">
+
+    <!-- TWITTER / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ARTICLE_TITLE}}">
+    <meta name="twitter:description" content="{{META_DESCRIPTION}}">
+    <meta name="twitter:image" content="https://haleyyachts.com/articles/{{CATEGORY_SLUG}}/images/{{HERO_IMAGE}}">
+
+    <!-- FONTS, FAVICON, STYLES -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../../favicon.ico" sizes="any">
+    <link rel="icon" href="../../images/brand/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../css/styles.css">
+
+    <!-- JSON-LD STRUCTURED DATA (Google rich results) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "{{ARTICLE_TITLE}}",
+      "description": "{{META_DESCRIPTION}}",
+      "image": "https://haleyyachts.com/articles/{{CATEGORY_SLUG}}/images/{{HERO_IMAGE}}",
+      "datePublished": "{{PUBLISHED_DATE_ISO}}",
+      "dateModified": "{{MODIFIED_DATE_ISO}}",
+      "author": {
+        "@type": "Person",
+        "name": "Clark Haley",
+        "url": "https://haleyyachts.com/about.html",
+        "jobTitle": "Licensed Florida Yacht Broker",
+        "worksFor": {
+          "@type": "Organization",
+          "name": "One Water Yacht Sales"
+        }
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Haley Yachts",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://haleyyachts.com/images/brand/haleyyachtslogo.png"
+        }
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://haleyyachts.com/articles/{{CATEGORY_SLUG}}/{{ARTICLE_SLUG}}.html"
+      },
+      "articleSection": "{{CATEGORY_LABEL}}",
+      "keywords": "{{KEYWORDS}}"
+    }
+    </script>
+
+    <!-- BREADCRUMB STRUCTURED DATA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://haleyyachts.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Articles", "item": "https://haleyyachts.com/articles.html" },
+        { "@type": "ListItem", "position": 3, "name": "{{CATEGORY_LABEL}}", "item": "https://haleyyachts.com/articles.html#{{CATEGORY_SLUG}}" },
+        { "@type": "ListItem", "position": 4, "name": "{{ARTICLE_TITLE}}" }
+      ]
+    }
+    </script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header" id="header">
+    <div class="nav-container">
+        <a href="../../index.html" class="logo">
+            <img src="../../images/brand/haleyyachtslogo.png" alt="Haley Yachts" class="logo-img">
+        </a>
+        <div class="header-contact">
+            <a href="tel:5618171547"><svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>561-817-1547</a>
+            <span class="header-contact-sep">·</span>
+            <a href="mailto:clark@haleyyachts.com"><svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>clark@haleyyachts.com</a>
+        </div>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="main-nav" id="mainNav">
+            <li><a href="../../index.html">Home</a></li>
+            <li><a href="../../buy.html">Buy</a></li>
+            <li><a href="../../sell.html">Sell</a></li>
+            <li><a href="../../services.html">Services</a></li>
+            <li><a href="../../articles.html" class="active">Articles</a></li>
+            <li><a href="../../about.html">About</a></li>
+            <li><a href="../../contact.html">Contact</a></li>
+        </ul>
+    </div>
+</header>
+
+<!-- ARTICLE -->
+<article class="article-page">
+
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="../../index.html">Home</a>
+        <span class="bc-sep">›</span>
+        <a href="../../articles.html">Articles</a>
+        <span class="bc-sep">›</span>
+        <a href="../../articles.html#{{CATEGORY_SLUG}}">{{CATEGORY_LABEL}}</a>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="article-header">
+        <div class="article-category">{{CATEGORY_LABEL}}</div>
+        <h1>{{ARTICLE_TITLE}}</h1>
+        <div class="article-meta">
+            <span class="article-byline">By <a href="../../about.html">Clark Haley</a></span>
+            <span class="article-meta-sep">·</span>
+            <time datetime="{{PUBLISHED_DATE_ISO}}">{{PUBLISHED_DATE_DISPLAY}}</time>
+            <span class="article-meta-sep">·</span>
+            <span class="article-readtime">{{READ_TIME}} min read</span>
+        </div>
+    </header>
+
+    <!-- Hero Image -->
+    <figure class="article-hero">
+        <img src="images/{{HERO_IMAGE}}" alt="{{HERO_ALT}}" loading="eager" fetchpriority="high">
+        <figcaption>{{HERO_CAPTION}}</figcaption>
+    </figure>
+
+    <!-- Body -->
+    <div class="article-body">
+
+        <!-- REPLACE THIS BLOCK WITH ARTICLE CONTENT -->
+        <p class="article-lead">{{LEAD_PARAGRAPH}}</p>
+
+        <p>{{BODY_CONTENT}}</p>
+
+        <h2>{{SECTION_HEADING}}</h2>
+        <p>{{SECTION_BODY}}</p>
+
+        <!-- Inline image example:
+        <figure class="article-figure">
+            <img src="images/{{INLINE_IMAGE}}" alt="{{INLINE_ALT}}" loading="lazy">
+            <figcaption>{{INLINE_CAPTION}}</figcaption>
+        </figure>
+        -->
+
+        <!-- Pull quote example:
+        <blockquote class="article-pullquote">
+            "{{QUOTE}}"
+        </blockquote>
+        -->
+
+    </div>
+
+    <!-- Author Card -->
+    <aside class="article-author-card">
+        <img src="../../images/people/clark-headshot.jpg" alt="Clark Haley, licensed Florida yacht broker" class="author-photo">
+        <div class="author-info">
+            <h3>About Clark Haley</h3>
+            <p>Clark is a licensed Florida yacht broker with One Water Yacht Sales in Palm Beach Gardens. He specializes in motor and sail yachts in the 50-80 foot range and represents the full Riviera Yachts line.</p>
+            <a href="../../contact.html" class="btn">Get in Touch</a>
+        </div>
+    </aside>
+
+    <!-- Back to Articles -->
+    <div class="article-footer-nav">
+        <a href="../../articles.html#{{CATEGORY_SLUG}}" class="back-link">← Back to {{CATEGORY_LABEL}}</a>
+    </div>
+
+</article>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="footer-brand">
+        <img src="../../images/brand/haleyyachtslogo.png" alt="Haley Yachts" class="footer-logo">
+    </div>
+    <p>&copy; 2026 Haley Yachts. All rights reserved. &nbsp;|&nbsp; Licensed Florida Yacht Broker &nbsp;|&nbsp; Jupiter, Florida</p>
+</footer>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

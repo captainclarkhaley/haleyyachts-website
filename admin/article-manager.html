@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article Manager - Haley Yachts</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <!-- Mammoth.js for Word doc conversion -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 40px 20px;
+            color: #333;
+        }
+        .admin-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px 48px;
+            border-radius: 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 8px;
+            color: #0a1628;
+        }
+        .accent-line {
+            width: 60px; height: 3px; background: #21cbea; margin-bottom: 20px;
+        }
+        .instructions {
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.7;
+            background: #f9fafb;
+            padding: 16px 20px;
+            border-left: 3px solid #21cbea;
+            margin-bottom: 32px;
+        }
+        .instructions strong { font-style: normal; color: #333; }
+        .nav-links { margin-bottom: 24px; font-size: 0.85rem; }
+        .nav-links .nav-sep { color: #bbb; margin: 0 10px; }
+        .back-link {
+            display: inline-block;
+            font-size: 0.85rem;
+            color: #21cbea;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        /* Form styles */
+        .form-group { margin-bottom: 24px; }
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        label .hint {
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            color: #888;
+            font-size: 0.75rem;
+        }
+        input[type="text"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 10px 14px;
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 0.95rem;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+            background: #fff;
+            color: #333;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #21cbea;
+            box-shadow: 0 0 0 2px rgba(33,203,234,0.15);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        .char-count {
+            font-size: 0.75rem;
+            color: #888;
+            text-align: right;
+            margin-top: 4px;
+        }
+        .char-count.over { color: #c00; font-weight: 600; }
+
+        /* File upload zones */
+        .upload-zone {
+            border: 2px dashed #d0d0d0;
+            border-radius: 6px;
+            padding: 28px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafbfc;
+            position: relative;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #21cbea;
+            background: rgba(33,203,234,0.04);
+        }
+        .upload-zone.has-file {
+            border-color: #21cbea;
+            border-style: solid;
+            background: #f0fbfd;
+        }
+        .upload-zone input[type="file"] {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-zone .upload-icon {
+            color: #bbb;
+            margin-bottom: 8px;
+        }
+        .upload-zone .upload-text {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        .upload-zone .upload-text strong { color: #21cbea; }
+        .upload-zone .file-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            margin-top: 6px;
+        }
+
+        /* Image thumbnails */
+        .image-previews {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .image-preview {
+            position: relative;
+            width: 120px;
+            height: 80px;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+        }
+        .image-preview img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .image-preview .remove-btn {
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 22px; height: 22px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        .image-preview .remove-btn:hover { background: #c00; }
+        .image-preview .img-label {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 2px 6px;
+            text-align: center;
+        }
+
+        /* Category-specific fields */
+        .category-fields { display: none; }
+        .category-fields.visible { display: block; }
+
+        /* Article preview */
+        .preview-panel {
+            display: none;
+            margin-top: 32px;
+            padding: 24px;
+            background: #f9fafb;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+        }
+        .preview-panel h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin: 0 0 16px;
+        }
+        .preview-panel .preview-body {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: #444;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+        .preview-panel .preview-body h1, .preview-panel .preview-body h2,
+        .preview-panel .preview-body h3, .preview-panel .preview-body h4 {
+            font-size: 1.1rem;
+            margin: 16px 0 8px;
+            color: #333;
+        }
+        .preview-panel .preview-body img { max-width: 100%; border-radius: 4px; }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #21cbea;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #1aa8c4; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: #555; }
+        .btn-secondary:hover { background: #333; }
+        .btn-danger { background: #c44; }
+        .btn-danger:hover { background: #a33; }
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+
+        /* Status messages */
+        .status {
+            padding: 12px 16px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            margin-top: 16px;
+            display: none;
+        }
+        .status.success { background: #e8f7ea; color: #1b6e2e; display: block; }
+        .status.error { background: #fbeaea; color: #a82020; display: block; }
+        .status.info { background: #e8f0fa; color: #1b4e8e; display: block; }
+
+        /* Progress bar */
+        .progress-bar {
+            display: none;
+            height: 4px;
+            background: #e5e5e5;
+            border-radius: 2px;
+            margin-top: 16px;
+            overflow: hidden;
+        }
+        .progress-bar .progress-fill {
+            height: 100%;
+            background: #21cbea;
+            border-radius: 2px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        /* Divider */
+        .section-divider {
+            border: none;
+            border-top: 1px solid #e5e5e5;
+            margin: 32px 0;
+        }
+
+        /* Image placement cards */
+        .placement-section {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background: #f9fafb;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+        }
+        .placement-section.visible { display: block; }
+        .placement-section h3 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin: 0 0 6px;
+        }
+        .placement-section .placement-hint {
+            font-size: 0.8rem;
+            color: #888;
+            margin: 0 0 16px;
+            font-style: italic;
+        }
+        .placement-card {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 16px;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            padding: 14px;
+            margin-bottom: 12px;
+            align-items: start;
+        }
+        .placement-card .pc-thumb {
+            width: 100px;
+            height: 70px;
+            border-radius: 3px;
+            object-fit: cover;
+        }
+        .placement-card .pc-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .placement-card .pc-filename {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .placement-card .pc-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .placement-card label {
+            font-size: 0.72rem;
+            margin: 0;
+            min-width: 60px;
+        }
+        .placement-card select, .placement-card input[type="text"] {
+            font-size: 0.82rem;
+            padding: 5px 8px;
+            width: auto;
+            flex: 1;
+            min-width: 100px;
+        }
+        .pc-remove {
+            font-size: 0.75rem;
+            color: #c44;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            text-decoration: underline;
+            align-self: flex-start;
+        }
+        .pc-remove:hover { color: #a22; }
+
+        /* Alignment button group */
+        .align-group {
+            display: inline-flex;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .align-group button {
+            background: #fff;
+            border: none;
+            border-right: 1px solid #d0d0d0;
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.15s;
+        }
+        .align-group button:last-child { border-right: none; }
+        .align-group button:hover { background: #f0f0f0; }
+        .align-group button.selected {
+            background: #21cbea;
+            color: #fff;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .admin-container { padding: 24px 20px; }
+            .btn-row { flex-direction: column; }
+            .btn-row .btn { text-align: center; }
+            .placement-card { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="nav-links">
+        <a href="index.html" class="back-link">&larr; Back to Admin</a>
+        <span class="nav-sep">·</span>
+        <a href="../index.html" class="back-link">View Live Site &rarr;</a>
+    </div>
+
+    <h1>Article Manager</h1>
+    <div class="accent-line"></div>
+
+    <div class="instructions">
+        <strong>How to use:</strong><br>
+        (1) Select the article type.<br>
+        (2) Upload your article as a Word document (.docx). The content will be extracted and converted automatically.<br>
+        (3) Upload a hero image and any additional images for the article.<br>
+        (4) Fill in the title, excerpt, and any category-specific fields.<br>
+        (5) Click <strong>Preview</strong> to review, then <strong>Publish</strong> to go live.<br><br>
+        <strong style="color:#c00;">First-time setup:</strong> The first time you publish, your browser will ask you to select the site's root folder. Select the folder that contains index.html, articles/, css/, etc.
+    </div>
+
+    <form id="articleForm" onsubmit="event.preventDefault();">
+
+        <!-- Article Type -->
+        <div class="form-group">
+            <label for="articleType">Article Type</label>
+            <select id="articleType" required>
+                <option value="">-- Select Category --</option>
+                <option value="boat-reviews">Boat Reviews</option>
+                <option value="newsletters">Newsletters</option>
+                <option value="how-to">How To</option>
+                <option value="travel">Travel</option>
+                <option value="industry-news">Industry News</option>
+            </select>
+        </div>
+
+        <!-- Article Upload -->
+        <div class="form-group">
+            <label>Article Document <span class="hint">(.docx files only)</span></label>
+            <div class="upload-zone" id="docUploadZone">
+                <input type="file" id="docFile" accept=".docx">
+                <div class="upload-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="12" y1="18" x2="12" y2="12"/>
+                        <line x1="9" y1="15" x2="12" y2="12"/>
+                        <line x1="15" y1="15" x2="12" y2="12"/>
+                    </svg>
+                </div>
+                <div class="upload-text">
+                    <strong>Click to browse</strong> or drag your Word doc here
+                </div>
+                <div class="file-name" id="docFileName"></div>
+            </div>
+        </div>
+
+        <!-- Image Uploads -->
+        <div class="form-group">
+            <label>Hero Image <span class="hint">(main image displayed at top of article)</span></label>
+            <div class="upload-zone" id="heroUploadZone">
+                <input type="file" id="heroImage" accept="image/*">
+                <div class="upload-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                </div>
+                <div class="upload-text">
+                    <strong>Click to browse</strong> or drag your hero image here
+                </div>
+                <div class="file-name" id="heroFileName"></div>
+            </div>
+            <div class="image-previews" id="heroPreview"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="heroLayout">Hero Image Layout</label>
+            <select id="heroLayout">
+                <option value="default">Default (~25% width, left-aligned)</option>
+                <option value="centered">Centered (~50% width, centered)</option>
+                <option value="full-width">Full Width (stretches across content area)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Inline Images <span class="hint">(optional - images embedded in the article body with text wrap)</span></label>
+            <div class="upload-zone" id="extraUploadZone">
+                <input type="file" id="extraImages" accept="image/*" multiple>
+                <div class="upload-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                        <line x1="12" y1="9" x2="12" y2="15"/>
+                        <line x1="9" y1="12" x2="15" y2="12"/>
+                    </svg>
+                </div>
+                <div class="upload-text">
+                    <strong>Click to browse</strong> or drag images here - you will set alignment and position below
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Placement Controls (appears after images are uploaded) -->
+        <div class="placement-section" id="placementSection">
+            <h3>Image Placement</h3>
+            <p class="placement-hint">Images default to <strong>Auto</strong> - they will be distributed evenly through the article, alternating left and right. Override alignment or position below if you want specific placement.</p>
+            <div id="placementCards"></div>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Metadata Fields -->
+        <div class="form-group">
+            <label for="articleTitle">Article Title</label>
+            <input type="text" id="articleTitle" placeholder="e.g., Riviera 505 SUV - A Broker's Review" required>
+        </div>
+
+        <div class="form-group">
+            <label for="articleExcerpt">Excerpt <span class="hint">(1-2 sentences shown in article listings, max 250 characters)</span></label>
+            <textarea id="articleExcerpt" maxlength="250" placeholder="A short summary of the article..."></textarea>
+            <div class="char-count" id="excerptCount">0 / 250</div>
+        </div>
+
+        <div class="form-group">
+            <label for="articleDate">Publish Date</label>
+            <input type="date" id="articleDate">
+        </div>
+
+        <div class="form-group">
+            <label for="articleAuthor">Author</label>
+            <input type="text" id="articleAuthor" value="Clark Haley">
+        </div>
+
+        <div class="form-group">
+            <label for="articleKeywords">Keywords <span class="hint">(comma-separated, for SEO)</span></label>
+            <input type="text" id="articleKeywords" placeholder="e.g., riviera, yacht review, motor yacht, sport yacht">
+        </div>
+
+        <div class="form-group">
+            <label for="heroAlt">Hero Image Alt Text <span class="hint">(describes the image for accessibility and SEO)</span></label>
+            <input type="text" id="heroAlt" placeholder="e.g., Riviera 505 SUV cruising in the Bahamas">
+        </div>
+
+        <!-- Category-specific fields -->
+        <div class="category-fields" id="fields-boat-reviews">
+            <div class="form-group">
+                <label for="yachtMake">Yacht Make <span class="hint">(e.g., Riviera, Sunseeker)</span></label>
+                <input type="text" id="yachtMake" placeholder="e.g., Riviera">
+            </div>
+            <div class="form-group">
+                <label for="yachtModel">Yacht Model <span class="hint">(e.g., 505 SUV, Manhattan 66)</span></label>
+                <input type="text" id="yachtModel" placeholder="e.g., 505 SUV">
+            </div>
+        </div>
+
+        <div class="category-fields" id="fields-how-to">
+            <div class="form-group">
+                <label for="difficulty">Difficulty Level</label>
+                <select id="difficulty">
+                    <option value="">-- Optional --</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="category-fields" id="fields-travel">
+            <div class="form-group">
+                <label for="destination">Destination <span class="hint">(e.g., Bahamas, Keys, Mediterranean)</span></label>
+                <input type="text" id="destination" placeholder="e.g., Bahamas">
+            </div>
+        </div>
+
+        <div class="category-fields" id="fields-industry-news">
+            <div class="form-group">
+                <label for="newsSource">Source <span class="hint">(original source if referencing external news)</span></label>
+                <input type="text" id="newsSource" placeholder="e.g., Boating Industry Magazine">
+            </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="previewArticle()">Preview</button>
+            <button type="button" class="btn" id="publishBtn" onclick="publishArticle()">Publish</button>
+            <button type="button" class="btn btn-danger" onclick="clearForm()">Clear Form</button>
+        </div>
+    </form>
+
+    <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="status" id="status"></div>
+
+    <!-- Article Preview -->
+    <div class="preview-panel" id="previewPanel">
+        <h3>Article Preview</h3>
+        <div class="preview-body" id="previewBody"></div>
+    </div>
+
+    <hr class="section-divider" style="margin-top:48px;">
+
+    <!-- Manage Published Articles -->
+    <h2 style="font-size:1.2rem;font-weight:300;text-transform:uppercase;letter-spacing:2px;color:#0a1628;margin:0 0 8px;">Manage Published Articles</h2>
+    <div class="accent-line"></div>
+    <p style="font-size:0.85rem;color:#666;margin-bottom:16px;">Remove articles that have already been published. This removes the article from the listings. The HTML file itself is not deleted, but it will no longer appear on the Articles page.</p>
+    <button type="button" class="btn btn-secondary" onclick="loadPublishedArticles()" style="margin-bottom:20px;">Load Published Articles</button>
+    <div id="publishedList" style="margin-top:8px;"></div>
+</div>
+
+<script>
+// ===== State =====
+let docHtml = '';         // Converted HTML from Word doc
+let docParagraphs = [];   // Parsed paragraph list for position targeting
+let heroFile = null;      // Hero image File object
+let extraFiles = [];      // Additional image File objects with placement data
+                          // Each entry: { file, align: 'left'|'right'|'center', afterPara: N, alt: '', caption: '' }
+let siteRootHandle = null; // Directory handle for the site root
+
+// ===== Category labels and slug mappings =====
+const CATEGORIES = {
+    'boat-reviews':   { label: 'Boat Reviews',   tag: 'Boat Review',    tabId: 'reviews' },
+    'newsletters':    { label: 'Newsletters',     tag: 'Newsletter',     tabId: 'newsletters' },
+    'how-to':         { label: 'How To',          tag: 'How To',         tabId: 'howto' },
+    'travel':         { label: 'Travel',          tag: 'Travel',         tabId: 'travel' },
+    'industry-news':  { label: 'Industry News',   tag: 'Industry News',  tabId: 'news' }
+};
+
+// ===== Initialize =====
+document.addEventListener('DOMContentLoaded', () => {
+    // Set today's date as default
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('articleDate').value = today;
+
+    // Show/hide category-specific fields
+    document.getElementById('articleType').addEventListener('change', toggleCategoryFields);
+
+    // Excerpt character counter
+    const excerptEl = document.getElementById('articleExcerpt');
+    excerptEl.addEventListener('input', () => {
+        const count = excerptEl.value.length;
+        const countEl = document.getElementById('excerptCount');
+        countEl.textContent = `${count} / 250`;
+        countEl.classList.toggle('over', count >= 250);
+    });
+
+    // Doc upload handler
+    setupDocUpload();
+
+    // Image upload handlers
+    setupImageUpload('heroImage', 'heroUploadZone', 'heroFileName', 'heroPreview', false);
+    setupInlineImageUpload();
+});
+
+function toggleCategoryFields() {
+    document.querySelectorAll('.category-fields').forEach(el => el.classList.remove('visible'));
+    const type = document.getElementById('articleType').value;
+    const fields = document.getElementById('fields-' + type);
+    if (fields) fields.classList.add('visible');
+}
+
+// ===== Doc Upload =====
+function setupDocUpload() {
+    const zone = document.getElementById('docUploadZone');
+    const input = document.getElementById('docFile');
+    const nameEl = document.getElementById('docFileName');
+
+    // Drag and drop
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            handleDocUpload(e.dataTransfer.files[0]);
+        }
+    });
+
+    input.addEventListener('change', () => {
+        if (input.files.length) handleDocUpload(input.files[0]);
+    });
+
+    async function handleDocUpload(file) {
+        if (!file.name.endsWith('.docx')) {
+            showStatus('Please upload a .docx file. Other formats are not supported.', 'error');
+            return;
+        }
+        nameEl.textContent = file.name;
+        zone.classList.add('has-file');
+        showStatus('Converting document...', 'info');
+
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const result = await mammoth.convertToHtml({ arrayBuffer }, {
+                styleMap: [
+                    "p[style-name='Heading 1'] => h2:fresh",
+                    "p[style-name='Heading 2'] => h3:fresh",
+                    "p[style-name='Heading 3'] => h4:fresh",
+                    "p[style-name='Quote'] => blockquote.article-pullquote:fresh"
+                ]
+            });
+            docHtml = result.value;
+
+            // Parse paragraphs for image placement targeting
+            parseParagraphs();
+
+            // Auto-fill title from first heading if title field is empty
+            const titleInput = document.getElementById('articleTitle');
+            if (!titleInput.value.trim()) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = docHtml;
+                const firstHeading = tempDiv.querySelector('h1, h2');
+                if (firstHeading) {
+                    titleInput.value = firstHeading.textContent.trim();
+                }
+            }
+
+            // Refresh placement cards if images already uploaded
+            if (extraFiles.length) renderPlacementCards();
+
+            const warnings = result.messages.filter(m => m.type === 'warning');
+            if (warnings.length) {
+                showStatus(`Document converted with ${warnings.length} warning(s). Check preview.`, 'info');
+            } else {
+                showStatus('Document converted successfully. You can preview it below.', 'success');
+            }
+        } catch (err) {
+            showStatus('Error converting document: ' + err.message, 'error');
+            docHtml = '';
+        }
+    }
+}
+
+// ===== Hero Image Upload =====
+function setupImageUpload(inputId, zoneId, nameElId, previewContainerId, isMultiple) {
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
+    const previewContainer = document.getElementById(previewContainerId);
+
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            const file = Array.from(e.dataTransfer.files).find(f => f.type.startsWith('image/'));
+            if (file) setHeroFile(file, nameElId, previewContainer, zone);
+        }
+    });
+
+    input.addEventListener('change', () => {
+        if (input.files.length) setHeroFile(input.files[0], nameElId, previewContainer, zone);
+    });
+}
+
+function setHeroFile(file, nameElId, previewContainer, zone) {
+    heroFile = file;
+    if (nameElId) document.getElementById(nameElId).textContent = heroFile.name;
+    zone.classList.add('has-file');
+    // Show thumbnail
+    previewContainer.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'image-preview';
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    div.appendChild(img);
+    const label = document.createElement('div');
+    label.className = 'img-label';
+    label.textContent = 'Hero';
+    div.appendChild(label);
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = 'X';
+    removeBtn.onclick = () => {
+        heroFile = null;
+        previewContainer.innerHTML = '';
+        document.getElementById('heroUploadZone').classList.remove('has-file');
+        document.getElementById('heroFileName').textContent = '';
+    };
+    div.appendChild(removeBtn);
+    previewContainer.appendChild(div);
+}
+
+// ===== Inline Image Uploads + Placement =====
+function setupInlineImageUpload() {
+    const zone = document.getElementById('extraUploadZone');
+    const input = document.getElementById('extraImages');
+
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) addInlineImages(e.dataTransfer.files);
+    });
+    input.addEventListener('change', () => {
+        if (input.files.length) addInlineImages(input.files);
+    });
+}
+
+function addInlineImages(fileList) {
+    const imageFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+    if (!imageFiles.length) {
+        showStatus('Please select image files (JPG, PNG, etc.).', 'error');
+        return;
+    }
+
+    // Defaults are null = "Auto" - meaning Claude or the system will decide placement
+    imageFiles.forEach(file => {
+        extraFiles.push({
+            file: file,
+            align: null,       // null = auto (system decides)
+            afterPara: null,   // null = auto (system distributes evenly)
+            alt: '',
+            caption: ''
+        });
+    });
+    renderPlacementCards();
+}
+
+// Resolve null/auto placement values before building article HTML
+function resolveAutoPlacement() {
+    const totalParas = docParagraphs.length || 6;
+    const startPara = 2;
+    const count = extraFiles.length;
+    if (!count) return;
+
+    const usableParas = Math.max(totalParas - 1, count);
+    const spacing = Math.max(1, Math.floor(usableParas / count));
+
+    extraFiles.forEach((entry, idx) => {
+        if (entry.align === null) {
+            entry._resolvedAlign = idx % 2 === 0 ? 'left' : 'right';
+        } else {
+            entry._resolvedAlign = entry.align;
+        }
+        if (entry.afterPara === null) {
+            entry._resolvedPara = Math.min(startPara + (idx * spacing), totalParas);
+        } else {
+            entry._resolvedPara = entry.afterPara;
+        }
+    });
+}
+
+function parseParagraphs() {
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = docHtml;
+    docParagraphs = [];
+    let counter = 0;
+    tempDiv.childNodes.forEach(node => {
+        if (node.nodeType === 1) { // element node
+            counter++;
+            const text = node.textContent.trim();
+            const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
+            docParagraphs.push({ index: counter, tag: node.tagName.toLowerCase(), preview: preview });
+        }
+    });
+}
+
+function renderPlacementCards() {
+    const section = document.getElementById('placementSection');
+    const container = document.getElementById('placementCards');
+
+    if (!extraFiles.length) {
+        section.classList.remove('visible');
+        return;
+    }
+    section.classList.add('visible');
+    container.innerHTML = '';
+
+    extraFiles.forEach((entry, idx) => {
+        const card = document.createElement('div');
+        card.className = 'placement-card';
+
+        // Thumbnail
+        const thumb = document.createElement('img');
+        thumb.className = 'pc-thumb';
+        thumb.src = URL.createObjectURL(entry.file);
+        card.appendChild(thumb);
+
+        // Controls
+        const controls = document.createElement('div');
+        controls.className = 'pc-controls';
+
+        // Filename + remove
+        const topRow = document.createElement('div');
+        topRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
+        const fname = document.createElement('div');
+        fname.className = 'pc-filename';
+        fname.textContent = entry.file.name;
+        topRow.appendChild(fname);
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'pc-remove';
+        removeBtn.textContent = 'Remove';
+        removeBtn.onclick = () => { extraFiles.splice(idx, 1); renderPlacementCards(); };
+        topRow.appendChild(removeBtn);
+        controls.appendChild(topRow);
+
+        // Alignment (null = Auto)
+        const alignRow = document.createElement('div');
+        alignRow.className = 'pc-row';
+        const alignLabel = document.createElement('label');
+        alignLabel.textContent = 'Align:';
+        alignRow.appendChild(alignLabel);
+        const alignGroup = document.createElement('div');
+        alignGroup.className = 'align-group';
+        [null, 'left', 'right', 'center'].forEach(a => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = a === null ? 'Auto' : a.charAt(0).toUpperCase() + a.slice(1);
+            if (entry.align === a) btn.classList.add('selected');
+            btn.onclick = () => {
+                entry.align = a;
+                alignGroup.querySelectorAll('button').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            };
+            alignGroup.appendChild(btn);
+        });
+        alignRow.appendChild(alignGroup);
+        controls.appendChild(alignRow);
+
+        // Position (after paragraph N)
+        const posRow = document.createElement('div');
+        posRow.className = 'pc-row';
+        const posLabel = document.createElement('label');
+        posLabel.textContent = 'After:';
+        posRow.appendChild(posLabel);
+        const posSelect = document.createElement('select');
+        // Auto option (null = let system decide)
+        const autoOpt = document.createElement('option');
+        autoOpt.value = 'auto';
+        autoOpt.textContent = 'Auto (distribute evenly)';
+        if (entry.afterPara === null) autoOpt.selected = true;
+        posSelect.appendChild(autoOpt);
+
+        if (docParagraphs.length) {
+            docParagraphs.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.index;
+                opt.textContent = `P${p.index}: ${p.preview}`;
+                if (entry.afterPara === p.index) opt.selected = true;
+                posSelect.appendChild(opt);
+            });
+        } else {
+            const opt = document.createElement('option');
+            opt.value = 'auto';
+            opt.textContent = 'Upload Word doc to see paragraphs';
+            posSelect.appendChild(opt);
+        }
+        posSelect.onchange = () => {
+            entry.afterPara = posSelect.value === 'auto' ? null : parseInt(posSelect.value);
+        };
+        posRow.appendChild(posSelect);
+        controls.appendChild(posRow);
+
+        // Alt text
+        const altRow = document.createElement('div');
+        altRow.className = 'pc-row';
+        const altLabel = document.createElement('label');
+        altLabel.textContent = 'Alt text:';
+        altRow.appendChild(altLabel);
+        const altInput = document.createElement('input');
+        altInput.type = 'text';
+        altInput.placeholder = 'Describe the image';
+        altInput.value = entry.alt;
+        altInput.onchange = () => { entry.alt = altInput.value; };
+        altRow.appendChild(altInput);
+        controls.appendChild(altRow);
+
+        // Caption (optional)
+        const capRow = document.createElement('div');
+        capRow.className = 'pc-row';
+        const capLabel = document.createElement('label');
+        capLabel.textContent = 'Caption:';
+        capRow.appendChild(capLabel);
+        const capInput = document.createElement('input');
+        capInput.type = 'text';
+        capInput.placeholder = 'Optional caption below image';
+        capInput.value = entry.caption;
+        capInput.onchange = () => { entry.caption = capInput.value; };
+        capRow.appendChild(capInput);
+        controls.appendChild(capRow);
+
+        card.appendChild(controls);
+        container.appendChild(card);
+    });
+}
+
+// ===== Preview =====
+function previewArticle() {
+    if (!docHtml) {
+        showStatus('Please upload a Word document first.', 'error');
+        return;
+    }
+    const panel = document.getElementById('previewPanel');
+    const body = document.getElementById('previewBody');
+
+    const title = document.getElementById('articleTitle').value || 'Untitled';
+    const type = document.getElementById('articleType').value;
+    const catLabel = type ? CATEGORIES[type].label : '';
+    const date = document.getElementById('articleDate').value;
+    const displayDate = date ? new Date(date + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+    const heroLayout = document.getElementById('heroLayout').value;
+
+    let heroHtml = '';
+    if (heroFile) {
+        let heroStyle = 'max-width:25%;height:auto;display:block;border-radius:4px;margin-bottom:16px;';
+        if (heroLayout === 'centered') heroStyle = 'max-width:50%;height:auto;display:block;margin:0 auto 16px;border-radius:4px;';
+        else if (heroLayout === 'full-width') heroStyle = 'width:100%;max-height:300px;object-fit:cover;border-radius:4px;margin-bottom:16px;';
+        heroHtml = `<img src="${URL.createObjectURL(heroFile)}" style="${heroStyle}">`;
+    }
+
+    // Build body with inline images inserted at their positions
+    const bodyWithImages = buildBodyWithInlineImages(docHtml, true);
+
+    body.innerHTML = `
+        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#21cbea;margin-bottom:8px;">${catLabel}</div>
+        <h1 style="font-size:1.4rem;margin:0 0 8px;">${title}</h1>
+        <div style="font-size:0.8rem;color:#888;margin-bottom:16px;">By ${document.getElementById('articleAuthor').value} &middot; ${displayDate}</div>
+        ${heroHtml}
+        <div style="overflow:hidden;">${bodyWithImages}</div>
+    `;
+
+    panel.style.display = 'block';
+    panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ===== Build Body with Inline Images =====
+function buildBodyWithInlineImages(html, isPreview) {
+    // Resolve any auto placements before building
+    resolveAutoPlacement();
+
+    // Split HTML into top-level elements
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const elements = Array.from(tempDiv.children);
+
+    // Group images by their resolved position
+    const imagesByPos = {};
+    extraFiles.forEach((entry, idx) => {
+        const pos = entry._resolvedPara || 1;
+        if (!imagesByPos[pos]) imagesByPos[pos] = [];
+        imagesByPos[pos].push({ ...entry, _align: entry._resolvedAlign || 'left', idx });
+    });
+
+    // Rebuild HTML, inserting images after their target paragraphs
+    let result = '';
+    elements.forEach((el, i) => {
+        const paraNum = i + 1;
+        result += el.outerHTML;
+
+        if (imagesByPos[paraNum]) {
+            imagesByPos[paraNum].forEach(img => {
+                const floatStyles = {
+                    'left': 'float:left;width:45%;margin:0.4em 1.5em 1em 0;',
+                    'right': 'float:right;width:45%;margin:0.4em 0 1em 1.5em;',
+                    'center': 'margin:2em auto;text-align:center;'
+                };
+                const align = img._align || 'left';
+                const imgStyle = align === 'center' ? 'margin:0 auto;display:block;max-width:100%;border-radius:2px;' : 'width:100%;border-radius:2px;';
+                const src = isPreview ? URL.createObjectURL(img.file) : `images/${normalizeFilename(img.file.name)}`;
+                const alt = img.alt || '';
+                const caption = img.caption ? `<figcaption style="font-size:0.82rem;color:#888;font-style:italic;text-align:center;margin-top:8px;">${img.caption}</figcaption>` : '';
+
+                result += `<figure style="${floatStyles[align]}">
+                    <img src="${src}" alt="${alt}" style="${imgStyle}" loading="lazy">
+                    ${caption}
+                </figure>`;
+            });
+        }
+    });
+
+    return result;
+}
+
+// ===== Build Body with CSS Classes (for published HTML) =====
+function buildBodyWithCssClasses(html) {
+    // Resolve any auto placements before building
+    resolveAutoPlacement();
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+    const elements = Array.from(tempDiv.children);
+
+    // Group images by their resolved position
+    const imagesByPos = {};
+    extraFiles.forEach((entry, idx) => {
+        const pos = entry._resolvedPara || 1;
+        if (!imagesByPos[pos]) imagesByPos[pos] = [];
+        imagesByPos[pos].push(entry);
+    });
+
+    let result = '';
+    elements.forEach((el, i) => {
+        const paraNum = i + 1;
+        result += el.outerHTML + '\n';
+
+        if (imagesByPos[paraNum]) {
+            imagesByPos[paraNum].forEach(img => {
+                const align = img._resolvedAlign || 'left';
+                const alignClass = align === 'left' ? 'float-left' : align === 'right' ? 'float-right' : 'centered';
+                const fname = normalizeFilename(img.file.name);
+                const alt = escAttr(img.alt || '');
+                const caption = img.caption ? `\n            <figcaption>${escHtml(img.caption)}</figcaption>` : '';
+
+                result += `        <figure class="article-figure ${alignClass}">
+            <img src="images/${fname}" alt="${alt}" loading="lazy">${caption}
+        </figure>\n`;
+            });
+        }
+    });
+
+    return result;
+}
+
+// ===== Publish =====
+async function publishArticle() {
+    // Validate required fields
+    const type = document.getElementById('articleType').value;
+    const title = document.getElementById('articleTitle').value.trim();
+    const excerpt = document.getElementById('articleExcerpt').value.trim();
+    const date = document.getElementById('articleDate').value;
+    const author = document.getElementById('articleAuthor').value.trim();
+    const keywords = document.getElementById('articleKeywords').value.trim();
+    const heroAlt = document.getElementById('heroAlt').value.trim();
+
+    if (!type) { showStatus('Please select an article type.', 'error'); return; }
+    if (!title) { showStatus('Please enter an article title.', 'error'); return; }
+    if (!docHtml) { showStatus('Please upload a Word document.', 'error'); return; }
+    if (!excerpt) { showStatus('Please enter an excerpt.', 'error'); return; }
+    if (!heroFile) { showStatus('Please upload a hero image.', 'error'); return; }
+
+    // Check browser support
+    if (!('showDirectoryPicker' in window)) {
+        showStatus('Your browser does not support direct file saving. Please use Chrome or Edge.', 'error');
+        return;
+    }
+
+    const publishBtn = document.getElementById('publishBtn');
+    publishBtn.disabled = true;
+    showProgress(0);
+
+    try {
+        // Step 1: Get site root directory handle
+        showStatus('Select your site root folder when prompted...', 'info');
+        if (!siteRootHandle) {
+            siteRootHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        }
+        showProgress(15);
+
+        // Step 2: Build article slug
+        const slug = buildSlug(title);
+        const datePrefix = date.replace(/-/g, '-'); // YYYY-MM-DD
+        const articleFileName = `${datePrefix}-${slug}.html`;
+
+        // Step 3: Save hero image to article images folder
+        showStatus('Saving images...', 'info');
+        showProgress(30);
+
+        // Create directory path: articles/{category}/images/
+        const articlesDir = await getOrCreateDir(siteRootHandle, 'articles');
+        const categoryDir = await getOrCreateDir(articlesDir, type);
+        const imagesDir = await getOrCreateDir(categoryDir, 'images');
+
+        // Normalize hero filename
+        const heroFileName = normalizeFilename(heroFile.name);
+        const heroFileHandle = await imagesDir.getFileHandle(heroFileName, { create: true });
+        const heroWritable = await heroFileHandle.createWritable();
+        await heroWritable.write(heroFile);
+        await heroWritable.close();
+        showProgress(45);
+
+        // Save additional images
+        const extraFileNames = [];
+        for (const entry of extraFiles) {
+            const fname = normalizeFilename(entry.file.name);
+            extraFileNames.push(fname);
+            const fh = await imagesDir.getFileHandle(fname, { create: true });
+            const w = await fh.createWritable();
+            await w.write(entry.file);
+            await w.close();
+        }
+        showProgress(55);
+
+        // Step 4: Generate article HTML
+        showStatus('Generating article page...', 'info');
+        const articleHtml = buildArticleHtml({
+            type, title, excerpt, date, author, keywords, heroAlt,
+            heroFileName, slug, articleFileName
+        });
+        showProgress(70);
+
+        // Step 5: Save article HTML
+        const articleFileHandle = await categoryDir.getFileHandle(articleFileName, { create: true });
+        const articleWritable = await articleFileHandle.createWritable();
+        await articleWritable.write(articleHtml);
+        await articleWritable.close();
+        showProgress(80);
+
+        // Step 6: Update manifest
+        showStatus('Updating article manifest...', 'info');
+        await updateManifest(articlesDir, {
+            type, title, excerpt, date, author, slug,
+            fileName: articleFileName,
+            heroImage: heroFileName,
+            keywords
+        });
+        showProgress(100);
+
+        showStatus(`Published! "${title}" is now live at articles/${type}/${articleFileName}`, 'success');
+        publishBtn.disabled = false;
+
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            showStatus('Publish canceled.', 'error');
+        } else {
+            showStatus('Publish failed: ' + err.message, 'error');
+            console.error(err);
+        }
+        publishBtn.disabled = false;
+    }
+}
+
+// ===== Helper: Build Slug =====
+function buildSlug(title) {
+    return title
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .substring(0, 60);
+}
+
+// ===== Helper: Normalize Filename =====
+function normalizeFilename(name) {
+    return name
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9.\-]/g, '');
+}
+
+// ===== Helper: Get or Create Directory =====
+async function getOrCreateDir(parentHandle, dirName) {
+    return await parentHandle.getDirectoryHandle(dirName, { create: true });
+}
+
+// ===== Helper: Build Article HTML =====
+function buildArticleHtml(data) {
+    const { type, title, excerpt, date, author, keywords, heroAlt, heroFileName, slug, articleFileName } = data;
+    const cat = CATEGORIES[type];
+    const isoDate = date + 'T12:00:00';
+    const displayDate = new Date(isoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Estimate read time (~200 words per minute)
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = docHtml;
+    const wordCount = tempDiv.textContent.split(/\s+/).length;
+    const readTime = Math.max(1, Math.round(wordCount / 200));
+
+    // Clean up article body HTML
+    let bodyContent = docHtml;
+    // Remove any extracted title if it matches (avoid duplication)
+    bodyContent = bodyContent.replace(/^<h[12][^>]*>.*?<\/h[12]>\s*/i, '');
+    // Make first paragraph a lead paragraph
+    bodyContent = bodyContent.replace(/^<p>/, '<p class="article-lead">');
+
+    // Insert inline images at their positions using CSS classes
+    bodyContent = buildBodyWithCssClasses(bodyContent);
+
+    // Hero layout class
+    const heroLayout = document.getElementById('heroLayout').value;
+    let heroClass = 'article-hero';
+    if (heroLayout === 'centered') heroClass = 'article-hero hero-centered';
+    else if (heroLayout === 'full-width') heroClass = 'article-hero hero-full-width';
+
+    // Gather category-specific meta for JSON-LD
+    let extraMeta = '';
+    if (type === 'boat-reviews') {
+        const make = document.getElementById('yachtMake').value.trim();
+        const model = document.getElementById('yachtModel').value.trim();
+        if (make || model) extraMeta = `, "about": {"@type": "Product", "name": "${make} ${model}"}`;
+    }
+
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PRIMARY META -->
+    <title>${escHtml(title)} - Haley Yachts</title>
+    <meta name="description" content="${escAttr(excerpt)}">
+    <meta name="author" content="${escAttr(author)}">
+    <meta name="keywords" content="${escAttr(keywords)}">
+    <link rel="canonical" href="https://haleyyachts.com/articles/${type}/${articleFileName}">
+
+    <!-- OPEN GRAPH -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Haley Yachts">
+    <meta property="og:title" content="${escAttr(title)}">
+    <meta property="og:description" content="${escAttr(excerpt)}">
+    <meta property="og:url" content="https://haleyyachts.com/articles/${type}/${articleFileName}">
+    <meta property="og:image" content="https://haleyyachts.com/articles/${type}/images/${heroFileName}">
+    <meta property="og:image:alt" content="${escAttr(heroAlt || title)}">
+    <meta property="article:author" content="${escAttr(author)}">
+    <meta property="article:published_time" content="${isoDate}">
+    <meta property="article:section" content="${cat.label}">
+
+    <!-- TWITTER / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${escAttr(title)}">
+    <meta name="twitter:description" content="${escAttr(excerpt)}">
+    <meta name="twitter:image" content="https://haleyyachts.com/articles/${type}/images/${heroFileName}">
+
+    <!-- FONTS, FAVICON, STYLES -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../../favicon.ico" sizes="any">
+    <link rel="icon" href="../../images/brand/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../css/styles.css">
+
+    <!-- JSON-LD STRUCTURED DATA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": ${JSON.stringify(title)},
+      "description": ${JSON.stringify(excerpt)},
+      "image": "https://haleyyachts.com/articles/${type}/images/${heroFileName}",
+      "datePublished": "${isoDate}",
+      "dateModified": "${isoDate}",
+      "author": {
+        "@type": "Person",
+        "name": ${JSON.stringify(author)},
+        "url": "https://haleyyachts.com/about.html",
+        "jobTitle": "Licensed Florida Yacht Broker",
+        "worksFor": { "@type": "Organization", "name": "One Water Yacht Sales" }
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Haley Yachts",
+        "logo": { "@type": "ImageObject", "url": "https://haleyyachts.com/images/brand/haleyyachtslogo.png" }
+      },
+      "mainEntityOfPage": { "@type": "WebPage", "@id": "https://haleyyachts.com/articles/${type}/${articleFileName}" },
+      "articleSection": "${cat.label}",
+      "keywords": ${JSON.stringify(keywords)}${extraMeta}
+    }
+    <\/script>
+
+    <!-- BREADCRUMB STRUCTURED DATA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://haleyyachts.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Articles", "item": "https://haleyyachts.com/articles.html" },
+        { "@type": "ListItem", "position": 3, "name": "${cat.label}", "item": "https://haleyyachts.com/articles.html#${cat.tabId}" },
+        { "@type": "ListItem", "position": 4, "name": ${JSON.stringify(title)} }
+      ]
+    }
+    <\/script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header" id="header">
+    <div class="nav-container">
+        <a href="../../index.html" class="logo">
+            <img src="../../images/brand/haleyyachtslogo.png" alt="Haley Yachts" class="logo-img">
+        </a>
+        <div class="header-contact">
+            <a href="tel:5618171547"><svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>561-817-1547</a>
+            <span class="header-contact-sep">&middot;</span>
+            <a href="mailto:clark@haleyyachts.com"><svg class="hc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>clark@haleyyachts.com</a>
+        </div>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="main-nav" id="mainNav">
+            <li><a href="../../index.html">Home</a></li>
+            <li><a href="../../buy.html">Buy</a></li>
+            <li><a href="../../sell.html">Sell</a></li>
+            <li><a href="../../services.html">Services</a></li>
+            <li><a href="../../articles.html" class="active">Articles</a></li>
+            <li><a href="../../about.html">About</a></li>
+            <li><a href="../../contact.html">Contact</a></li>
+        </ul>
+    </div>
+</header>
+
+<!-- ARTICLE -->
+<article class="article-page">
+
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+        <a href="../../index.html">Home</a>
+        <span class="bc-sep">&rsaquo;</span>
+        <a href="../../articles.html">Articles</a>
+        <span class="bc-sep">&rsaquo;</span>
+        <a href="../../articles.html#${cat.tabId}">${cat.label}</a>
+    </nav>
+
+    <!-- Article Header -->
+    <header class="article-header">
+        <div class="article-category">${cat.label}</div>
+        <h1>${escHtml(title)}</h1>
+        <div class="article-meta">
+            <span class="article-byline">By <a href="../../about.html">${escHtml(author)}</a></span>
+            <span class="article-meta-sep">&middot;</span>
+            <time datetime="${isoDate}">${displayDate}</time>
+            <span class="article-meta-sep">&middot;</span>
+            <span class="article-readtime">${readTime} min read</span>
+        </div>
+    </header>
+
+    <!-- Hero Image -->
+    <figure class="${heroClass}">
+        <img src="images/${heroFileName}" alt="${escAttr(heroAlt || title)}" loading="eager" fetchpriority="high">
+    </figure>
+
+    <!-- Body -->
+    <div class="article-body">
+        ${bodyContent}
+    </div>
+
+    <!-- Author Card -->
+    <aside class="article-author-card">
+        <img src="../../images/people/clark-haley-headshot.jpg" alt="Clark Haley, licensed Florida yacht broker" class="author-photo">
+        <div class="author-info">
+            <h3>About Clark Haley</h3>
+            <p>Clark is a licensed Florida yacht broker with One Water Yacht Sales, based in Jupiter, Florida. He specializes in motor and sail yachts in the 50-80 foot range and represents the full Riviera Yachts line.</p>
+            <a href="../../contact.html" class="btn">Get in Touch</a>
+        </div>
+    </aside>
+
+    <!-- Back to Articles -->
+    <div class="article-footer-nav">
+        <a href="../../articles.html#${cat.tabId}" class="back-link">&larr; Back to ${cat.label}</a>
+    </div>
+
+</article>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <div class="footer-brand">
+        <img src="../../images/brand/haleyyachtslogo.png" alt="Haley Yachts" class="footer-logo">
+    </div>
+    <p>&copy; 2026 Haley Yachts. All rights reserved. &nbsp;|&nbsp; Licensed Florida Yacht Broker &nbsp;|&nbsp; Jupiter, Florida</p>
+</footer>
+
+<script src="../../js/main.js"><\/script>
+</body>
+</html>`;
+}
+
+// ===== Helper: Escape HTML =====
+function escHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+function escAttr(str) {
+    return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ===== Articles Data File =====
+async function updateManifest(articlesDir, entry) {
+    const dataFileName = 'articles-data.js';
+    let articles = [];
+    let existingText = '';
+
+    // Try to read existing data from the JS file
+    try {
+        const fileHandle = await articlesDir.getFileHandle(dataFileName);
+        const file = await fileHandle.getFile();
+        existingText = await file.text();
+        // Extract the JSON array from the JS file
+        const match = existingText.match(/const publishedArticles = (\[[\s\S]*?\]);/);
+        if (match) {
+            articles = JSON.parse(match[1]);
+        }
+    } catch (e) {
+        // File doesn't exist yet, start fresh
+        articles = [];
+        existingText = '';
+    }
+
+    // Check for duplicate (same type + slug) and replace
+    const existingIdx = articles.findIndex(a => a.type === entry.type && a.slug === entry.slug);
+    if (existingIdx >= 0) {
+        articles[existingIdx] = entry;
+    } else {
+        articles.push(entry);
+    }
+
+    // Sort by date descending
+    articles.sort((a, b) => b.date.localeCompare(a.date));
+
+    // Update just the data array in the file, leaving renderArticles() intact
+    const newDataLine = 'const publishedArticles = ' + JSON.stringify(articles, null, 4) + ';';
+    let jsContent;
+    if (existingText && existingText.match(/const publishedArticles = \[[\s\S]*?\];/)) {
+        // Replace only the array declaration, keep everything else
+        jsContent = existingText.replace(/const publishedArticles = \[[\s\S]*?\];/, newDataLine);
+    } else {
+        // No existing file - write data-only header; renderArticles lives in articles-data.js already
+        jsContent = '// ===== Published Articles - single source of truth =====\n';
+        jsContent += '// Generated by /admin/article-manager.html - Article Manager\n\n';
+        jsContent += newDataLine + '\n';
+    }
+
+    // Write the file
+    const fileHandle = await articlesDir.getFileHandle(dataFileName, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(jsContent);
+    await writable.close();
+}
+}
+
+// ===== UI Helpers =====
+function showStatus(msg, type) {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = 'status ' + type;
+    if (type === 'success') {
+        setTimeout(() => { el.style.display = 'none'; }, 8000);
+    }
+}
+
+function showProgress(pct) {
+    const bar = document.getElementById('progressBar');
+    const fill = document.getElementById('progressFill');
+    bar.style.display = 'block';
+    fill.style.width = pct + '%';
+    if (pct >= 100) {
+        setTimeout(() => { bar.style.display = 'none'; fill.style.width = '0%'; }, 2000);
+    }
+}
+
+function clearForm() {
+    if (!confirm('Clear all fields and uploaded files?')) return;
+    document.getElementById('articleForm').reset();
+    docHtml = '';
+    docParagraphs = [];
+    heroFile = null;
+    extraFiles = [];
+    document.getElementById('docFileName').textContent = '';
+    document.getElementById('heroFileName').textContent = '';
+    document.getElementById('docUploadZone').classList.remove('has-file');
+    document.getElementById('heroUploadZone').classList.remove('has-file');
+    document.getElementById('heroPreview').innerHTML = '';
+    document.getElementById('placementCards').innerHTML = '';
+    document.getElementById('placementSection').classList.remove('visible');
+    document.getElementById('previewPanel').style.display = 'none';
+    document.getElementById('status').style.display = 'none';
+    document.querySelectorAll('.category-fields').forEach(el => el.classList.remove('visible'));
+    // Reset date to today
+    document.getElementById('articleDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('articleAuthor').value = 'Clark Haley';
+    document.getElementById('excerptCount').textContent = '0 / 250';
+}
+
+// ===== Manage Published Articles =====
+async function loadPublishedArticles() {
+    const listEl = document.getElementById('publishedList');
+    listEl.innerHTML = '<p style="color:#888;font-size:0.9rem;">Loading...</p>';
+
+    try {
+        if (!siteRootHandle) {
+            siteRootHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        }
+
+        const articlesDir = await siteRootHandle.getDirectoryHandle('articles');
+        const fileHandle = await articlesDir.getFileHandle('articles-data.js');
+        const file = await fileHandle.getFile();
+        const text = await file.text();
+
+        const match = text.match(/const publishedArticles = (\[[\s\S]*?\]);/);
+        if (!match) {
+            listEl.innerHTML = '<p style="color:#888;">No published articles found.</p>';
+            return;
+        }
+
+        const articles = JSON.parse(match[1]);
+        if (!articles.length) {
+            listEl.innerHTML = '<p style="color:#888;">No published articles found.</p>';
+            return;
+        }
+
+        renderPublishedList(articles, listEl);
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            listEl.innerHTML = '';
+        } else {
+            listEl.innerHTML = `<p style="color:#a82020;">Error loading articles: ${err.message}</p>`;
+        }
+    }
+}
+
+function renderPublishedList(articles, container) {
+    container.innerHTML = '';
+
+    articles.forEach((article, idx) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid #e5e5e5;border-radius:4px;margin-bottom:8px;background:#fff;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;min-width:0;';
+        const catLabel = CATEGORIES[article.type] ? CATEGORIES[article.type].label : article.type;
+        info.innerHTML = `
+            <div style="font-weight:600;font-size:0.95rem;color:#333;">${article.title}</div>
+            <div style="font-size:0.8rem;color:#888;">${catLabel} &middot; ${article.date} &middot; ${article.author || ''}</div>
+        `;
+        row.appendChild(info);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'btn btn-danger';
+        removeBtn.style.cssText = 'padding:8px 16px;font-size:0.75rem;flex-shrink:0;margin-left:12px;';
+        removeBtn.textContent = 'Remove';
+        removeBtn.onclick = () => removeArticle(idx, article.title);
+        row.appendChild(removeBtn);
+
+        container.appendChild(row);
+    });
+}
+
+async function removeArticle(index, title) {
+    if (!confirm(`Remove "${title}" from the site?\n\nThis removes it from the article listings. The HTML file will remain in the folder in case you want to restore it later.`)) return;
+
+    try {
+        const articlesDir = await siteRootHandle.getDirectoryHandle('articles');
+        const fileHandle = await articlesDir.getFileHandle('articles-data.js');
+        const file = await fileHandle.getFile();
+        const text = await file.text();
+
+        const match = text.match(/const publishedArticles = (\[[\s\S]*?\]);/);
+        if (!match) { showStatus('Could not parse articles data.', 'error'); return; }
+
+        const articles = JSON.parse(match[1]);
+        const removed = articles.splice(index, 1)[0];
+
+        // Rebuild and save
+        const jsContent = buildArticlesDataFile(articles);
+        const writable = await fileHandle.createWritable();
+        await writable.write(jsContent);
+        await writable.close();
+
+        showStatus(`Removed "${removed.title}" from the site.`, 'success');
+
+        // Refresh the list
+        const listEl = document.getElementById('publishedList');
+        if (articles.length) {
+            renderPublishedList(articles, listEl);
+        } else {
+            listEl.innerHTML = '<p style="color:#888;">No published articles remaining.</p>';
+        }
+
+    } catch (err) {
+        showStatus('Error removing article: ' + err.message, 'error');
+    }
+}
+</script>
+
+</body>
+</html>

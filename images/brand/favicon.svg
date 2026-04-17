@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 260" width="32" height="32">
+  <!-- Favicon: Compass rose HY monogram (thicker + darker for small sizes) -->
+
+  <!-- Outer circle -->
+  <circle cx="130" cy="130" r="120" fill="none" stroke="#0d0d0d" stroke-width="6"/>
+
+  <!-- Inner circle — cyan -->
+  <circle cx="130" cy="130" r="112" fill="none" stroke="#0d8ca6" stroke-width="2.5"/>
+
+  <!-- Cardinal tick marks -->
+  <line x1="130" y1="10" x2="130" y2="22" stroke="#0d0d0d" stroke-width="6"/>
+  <line x1="130" y1="238" x2="130" y2="250" stroke="#0d0d0d" stroke-width="5"/>
+  <line x1="238" y1="130" x2="250" y2="130" stroke="#0d0d0d" stroke-width="5"/>
+  <line x1="10" y1="130" x2="22" y2="130" stroke="#0d0d0d" stroke-width="5"/>
+
+  <!-- Intercardinal ticks -->
+  <line x1="209" y1="34" x2="217" y2="42" stroke="#0d0d0d" stroke-width="3" opacity="0.55"/>
+  <line x1="43" y1="42" x2="51" y2="34" stroke="#0d0d0d" stroke-width="3" opacity="0.55"/>
+  <line x1="217" y1="218" x2="209" y2="226" stroke="#0d0d0d" stroke-width="3" opacity="0.55"/>
+  <line x1="51" y1="226" x2="43" y2="218" stroke="#0d0d0d" stroke-width="3" opacity="0.55"/>
+
+  <!-- North arrow -->
+  <polygon points="130,14 123,40 130,32 137,40" fill="#0d8ca6"/>
+
+  <!-- H -->
+  <text x="52" y="168" font-family="Georgia, 'Times New Roman', serif" font-size="132" font-weight="bold" fill="#0d0d0d">H</text>
+
+  <!-- Y — darker cyan -->
+  <text x="128" y="168" font-family="Georgia, 'Times New Roman', serif" font-size="132" font-weight="bold" fill="#0d8ca6">Y</text>
+</svg>

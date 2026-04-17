@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" width="220" height="220">
+  <!-- Concept E: Serif HY centered in a thin square border -->
+
+  <!-- Thin square frame -->
+  <rect x="10" y="10" width="200" height="200" rx="0" fill="none" stroke="#333" stroke-width="2"/>
+
+  <!-- Inner accent line — thinner, cyan -->
+  <rect x="18" y="18" width="184" height="184" rx="0" fill="none" stroke="#21cbea" stroke-width="0.75"/>
+
+  <!-- H in dark -->
+  <text x="28" y="152" font-family="Georgia, 'Times New Roman', serif" font-size="136" font-weight="normal" fill="#333">H</text>
+
+  <!-- Y in cyan -->
+  <text x="108" y="152" font-family="Georgia, 'Times New Roman', serif" font-size="136" font-weight="normal" fill="#21cbea">Y</text>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Concept B: Overlapping H and Y inside a thin circular frame -->
+
+  <!-- Circle frame -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#333" stroke-width="3"/>
+
+  <!-- H in dark — slightly left -->
+  <g opacity="0.9">
+    <rect x="42" y="52" width="14" height="96" rx="1" fill="#333"/>
+    <rect x="42" y="92" width="50" height="14" rx="1" fill="#333"/>
+    <rect x="78" y="52" width="14" height="96" rx="1" fill="#333"/>
+  </g>
+
+  <!-- Y in cyan — slightly right, overlapping -->
+  <g opacity="0.85">
+    <!-- Left arm -->
+    <polygon points="96,52 112,52 112,92 96,92" fill="#21cbea"/>
+    <polygon points="96,52 112,52 104,72" fill="#21cbea"/>
+    <rect x="96" y="52" width="16" height="14" rx="1" fill="#21cbea"/>
+    <!-- Diagonal left arm -->
+    <polygon points="96,52 112,52 112,92 104,92" fill="#21cbea"/>
+    <!-- Diagonal right arm -->
+    <polygon points="136,52 152,52 120,92 112,92" fill="#21cbea"/>
+    <!-- Stem -->
+    <rect x="112" y="92" width="14" height="56" rx="1" fill="#21cbea"/>
+    <!-- Left arm corrected -->
+    <polygon points="96,52 112,52 120,92 112,92" fill="#21cbea"/>
+  </g>
+</svg>

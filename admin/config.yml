@@ -1,0 +1,147 @@
+# ============================================
+# Haley Yachts — DecapCMS Configuration
+# ============================================
+# This config tells the CMS how to connect to
+# your site's content and what fields to show
+# in the editor.
+#
+# SETUP REQUIRED:
+# 1. Choose a Git backend (GitHub, GitLab, or Bitbucket)
+#    and update the "backend" section below
+# 2. Set up authentication (see AUTH section below)
+# 3. Deploy the site to your hosting provider
+# ============================================
+
+# --- BACKEND (where content is stored) ---
+# Uncomment and configure ONE of these options:
+
+# OPTION 1: GitHub (most common)
+# backend:
+#   name: github
+#   repo: YOUR_GITHUB_USERNAME/haley-yachts  # e.g., clarkhaley/haley-yachts
+#   branch: main
+#   auth_endpoint: /api/auth  # or use Netlify Identity / external OAuth
+
+# OPTION 2: GitLab
+# backend:
+#   name: gitlab
+#   repo: YOUR_GITLAB_USERNAME/haley-yachts
+#   branch: main
+
+# OPTION 3: Local development / testing
+# (use this to test the CMS before connecting a Git backend)
+backend:
+  name: git-gateway
+  branch: main
+
+# --- MEDIA / IMAGE UPLOADS ---
+media_folder: "images/articles"
+public_folder: "/images/articles"
+
+# --- SITE URL (update when deployed) ---
+site_url: https://haleyyachts.com
+display_url: https://haleyyachts.com
+logo_url: ""
+
+# --- SLUG FORMAT ---
+slug:
+  encoding: "ascii"
+  clean_accents: true
+  sanitize_replacement: "-"
+
+# ============================================
+# ARTICLE COLLECTIONS
+# ============================================
+# Each collection = one article category tab
+# on your site. The editor shows fields for
+# title, date, featured image, excerpt, and
+# full body content.
+# ============================================
+
+collections:
+
+  # ----- BOAT REVIEWS -----
+  - name: "boat-reviews"
+    label: "Boat Reviews"
+    folder: "articles/boat-reviews"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} — {{year}}/{{month}}/{{day}}"
+    sortable_fields: ["title", "date"]
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "Short summary shown in article listings (1-2 sentences)" }
+      - { label: "Yacht Make", name: "yacht_make", widget: "string", required: false, hint: "e.g., Riviera, Sunseeker" }
+      - { label: "Yacht Model", name: "yacht_model", widget: "string", required: false, hint: "e.g., 505 SUV, Manhattan 66" }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Author", name: "author", widget: "string", default: "Clark Haley" }
+      - { label: "Status", name: "status", widget: "select", options: ["draft", "ready to publish", "published"], default: "draft" }
+
+  # ----- NEWSLETTERS -----
+  - name: "newsletters"
+    label: "Newsletters"
+    folder: "articles/newsletters"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} — {{year}}/{{month}}/{{day}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "Short summary shown in article listings" }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Author", name: "author", widget: "string", default: "Clark Haley" }
+      - { label: "Status", name: "status", widget: "select", options: ["draft", "ready to publish", "published"], default: "draft" }
+
+  # ----- HOW TO -----
+  - name: "how-to"
+    label: "How To"
+    folder: "articles/how-to"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} — {{year}}/{{month}}/{{day}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "Short summary shown in article listings" }
+      - { label: "Difficulty", name: "difficulty", widget: "select", options: ["Beginner", "Intermediate", "Advanced"], required: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Author", name: "author", widget: "string", default: "Clark Haley" }
+      - { label: "Status", name: "status", widget: "select", options: ["draft", "ready to publish", "published"], default: "draft" }
+
+  # ----- TRAVEL -----
+  - name: "travel"
+    label: "Travel"
+    folder: "articles/travel"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} — {{year}}/{{month}}/{{day}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "Short summary shown in article listings" }
+      - { label: "Destination", name: "destination", widget: "string", required: false, hint: "e.g., Bahamas, Keys, Mediterranean" }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Author", name: "author", widget: "string", default: "Clark Haley" }
+      - { label: "Status", name: "status", widget: "select", options: ["draft", "ready to publish", "published"], default: "draft" }
+
+  # ----- INDUSTRY NEWS -----
+  - name: "industry-news"
+    label: "Industry News"
+    folder: "articles/industry-news"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} — {{year}}/{{month}}/{{day}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "Short summary shown in article listings" }
+      - { label: "Source", name: "source", widget: "string", required: false, hint: "Original source if referencing external news" }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Author", name: "author", widget: "string", default: "Clark Haley" }
+      - { label: "Status", name: "status", widget: "select", options: ["draft", "ready to publish", "published"], default: "draft" }

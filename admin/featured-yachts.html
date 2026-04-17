@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Featured Image Maintenance - Haley Yachts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 40px 20px;
+            color: #333;
+        }
+        .admin-container {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 40px 48px;
+            border-radius: 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 8px;
+            color: #0a1628;
+        }
+        .accent-line {
+            width: 60px; height: 3px; background: #21cbea; margin-bottom: 20px;
+        }
+        .instructions {
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.7;
+            background: #f9fafb;
+            padding: 16px 20px;
+            border-left: 3px solid #21cbea;
+            margin-bottom: 32px;
+        }
+        .instructions strong { font-style: normal; color: #333; }
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin-bottom: 6px;
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%;
+            padding: 10px 14px;
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 0.95rem;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+            background: #fff;
+            color: #333;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        .char-count {
+            font-size: 0.75rem;
+            color: #888;
+            text-align: right;
+            margin-top: 4px;
+        }
+        .char-count.over { color: #c00; font-weight: 600; }
+        .btn {
+            display: inline-block;
+            padding: 12px 32px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #21cbea;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 28px;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #1aa8c4; }
+        .btn-secondary { background: #555; }
+        .btn-secondary:hover { background: #333; }
+        .output-section {
+            display: none;
+            margin-top: 32px;
+            padding-top: 28px;
+            border-top: 1px solid #e5e5e5;
+        }
+        .output-section h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 12px;
+        }
+        .output-section p {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+        }
+        #codeOutput {
+            width: 100%;
+            min-height: 240px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            padding: 14px;
+            background: #0a1628;
+            color: #c9e7f0;
+            border-radius: 3px;
+            border: none;
+            white-space: pre;
+        }
+        .status {
+            padding: 12px 16px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            margin-top: 16px;
+            display: none;
+        }
+        .status.success { background: #e8f7ea; color: #1b6e2e; display: block; }
+        .status.error { background: #fbeaea; color: #a82020; display: block; }
+        .preview-box {
+            background: #f9fafb;
+            border: 1px solid #e5e5e5;
+            padding: 20px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        .preview-box h4 { margin: 0 0 12px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #555; }
+        .preview-row { margin-bottom: 6px; }
+        .preview-row strong { color: #333; display: inline-block; min-width: 140px; }
+        .nav-links { margin-bottom: 24px; font-size: 0.85rem; }
+        .nav-links .nav-sep { color: #bbb; margin: 0 10px; }
+        .back-link {
+            display: inline-block;
+            font-size: 0.85rem;
+            color: #21cbea;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="nav-links">
+        <a href="index.html" class="back-link">&larr; Back to Admin</a>
+        <span class="nav-sep">·</span>
+        <a href="../index.html" class="back-link">View Live Site &rarr;</a>
+    </div>
+
+    <h1>Featured Image Maintenance</h1>
+    <div class="accent-line"></div>
+
+    <div class="instructions">
+        <strong>How to use:</strong><br>
+        (1) Copy the image you want to display to the following folder: <strong>/images/yachts/featured</strong><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<strong style="color:#c00;">IMPORTANT:</strong> File names must be <strong>all lowercase</strong> and contain <strong>no spaces</strong>. Use hyphens to separate words (e.g., <code>riviera-465suv.jpg</code>, <code>southern-wind.jpg</code>). The web server is case-sensitive and spaces can break links.<br>
+        (2) In the Featured Image Position, enter which featured yacht you want to edit (1, 2, or 3).<br>
+        (3) Enter the Featured Image Name (the filename you saved in the featured folder, including extension).<br>
+        (4) Enter the Featured Image Title (max 60 characters).<br>
+        (5) Enter the Featured Image Description (max 250 characters).<br>
+        (6) Click <strong>SAVE</strong>. The first time you save, your browser will ask you to locate <strong>/js/featured-yachts.js</strong> - select it once and all future saves will write to that file automatically.
+    </div>
+
+    <form id="maintForm" onsubmit="event.preventDefault(); loadCurrent();">
+        <label for="position">Featured Image Position (1, 2, 3):</label>
+        <select id="position" required>
+            <option value="">-- Select --</option>
+            <option value="1">1 (leftmost)</option>
+            <option value="2">2 (middle)</option>
+            <option value="3">3 (rightmost)</option>
+        </select>
+
+        <label for="imageName">Featured Image Name:</label>
+        <input type="text" id="imageName" placeholder="e.g., riviera-68-smy.jpg">
+
+        <label for="imageTitle">Featured Image Title: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(max 60 characters)</span></label>
+        <input type="text" id="imageTitle" maxlength="60">
+        <div class="char-count" id="titleCount">0 / 60</div>
+
+        <label for="imageDesc">Featured Image Description: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(max 250 characters)</span></label>
+        <textarea id="imageDesc" maxlength="250"></textarea>
+        <div class="char-count" id="descCount">0 / 250</div>
+
+        <button type="button" class="btn btn-secondary" onclick="loadCurrent()">Load Current Values</button>
+        <button type="button" class="btn" onclick="saveFile()">SAVE</button>
+    </form>
+
+    <div class="status" id="status"></div>
+
+    <div class="output-section" id="outputSection">
+        <h3>Preview of Changes</h3>
+        <div class="preview-box" id="previewBox"></div>
+    </div>
+</div>
+
+<!-- Load current data -->
+<script src="../js/featured-yachts.js"></script>
+<script>
+    // Working copy of the current data (so edits don't render on this page)
+    let workingData = JSON.parse(JSON.stringify(featuredYachts));
+
+    // Ensure 3 slots exist
+    while (workingData.length < 3) {
+        workingData.push({
+            image: '',
+            name: 'Featured Listing',
+            description: 'Details about this featured yacht will appear here.',
+            link: 'contact.html',
+            linkText: 'Inquire'
+        });
+    }
+
+    const posSel = document.getElementById('position');
+    const imgInput = document.getElementById('imageName');
+    const titleInput = document.getElementById('imageTitle');
+    const descInput = document.getElementById('imageDesc');
+    const titleCount = document.getElementById('titleCount');
+    const descCount = document.getElementById('descCount');
+    const statusEl = document.getElementById('status');
+
+    // Live character counters
+    titleInput.addEventListener('input', () => {
+        titleCount.textContent = `${titleInput.value.length} / 60`;
+        titleCount.classList.toggle('over', titleInput.value.length >= 60);
+    });
+    descInput.addEventListener('input', () => {
+        descCount.textContent = `${descInput.value.length} / 250`;
+        descCount.classList.toggle('over', descInput.value.length >= 250);
+    });
+
+    // When position changes, auto-load that yacht's current values
+    posSel.addEventListener('change', loadCurrent);
+
+    function loadCurrent() {
+        const pos = parseInt(posSel.value);
+        if (!pos) return;
+        const y = workingData[pos - 1];
+        // Strip the folder path from image to show just the filename
+        const filename = y.image ? y.image.replace(/^.*\//, '') : '';
+        imgInput.value = filename;
+        titleInput.value = y.name === 'Featured Listing' ? '' : y.name;
+        descInput.value = y.description.startsWith('Details about') ? '' : y.description;
+        titleInput.dispatchEvent(new Event('input'));
+        descInput.dispatchEvent(new Event('input'));
+        showStatus(`Loaded current values for position ${pos}.`, 'success');
+    }
+
+    function showStatus(msg, type) {
+        statusEl.textContent = msg;
+        statusEl.className = 'status ' + type;
+        setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+    }
+
+    // ===== File System Access API: persistent file handle via IndexedDB =====
+    const DB_NAME = 'haley-admin';
+    const STORE = 'handles';
+    const HANDLE_KEY = 'featured-yachts-file';
+
+    function openDb() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open(DB_NAME, 1);
+            req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+    async function idbGet(key) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE, 'readonly');
+            const req = tx.objectStore(STORE).get(key);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+    async function idbSet(key, value) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE, 'readwrite');
+            tx.objectStore(STORE).put(value, key);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    async function ensureWritePermission(handle) {
+        const opts = { mode: 'readwrite' };
+        if ((await handle.queryPermission(opts)) === 'granted') return true;
+        if ((await handle.requestPermission(opts)) === 'granted') return true;
+        return false;
+    }
+
+    async function getFileHandle() {
+        // Try stored handle first
+        let handle = await idbGet(HANDLE_KEY);
+        if (handle) {
+            if (await ensureWritePermission(handle)) return handle;
+        }
+        // Prompt user to pick the file
+        [handle] = await window.showOpenFilePicker({
+            types: [{
+                description: 'JavaScript file',
+                accept: { 'text/javascript': ['.js'] }
+            }],
+            excludeAcceptAllOption: false,
+            multiple: false
+        });
+        if (!(await ensureWritePermission(handle))) {
+            throw new Error('Write permission denied.');
+        }
+        await idbSet(HANDLE_KEY, handle);
+        return handle;
+    }
+
+    async function saveFile() {
+        const pos = parseInt(posSel.value);
+        if (!pos) {
+            showStatus('Please select a Featured Image Position (1, 2, or 3).', 'error');
+            return;
+        }
+        const filename = imgInput.value.trim();
+        const title = titleInput.value.trim();
+        const desc = descInput.value.trim();
+
+        if (!filename && !title && !desc) {
+            showStatus('Please fill in at least one field.', 'error');
+            return;
+        }
+
+        // Update working copy
+        const entry = workingData[pos - 1];
+        if (filename) entry.image = 'images/yachts/featured/' + filename;
+        if (title) entry.name = title;
+        if (desc) entry.description = desc;
+        entry.link = entry.link || 'contact.html';
+        entry.linkText = entry.linkText || 'Inquire';
+
+        const fileContent = buildFileContent(workingData);
+
+        // Preview
+        renderPreview(pos, entry);
+        document.getElementById('outputSection').style.display = 'block';
+
+        // Check API support
+        if (!('showOpenFilePicker' in window)) {
+            showStatus('Your browser does not support direct file saving. Please use Chrome or Edge.', 'error');
+            return;
+        }
+
+        try {
+            const handle = await getFileHandle();
+            const writable = await handle.createWritable();
+            await writable.write(fileContent);
+            await writable.close();
+            showStatus(`Saved! Position ${pos} updated in featured-yachts.js. Refresh the site to see the change.`, 'success');
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                showStatus('Save canceled.', 'error');
+            } else {
+                showStatus('Save failed: ' + err.message, 'error');
+            }
+        }
+    }
+
+    function renderPreview(pos, entry) {
+        const box = document.getElementById('previewBox');
+        box.innerHTML = `
+            <h4>Position ${pos}</h4>
+            <div class="preview-row"><strong>Image:</strong> ${entry.image || '<em style="color:#999">(none)</em>'}</div>
+            <div class="preview-row"><strong>Title:</strong> ${entry.name}</div>
+            <div class="preview-row"><strong>Description:</strong> ${entry.description}</div>
+            <div class="preview-row"><strong>Link:</strong> ${entry.link}</div>
+        `;
+    }
+
+    function buildFileContent(data) {
+        const entries = data.map(y => {
+            return `    {
+        image: ${JSON.stringify(y.image)},
+        name: ${JSON.stringify(y.name)},
+        description: ${JSON.stringify(y.description)},
+        link: ${JSON.stringify(y.link)},
+        linkText: ${JSON.stringify(y.linkText)}
+    }`;
+        }).join(',\n');
+
+        return `// ===== Featured Yachts - single source of truth =====
+// Generated by /admin/featured-yachts.html - Featured Image Maintenance
+// You can also edit this file manually if preferred.
+
+const featuredYachts = [
+${entries}
+];
+
+function renderFeaturedYachts(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = featuredYachts.map(y => {
+        const imgStyle = y.image
+            ? \`background-image: url('\${y.image}'); background-size: cover; background-position: center;\`
+            : '';
+        const imgLabel = y.image ? '' : 'Featured Yacht Image';
+        return \`
+            <div class="card">
+                <div class="card-img" style="\${imgStyle}">\${imgLabel}</div>
+                <div class="card-body">
+                    <h3>\${y.name}</h3>
+                    <p>\${y.description}</p>
+                    <a href="\${y.link}" class="card-link">\${y.linkText}</a>
+                </div>
+            </div>
+        \`;
+    }).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderFeaturedYachts('featured-yachts-grid');
+});
+`;
+    }
+
+</script>
+
+</body>
+</html>

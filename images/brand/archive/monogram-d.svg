@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200" width="240" height="200">
+  <!-- Concept D: Elegant serif H and Y, slightly overlapping, no frame -->
+  <!-- Using SVG text with a classic serif feel (Georgia as web-safe serif) -->
+
+  <!-- H in dark -->
+  <text x="30" y="155" font-family="Georgia, 'Times New Roman', serif" font-size="160" font-weight="normal" fill="#333" letter-spacing="-10">H</text>
+
+  <!-- Y in cyan, overlapping slightly -->
+  <text x="110" y="155" font-family="Georgia, 'Times New Roman', serif" font-size="160" font-weight="normal" fill="#21cbea" letter-spacing="-10">Y</text>
+
+  <!-- Thin horizontal rule beneath -->
+  <line x1="30" y1="170" x2="210" y2="170" stroke="#21cbea" stroke-width="1.5"/>
+</svg>
