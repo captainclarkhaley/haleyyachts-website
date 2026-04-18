@@ -18,17 +18,15 @@
 # so cPanel's version takes over. They do the same thing.
 # ============================================================
 
-AuthType Basic
-AuthName "Haley Yachts Admin - Authorized Access Only"
-
-# NOTE: The AuthUserFile path below is a PLACEHOLDER.
-# cPanel will replace it with the correct server path when you
-# set up Directory Privacy through the cPanel GUI.
-# A typical GoDaddy cPanel path looks like:
-#   /home/YOUR_CPANEL_USERNAME/.htpasswds/public_html/admin/passwd
-AuthUserFile "/home/REPLACE_WITH_CPANEL_USERNAME/.htpasswds/public_html/admin/passwd"
-
-Require valid-user
+# ----- Password protection (set up via cPanel Directory Privacy) -----
+# Currently DISABLED. To enable, log into cPanel, go to
+# Directory Privacy, protect /public_html/admin, add a user.
+# cPanel will overwrite this file with working auth lines.
+#
+# AuthType Basic
+# AuthName "Haley Yachts Admin - Authorized Access Only"
+# AuthUserFile "/home/gze7mqui4ce6/.htpasswds/public_html/admin/passwd"
+# Require valid-user
 
 # ----- Deny direct access to sensitive files -----
 <FilesMatch "^\.(htaccess|htpasswd)$">
