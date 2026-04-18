@@ -176,12 +176,15 @@
     </div>
 
     <form id="maintForm" onsubmit="event.preventDefault(); loadCurrent();">
-        <label for="position">Featured Image Position (1, 2, 3):</label>
+        <label for="position">Featured Image Position (1-6):</label>
         <select id="position" required>
             <option value="">-- Select --</option>
-            <option value="1">1 (leftmost)</option>
-            <option value="2">2 (middle)</option>
-            <option value="3">3 (rightmost)</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
         </select>
 
         <label for="imageName">Featured Image Name:</label>
@@ -213,8 +216,8 @@
     // Working copy of the current data (so edits don't render on this page)
     let workingData = JSON.parse(JSON.stringify(featuredYachts));
 
-    // Ensure 3 slots exist
-    while (workingData.length < 3) {
+    // Ensure 6 slots exist (empty slots are skipped at render time)
+    while (workingData.length < 6) {
         workingData.push({
             image: '',
             name: 'Featured Listing',
@@ -223,6 +226,8 @@
             linkText: 'Inquire'
         });
     }
+    // If there are more than 6 slots (leftover from older saves), trim down to 6
+    workingData = workingData.slice(0, 6);
 
     const posSel = document.getElementById('position');
     const imgInput = document.getElementById('imageName');
@@ -406,11 +411,18 @@ const featuredYachts = [
 ${entries}
 ];
 
+function isFilledYacht(y) {
+    // A slot counts as "filled" if it has either an image, or a real (non-placeholder) name.
+    if (y.image && y.image.trim()) return true;
+    if (y.name && y.name !== 'Featured Listing') return true;
+    return false;
+}
+
 function renderFeaturedYachts(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = featuredYachts.map(y => {
+    container.innerHTML = featuredYachts.filter(isFilledYacht).map(y => {
         const imgStyle = y.image
             ? \`background-image: url('\${y.image}'); background-size: cover; background-position: center;\`
             : '';

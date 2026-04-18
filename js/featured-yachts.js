@@ -31,11 +31,18 @@ const featuredYachts = [
     }
 ];
 
+function isFilledYacht(y) {
+    // A slot counts as "filled" if it has either an image, or a real (non-placeholder) name.
+    if (y.image && y.image.trim()) return true;
+    if (y.name && y.name !== 'Featured Listing') return true;
+    return false;
+}
+
 function renderFeaturedYachts(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = featuredYachts.map(y => {
+    container.innerHTML = featuredYachts.filter(isFilledYacht).map(y => {
         const imgStyle = y.image
             ? `background-image: url('${y.image}'); background-size: cover; background-position: center;`
             : '';

@@ -259,6 +259,36 @@ document.querySelectorAll('input[type="tel"]').forEach(setupPhoneValidation);
     }
 })();
 
+// ===== Scroll guard: prevent YachtSite embed from auto-scrolling the page =====
+(function() {
+    if (!document.querySelector('.yachtsite-embed')) return;
+
+    let userInteracted = false;
+    const markInteracted = () => { userInteracted = true; };
+    ['wheel', 'keydown', 'touchstart', 'mousedown', 'pointerdown'].forEach(evt => {
+        window.addEventListener(evt, markInteracted, { passive: true, once: true });
+    });
+
+    let lockedScrollY = window.scrollY;
+    const guardEndsAt = Date.now() + 20000; // 20-second guard window after load
+    let restoring = false;
+
+    window.addEventListener('scroll', () => {
+        if (restoring) return;
+        if (userInteracted) { lockedScrollY = window.scrollY; return; }
+        if (Date.now() > guardEndsAt) return;
+
+        const delta = window.scrollY - lockedScrollY;
+        if (Math.abs(delta) > 80) {
+            restoring = true;
+            window.scrollTo({ top: lockedScrollY, left: 0, behavior: 'instant' });
+            setTimeout(() => { restoring = false; }, 30);
+        } else {
+            lockedScrollY = window.scrollY;
+        }
+    }, { passive: true });
+})();
+
 // ===== Fixed breadcrumbs bar (article pages) =====
 (function() {
     const breadcrumbs = document.querySelector('.breadcrumbs');

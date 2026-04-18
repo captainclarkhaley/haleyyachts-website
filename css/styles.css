@@ -485,7 +485,8 @@ a:hover { color: #1aa8c4; }
 .listings-intro p a:hover { text-decoration: underline; }
 .yachtsite-embed {
     width: 100%;
-    min-height: 400px;
+    min-height: 1200px;
+    overflow-anchor: none;
 }
 .yachtsite-embed img { max-width: 100%; height: auto; }
 
@@ -1084,6 +1085,19 @@ a:hover { color: #1aa8c4; }
 
 /* ===== RIVIERA RANGE SECTIONS (Buy > New Yachts tab) ===== */
 .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.card-img-triple {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    padding: 0;
+    background: #fff;
+}
+.card-img-triple img {
     width: 100%;
     height: 100%;
     object-fit: cover;
