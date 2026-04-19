@@ -1,0 +1,87 @@
+# ============================================================
+# Haley Yachts - Root Apache config
+# ============================================================
+# Controls HTTPS enforcement, security headers, URL rewriting,
+# and hardening for /public_html/.
+#
+# This file lives in the git repo. All edits deploy via
+# GitHub -> cPanel Git Version Control Pull. Do not hand-edit
+# the live copy on GoDaddy; drift causes pull conflicts.
+# ============================================================
+
+
+# ----- 1. Force HTTPS ------------------------------------------------
+# Any http:// request gets 301-redirected to https://, same host,
+# same path. Must come before HSTS so we never send the HSTS header
+# over an insecure response.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+
+# ----- 2. Security headers -------------------------------------------
+<IfModule mod_headers.c>
+    # 1-year HSTS. Browsers remember this for max-age, so rolling
+    # back is painful. Safe now that HTTPS is forced above.
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # Stop browsers from MIME-sniffing responses.
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Disallow framing by other origins (anti-clickjacking).
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Trim referrer info leaked to cross-origin sites.
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Disable browser APIs this site does not use.
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+    # Content-Security-Policy intentionally omitted for now.
+    # The homepage includes a GoDaddy inline tracking snippet, which
+    # makes a strict CSP disruptive. Revisit when we are ready to
+    # either self-host that snippet or add per-response nonces.
+</IfModule>
+
+
+# ----- 3. Extensionless URL routing ----------------------------------
+# Let /contact, /buy, /articles/boat-reviews/<slug> work without
+# the visitor having to type .html. Internal rewrite only, so
+# links with or without .html both keep working.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # If the path is a real file or directory, leave it alone.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Otherwise, if <path>.html exists in the docroot, serve it.
+    RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+    RewriteRule ^(.+?)/?$ $1.html [L]
+</IfModule>
+
+
+# ----- 4. Hardening --------------------------------------------------
+# No directory listings.
+Options -Indexes
+
+# Hide Apache version in error pages.
+ServerSignature Off
+
+# Content-based ETag instead of the default (which leaks the inode).
+FileETag MTime Size
+
+# Deny common sensitive dotfiles. Does not affect .well-known/
+# (directory, needed for SSL cert renewal).
+<FilesMatch "^\.(htaccess|htpasswd|env|DS_Store|git.*)$">
+    Require all denied
+</FilesMatch>
+
+# Safety net: block .md files at the public root. Internal docs
+# live in /docs/ (already blocked via docs/.htaccess). This
+# catches any accidental drop of a new .md at the top level.
+<FilesMatch "\.md$">
+    Require all denied
+</FilesMatch>

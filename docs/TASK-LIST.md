@@ -23,7 +23,7 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] Remove `noindex, nofollow` meta tags from any pages that still have them (site is live, should be indexable)
 - [ ] Confirm Formsubmit email verification is current for contact form
 - [ ] Confirm Formsubmit email verification is current for valuation form
-- [ ] Uncomment Strict-Transport-Security header in root `.htaccess`
+- [x] HSTS (Strict-Transport-Security) - shipped with fresh root `.htaccess` 2026-04-19
 - [ ] Add Google Analytics (or similar) tracking
 - [ ] Cross-browser test on Chrome, Safari, Firefox, Edge
 - [ ] Mobile device test on iPhone and Android
@@ -45,6 +45,9 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 ## RECENTLY COMPLETED (April 19)
 
 - [x] Active development migrated from old Mac to new Claude Code workspace; GitHub push verified from new machine
+- [x] Internal docs (TASK-LIST, SITE-UPDATES) moved to `/docs/` subfolder with Apache deny rule so they no longer render at public URLs
+- [x] `admin/.htaccess` synced with live server state (cPanel Directory Privacy `cp:ppd` block now tracked in git)
+- [x] Authored fresh root `.htaccess`: force HTTPS + HSTS, security headers (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy), extensionless URL routing, directory-listing + dotfile hardening
 
 ## RECENTLY COMPLETED (April 17)
 
