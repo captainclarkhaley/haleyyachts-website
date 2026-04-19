@@ -14,19 +14,10 @@
 #   4. Add a user (e.g., clark) and set a strong password.
 #      cPanel will automatically generate the .htpasswd file.
 #
-# If cPanel creates its own .htaccess, DELETE THIS FILE first
-# so cPanel's version takes over. They do the same thing.
+# The cp:ppd block at the bottom of this file is managed by
+# cPanel's Directory Privacy tool and should not be hand-edited.
+# If you re-run Directory Privacy, cPanel will regenerate it.
 # ============================================================
-
-# ----- Password protection (set up via cPanel Directory Privacy) -----
-# Currently DISABLED. To enable, log into cPanel, go to
-# Directory Privacy, protect /public_html/admin, add a user.
-# cPanel will overwrite this file with working auth lines.
-#
-# AuthType Basic
-# AuthName "Haley Yachts Admin - Authorized Access Only"
-# AuthUserFile "/home/gze7mqui4ce6/.htpasswds/public_html/admin/passwd"
-# Require valid-user
 
 # ----- Deny direct access to sensitive files -----
 <FilesMatch "^\.(htaccess|htpasswd)$">
@@ -39,3 +30,15 @@
 
 # ----- No directory listing -----
 Options -Indexes
+
+#----------------------------------------------------------------cp:ppd
+# Section managed by cPanel: Password Protected Directories     -cp:ppd
+# - Do not edit this section of the htaccess file!              -cp:ppd
+#----------------------------------------------------------------cp:ppd
+AuthType Basic
+AuthName "Haley Yachts Admin"
+AuthUserFile "/home/gze7mqui4ce6/.htpasswds/public_html/admin/passwd"
+Require valid-user
+#----------------------------------------------------------------cp:ppd
+# End section managed by cPanel: Password Protected Directories -cp:ppd
+#----------------------------------------------------------------cp:ppd
