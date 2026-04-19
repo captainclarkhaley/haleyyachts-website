@@ -1,0 +1,3 @@
+# Internal documentation — not intended for public access.
+# Blocks all HTTP requests to /docs/ and any file within it.
+Require all denied
