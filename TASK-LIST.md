@@ -1,5 +1,5 @@
 # Haley Yachts Website - Task List
-*Last updated: April 17, 2026*
+*Last updated: April 19, 2026*
 
 Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull.
 
@@ -41,6 +41,10 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] Email newsletter workflow
 
 ---
+
+## RECENTLY COMPLETED (April 19)
+
+- [x] Active development migrated from old Mac to new Claude Code workspace; GitHub push verified from new machine
 
 ## RECENTLY COMPLETED (April 17)
 
