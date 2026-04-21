@@ -1297,10 +1297,10 @@ function buildArticleHtml(data) {
         if (make || model) extraMeta = `, "about": {"@type": "Product", "name": "${make} ${model}"}`;
     }
 
-    // Split <script>/</script> literals so THIS admin page's HTML parser
-    // does not close its own outer <script> block when reading this
-    // template literal. At runtime these concatenations evaluate to
-    // valid <script> tags inside the generated article HTML.
+    // Script open/close tags are built by concatenation so THIS admin
+    // page's HTML parser does not close its own outer script block
+    // when scanning this template literal. At runtime the concats
+    // evaluate to real script tags in the generated article HTML.
     const S_JSONLD_OPEN = '<' + 'script type="application/ld+json">';
     const S_MAIN_TAG    = '<' + 'script src="../../js/main.js"><' + '/script>';
     const S_CLOSE       = '<' + '/script>';
