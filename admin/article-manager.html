@@ -1297,6 +1297,14 @@ function buildArticleHtml(data) {
         if (make || model) extraMeta = `, "about": {"@type": "Product", "name": "${make} ${model}"}`;
     }
 
+    // Split <script>/</script> literals so THIS admin page's HTML parser
+    // does not close its own outer <script> block when reading this
+    // template literal. At runtime these concatenations evaluate to
+    // valid <script> tags inside the generated article HTML.
+    const S_JSONLD_OPEN = '<' + 'script type="application/ld+json">';
+    const S_MAIN_TAG    = '<' + 'script src="../../js/main.js"><' + '/script>';
+    const S_CLOSE       = '<' + '/script>';
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1335,7 +1343,7 @@ function buildArticleHtml(data) {
     <link rel="stylesheet" href="../../css/styles.css">
 
     <!-- JSON-LD STRUCTURED DATA -->
-    <script type="application/ld+json">
+    ${S_JSONLD_OPEN}
     {
       "@context": "https://schema.org",
       "@type": "Article",
@@ -1349,7 +1357,7 @@ function buildArticleHtml(data) {
         "name": ${JSON.stringify(author)},
         "url": "https://haleyyachts.com/about.html",
         "jobTitle": "Licensed Florida Yacht Broker",
-        "worksFor": { "@type": "Organization", "name": "One Water Yacht Sales" }
+        "worksFor": { "@type": "Organization", "name": "One Water Yacht Group" }
       },
       "publisher": {
         "@type": "Organization",
@@ -1360,10 +1368,10 @@ function buildArticleHtml(data) {
       "articleSection": "${cat.label}",
       "keywords": ${JSON.stringify(keywords)}${extraMeta}
     }
-    <\/script>
+    ${S_CLOSE}
 
     <!-- BREADCRUMB STRUCTURED DATA -->
-    <script type="application/ld+json">
+    ${S_JSONLD_OPEN}
     {
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
@@ -1374,7 +1382,7 @@ function buildArticleHtml(data) {
         { "@type": "ListItem", "position": 4, "name": ${JSON.stringify(title)} }
       ]
     }
-    <\/script>
+    ${S_CLOSE}
 </head>
 <body>
 
@@ -1444,7 +1452,7 @@ function buildArticleHtml(data) {
         <img src="../../images/people/clark-haley-headshot.jpg" alt="Clark Haley, licensed Florida yacht broker" class="author-photo">
         <div class="author-info">
             <h3>About Clark Haley</h3>
-            <p>Clark is a licensed Florida yacht broker with One Water Yacht Sales, based in Jupiter, Florida. He specializes in motor and sail yachts in the 50-80 foot range and represents the full Riviera Yachts line.</p>
+            <p>Clark is a licensed Florida yacht broker with One Water Yacht Group, based in Jupiter, Florida. He specializes in motor and sail yachts in the 50-80 foot range and represents the full Riviera Yachts line.</p>
             <a href="../../contact.html" class="btn">Get in Touch</a>
         </div>
     </aside>
@@ -1464,7 +1472,7 @@ function buildArticleHtml(data) {
     <p>&copy; 2026 Haley Yachts. All rights reserved. &nbsp;|&nbsp; Licensed Florida Yacht Broker &nbsp;|&nbsp; Jupiter, Florida</p>
 </footer>
 
-<script src="../../js/main.js"><\/script>
+${S_MAIN_TAG}
 </body>
 </html>`;
 }
