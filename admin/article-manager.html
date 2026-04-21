@@ -419,7 +419,7 @@
 <body>
 
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-04-20 22:50 EDT</div>
+    <div class="admin-version" data-version>v: 2026-04-20 23:01 EDT</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -1306,15 +1306,16 @@ function buildArticleHtml(data) {
         if (make || model) extraMeta = `, "about": {"@type": "Product", "name": "${make} ${model}"}`;
     }
 
-    // Script open/close and body/html close tags are built by string
+    // Script, body and html closing tags are built by string
     // concatenation for two reasons:
-    //   1. THIS admin page's HTML parser does not close its own outer
-    //      script block when scanning this template literal.
+    //   1. THIS admin page's HTML parser must not close its own outer
+    //      script block when scanning the template literal below.
     //   2. GoDaddy injects a tracking script before the first literal
-    //      </html> or </body> in the served page. Without this trick
-    //      it injects INSIDE this template literal, breaking the JS.
-    // At runtime the concats evaluate to real tags in the generated
-    // article HTML.
+    //      closing body or html tag in the served page. Without this
+    //      trick it injects INSIDE the template literal and the
+    //      resulting JS fails to parse.
+    // At runtime these concats evaluate to real tags in the
+    // generated article HTML.
     const S_JSONLD_OPEN = '<' + 'script type="application/ld+json">';
     const S_MAIN_TAG    = '<' + 'script src="../../js/main.js"><' + '/script>';
     const S_CLOSE       = '<' + '/script>';
