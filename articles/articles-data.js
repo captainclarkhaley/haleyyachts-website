@@ -12,7 +12,7 @@ const publishedArticles = [
         "slug": "sunseeker-gets-a-new-permanent-ceo",
         "fileName": "2026-04-03-sunseeker-gets-a-new-permanent-ceo.html",
         "heroImage": "sunseekerceo.jpg",
-        "keywords": "Sunseeker Yachts, Denison Yachts, One Water Yacht Group, Clark Haley, Yacht Broker"
+        "keywords": "Sunseeker Yachts, Sunseeker CEO, Sunseeker Yachts news, Sunseeker leadership, One Water Yacht Group, OWYG, Sunseeker acquisition, Sunseeker dealer network, Sunseeker yachts for sale, Sunseeker yacht broker Florida, luxury yacht news, Clark Haley, Haley Yachts"
     }
 ];
 
