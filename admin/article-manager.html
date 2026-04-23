@@ -481,7 +481,7 @@
 </div>
 
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-04-22 14:10 EDT (diag)</div>
+    <div class="admin-version" data-version>v: 2026-04-23 00:10 EDT (diag + root validation)</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -498,7 +498,7 @@
         (3) Upload a hero image and any additional images for the article.<br>
         (4) Fill in the title, excerpt, and any category-specific fields.<br>
         (5) Click <strong>Preview</strong> to review, then <strong>Publish</strong> to go live.<br><br>
-        <strong style="color:#c00;">First-time setup:</strong> The first time you publish, your browser will ask you to select the site's root folder. Select the folder that contains index.html, articles/, css/, etc.
+        <strong style="color:#c00;">Publish location:</strong> On the first publish in a session, your browser will ask you to pick the <strong>site root folder</strong>. This is the folder named <code>haleyyachts-website</code> that contains <code>index.html</code>, <code>articles/</code>, <code>css/</code>, and <code>images/</code>. Do NOT pick the <code>articles/</code> folder itself - picking the wrong folder will create files in the wrong place. If in doubt, click "Reset publish location" below and try again.
     </div>
 
     <form id="articleForm" onsubmit="event.preventDefault();">
@@ -670,6 +670,10 @@
             <button type="button" class="btn" id="publishBtn" onclick="publishArticle()">Publish</button>
             <button type="button" class="btn btn-danger" onclick="clearForm()">Clear Form</button>
         </div>
+        <div style="margin-top:10px;font-size:0.8rem;color:#666;">
+            <span id="rootStatus">Publish location: not selected yet.</span>
+            <button type="button" onclick="resetPublishLocation()" style="margin-left:8px;padding:4px 10px;font-size:0.75rem;background:#eee;border:1px solid #ccc;border-radius:3px;cursor:pointer;">Reset publish location</button>
+        </div>
     </form>
 
     <div class="progress-bar" id="progressBar">
@@ -726,7 +730,7 @@ function fileListSummary(fl) {
         return `len=${fl.length} [${names.join(' | ')}]`;
     } catch (e) { return 'ERR ' + e.message; }
 }
-window.addEventListener('DOMContentLoaded', () => log('--- diag panel ready; version 2026-04-22 14:10 EDT ---'));
+window.addEventListener('DOMContentLoaded', () => log('--- diag panel ready; version 2026-04-23 00:10 EDT ---'));
 
 // ===== Category labels and slug mappings =====
 const CATEGORIES = {
@@ -1334,11 +1338,23 @@ async function publishArticle() {
     showProgress(0);
 
     try {
-        // Step 1: Get site root directory handle
-        showStatus('Select your site root folder when prompted...', 'info');
+        // Step 1: Get site root directory handle and validate it
         if (!siteRootHandle) {
+            showStatus('Select your site root folder (haleyyachts-website) when prompted...', 'info');
             siteRootHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
         }
+        const rootCheck = await validateSiteRoot(siteRootHandle);
+        if (!rootCheck.ok) {
+            siteRootHandle = null;
+            updateRootStatus();
+            throw new Error(
+                'Wrong folder selected: "' + rootCheck.name + '". ' +
+                'Missing: ' + rootCheck.missing.join(', ') + '. ' +
+                'Pick the site root (haleyyachts-website) that contains index.html, articles/, and css/, ' +
+                'not a subfolder. Click "Reset publish location" and try again.'
+            );
+        }
+        updateRootStatus();
         showProgress(15);
 
         // Step 2: Build article slug
@@ -1436,6 +1452,44 @@ function normalizeFilename(name) {
 // ===== Helper: Get or Create Directory =====
 async function getOrCreateDir(parentHandle, dirName) {
     return await parentHandle.getDirectoryHandle(dirName, { create: true });
+}
+
+// ===== Helper: Validate Site Root =====
+// Confirms the picked directory is actually the site root, not a subfolder.
+// Returns { ok: boolean, name: string, missing: string[] }.
+async function validateSiteRoot(handle) {
+    const required = { files: ['index.html'], dirs: ['articles', 'css'] };
+    const missing = [];
+    for (const f of required.files) {
+        try { await handle.getFileHandle(f); }
+        catch (e) { missing.push(f); }
+    }
+    for (const d of required.dirs) {
+        try { await handle.getDirectoryHandle(d); }
+        catch (e) { missing.push(d + '/'); }
+    }
+    return { ok: missing.length === 0, name: handle.name, missing };
+}
+
+// ===== Helper: Reset Publish Location =====
+function resetPublishLocation() {
+    siteRootHandle = null;
+    updateRootStatus();
+    showStatus('Publish location cleared. Next publish will prompt you to pick the site root folder again.', 'info');
+    log('[ROOT] siteRootHandle cleared by user');
+}
+
+// ===== Helper: Update Root Status UI =====
+function updateRootStatus() {
+    const el = document.getElementById('rootStatus');
+    if (!el) return;
+    if (siteRootHandle) {
+        el.textContent = 'Publish location: ' + siteRootHandle.name + ' (validated)';
+        el.style.color = '#2a7a2a';
+    } else {
+        el.textContent = 'Publish location: not selected yet.';
+        el.style.color = '#666';
+    }
 }
 
 // ===== Helper: Build Article HTML =====
@@ -1778,6 +1832,16 @@ async function loadPublishedArticles() {
         if (!siteRootHandle) {
             siteRootHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
         }
+        const rootCheck = await validateSiteRoot(siteRootHandle);
+        if (!rootCheck.ok) {
+            siteRootHandle = null;
+            updateRootStatus();
+            throw new Error(
+                'Wrong folder selected: "' + rootCheck.name + '". ' +
+                'Pick the site root (haleyyachts-website), not a subfolder.'
+            );
+        }
+        updateRootStatus();
 
         const articlesDir = await siteRootHandle.getDirectoryHandle('articles');
         const fileHandle = await articlesDir.getFileHandle('articles-data.js');
