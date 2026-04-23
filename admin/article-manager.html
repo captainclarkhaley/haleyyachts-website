@@ -414,12 +414,74 @@
             .btn-row .btn { text-align: center; }
             .placement-card { grid-template-columns: 1fr; }
         }
+
+        /* TEMPORARY diagnostic panel - remove in follow-up commit */
+        #debug-log {
+            position: fixed;
+            bottom: 12px;
+            right: 12px;
+            width: 460px;
+            max-width: 48vw;
+            height: 340px;
+            max-height: 60vh;
+            background: #0b0f14;
+            color: #8aff9a;
+            border: 2px solid #ffcc00;
+            border-radius: 6px;
+            font-family: 'SF Mono', Menlo, Consolas, monospace;
+            font-size: 11px;
+            line-height: 1.45;
+            padding: 8px 10px;
+            overflow-y: auto;
+            z-index: 99999;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        #debug-log .debug-header {
+            position: sticky;
+            top: -8px;
+            background: #ffcc00;
+            color: #111;
+            font-weight: 700;
+            padding: 4px 6px;
+            margin: -8px -10px 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #debug-log .debug-header button {
+            background: #111;
+            color: #ffcc00;
+            border: none;
+            padding: 2px 8px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 2px;
+            font-family: inherit;
+        }
+        #debug-log .log-line { display: block; }
+        #debug-log .log-time { color: #4fc3f7; margin-right: 6px; }
+        #debug-log .log-warn { color: #ffcc00; }
+        #debug-log .log-err { color: #ff6b6b; }
     </style>
 </head>
 <body>
 
+<!-- TEMPORARY diagnostic panel - remove in follow-up commit -->
+<div id="debug-log">
+    <div class="debug-header">
+        <span>DIAGNOSTIC - temporary</span>
+        <button type="button" onclick="document.getElementById('debug-log-body').innerHTML=''">Clear</button>
+    </div>
+    <div id="debug-log-body"></div>
+</div>
+
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-04-22 12:00 EDT</div>
+    <div class="admin-version" data-version>v: 2026-04-22 14:10 EDT (diag)</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -640,6 +702,32 @@ let extraFiles = [];      // Additional image File objects with placement data
                           // Each entry: { file, align: 'left'|'right'|'center', afterPara: N, alt: '', caption: '' }
 let siteRootHandle = null; // Directory handle for the site root
 
+// ===== TEMPORARY diagnostic logger - remove in follow-up commit =====
+function log(msg, level) {
+    const body = document.getElementById('debug-log-body');
+    const ts = new Date().toISOString().substring(11, 23);
+    const cls = level === 'warn' ? 'log-warn' : level === 'err' ? 'log-err' : '';
+    if (body) {
+        const line = document.createElement('span');
+        line.className = 'log-line ' + cls;
+        line.innerHTML = `<span class="log-time">${ts}</span>${String(msg).replace(/</g,'&lt;')}`;
+        body.appendChild(line);
+        const panel = document.getElementById('debug-log');
+        if (panel) panel.scrollTop = panel.scrollHeight;
+    }
+    if (level === 'err') console.error('[diag]', msg);
+    else if (level === 'warn') console.warn('[diag]', msg);
+    else console.log('[diag]', msg);
+}
+function fileListSummary(fl) {
+    if (!fl) return 'null';
+    try {
+        const names = Array.from(fl).map(f => `${f.name} (${f.type || 'no-type'}, ${f.size}b)`);
+        return `len=${fl.length} [${names.join(' | ')}]`;
+    } catch (e) { return 'ERR ' + e.message; }
+}
+window.addEventListener('DOMContentLoaded', () => log('--- diag panel ready; version 2026-04-22 14:10 EDT ---'));
+
 // ===== Category labels and slug mappings =====
 const CATEGORIES = {
     'boat-reviews':   { label: 'Boat Reviews',   tag: 'Boat Review',    tabId: 'reviews' },
@@ -688,28 +776,42 @@ function setupDocUpload() {
     const input = document.getElementById('docFile');
     const nameEl = document.getElementById('docFileName');
 
-    // Drag and drop
+    // Drag and drop - DIAG instrumented
+    zone.addEventListener('dragenter', e => { e.preventDefault(); log(`[DOC] dragenter files=${e.dataTransfer.files.length} types=[${Array.from(e.dataTransfer.types||[]).join(',')}]`); });
     zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('dragleave', () => { log('[DOC] dragleave'); zone.classList.remove('dragover'); });
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('dragover');
+        log(`[DOC] drop fired. dataTransfer.files.length=${e.dataTransfer.files.length}`);
+        log(`[DOC] drop files: ${fileListSummary(e.dataTransfer.files)}`);
         if (e.dataTransfer.files.length) {
-            // Use DataTransfer so input.files is populated identically to click-to-browse.
-            // Dispatch change so a single handler path runs.
-            const dt = new DataTransfer();
-            dt.items.add(e.dataTransfer.files[0]);
-            input.files = dt.files;
-            input.dispatchEvent(new Event('change', { bubbles: true }));
+            try {
+                // Use DataTransfer so input.files is populated identically to click-to-browse.
+                const dt = new DataTransfer();
+                dt.items.add(e.dataTransfer.files[0]);
+                input.files = dt.files;
+                log(`[DOC] DataTransfer set. input.files now: ${fileListSummary(input.files)}`);
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                log('[DOC] dispatched change event on input');
+            } catch (err) {
+                log('[DOC] ERROR during DataTransfer assign: ' + err.message, 'err');
+            }
+        } else {
+            log('[DOC] drop had zero files - nothing to do', 'warn');
         }
     });
 
     input.addEventListener('change', () => {
+        log(`[DOC] change handler fired. input.files: ${fileListSummary(input.files)}`);
         if (input.files.length) handleDocUpload(input.files[0]);
+        else log('[DOC] change fired but input.files is empty', 'warn');
     });
 
     async function handleDocUpload(file) {
+        log(`[DOC] handleDocUpload called. file.name=${file.name} type=${file.type} size=${file.size}`);
         if (!file.name.endsWith('.docx')) {
+            log('[DOC] REJECTED - not .docx', 'err');
             showStatus('Please upload a .docx file. Other formats are not supported.', 'error');
             return;
         }
@@ -728,9 +830,11 @@ function setupDocUpload() {
                 ]
             });
             docHtml = result.value;
+            log(`[DOC] conversion complete. docHtml.length=${docHtml.length}`);
 
             // Parse paragraphs for image placement targeting
             parseParagraphs();
+            log(`[DOC] docParagraphs.length=${docParagraphs.length}`);
 
             // Auto-fill title from first heading if title field is empty
             const titleInput = document.getElementById('articleTitle');
@@ -753,6 +857,7 @@ function setupDocUpload() {
                 showStatus('Document converted successfully. You can preview it below.', 'success');
             }
         } catch (err) {
+            log('[DOC] conversion ERROR: ' + err.message, 'err');
             showStatus('Error converting document: ' + err.message, 'error');
             docHtml = '';
         }
@@ -765,27 +870,43 @@ function setupImageUpload(inputId, zoneId, nameElId, previewContainerId, isMulti
     const input = document.getElementById(inputId);
     const previewContainer = document.getElementById(previewContainerId);
 
+    zone.addEventListener('dragenter', e => { e.preventDefault(); log(`[HERO] dragenter zone=${zoneId} files=${e.dataTransfer.files.length} types=[${Array.from(e.dataTransfer.types||[]).join(',')}]`); });
     zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('dragleave', () => { log(`[HERO] dragleave zone=${zoneId}`); zone.classList.remove('dragover'); });
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('dragover');
-        if (!e.dataTransfer.files.length) return;
+        log(`[HERO] drop fired on zone=${zoneId}. dataTransfer.files.length=${e.dataTransfer.files.length}`);
+        log(`[HERO] drop files: ${fileListSummary(e.dataTransfer.files)}`);
+        if (!e.dataTransfer.files.length) { log('[HERO] drop had zero files', 'warn'); return; }
         // Prefer image/* MIME, but fall back to extension sniffing for HEIC, AVIF, or files
         // the OS didn't tag. Then route through the input so click and drop paths match.
         const imgExt = /\.(jpe?g|png|gif|webp|avif|heic|heif|bmp|tiff?)$/i;
         const file = Array.from(e.dataTransfer.files).find(
             f => f.type.startsWith('image/') || imgExt.test(f.name)
         );
-        if (!file) return;
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
-        input.dispatchEvent(new Event('change', { bubbles: true }));
+        if (!file) { log('[HERO] no file matched image MIME or ext', 'err'); return; }
+        log(`[HERO] selected file: ${file.name} type=${file.type} size=${file.size}`);
+        try {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+            log(`[HERO] DataTransfer set. input.files now: ${fileListSummary(input.files)}`);
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            log('[HERO] dispatched change event');
+        } catch (err) {
+            log('[HERO] ERROR during DataTransfer assign: ' + err.message, 'err');
+        }
     });
 
     input.addEventListener('change', () => {
-        if (input.files.length) setHeroFile(input.files[0], nameElId, previewContainer, zone);
+        log(`[HERO] change handler fired. input.files: ${fileListSummary(input.files)}`);
+        if (input.files.length) {
+            setHeroFile(input.files[0], nameElId, previewContainer, zone);
+            log(`[HERO] after setHeroFile. heroFile=${heroFile ? heroFile.name : 'null'}`);
+        } else {
+            log('[HERO] change fired but input.files is empty', 'warn');
+        }
     });
 }
 
@@ -822,20 +943,34 @@ function setupInlineImageUpload() {
     const zone = document.getElementById('extraUploadZone');
     const input = document.getElementById('extraImages');
 
+    zone.addEventListener('dragenter', e => { e.preventDefault(); log(`[INLINE] dragenter files=${e.dataTransfer.files.length}`); });
     zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+    zone.addEventListener('dragleave', () => { log('[INLINE] dragleave'); zone.classList.remove('dragover'); });
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('dragover');
-        if (!e.dataTransfer.files.length) return;
-        // Route drop through the input so click and drop paths match.
-        const dt = new DataTransfer();
-        Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
-        input.files = dt.files;
-        input.dispatchEvent(new Event('change', { bubbles: true }));
+        log(`[INLINE] drop fired. dataTransfer.files.length=${e.dataTransfer.files.length}`);
+        log(`[INLINE] drop files: ${fileListSummary(e.dataTransfer.files)}`);
+        if (!e.dataTransfer.files.length) { log('[INLINE] drop had zero files', 'warn'); return; }
+        try {
+            const dt = new DataTransfer();
+            Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+            input.files = dt.files;
+            log(`[INLINE] DataTransfer set. input.files now: ${fileListSummary(input.files)}`);
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            log('[INLINE] dispatched change event');
+        } catch (err) {
+            log('[INLINE] ERROR during DataTransfer assign: ' + err.message, 'err');
+        }
     });
     input.addEventListener('change', () => {
-        if (input.files.length) addInlineImages(input.files);
+        log(`[INLINE] change handler fired. input.files: ${fileListSummary(input.files)}`);
+        if (input.files.length) {
+            addInlineImages(input.files);
+            log(`[INLINE] after add. extraFiles.length=${extraFiles.length}`);
+        } else {
+            log('[INLINE] change fired but input.files is empty', 'warn');
+        }
     });
 }
 
@@ -1159,6 +1294,8 @@ function buildBodyWithCssClasses(html) {
 
 // ===== Publish =====
 async function publishArticle() {
+    log('=========================================');
+    log('[PUBLISH] publishArticle() called');
     // Validate required fields
     const type = document.getElementById('articleType').value;
     const title = document.getElementById('articleTitle').value.trim();
@@ -1168,11 +1305,23 @@ async function publishArticle() {
     const keywords = document.getElementById('articleKeywords').value.trim();
     const heroAlt = document.getElementById('heroAlt').value.trim();
 
-    if (!type) { showStatus('Please select an article type.', 'error'); return; }
-    if (!title) { showStatus('Please enter an article title.', 'error'); return; }
-    if (!docHtml) { showStatus('Please upload a Word document.', 'error'); return; }
-    if (!excerpt) { showStatus('Please enter an excerpt.', 'error'); return; }
-    if (!heroFile) { showStatus('Please upload a hero image.', 'error'); return; }
+    // Dump every state variable validation will check
+    const docInput = document.getElementById('docFile');
+    const heroInput = document.getElementById('heroImage');
+    const extraInput = document.getElementById('extraImages');
+    log(`[PUBLISH] type="${type}" title="${title}" excerpt.len=${excerpt.length}`);
+    log(`[PUBLISH] docInput.files: ${fileListSummary(docInput.files)}`);
+    log(`[PUBLISH] heroInput.files: ${fileListSummary(heroInput.files)}`);
+    log(`[PUBLISH] extraInput.files: ${fileListSummary(extraInput.files)}`);
+    log(`[PUBLISH] JS state: docHtml.length=${docHtml.length} heroFile=${heroFile ? heroFile.name : 'null'} extraFiles.length=${extraFiles.length}`);
+    log(`[PUBLISH] date="${date}" author="${author}" heroAlt="${heroAlt}"`);
+
+    if (!type) { log('[PUBLISH] FAIL: !type', 'err'); showStatus('Please select an article type.', 'error'); return; }
+    if (!title) { log('[PUBLISH] FAIL: !title', 'err'); showStatus('Please enter an article title.', 'error'); return; }
+    if (!docHtml) { log(`[PUBLISH] FAIL: !docHtml (docHtml.length=${docHtml.length}, docInput.files.length=${docInput.files.length})`, 'err'); showStatus('Please upload a Word document.', 'error'); return; }
+    if (!excerpt) { log('[PUBLISH] FAIL: !excerpt', 'err'); showStatus('Please enter an excerpt.', 'error'); return; }
+    if (!heroFile) { log(`[PUBLISH] FAIL: !heroFile (heroInput.files.length=${heroInput.files.length})`, 'err'); showStatus('Please upload a hero image.', 'error'); return; }
+    log('[PUBLISH] validation passed, continuing...');
 
     // Check browser support
     if (!('showDirectoryPicker' in window)) {
