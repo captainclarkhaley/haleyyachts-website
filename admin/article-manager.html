@@ -419,7 +419,7 @@
 <body>
 
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-04-20 23:01 EDT</div>
+    <div class="admin-version" data-version>v: 2026-04-22 12:00 EDT</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -695,8 +695,12 @@ function setupDocUpload() {
         e.preventDefault();
         zone.classList.remove('dragover');
         if (e.dataTransfer.files.length) {
-            input.files = e.dataTransfer.files;
-            handleDocUpload(e.dataTransfer.files[0]);
+            // Use DataTransfer so input.files is populated identically to click-to-browse.
+            // Dispatch change so a single handler path runs.
+            const dt = new DataTransfer();
+            dt.items.add(e.dataTransfer.files[0]);
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change', { bubbles: true }));
         }
     });
 
@@ -766,10 +770,18 @@ function setupImageUpload(inputId, zoneId, nameElId, previewContainerId, isMulti
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('dragover');
-        if (e.dataTransfer.files.length) {
-            const file = Array.from(e.dataTransfer.files).find(f => f.type.startsWith('image/'));
-            if (file) setHeroFile(file, nameElId, previewContainer, zone);
-        }
+        if (!e.dataTransfer.files.length) return;
+        // Prefer image/* MIME, but fall back to extension sniffing for HEIC, AVIF, or files
+        // the OS didn't tag. Then route through the input so click and drop paths match.
+        const imgExt = /\.(jpe?g|png|gif|webp|avif|heic|heif|bmp|tiff?)$/i;
+        const file = Array.from(e.dataTransfer.files).find(
+            f => f.type.startsWith('image/') || imgExt.test(f.name)
+        );
+        if (!file) return;
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
     input.addEventListener('change', () => {
@@ -815,7 +827,12 @@ function setupInlineImageUpload() {
     zone.addEventListener('drop', e => {
         e.preventDefault();
         zone.classList.remove('dragover');
-        if (e.dataTransfer.files.length) addInlineImages(e.dataTransfer.files);
+        if (!e.dataTransfer.files.length) return;
+        // Route drop through the input so click and drop paths match.
+        const dt = new DataTransfer();
+        Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
     });
     input.addEventListener('change', () => {
         if (input.files.length) addInlineImages(input.files);
@@ -823,7 +840,10 @@ function setupInlineImageUpload() {
 }
 
 function addInlineImages(fileList) {
-    const imageFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+    const imgExt = /\.(jpe?g|png|gif|webp|avif|heic|heif|bmp|tiff?)$/i;
+    const imageFiles = Array.from(fileList).filter(
+        f => f.type.startsWith('image/') || imgExt.test(f.name)
+    );
     if (!imageFiles.length) {
         showStatus('Please select image files (JPG, PNG, etc.).', 'error');
         return;
