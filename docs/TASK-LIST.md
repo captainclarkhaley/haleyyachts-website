@@ -9,6 +9,7 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 
 ### Content Refinement
 - [ ] Articles: send me your first article (Word doc + hero image + category + edit level) so we can replace the placeholder cards on articles.html
+- [ ] articles.html filter UX (Terry, scheduled): default view shows articles from ALL categories, sorted by date published (newest first). Category chips act as exclusion filters - clicking a category hides it. All active by default; user clicks to narrow. Clark will review + test locally before publishing.
 - [ ] Sell page: refine copy to match current branding
 - [ ] Services page: refine copy for Buying Assistance and Selling Assistance sections
 - [ ] Contact page: optional map/location reference
