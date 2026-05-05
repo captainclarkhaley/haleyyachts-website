@@ -28,6 +28,13 @@ const featuredYachts = [
         description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
         link: "contact.html",
         linkText: "Inquire"
+    },
+    {
+        image: "images/yachts/featured/riviera545suv.jpg",
+        name: "Riviera 545 SUV",
+        description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
+        link: "contact.html",
+        linkText: "Inquire"
     }
 ];
 
