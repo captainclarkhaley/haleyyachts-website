@@ -44,7 +44,7 @@ const publishedArticles = [
         "author": "Clark Haley",
         "slug": "how-to-choose-a-yacht-broker",
         "fileName": "2026-05-05-how-to-choose-a-yacht-broker.html",
-        "heroImage": "clark-lean-crop-with-background.jpg",
+        "heroImage": "clark-square-lean-crop-with-background.jpg",
         "keywords": "how to choose a yacht broker, yacht broker Florida, licensed yacht broker, IYBA member broker, buying a yacht Florida, selling a yacht Florida, yacht broker Palm Beach, yacht broker Jupiter FL"
     },
     {
