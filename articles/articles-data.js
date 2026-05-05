@@ -15,6 +15,17 @@ const publishedArticles = [
         "keywords": "Bahamas cruising permit 2026, Bahamas cruising fees updated, how much does it cost to cruise the Bahamas, Bahamas boat permit Florida, yacht cruising Bahamas from Florida, Bahamas FDCC permit, yacht broker Bahamas cruising advice, Palm Beach yacht broker"
     },
     {
+        "type": "industry-news",
+        "title": "Eight Sunseeker Yachts Find New Owners at Fort Lauderdale International Boat Show 2025",
+        "excerpt": "Eight Sunseeker yachts sold at FLIBS — including a Predator 75, 95 Yacht, and three Manhattan 55s. Strong demand, great energy at the show. If Sunseeker is on your radar, let's talk.",
+        "date": "2026-05-05",
+        "author": "Clark Haley",
+        "slug": "eight-sunseeker-yachts-find-new-owners-at-fort-lauderdale-in",
+        "fileName": "2026-05-05-eight-sunseeker-yachts-find-new-owners-at-fort-lauderdale-in.html",
+        "heroImage": "sunseekerflbs.jpg",
+        "keywords": "Sunseeker yachts for sale, Sunseeker Fort Lauderdale boat show, Sunseeker Manhattan 55, Sunseeker Predator 75, Sunseeker 95 Yacht, Fort Lauderdale International Boat Show 2025, luxury yacht dealer Florida, One Water Yacht Group Sunseeker"
+    },
+    {
         "type": "boat-reviews",
         "title": "World Premiere - Riviera 6200 Sport Yacht",
         "excerpt": "Riviera's new 6200 Sport Yacht delivers big-boat living in 62 feet — full-beam master, alfresco aft deck, gourmet galley, and twin Volvo Penta 900hp IPS drives. This one is built to cruise in serious style.",
