@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "travel",
+        "title": "Bahamas Cruising Permit Changes - Again",
+        "excerpt": "Bahamas cruising permit fees changed again — effective April 1, 2026. If you're yacht shopping with the Bahamas on your radar, these new costs are part of the ownership conversation. Here's what you need to know.",
+        "date": "2026-05-05",
+        "author": "Clark Haley",
+        "slug": "bahamas-cruising-permit-changes-again",
+        "fileName": "2026-05-05-bahamas-cruising-permit-changes-again.html",
+        "heroImage": "bahamascrusingpermits.jpg",
+        "keywords": "Bahamas Cruising Permit 2026, Bahamas cruising fees updated, how much does it cost to cruise the Bahamas, Bahamas boat permit Florida, yacht cruising Bahamas from Florida, Bahamas FDCC permit, yacht broker Bahamas cruising advice, Palm Beach yacht broker"
+    },
+    {
         "type": "boat-reviews",
         "title": "World Premiere - Riviera 6200 Sport Yacht",
         "excerpt": "Riviera's new 6200 Sport Yacht delivers big-boat living in 62 feet — full-beam master, alfresco aft deck, gourmet galley, and twin Volvo Penta 900hp IPS drives. This one is built to cruise in serious style.",
