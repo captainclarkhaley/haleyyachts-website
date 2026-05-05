@@ -18,16 +18,16 @@ const featuredYachts = [
         linkText: "Inquire"
     },
     {
-        image: "images/yachts/featured/riviera-465suv.jpg",
-        name: "2024 Riviera 465 SUV - $1,574,000",
-        description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
+        image: "images/yachts/featured/1991 Southern Wind 72, \"Fortunato\"",
+        name: "1991 Southern Wind 72, \"Fortunato\" - $495,000",
+        description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
         link: "contact.html",
         linkText: "Inquire"
     },
     {
-        image: "images/yachts/featured/southern-wind.jpg",
-        name: "1991 Southern Wind 72 - $495,000",
-        description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
+        image: "images/yachts/featured/riviera-465suv.jpg",
+        name: "2024 Riviera 465 SUV - $1,574,000",
+        description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
         link: "contact.html",
         linkText: "Inquire"
     },
