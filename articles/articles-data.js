@@ -5,14 +5,14 @@
 const publishedArticles = [
     {
         "type": "travel",
-        "title": "Bahamas Cruising Permit Changes - Again",
+        "title": "Bahamas Cruising Permit Changes - April 2026",
         "excerpt": "Bahamas cruising permit fees changed again — effective April 1, 2026. If you're yacht shopping with the Bahamas on your radar, these new costs are part of the ownership conversation. Here's what you need to know.",
         "date": "2026-05-05",
         "author": "Clark Haley",
-        "slug": "bahamas-cruising-permit-changes-again",
-        "fileName": "2026-05-05-bahamas-cruising-permit-changes-again.html",
+        "slug": "bahamas-cruising-permit-changes-april-2026",
+        "fileName": "2026-05-05-bahamas-cruising-permit-changes-april-2026.html",
         "heroImage": "bahamascrusingpermits.jpg",
-        "keywords": "Bahamas Cruising Permit 2026, Bahamas cruising fees updated, how much does it cost to cruise the Bahamas, Bahamas boat permit Florida, yacht cruising Bahamas from Florida, Bahamas FDCC permit, yacht broker Bahamas cruising advice, Palm Beach yacht broker"
+        "keywords": "Bahamas cruising permit 2026, Bahamas cruising fees updated, how much does it cost to cruise the Bahamas, Bahamas boat permit Florida, yacht cruising Bahamas from Florida, Bahamas FDCC permit, yacht broker Bahamas cruising advice, Palm Beach yacht broker"
     },
     {
         "type": "boat-reviews",
