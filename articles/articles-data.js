@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "boat-reviews",
+        "title": "World Premiere - Riviera 6200 Sport Yacht",
+        "excerpt": "Riviera's new 6200 Sport Yacht delivers big-boat living in 62 feet — full-beam master, alfresco aft deck, gourmet galley, and twin Volvo Penta 900hp IPS drives. This one is built to cruise in serious style.",
+        "date": "2026-05-04",
+        "author": "Clark Haley",
+        "slug": "world-premiere-riviera-6200-sport-yacht",
+        "fileName": "2026-05-04-world-premiere-riviera-6200-sport-yacht.html",
+        "heroImage": "01-riviera-6200-sport-yacht-platinum-edition-running-02.jpg",
+        "keywords": "Riviera, Sport Yacht, Motor Yacht"
+    },
+    {
         "type": "industry-news",
         "title": "Sunseeker gets a new permanent CEO",
         "excerpt": "Sunseeker completed the sale of the company to investment group. New owners first objective? Hire a new and permanent CEO",
