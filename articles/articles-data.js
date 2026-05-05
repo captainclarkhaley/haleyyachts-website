@@ -37,6 +37,17 @@ const publishedArticles = [
         "keywords": "West Marine bankruptcy 2026, West Marine store closures, boating supply store closing, marine industry news, yacht broker Palm Beach, boating resources Florida, yacht ownership advice"
     },
     {
+        "type": "how-to",
+        "title": "How to Choose a Yacht Broker",
+        "excerpt": "Choosing the right yacht broker can make or break the deal. Know what to look for, what questions to ask, and the red flags that should send you elsewhere.",
+        "date": "2026-05-05",
+        "author": "Clark Haley",
+        "slug": "how-to-choose-a-yacht-broker",
+        "fileName": "2026-05-05-how-to-choose-a-yacht-broker.html",
+        "heroImage": "clark-lean-crop-with-background.jpg",
+        "keywords": "how to choose a yacht broker, yacht broker Florida, licensed yacht broker, IYBA member broker, buying a yacht Florida, selling a yacht Florida, yacht broker Palm Beach, yacht broker Jupiter FL"
+    },
+    {
         "type": "boat-reviews",
         "title": "World Premiere - Riviera 6200 Sport Yacht",
         "excerpt": "Riviera's new 6200 Sport Yacht delivers big-boat living in 62 feet — full-beam master, alfresco aft deck, gourmet galley, and twin Volvo Penta 900hp IPS drives. This one is built to cruise in serious style.",
