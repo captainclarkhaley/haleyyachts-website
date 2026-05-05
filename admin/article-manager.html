@@ -419,7 +419,7 @@
 <body>
 
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-04-23 00:30 EDT</div>
+    <div class="admin-version" data-version>v: 2026-05-04 21:15 EDT</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -1767,8 +1767,9 @@ async function removeArticle(index, title) {
         const articles = JSON.parse(match[1]);
         const removed = articles.splice(index, 1)[0];
 
-        // Rebuild and save
-        const jsContent = buildArticlesDataFile(articles);
+        // Replace only the array declaration; preserve the rest of articles-data.js
+        const newDataLine = 'const publishedArticles = ' + JSON.stringify(articles, null, 4) + ';';
+        const jsContent = text.replace(/const publishedArticles = \[[\s\S]*?\];/, newDataLine);
         const writable = await fileHandle.createWritable();
         await writable.write(jsContent);
         await writable.close();
