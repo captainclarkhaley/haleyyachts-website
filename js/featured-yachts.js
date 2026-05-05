@@ -18,7 +18,7 @@ const featuredYachts = [
         linkText: "Inquire"
     },
     {
-        image: "images/yachts/featured/1991 Southern Wind 72, \"Fortunato\"",
+        image: "images/yachts/featured/southern-wind.jpg",
         name: "1991 Southern Wind 72, \"Fortunato\" - $495,000",
         description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
         link: "contact.html",
