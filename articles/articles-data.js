@@ -26,6 +26,17 @@ const publishedArticles = [
         "keywords": "Sunseeker yachts for sale, Sunseeker Fort Lauderdale boat show, Sunseeker Manhattan 55, Sunseeker Predator 75, Sunseeker 95 Yacht, Fort Lauderdale International Boat Show 2025, luxury yacht dealer Florida, One Water Yacht Group Sunseeker"
     },
     {
+        "type": "industry-news",
+        "title": "West Marine Readies Possible Bankruptcy",
+        "excerpt": "West Marine is preparing for a possible Chapter 11 bankruptcy and store closures. For yacht owners and buyers, it's a good reminder to work with trusted marine professionals for your boating needs.",
+        "date": "2026-05-05",
+        "author": "Reshmi Basu",
+        "slug": "west-marine-readies-possible-bankruptcy",
+        "fileName": "2026-05-05-west-marine-readies-possible-bankruptcy.html",
+        "heroImage": "west-marine.jpg",
+        "keywords": "West Marine bankruptcy 2026, West Marine store closures, boating supply store closing, marine industry news, yacht broker Palm Beach, boating resources Florida, yacht ownership advice"
+    },
+    {
         "type": "boat-reviews",
         "title": "World Premiere - Riviera 6200 Sport Yacht",
         "excerpt": "Riviera's new 6200 Sport Yacht delivers big-boat living in 62 feet — full-beam master, alfresco aft deck, gourmet galley, and twin Volvo Penta 900hp IPS drives. This one is built to cruise in serious style.",
