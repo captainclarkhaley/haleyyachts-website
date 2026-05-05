@@ -150,6 +150,37 @@
             text-decoration: none;
         }
         .back-link:hover { text-decoration: underline; }
+        .root-status-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: #f1f5f9;
+            border: 1px solid #d6dde3;
+            border-radius: 4px;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+        .root-status-box #rootStatus { color: #4a5560; }
+        .root-status-box .reset-btn {
+            background: none;
+            border: 1px solid #c5ccd3;
+            color: #4a5560;
+            font-size: 0.78rem;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .root-status-box .reset-btn:hover { background: #e5ebf0; }
+        .admin-version {
+            text-align: right;
+            font-size: 0.7rem;
+            color: #999;
+            font-family: 'Courier New', monospace;
+            margin-top: 24px;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -166,12 +197,19 @@
 
     <div class="instructions">
         <strong>How to use:</strong><br>
-        (1) Pick the Position (1-6) to edit.<br>
+        (1) Pick the Position (1-6) to edit, then click <strong>Load Current Values</strong>.<br>
         (2) Click <strong>Browse</strong> and select an image from your computer. It will be copied into <strong>/images/yachts/featured/</strong> when you save, and the filename will be auto-cleaned (lowercase, hyphens, no spaces). You can also type a filename manually if the image is already in the folder.<br>
         (3) Enter the Title (max 60 characters) and Description (max 250 characters).<br>
         (4) Click <strong>SAVE</strong>.<br>
         <br>
-        The <em>first</em> time you save, your browser will prompt you to locate <strong>/js/featured-yachts.js</strong> and (separately) the <strong>/images/yachts/featured</strong> folder. Grant access once and future saves go through automatically.
+        <strong>Reorder slots:</strong> Load a position, choose a destination from <em>Move to Position</em>, then click <strong>MOVE</strong>. The boat you move takes the new slot and the other slots shift to make room.<br>
+        <br>
+        The <em>first</em> time you save, your browser will prompt you to pick the <strong>haleyyachts-website</strong> folder (the site root). Grant access once and future saves go through automatically. If saves stop working, click <em>Change folder</em> below to re-pick.
+    </div>
+
+    <div class="root-status-box">
+        <span id="rootStatus">Site folder: not selected yet.</span>
+        <button type="button" class="reset-btn" onclick="resetSiteRoot()">Change folder</button>
     </div>
 
     <form id="maintForm" onsubmit="event.preventDefault(); loadCurrent();">
@@ -206,6 +244,20 @@
 
         <button type="button" class="btn btn-secondary" onclick="loadCurrent()">Load Current Values</button>
         <button type="button" class="btn" onclick="saveFile()">SAVE</button>
+
+        <div style="margin-top:32px; padding-top:24px; border-top:1px solid #e5e5e5;">
+            <label for="movePosition">Move loaded boat to Position:</label>
+            <select id="movePosition" style="max-width:160px;">
+                <option value="">-- Select --</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
+            <button type="button" class="btn btn-secondary" onclick="moveToPosition()">MOVE</button>
+        </div>
     </form>
 
     <div class="status" id="status"></div>
@@ -214,6 +266,8 @@
         <h3>Preview of Changes</h3>
         <div class="preview-box" id="previewBox"></div>
     </div>
+
+    <div class="admin-version" data-version>v: 2026-05-04 22:55 EDT</div>
 </div>
 
 <!-- Load current data -->
@@ -314,11 +368,10 @@
         setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
     }
 
-    // ===== File System Access API: persistent file handle via IndexedDB =====
+    // ===== File System Access API: persistent SITE ROOT handle via IndexedDB =====
     const DB_NAME = 'haley-admin';
     const STORE = 'handles';
-    const HANDLE_KEY = 'featured-yachts-file';
-    const FEATURED_DIR_KEY = 'featured-images-dir';
+    const SITE_ROOT_KEY = 'site-root-dir';
 
     function openDb() {
         return new Promise((resolve, reject) => {
@@ -346,6 +399,15 @@
             tx.onerror = () => reject(tx.error);
         });
     }
+    async function idbDelete(key) {
+        const db = await openDb();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE, 'readwrite');
+            tx.objectStore(STORE).delete(key);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    }
 
     async function ensureWritePermission(handle) {
         const opts = { mode: 'readwrite' };
@@ -354,52 +416,111 @@
         return false;
     }
 
-    async function getFileHandle() {
-        // Try stored handle first
-        let handle = await idbGet(HANDLE_KEY);
-        if (handle) {
-            if (await ensureWritePermission(handle)) return handle;
+    let siteRootHandle = null;
+
+    async function validateSiteRoot(handle) {
+        const required = { files: ['index.html'], dirs: ['js', 'images'] };
+        const missing = [];
+        for (const f of required.files) {
+            try { await handle.getFileHandle(f); } catch (e) { missing.push(f); }
         }
-        // Prompt user to pick the file
-        [handle] = await window.showOpenFilePicker({
-            types: [{
-                description: 'JavaScript file',
-                accept: { 'text/javascript': ['.js'] }
-            }],
-            excludeAcceptAllOption: false,
-            multiple: false
-        });
-        if (!(await ensureWritePermission(handle))) {
-            throw new Error('Write permission denied.');
+        for (const d of required.dirs) {
+            try { await handle.getDirectoryHandle(d); } catch (e) { missing.push(d + '/'); }
         }
-        await idbSet(HANDLE_KEY, handle);
-        return handle;
+        return { ok: missing.length === 0, name: handle.name, missing };
     }
 
-    async function getFeaturedDirHandle() {
-        let handle = await idbGet(FEATURED_DIR_KEY);
-        if (handle) {
-            if (await ensureWritePermission(handle)) return handle;
+    function updateRootStatus() {
+        const el = document.getElementById('rootStatus');
+        if (!el) return;
+        if (siteRootHandle) {
+            el.textContent = 'Site folder: ' + siteRootHandle.name + ' (validated)';
+            el.style.color = '#2a7a2a';
+        } else {
+            el.textContent = 'Site folder: not selected yet.';
+            el.style.color = '#666';
         }
-        showStatus('Please select the /images/yachts/featured/ folder in your local site repo.', 'success');
+    }
+
+    async function resetSiteRoot() {
+        siteRootHandle = null;
+        await idbDelete(SITE_ROOT_KEY);
+        updateRootStatus();
+        showStatus('Site folder cleared. Next save will prompt you to pick it again.', 'success');
+    }
+
+    async function getSiteRoot() {
+        if (siteRootHandle) {
+            if (await ensureWritePermission(siteRootHandle)) return siteRootHandle;
+            siteRootHandle = null;
+        }
+        // Try stored handle first
+        let handle = await idbGet(SITE_ROOT_KEY);
+        if (handle) {
+            if (await ensureWritePermission(handle)) {
+                const v = await validateSiteRoot(handle);
+                if (v.ok) {
+                    siteRootHandle = handle;
+                    updateRootStatus();
+                    return handle;
+                }
+                // Stored handle is wrong folder - clear and re-prompt
+                await idbDelete(SITE_ROOT_KEY);
+            }
+        }
+        showStatus('Please pick the haleyyachts-website folder (the site root).', 'success');
         handle = await window.showDirectoryPicker({
-            id: 'haley-featured-images',
+            id: 'haley-site-root',
             mode: 'readwrite'
         });
         if (!(await ensureWritePermission(handle))) {
-            throw new Error('Write permission denied for featured images folder.');
+            throw new Error('Write permission denied for site folder.');
         }
-        await idbSet(FEATURED_DIR_KEY, handle);
+        const v = await validateSiteRoot(handle);
+        if (!v.ok) {
+            throw new Error(
+                'Wrong folder: "' + v.name + '" is missing ' + v.missing.join(', ') +
+                '. Pick the haleyyachts-website folder (it contains index.html, js/, images/).'
+            );
+        }
+        await idbSet(SITE_ROOT_KEY, handle);
+        siteRootHandle = handle;
+        updateRootStatus();
         return handle;
     }
 
+    async function getDataFileHandle() {
+        const root = await getSiteRoot();
+        const jsDir = await root.getDirectoryHandle('js');
+        return jsDir.getFileHandle('featured-yachts.js');
+    }
+
     async function copyImageToFeatured(file, filename) {
-        const dir = await getFeaturedDirHandle();
-        const fileHandle = await dir.getFileHandle(filename, { create: true });
+        const root = await getSiteRoot();
+        const imagesDir = await root.getDirectoryHandle('images');
+        const yachtsDir = await imagesDir.getDirectoryHandle('yachts');
+        const featuredDir = await yachtsDir.getDirectoryHandle('featured');
+        const fileHandle = await featuredDir.getFileHandle(filename, { create: true });
         const writable = await fileHandle.createWritable();
         await writable.write(file);
         await writable.close();
     }
+
+    // Try to bind site root on page load (no prompt - silent if not granted)
+    (async () => {
+        try {
+            const handle = await idbGet(SITE_ROOT_KEY);
+            if (!handle) return;
+            const opts = { mode: 'readwrite' };
+            if ((await handle.queryPermission(opts)) === 'granted') {
+                const v = await validateSiteRoot(handle);
+                if (v.ok) {
+                    siteRootHandle = handle;
+                    updateRootStatus();
+                }
+            }
+        } catch (e) { /* ignore - user will be prompted on first save */ }
+    })();
 
     async function saveFile() {
         const pos = parseInt(posSel.value);
@@ -450,12 +571,20 @@
         renderPreview(pos, entry);
         document.getElementById('outputSection').style.display = 'block';
 
-        // Step 3: write featured-yachts.js
+        // Step 3: write featured-yachts.js, then read back to verify
         try {
-            const handle = await getFileHandle();
+            const handle = await getDataFileHandle();
             const writable = await handle.createWritable();
             await writable.write(fileContent);
             await writable.close();
+
+            // Read-back verification: confirm the file on disk now matches what we wrote
+            const verifyFile = await handle.getFile();
+            const verifyText = await verifyFile.text();
+            if (verifyText !== fileContent) {
+                throw new Error('File on disk does not match what was written. Save may have gone to the wrong location. Click "Change folder" and re-pick the site root.');
+            }
+
             // Clear the pending image so repeated SAVE clicks don't re-copy
             if (pendingImageFile) {
                 pendingImageFile = null;
@@ -468,6 +597,69 @@
                 showStatus('Save canceled.', 'error');
             } else {
                 showStatus('Save failed: ' + err.message, 'error');
+            }
+        }
+    }
+
+    async function moveToPosition() {
+        const fromPos = parseInt(posSel.value);
+        const toPos = parseInt(document.getElementById('movePosition').value);
+        if (!fromPos) { showStatus('Pick the current Position first, then click Load Current Values.', 'error'); return; }
+        if (!toPos) { showStatus('Pick a destination from "Move to Position".', 'error'); return; }
+        if (fromPos === toPos) { showStatus('Source and destination are the same.', 'error'); return; }
+
+        const fromIdx = fromPos - 1;
+        const toIdx = toPos - 1;
+
+        // Pull current form edits into the source entry first, so an unsaved title
+        // edit isn't lost when we re-order.
+        const filename = imgInput.value.trim();
+        const title = titleInput.value.trim();
+        const desc = descInput.value.trim();
+        const src = workingData[fromIdx];
+        if (filename) src.image = 'images/yachts/featured/' + filename;
+        if (title) src.name = title;
+        if (desc) src.description = desc;
+
+        // Insert-shift: pull source out, splice into destination index.
+        const [moved] = workingData.splice(fromIdx, 1);
+        workingData.splice(toIdx, 0, moved);
+
+        // Re-pad to 6 (splice preserves length, but be defensive)
+        while (workingData.length < 6) {
+            workingData.push({
+                image: '', name: 'Featured Listing',
+                description: 'Details about this featured yacht will appear here.',
+                link: 'contact.html', linkText: 'Inquire'
+            });
+        }
+        workingData = workingData.slice(0, 6);
+
+        const fileContent = buildFileContent(workingData);
+
+        // Write
+        try {
+            const handle = await getDataFileHandle();
+            const writable = await handle.createWritable();
+            await writable.write(fileContent);
+            await writable.close();
+
+            const verifyFile = await handle.getFile();
+            const verifyText = await verifyFile.text();
+            if (verifyText !== fileContent) {
+                throw new Error('File on disk does not match what was written. Click "Change folder" and re-pick the site root.');
+            }
+
+            // Reload form on the moved entry's new position so Clark sees the result
+            posSel.value = String(toPos);
+            loadCurrent();
+            document.getElementById('movePosition').value = '';
+            showStatus(`Moved "${moved.name}" from Position ${fromPos} to Position ${toPos}. Commit + push + pull to deploy.`, 'success');
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                showStatus('Move canceled.', 'error');
+            } else {
+                showStatus('Move failed: ' + err.message, 'error');
             }
         }
     }
