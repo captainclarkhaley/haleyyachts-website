@@ -53,33 +53,16 @@
             <input type="text" id="articleSearch" placeholder="Search articles by title, topic, or keyword..."
                    style="width:100%;padding:12px 16px;font-family:'Open Sans',Arial,sans-serif;font-size:0.95rem;border:1px solid #d0d0d0;border-radius:3px;background:#fff;color:#333;">
         </div>
-        <div class="sub-tabs">
-            <button class="sub-tab active" data-target="reviews">Boat Reviews</button>
-            <button class="sub-tab" data-target="newsletters">Newsletters</button>
-            <button class="sub-tab" data-target="howto">How To</button>
-            <button class="sub-tab" data-target="travel">Travel</button>
-            <button class="sub-tab" data-target="news">Industry News</button>
+        <div class="filter-chips" id="categoryFilters" role="group" aria-label="Filter articles by category">
+            <span class="filter-chips-label">Showing:</span>
+            <button type="button" class="filter-chip active" data-category="boat-reviews" aria-pressed="true">Boat Reviews</button>
+            <button type="button" class="filter-chip active" data-category="newsletters" aria-pressed="true">Newsletters</button>
+            <button type="button" class="filter-chip active" data-category="how-to" aria-pressed="true">How To</button>
+            <button type="button" class="filter-chip active" data-category="travel" aria-pressed="true">Travel</button>
+            <button type="button" class="filter-chip active" data-category="industry-news" aria-pressed="true">Industry News</button>
         </div>
 
-        <div class="sub-content active" id="reviews">
-            <div class="articles-grid" data-category="boat-reviews"></div>
-        </div>
-
-        <div class="sub-content" id="newsletters">
-            <div class="articles-grid" data-category="newsletters"></div>
-        </div>
-
-        <div class="sub-content" id="howto">
-            <div class="articles-grid" data-category="how-to"></div>
-        </div>
-
-        <div class="sub-content" id="travel">
-            <div class="articles-grid" data-category="travel"></div>
-        </div>
-
-        <div class="sub-content" id="news">
-            <div class="articles-grid" data-category="industry-news"></div>
-        </div>
+        <div class="articles-grid" id="articlesGrid"></div>
     </div>
 </section>
 

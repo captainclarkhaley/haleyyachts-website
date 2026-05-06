@@ -71,24 +71,86 @@ const publishedArticles = [
     }
 ];
 
+var CATEGORY_META = {
+    'boat-reviews':  { tag: 'Boat Review',   label: 'Boat Reviews' },
+    'newsletters':   { tag: 'Newsletter',    label: 'Newsletters' },
+    'how-to':        { tag: 'How To',        label: 'How To' },
+    'travel':        { tag: 'Travel',        label: 'Travel' },
+    'industry-news': { tag: 'Industry News', label: 'Industry News' }
+};
+
+function getActiveCategories() {
+    var chips = document.querySelectorAll('.filter-chip[data-category]');
+    if (!chips.length) {
+        // No chip UI on this page - treat all categories as active.
+        return Object.keys(CATEGORY_META);
+    }
+    var active = [];
+    chips.forEach(function(c) {
+        if (c.classList.contains('active')) active.push(c.dataset.category);
+    });
+    return active;
+}
+
 function renderArticles(searchTerm) {
-    var CATEGORY_META = {
-        'boat-reviews':  { tag: 'Boat Review',   label: 'Boat Reviews' },
-        'newsletters':   { tag: 'Newsletter',    label: 'Newsletters' },
-        'how-to':        { tag: 'How To',        label: 'How To' },
-        'travel':        { tag: 'Travel',        label: 'Travel' },
-        'industry-news': { tag: 'Industry News', label: 'Industry News' }
-    };
-
     var EMPTY_MESSAGE = '<p style="color:#999;font-style:italic;font-size:0.9rem;">No articles published yet. Check back soon.</p>';
-    var NO_RESULTS = '<p style="color:#999;font-style:italic;font-size:0.9rem;">No articles match your search.</p>';
+    var NO_RESULTS_SEARCH = '<p style="color:#999;font-style:italic;font-size:0.9rem;">No articles match your search.</p>';
+    var NO_CATEGORIES = '<p style="color:#999;font-style:italic;font-size:0.9rem;">No categories selected. Click a category chip above to include it.</p>';
     var query = (searchTerm || '').toLowerCase().trim();
+    var activeCats = getActiveCategories();
 
+    function buildCardHtml(article) {
+        var meta = CATEGORY_META[article.type] || { tag: article.type };
+        var date = new Date(article.date + 'T12:00:00');
+        var displayDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        var heroSrc = article.heroImage
+            ? 'articles/' + article.type + '/images/' + article.heroImage
+            : '';
+        var articleUrl = 'articles/' + article.type + '/' + article.fileName;
+
+        return '<div class="article-card">' +
+            '<a href="' + articleUrl + '">' +
+            (heroSrc ? '<img class="card-thumb" src="' + heroSrc + '" alt="' + article.title + '" loading="lazy">' : '') +
+            '<div class="article-tag">' + meta.tag + '</div>' +
+            '<h4>' + article.title + '</h4>' +
+            '<p>' + article.excerpt + '</p>' +
+            '<div class="card-date">' + displayDate + '</div>' +
+            '</a>' +
+            '</div>';
+    }
+
+    // New combined-grid path: single #articlesGrid with chip filters.
+    var combinedGrid = document.getElementById('articlesGrid');
+    if (combinedGrid) {
+        if (!activeCats.length) {
+            combinedGrid.innerHTML = NO_CATEGORIES;
+            return;
+        }
+
+        var matched = publishedArticles.filter(function(a) {
+            if (activeCats.indexOf(a.type) === -1) return false;
+            if (!query) return true;
+            return (a.title || '').toLowerCase().indexOf(query) !== -1 ||
+                   (a.excerpt || '').toLowerCase().indexOf(query) !== -1 ||
+                   (a.keywords || '').toLowerCase().indexOf(query) !== -1 ||
+                   (a.author || '').toLowerCase().indexOf(query) !== -1;
+        });
+
+        // Sort newest first
+        matched.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+
+        if (!matched.length) {
+            combinedGrid.innerHTML = query ? NO_RESULTS_SEARCH : EMPTY_MESSAGE;
+            return;
+        }
+        combinedGrid.innerHTML = matched.map(buildCardHtml).join('');
+        return;
+    }
+
+    // Legacy path: per-category grids (kept so this script stays drop-in safe).
     document.querySelectorAll('.articles-grid[data-category]').forEach(function(grid) {
         var category = grid.dataset.category;
         var catArticles = publishedArticles.filter(function(a) { return a.type === category; });
-        var meta = CATEGORY_META[category];
-
         if (query) {
             catArticles = catArticles.filter(function(a) {
                 return (a.title || '').toLowerCase().indexOf(query) !== -1 ||
@@ -97,42 +159,36 @@ function renderArticles(searchTerm) {
                        (a.author || '').toLowerCase().indexOf(query) !== -1;
             });
         }
-
         if (!catArticles.length) {
-            grid.innerHTML = query ? NO_RESULTS : EMPTY_MESSAGE;
+            grid.innerHTML = query ? NO_RESULTS_SEARCH : EMPTY_MESSAGE;
             return;
         }
-
-        grid.innerHTML = catArticles.map(function(article) {
-            var date = new Date(article.date + 'T12:00:00');
-            var displayDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-            var heroSrc = article.heroImage
-                ? 'articles/' + category + '/images/' + article.heroImage
-                : '';
-            var articleUrl = 'articles/' + category + '/' + article.fileName;
-
-            return '<div class="article-card">' +
-                '<a href="' + articleUrl + '">' +
-                (heroSrc ? '<img class="card-thumb" src="' + heroSrc + '" alt="' + article.title + '" loading="lazy">' : '') +
-                '<div class="article-tag">' + meta.tag + '</div>' +
-                '<h4>' + article.title + '</h4>' +
-                '<p>' + article.excerpt + '</p>' +
-                '<div class="card-date">' + displayDate + '</div>' +
-                '</a>' +
-                '</div>';
-        }).join('');
+        catArticles.sort(function(a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        grid.innerHTML = catArticles.map(buildCardHtml).join('');
     });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    renderArticles();
     var searchInput = document.getElementById('articleSearch');
+    function currentQuery() { return searchInput ? searchInput.value : ''; }
+
+    // Wire category chip toggles
+    document.querySelectorAll('.filter-chip[data-category]').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            var nowActive = !chip.classList.contains('active');
+            chip.classList.toggle('active', nowActive);
+            chip.setAttribute('aria-pressed', String(nowActive));
+            renderArticles(currentQuery());
+        });
+    });
+
+    renderArticles();
+
     if (searchInput) {
         var debounceTimer;
         searchInput.addEventListener('input', function() {
             clearTimeout(debounceTimer);
-            var val = searchInput.value;
-            debounceTimer = setTimeout(function() { renderArticles(val); }, 200);
+            debounceTimer = setTimeout(function() { renderArticles(searchInput.value); }, 200);
         });
     }
 });
