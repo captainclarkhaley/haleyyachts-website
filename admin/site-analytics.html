@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Site Analytics - Haley Yachts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 40px 20px 60px;
+            color: #333;
+        }
+        .admin-container { max-width: 900px; margin: 0 auto; }
+        .nav-links { margin-bottom: 24px; font-size: 0.85rem; }
+        .back-link {
+            display: inline-block;
+            font-size: 0.85rem;
+            color: #21cbea;
+            text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+
+        .panel {
+            background: #fff;
+            padding: 36px 44px;
+            border-radius: 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 28px;
+        }
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 8px;
+            color: #0a1628;
+        }
+        h1 strong { font-weight: 700; color: #21cbea; }
+        .accent-line { width: 60px; height: 3px; background: #21cbea; margin-bottom: 20px; }
+        .lead {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .property-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f9fafb;
+            padding: 14px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+        .property-row label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin: 0;
+        }
+        .property-row input {
+            flex: 1;
+            min-width: 200px;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+        }
+        .property-row .save-btn {
+            background: #21cbea;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 3px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        .property-row .save-btn:hover { background: #1aa8c4; }
+        .property-row .clear-btn {
+            background: none;
+            color: #888;
+            border: 1px solid #d0d0d0;
+            padding: 8px 14px;
+            border-radius: 3px;
+            font-size: 0.78rem;
+            cursor: pointer;
+        }
+        .property-row .help {
+            flex-basis: 100%;
+            font-size: 0.78rem;
+            color: #888;
+            font-style: italic;
+        }
+        .property-row .help a { color: #21cbea; }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #555;
+            margin: 32px 0 16px;
+        }
+        .section-title:first-child { margin-top: 0; }
+
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .link-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            padding: 18px 20px;
+            transition: all 0.15s;
+        }
+        .link-card:hover {
+            border-color: #21cbea;
+            box-shadow: 0 4px 12px rgba(33, 203, 234, 0.15);
+            transform: translateY(-1px);
+        }
+        .link-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 0 0 4px;
+            color: #0a1628;
+        }
+        .link-card p {
+            font-size: 0.82rem;
+            color: #666;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .link-card .source {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin-bottom: 8px;
+        }
+        .link-card .source.ga4 { background: #fdecea; color: #c0392b; }
+        .link-card .source.clarity { background: #e7f0fa; color: #1c4570; }
+        .link-card.ga4-warning { border-color: #f5cc94; background: #fffaf0; }
+
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+        .events-table th, .events-table td {
+            text-align: left;
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .events-table th {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            font-weight: 600;
+            background: #f9fafb;
+        }
+        .events-table code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            background: #f0f2f5;
+            padding: 2px 6px;
+            border-radius: 2px;
+            color: #c0392b;
+        }
+        .admin-version {
+            text-align: right;
+            font-size: 0.7rem;
+            color: #999;
+            font-family: 'Courier New', monospace;
+            margin-top: 24px;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+
+    <div class="nav-links">
+        <a href="index.html" class="back-link">&larr; Back to Admin</a>
+    </div>
+
+    <div class="panel">
+        <h1>SITE <strong>ANALYTICS</strong></h1>
+        <div class="accent-line"></div>
+        <p class="lead">
+            Deep links into Google Analytics 4 (GA4) and Microsoft Clarity. Both are wired into every public page
+            via <code>js/analytics.js</code>. GA4 covers metrics and conversions; Clarity covers session recordings and heatmaps.
+        </p>
+
+        <div class="property-row">
+            <label for="ga4PropertyId">GA4 Property ID:</label>
+            <input type="text" id="ga4PropertyId" placeholder="e.g., 482736159 (numeric, 9-10 digits)">
+            <button type="button" class="save-btn" onclick="savePropertyId()">SAVE</button>
+            <button type="button" class="clear-btn" onclick="clearPropertyId()">Clear</button>
+            <div class="help">
+                Find it in GA4 under <strong>Admin &rarr; Property Settings &rarr; Property ID</strong>. Saved locally in this browser only.
+                Without it, links land on whatever GA4 property you viewed last (usually fine if you're signed in).
+            </div>
+        </div>
+
+        <h3 class="section-title">Live Visitors &amp; Engagement</h3>
+        <div class="link-grid">
+            <a class="link-card" id="link-ga4-realtime" href="#" target="_blank" rel="noopener">
+                <span class="source ga4">GA4</span>
+                <h4>Real-time visitors</h4>
+                <p>Who is on the site right now, what page, where from. Use this to verify tracking is firing.</p>
+            </a>
+            <a class="link-card" id="link-ga4-engagement" href="#" target="_blank" rel="noopener">
+                <span class="source ga4">GA4</span>
+                <h4>Engagement &amp; time on page</h4>
+                <p>Average engagement time per page, which pages keep people, which don't.</p>
+            </a>
+            <a class="link-card" href="https://clarity.microsoft.com/projects/view/wn3878tuvv/dashboard" target="_blank" rel="noopener">
+                <span class="source clarity">Clarity</span>
+                <h4>Clarity dashboard</h4>
+                <p>Sessions, dead clicks, rage clicks, scroll depth, JS errors at a glance.</p>
+            </a>
+        </div>
+
+        <h3 class="section-title">Visitor Behavior</h3>
+        <div class="link-grid">
+            <a class="link-card" href="https://clarity.microsoft.com/projects/view/wn3878tuvv/recordings" target="_blank" rel="noopener">
+                <span class="source clarity">Clarity</span>
+                <h4>Session recordings</h4>
+                <p>Watch real visitors navigate the site. Patrick recommends sampling 5-10 a month to inform listing copy and gallery layout.</p>
+            </a>
+            <a class="link-card" href="https://clarity.microsoft.com/projects/view/wn3878tuvv/heatmaps" target="_blank" rel="noopener">
+                <span class="source clarity">Clarity</span>
+                <h4>Heatmaps</h4>
+                <p>Click and scroll heatmaps per page. Especially useful for the Buy and Featured Yachts pages once traffic builds.</p>
+            </a>
+            <a class="link-card" id="link-ga4-pages" href="#" target="_blank" rel="noopener">
+                <span class="source ga4">GA4</span>
+                <h4>Pages &amp; screens report</h4>
+                <p>Page views ranked. See which articles, which Riviera models, and which marketing pages get attention.</p>
+            </a>
+        </div>
+
+        <h3 class="section-title">Conversion Events &amp; Lead Signals</h3>
+        <div class="link-grid">
+            <a class="link-card" id="link-ga4-events" href="#" target="_blank" rel="noopener">
+                <span class="source ga4">GA4</span>
+                <h4>Events report</h4>
+                <p>All tracked events: phone clicks, email clicks, contact submissions, valuation requests, engaged buyers.</p>
+            </a>
+            <a class="link-card" id="link-ga4-conversions" href="#" target="_blank" rel="noopener">
+                <span class="source ga4">GA4</span>
+                <h4>Conversions report</h4>
+                <p>Only events you've marked as "key events" in Admin &rarr; Events. Use this to track lead-quality signals.</p>
+            </a>
+            <a class="link-card" id="link-ga4-acquisition" href="#" target="_blank" rel="noopener">
+                <span class="source ga4">GA4</span>
+                <h4>Traffic sources</h4>
+                <p>Where visitors come from: Google, direct, social, referrals. Pair with Patrick's marketing campaigns to measure ROI.</p>
+            </a>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h3 class="section-title" style="margin-top:0;">Tracked Events Reference</h3>
+        <p class="lead" style="margin-bottom:12px;">Currently wired across the site. To make any of these show up in the Conversions report, mark them as "key events" in GA4 (Admin &rarr; Events).</p>
+        <table class="events-table">
+            <thead>
+                <tr><th>Event</th><th>Where it fires</th><th>Extra params</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>phone_click</code></td>
+                    <td>Any <code>tel:</code> link, anywhere on the site.</td>
+                    <td><code>page_path</code>, <code>link_text</code></td>
+                </tr>
+                <tr>
+                    <td><code>email_click</code></td>
+                    <td>Any <code>mailto:</code> link. Riviera "Inquire" buttons auto-tag the model name.</td>
+                    <td><code>page_path</code>, <code>link_text</code>, <code>model</code></td>
+                </tr>
+                <tr>
+                    <td><code>contact_form_submit</code></td>
+                    <td><code>contact.html</code> form submission.</td>
+                    <td><code>page_path</code>, <code>form_id</code></td>
+                </tr>
+                <tr>
+                    <td><code>valuation_request_submit</code></td>
+                    <td><code>valuation.html</code> form submission.</td>
+                    <td><code>page_path</code>, <code>form_id</code> (uses <code>beacon</code> transport)</td>
+                </tr>
+                <tr>
+                    <td><code>buy_engaged_view</code></td>
+                    <td>Fires once at 90 seconds on <code>buy.html</code> (engaged-browsing proxy).</td>
+                    <td><code>page_path</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="admin-version" data-version>v: 2026-05-06 19:01 EDT</div>
+
+</div>
+
+<script>
+    // ===== GA4 deep-link builder =====
+    // Real GA4 URL pattern:  https://analytics.google.com/analytics/web/#/p<PROPERTY_ID>/<path>
+    // Without a property ID, https://analytics.google.com/ lands on whatever property
+    // the user viewed last - usually fine for a single-property setup.
+    var STORAGE_KEY = 'haley-ga4-property-id';
+
+    var GA4_PATHS = {
+        'link-ga4-realtime':    'realtime/overview',
+        'link-ga4-engagement':  'reports/engagement-pages-and-screens',
+        'link-ga4-pages':       'reports/engagement-pages-and-screens',
+        'link-ga4-events':      'reports/engagement-events',
+        'link-ga4-conversions': 'reports/engagement-conversions',
+        'link-ga4-acquisition': 'reports/acquisition-traffic-acquisition'
+    };
+    var GA4_FALLBACK_PATHS = {
+        'link-ga4-realtime':    'https://analytics.google.com/analytics/web/#/realtime',
+        'link-ga4-engagement':  'https://analytics.google.com/analytics/web/#/all-reports/engagement/pages-and-screens',
+        'link-ga4-pages':       'https://analytics.google.com/analytics/web/#/all-reports/engagement/pages-and-screens',
+        'link-ga4-events':      'https://analytics.google.com/analytics/web/#/all-reports/engagement/events',
+        'link-ga4-conversions': 'https://analytics.google.com/analytics/web/#/all-reports/engagement/conversions',
+        'link-ga4-acquisition': 'https://analytics.google.com/analytics/web/#/all-reports/acquisition/traffic-acquisition'
+    };
+
+    function getPropertyId() {
+        try { return (localStorage.getItem(STORAGE_KEY) || '').trim(); }
+        catch (e) { return ''; }
+    }
+    function savePropertyId() {
+        var input = document.getElementById('ga4PropertyId');
+        var v = (input.value || '').trim().replace(/\D/g, '');
+        if (!v) { alert('Enter a numeric Property ID, e.g. 482736159.'); return; }
+        try { localStorage.setItem(STORAGE_KEY, v); } catch (e) {}
+        wireLinks();
+        flash('GA4 Property ID saved. Links updated.');
+    }
+    function clearPropertyId() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        document.getElementById('ga4PropertyId').value = '';
+        wireLinks();
+        flash('Property ID cleared. Links will use the generic landing page.');
+    }
+    function wireLinks() {
+        var pid = getPropertyId();
+        document.getElementById('ga4PropertyId').value = pid;
+        Object.keys(GA4_PATHS).forEach(function (id) {
+            var a = document.getElementById(id);
+            if (!a) return;
+            if (pid) {
+                a.href = 'https://analytics.google.com/analytics/web/#/p' + pid + '/' + GA4_PATHS[id];
+                a.classList.remove('ga4-warning');
+            } else {
+                a.href = GA4_FALLBACK_PATHS[id];
+                a.classList.add('ga4-warning');
+            }
+        });
+    }
+    function flash(msg) {
+        var bar = document.createElement('div');
+        bar.textContent = msg;
+        bar.style.cssText = 'position:fixed;top:20px;right:20px;background:#0a1628;color:#fff;padding:12px 20px;border-radius:4px;font-size:0.85rem;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:9999;';
+        document.body.appendChild(bar);
+        setTimeout(function () { bar.style.opacity = '0'; bar.style.transition = 'opacity 0.4s'; }, 2400);
+        setTimeout(function () { bar.remove(); }, 3000);
+    }
+
+    wireLinks();
+</script>
+
+</body>
+</html>

@@ -25,7 +25,11 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] Confirm Formsubmit email verification is current for contact form
 - [ ] Confirm Formsubmit email verification is current for valuation form
 - [x] HSTS (Strict-Transport-Security) - shipped with fresh root `.htaccess` 2026-04-19
-- [ ] Add Google Analytics (or similar) tracking
+- [x] Add Google Analytics + Microsoft Clarity tracking - shipped 2026-05-06 via `js/analytics.js` (GA4 `G-6CVE0DG8Z3`, Clarity `wn3878tuvv`); 4 conversion events live (contact_form_submit, valuation_request_submit, phone_click, email_click) plus buy_engaged_view proxy at 90s
+- [ ] Privacy policy page + cookie consent banner (needed for EU/UK visitors; Patrick to draft, Clark to approve, Terry to ship)
+- [ ] Mark GA4 conversion events as "key events" in the Analytics admin so they show up in Conversions reports
+- [ ] Trial Leadfeeder (14-day free) for reverse-IP company identification on B2B/family-office traffic
+- [ ] Future: per-listing inquiry forms, brochure/spec PDF downloads, gallery component - then wire the remaining 3 events Patrick scoped (listing_inquiry_submit, brochure_download, gallery_complete)
 - [ ] Cross-browser test on Chrome, Safari, Firefox, Edge
 - [ ] Mobile device test on iPhone and Android
 - [ ] Revisit hero `min-height: 600px` safety floor during device testing
