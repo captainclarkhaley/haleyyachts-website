@@ -14,6 +14,15 @@
   preheader (search "PREHEADER") and the issue date in the masthead.
   Keep table-based outer layout, inline critical CSS, and explicit
   width/height/alt on images.
+
+  ANALYTICS - Every haleyyachts.com link is UTM-tagged so GA4 can attribute
+  newsletter clicks. The campaign tag is set per issue. To roll a new issue:
+    Find:    utm_campaign=logbook-2026-05
+    Replace: utm_campaign=logbook-YYYY-MM   (use the issue's year and month)
+  utm_source=newsletter and utm_medium=email never change. utm_content varies
+  per link role (cta-valuation, cta-services, view-listing, read-article,
+  browse-featured, site-link) so you can see WHICH placement drove each click
+  in GA4 Reports > Acquisition > Traffic acquisition.
 -->
 
 <!--[if mso]>
@@ -92,7 +101,7 @@
         <tr>
           <td bgcolor="#0a1628" style="background-color:#0a1628; padding:0;" align="center">
             <!-- SLOT: masthead composite (logo + title + tagline + photo) -->
-            <a href="https://haleyyachts.com" style="text-decoration:none;">
+            <a href="https://haleyyachts.com?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=site-link" target="_blank" rel="noopener" style="text-decoration:none;">
               <img src="https://haleyyachts.com/images/email/logbook-masthead.jpg"
                    width="600" height="360" alt="The Logbook - Haley Yachts"
                    class="stack-img"
@@ -182,13 +191,13 @@
                     <tr>
                       <td align="center" bgcolor="#21cbea" style="background-color:#21cbea; border-radius:4px;">
                         <!--[if mso]>
-                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://haleyyachts.com/buy.html" style="height:40px;v-text-anchor:middle;width:160px;" arcsize="10%" stroke="f" fillcolor="#21cbea">
+                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://haleyyachts.com/buy.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=view-listing" style="height:40px;v-text-anchor:middle;width:160px;" arcsize="10%" stroke="f" fillcolor="#21cbea">
                           <w:anchorlock/>
                           <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;">View Listing</center>
                         </v:roundrect>
                         <![endif]-->
                         <!--[if !mso]><!-- -->
-                        <a href="https://haleyyachts.com/buy.html"
+                        <a href="https://haleyyachts.com/buy.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=view-listing" target="_blank" rel="noopener"
                            style="display:inline-block; padding:11px 22px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:700; color:#ffffff; text-decoration:none; border-radius:4px;">
                           View Listing
                         </a>
@@ -232,7 +241,7 @@
                         <p class="ff sub-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; line-height:19px; color:#333333; margin:0 0 12px 0;">
                           Low-hour MAN V12s, recent bottom and running gear service. Stuart, FL.
                         </p>
-                        <a href="https://haleyyachts.com/buy.html" class="ff read-more"
+                        <a href="https://haleyyachts.com/buy.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=view-listing" target="_blank" rel="noopener" class="ff read-more"
                            style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">
                           View Listing &rarr;
                         </a>
@@ -265,7 +274,7 @@
                         <p class="ff sub-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; line-height:19px; color:#333333; margin:0 0 12px 0;">
                           Bluewater-proven passagemaker, ABT stabilizers, fresh paint 2025. Owner moving up.
                         </p>
-                        <a href="https://haleyyachts.com/buy.html" class="ff read-more"
+                        <a href="https://haleyyachts.com/buy.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=view-listing" target="_blank" rel="noopener" class="ff read-more"
                            style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">
                           View Listing &rarr;
                         </a>
@@ -280,7 +289,7 @@
 
         <tr>
           <td bgcolor="#ffffff" style="background-color:#ffffff; padding:8px 32px 28px 32px;" class="stack-pad" align="right">
-            <a href="https://haleyyachts.com/buy.html#featured" class="ff"
+            <a href="https://haleyyachts.com/buy.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=browse-featured#featured" target="_blank" rel="noopener" class="ff"
                style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:700; color:#21cbea; text-decoration:none;">
               Browse All Listings &rarr;
             </a>
@@ -318,7 +327,7 @@
                   <p class="ff sub-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; line-height:19px; color:#333333; margin:0 0 8px 0;">
                     A short list of the conditions buyers should always get on the survey rider before signing.
                   </p>
-                  <a href="https://haleyyachts.com/articles.html" class="ff read-more" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">Read More &rarr;</a>
+                  <a href="https://haleyyachts.com/articles.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=read-article" target="_blank" rel="noopener" class="ff read-more" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">Read More &rarr;</a>
                 </td>
                 <td class="stack dock-card" valign="top" width="50%" style="width:50%; padding:0 0 20px 8px;">
                   <!-- SLOT: dock card 2 -->
@@ -328,7 +337,7 @@
                   <p class="ff sub-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; line-height:19px; color:#333333; margin:0 0 8px 0;">
                     What sold, what didn't, and the three boats I'd put on a buyer's short list right now.
                   </p>
-                  <a href="https://haleyyachts.com/articles.html" class="ff read-more" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">Read More &rarr;</a>
+                  <a href="https://haleyyachts.com/articles.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=read-article" target="_blank" rel="noopener" class="ff read-more" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">Read More &rarr;</a>
                 </td>
               </tr>
               <tr>
@@ -340,7 +349,7 @@
                   <p class="ff sub-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; line-height:19px; color:#333333; margin:0 0 8px 0;">
                     Why last year's number is the wrong starting point, and how I build a defensible asking price.
                   </p>
-                  <a href="https://haleyyachts.com/articles.html" class="ff read-more" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">Read More &rarr;</a>
+                  <a href="https://haleyyachts.com/articles.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=read-article" target="_blank" rel="noopener" class="ff read-more" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">Read More &rarr;</a>
                 </td>
                 <td class="stack dock-card" valign="top" width="50%" style="width:50%; padding:0 0 8px 8px;">
                   <!-- SLOT: dock card 4 -->
@@ -350,7 +359,7 @@
                   <p class="ff sub-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; line-height:19px; color:#333333; margin:0 0 8px 0;">
                     Underwriters are tightening fast. Here's what to confirm with a broker before you make an offer.
                   </p>
-                  <a href="https://haleyyachts.com/articles.html" class="ff read-more" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">Read More &rarr;</a>
+                  <a href="https://haleyyachts.com/articles.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=read-article" target="_blank" rel="noopener" class="ff read-more" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; font-weight:700; color:#21cbea; text-decoration:none;">Read More &rarr;</a>
                 </td>
               </tr>
             </table>
@@ -436,13 +445,13 @@
                     <tr>
                       <td class="cta-cell" align="center" bgcolor="#21cbea" style="background-color:#21cbea; border-radius:4px;">
                         <!--[if mso]>
-                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://haleyyachts.com/sell.html" style="height:42px;v-text-anchor:middle;width:170px;" arcsize="10%" stroke="f" fillcolor="#21cbea">
+                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://haleyyachts.com/valuation.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=cta-valuation" style="height:42px;v-text-anchor:middle;width:170px;" arcsize="10%" stroke="f" fillcolor="#21cbea">
                           <w:anchorlock/>
                           <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;">Get a Valuation</center>
                         </v:roundrect>
                         <![endif]-->
                         <!--[if !mso]><!-- -->
-                        <a href="https://haleyyachts.com/sell.html" class="cta-btn"
+                        <a href="https://haleyyachts.com/valuation.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=cta-valuation" target="_blank" rel="noopener" class="cta-btn"
                            style="display:inline-block; padding:12px 22px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:700; color:#ffffff; text-decoration:none; border-radius:4px;">
                           Get a Valuation
                         </a>
@@ -451,13 +460,13 @@
                       <td class="hide-mobile" width="12" style="width:12px; font-size:0; line-height:0;">&nbsp;</td>
                       <td class="cta-cell" align="center" bgcolor="#0a1628" style="background-color:#0a1628; border-radius:4px;">
                         <!--[if mso]>
-                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://haleyyachts.com/services.html" style="height:42px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#0a1628">
+                        <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://haleyyachts.com/services.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=cta-services" style="height:42px;v-text-anchor:middle;width:200px;" arcsize="10%" stroke="f" fillcolor="#0a1628">
                           <w:anchorlock/>
                           <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;">Start the Conversation</center>
                         </v:roundrect>
                         <![endif]-->
                         <!--[if !mso]><!-- -->
-                        <a href="https://haleyyachts.com/services.html" class="cta-btn"
+                        <a href="https://haleyyachts.com/services.html?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=cta-services" target="_blank" rel="noopener" class="cta-btn"
                            style="display:inline-block; padding:12px 22px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; font-weight:700; color:#ffffff; text-decoration:none; border-radius:4px;">
                           Start the Conversation
                         </a>
@@ -488,7 +497,7 @@
                     Licensed Florida Yacht Broker
                   </p>
                   <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; line-height:20px; margin:0 0 2px 0;">
-                    <a href="https://haleyyachts.com" style="color:#21cbea; text-decoration:none; font-weight:600;">haleyyachts.com</a>
+                    <a href="https://haleyyachts.com?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=site-link" target="_blank" rel="noopener" style="color:#21cbea; text-decoration:none; font-weight:600;">haleyyachts.com</a>
                   </p>
                   <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; line-height:20px; margin:0 0 2px 0;">
                     <a href="mailto:clark@haleyyachts.com" style="color:#21cbea; text-decoration:none;">clark@haleyyachts.com</a>
@@ -505,7 +514,7 @@
                   <p class="ff" style="margin:0 0 10px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:11px; line-height:14px; color:#4a5560; font-weight:600; letter-spacing:0.18em; text-transform:uppercase;">
                     Broker with
                   </p>
-                  <a href="https://owyg.com" style="text-decoration:none; display:inline-block;">
+                  <a href="https://owyg.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">
                     <img src="https://haleyyachts.com/images/email/owyg-banner.jpg"
                          width="240" height="62" alt="OneWater Yacht Group"
                          style="display:block; width:240px; max-width:240px; height:auto; border:0; outline:none;" />
@@ -523,7 +532,7 @@
         <tr>
           <td bgcolor="#070e1a" style="background-color:#070e1a; padding:32px 32px 28px 32px;" class="stack-pad" align="center">
             <!-- Footer brand mark (matches site footer) -->
-            <a href="https://haleyyachts.com" style="text-decoration:none; display:inline-block; margin-bottom:12px;">
+            <a href="https://haleyyachts.com?utm_source=newsletter&utm_medium=email&utm_campaign=logbook-2026-05&utm_content=site-link" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block; margin-bottom:12px;">
               <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-reverse@2x.png"
                    width="160" height="auto" alt="Haley Yachts"
                    style="display:block; width:160px; max-width:160px; height:auto; border:0; outline:none; opacity:0.85;" />
@@ -540,7 +549,7 @@
             </p>
             <!-- SLOT: unsubscribe URL - replace [UNSUBSCRIBE_URL] with the link your sending tool provides, or remove this paragraph if the tool injects its own footer -->
             <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:12px; line-height:18px; color:#cfd6df; margin:0;">
-              <a href="[UNSUBSCRIBE_URL]" style="color:#21cbea; text-decoration:underline;">Unsubscribe</a>
+              <a href="[UNSUBSCRIBE_URL]" target="_blank" rel="noopener" style="color:#21cbea; text-decoration:underline;">Unsubscribe</a>
             </p>
           </td>
         </tr>
