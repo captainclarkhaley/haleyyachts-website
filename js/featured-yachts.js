@@ -18,7 +18,7 @@ const featuredYachts = [
         description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: ""
+        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf"
     },
     {
         image: "images/yachts/featured/riviera545suv.jpg",
