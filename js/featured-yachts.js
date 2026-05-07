@@ -5,14 +5,14 @@
 const featuredYachts = [
     {
         image: "images/yachts/featured/sangaris.jpg",
-        name: "1995 Manta 42 Mark II - SANGARIS $285,000.00",
+        name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
         description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
         link: "contact.html",
         linkText: "Inquire"
     },
     {
         image: "images/yachts/featured/riviera545suv.jpg",
-        name: "2020 Riviera 545 SUV, \"Fringe Benefit IV\" $1,595,000",
+        name: "2020 Riviera 545 SUV, \"Fringe Benefit IV\" $1,495,000",
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
         link: "contact.html",
         linkText: "Inquire"

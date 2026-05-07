@@ -11,8 +11,8 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [x] articles.html filter UX - shipped 2026-05-06: chips toggle exclusion, single combined grid sorted newest-first, search overlay
 - [x] Sell page: refine copy to match current branding - shipped 2026-05-06: IYBA member-broker credential + brokerage-tier MLS list (YachtWorld, Yatco, IYBA feed) replaces Boat Trader; intro paragraph rewritten in captain-grounded voice (Patrick draft 1A + 2A)
 - [x] Services page: refine copy for Buying Assistance and Selling Assistance sections - shipped 2026-05-06: 8 conversion-focused tweaks (20-min/48-hr SLAs, captain credibility, channel list aligned to sell.html, free market analysis CTA) + new Buying-side "Trading Up?" valuation banner
-- [ ] Contact page: optional map/location reference
-- [ ] Contact page: social media icons/links (Instagram, X, Facebook, LinkedIn)
+- [ ] Contact page: social media icons/links (Instagram, X, Facebook, LinkedIn) - deferred, Clark not ready (2026-05-06)
+- ~~Contact page: map/location reference~~ - declined 2026-05-06, intentionally omitted
 
 ### Polish
 - [ ] Final logo pass if you still want to revisit
