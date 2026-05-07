@@ -83,38 +83,30 @@
       <!-- 600px container -->
       <table role="presentation" class="container" border="0" cellpadding="0" cellspacing="0" width="600" style="width:600px; max-width:600px; background-color:#ffffff;" bgcolor="#ffffff">
 
-        <!-- ===== MASTHEAD ===== -->
+        <!-- ===== MASTHEAD =====
+             Single composite image with logo + "The Logbook" title + tagline baked in.
+             To author a new issue, swap in a new composite at the same dimensions
+             (1200x720 retina, displays at 600x360). Brand text is part of the image,
+             so the only monthly variable is the month banner below.
+        -->
         <tr>
-          <td bgcolor="#0a1628" style="background-color:#0a1628; padding:24px 24px 16px 24px;" align="center">
-            <!-- SLOT: brand logo (reverse-color lockup for the dark masthead band) -->
+          <td bgcolor="#0a1628" style="background-color:#0a1628; padding:0;" align="center">
+            <!-- SLOT: masthead composite (logo + title + tagline + photo) -->
             <a href="https://haleyyachts.com" style="text-decoration:none;">
-              <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-reverse@2x.png"
-                   width="220" height="auto" alt="Haley Yachts"
-                   style="display:block; width:220px; max-width:220px; height:auto; border:0; outline:none;" />
+              <img src="https://haleyyachts.com/images/email/logbook-masthead.jpg"
+                   width="600" height="360" alt="The Logbook - Haley Yachts"
+                   class="stack-img"
+                   style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none;" />
             </a>
           </td>
         </tr>
 
+        <!-- Month banner -->
         <tr>
-          <td bgcolor="#0a1628" style="background-color:#0a1628; padding:0;" align="center">
-            <!-- SLOT: hero image - issue-specific yacht photo. Preserve native aspect ratio; update width/height attrs if you swap to a different image. -->
-            <img src="https://haleyyachts.com/images/email/nordhavn80.jpeg"
-                 width="600" height="408" alt="Nordhavn 80 underway"
-                 class="stack-img"
-                 style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none;" />
-          </td>
-        </tr>
-
-        <tr>
-          <td bgcolor="#0a1628" style="background-color:#0a1628; padding:24px 24px 28px 24px;" align="center">
-            <!-- SLOT: nameplate - update [Month Year] each issue -->
-            <p class="ff" style="margin:0 0 8px 0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:22px; line-height:28px; color:#ffffff; font-weight:700; letter-spacing:0.5px;">
-              The Logbook
-              <span style="color:#21cbea; font-weight:400;">&nbsp;|&nbsp;</span>
-              <span style="color:#21cbea; font-weight:600;">May 2026</span>
-            </p>
-            <p class="ff" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; line-height:18px; color:#cfd6df; font-weight:400;">
-              Monthly briefing from Clark Haley, Licensed Florida Yacht Broker
+          <td bgcolor="#21cbea" style="background-color:#21cbea; padding:11px 24px;" align="center">
+            <!-- SLOT: issue month - update [Month Year] each issue -->
+            <p class="ff" style="margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:13px; line-height:16px; color:#0a1628; font-weight:700; letter-spacing:0.18em; text-transform:uppercase;">
+              May 2026
             </p>
           </td>
         </tr>
