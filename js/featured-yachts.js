@@ -26,7 +26,7 @@ const featuredYachts = [
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: ""
+        pdf: "documents/yachts/featured/2020-riviera-545-suv.pdf"
     },
     {
         image: "images/yachts/featured/southern-wind.jpg",
@@ -34,7 +34,7 @@ const featuredYachts = [
         description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: ""
+        pdf: "documents/yachts/featured/1991-southern-wind-bruce-farr-fast-72.pdf"
     },
     {
         image: "images/yachts/featured/riviera-465suv.jpg",
@@ -42,7 +42,7 @@ const featuredYachts = [
         description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: ""
+        pdf: "documents/yachts/featured/2024-riviera-465-suv.pdf"
     },
     {
         image: "",
