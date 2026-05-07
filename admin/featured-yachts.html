@@ -203,7 +203,7 @@
         (1) Pick the Position (1-6) to edit, then click <strong>Load Current Values</strong>.<br>
         (2) Click <strong>Browse</strong> and select an image from your computer. It will be copied into <strong>/images/yachts/featured/</strong> when you save, and the filename will be auto-cleaned (lowercase, hyphens, no spaces). You can also type a filename manually if the image is already in the folder.<br>
         (3) Enter the Title (max 60 characters) and Description (max 250 characters).<br>
-        (4) <em>Optional:</em> attach a Full Details PDF. Browse to a PDF (it copies into <strong>/documents/yachts/featured/</strong>) or paste an external spec-sheet URL. Leave blank to hide the Full Details button on the card.<br>
+        (4) <em>Optional:</em> attach a Full Details PDF. Browse to a PDF (it copies into <strong>/documents/yachts/featured/</strong> using the file's original filename) or paste an external spec-sheet URL. Leave blank to hide the Full Details button on the card.<br>
         (5) Click <strong>SAVE</strong>.<br>
         <br>
         <strong>Reorder slots:</strong> Load a position, choose a destination from <em>Move to Position</em>, then click <strong>MOVE</strong>. The boat you move takes the new slot and the other slots shift to make room.<br>
@@ -253,7 +253,7 @@
             <button type="button" id="clearPdfBtn" style="float:right; background:none; border:none; color:#1aa8c4; cursor:pointer; font-size:0.85rem; padding:0;">Clear</button>
         </div>
 
-        <label for="pdfPath">PDF Filename or URL: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(auto-filled when you browse, type a filename in /documents/yachts/featured/, or paste a full https:// URL. Leave blank to remove.)</span></label>
+        <label for="pdfPath">PDF Filename or URL: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(auto-filled with the original filename when you browse. Or type a filename already in /documents/yachts/featured/, or paste a full https:// URL. Leave blank to remove.)</span></label>
         <input type="text" id="pdfPath" placeholder="e.g., riviera-545suv-spec.pdf or https://example.com/spec.pdf">
         <button type="button" id="removePdfBtn" style="background:none; border:1px solid #d0d0d0; color:#888; padding:4px 12px; font-size:0.75rem; border-radius:3px; cursor:pointer; margin-top:6px;" onclick="removePdfAssociation()">Remove PDF from this slot</button>
 
@@ -282,7 +282,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-06 22:05 EDT</div>
+    <div class="admin-version" data-version>v: 2026-05-06 22:55 EDT</div>
 </div>
 
 <!-- Load current data -->
@@ -386,9 +386,11 @@
             return;
         }
         pendingPdfFile = file;
-        const cleanName = sanitizeFilename(file.name);
-        pdfPathInput.value = cleanName;
-        pdfFileNameEl.textContent = cleanName;
+        // Keep the MLS-provided filename as-is. The site is fine with mixed case +
+        // underscores as long as the data path matches the actual filename exactly.
+        const exactName = file.name;
+        pdfPathInput.value = exactName;
+        pdfFileNameEl.textContent = exactName;
         pdfPreviewRow.style.display = 'block';
         showStatus('PDF selected. Click SAVE to copy it and update the listing.', 'success');
     });
@@ -839,6 +841,16 @@ function isFilledYacht(y) {
     return false;
 }
 
+// Strip the price portion from a yacht name so the email subject is clean.
+// "1995 Manta 42 Mark II - SANGARIS $259,000.00" -> "1995 Manta 42 Mark II - SANGARIS"
+function _fyStripPrice(name) {
+    return (name || '').replace(/[\\s,\\-]*\\$[\\d,\\.]+.*$/, '').trim();
+}
+function _fyInquireMailto(name) {
+    const subject = encodeURIComponent(_fyStripPrice(name) + ' Inquiry');
+    return \`mailto:clark@haleyyachts.com?subject=\${subject}\`;
+}
+
 function renderFeaturedYachts(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -849,8 +861,9 @@ function renderFeaturedYachts(containerId) {
             : '';
         const imgLabel = y.image ? '' : 'Featured Yacht Image';
         const pdfLink = (y.pdf && y.pdf.trim())
-            ? \`<a href="\${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Full Details</a>\`
+            ? \`<a href="\${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Spec Sheet (PDF)</a>\`
             : '';
+        const inquireHref = _fyInquireMailto(y.name);
         return \`
             <div class="card">
                 <div class="card-img" style="\${imgStyle}">\${imgLabel}</div>
@@ -858,9 +871,10 @@ function renderFeaturedYachts(containerId) {
                     <h3>\${y.name}</h3>
                     <p>\${y.description}</p>
                     <div class="card-actions">
+                        <a href="\${inquireHref}" class="card-link">Inquire</a>
                         \${pdfLink}
-                        <a href="\${y.link}" class="card-link">\${y.linkText}</a>
                     </div>
+                    <a href="tel:5618171547" class="card-call">Call Clark: 561-817-1547</a>
                 </div>
             </div>
         \`;

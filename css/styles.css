@@ -357,6 +357,17 @@ a:hover { color: #1aa8c4; }
 }
 .card-actions .card-link.card-link-secondary { color: #4a5560; }
 .card-actions .card-link.card-link-secondary:hover { color: #21cbea; }
+.card-call {
+    display: block;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #eef0f3;
+    font-size: 0.78rem;
+    color: #888;
+    text-decoration: none;
+}
+.card-call:hover { color: #21cbea; }
+.card-call::before { content: '\260E\00A0'; font-size: 0.85rem; }
 
 /* ===== TWO-COLUMN LAYOUT ===== */
 .two-col {

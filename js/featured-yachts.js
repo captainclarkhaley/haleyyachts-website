@@ -69,6 +69,16 @@ function isFilledYacht(y) {
     return false;
 }
 
+// Strip the price portion from a yacht name so the email subject is clean.
+// "1995 Manta 42 Mark II - SANGARIS $259,000.00" -> "1995 Manta 42 Mark II - SANGARIS"
+function _fyStripPrice(name) {
+    return (name || '').replace(/[\s,\-]*\$[\d,\.]+.*$/, '').trim();
+}
+function _fyInquireMailto(name) {
+    const subject = encodeURIComponent(_fyStripPrice(name) + ' Inquiry');
+    return `mailto:clark@haleyyachts.com?subject=${subject}`;
+}
+
 function renderFeaturedYachts(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -79,8 +89,9 @@ function renderFeaturedYachts(containerId) {
             : '';
         const imgLabel = y.image ? '' : 'Featured Yacht Image';
         const pdfLink = (y.pdf && y.pdf.trim())
-            ? `<a href="${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Full Details</a>`
+            ? `<a href="${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Spec Sheet (PDF)</a>`
             : '';
+        const inquireHref = _fyInquireMailto(y.name);
         return `
             <div class="card">
                 <div class="card-img" style="${imgStyle}">${imgLabel}</div>
@@ -88,9 +99,10 @@ function renderFeaturedYachts(containerId) {
                     <h3>${y.name}</h3>
                     <p>${y.description}</p>
                     <div class="card-actions">
+                        <a href="${inquireHref}" class="card-link">Inquire</a>
                         ${pdfLink}
-                        <a href="${y.link}" class="card-link">${y.linkText}</a>
                     </div>
+                    <a href="tel:5618171547" class="card-call">Call Clark: 561-817-1547</a>
                 </div>
             </div>
         `;
