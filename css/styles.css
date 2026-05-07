@@ -344,10 +344,19 @@ a:hover { color: #1aa8c4; }
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #21cbea;
+    text-decoration: none;
 }
 .card-link:hover { color: #1aa8c4; }
 .card-link::after { content: ' \2192'; transition: margin-left 0.2s; }
 .card-link:hover::after { margin-left: 4px; }
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+.card-actions .card-link.card-link-secondary { color: #4a5560; }
+.card-actions .card-link.card-link-secondary:hover { color: #21cbea; }
 
 /* ===== TWO-COLUMN LAYOUT ===== */
 .two-col {

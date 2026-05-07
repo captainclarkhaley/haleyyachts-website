@@ -201,7 +201,8 @@
         (1) Pick the Position (1-6) to edit, then click <strong>Load Current Values</strong>.<br>
         (2) Click <strong>Browse</strong> and select an image from your computer. It will be copied into <strong>/images/yachts/featured/</strong> when you save, and the filename will be auto-cleaned (lowercase, hyphens, no spaces). You can also type a filename manually if the image is already in the folder.<br>
         (3) Enter the Title (max 60 characters) and Description (max 250 characters).<br>
-        (4) Click <strong>SAVE</strong>.<br>
+        (4) <em>Optional:</em> attach a Full Details PDF. Browse to a PDF (it copies into <strong>/documents/yachts/featured/</strong>) or paste an external spec-sheet URL. Leave blank to hide the Full Details button on the card.<br>
+        (5) Click <strong>SAVE</strong>.<br>
         <br>
         <strong>Reorder slots:</strong> Load a position, choose a destination from <em>Move to Position</em>, then click <strong>MOVE</strong>. The boat you move takes the new slot and the other slots shift to make room.<br>
         <br>
@@ -243,6 +244,17 @@
         <textarea id="imageDesc" maxlength="250"></textarea>
         <div class="char-count" id="descCount">0 / 250</div>
 
+        <label for="pdfFile">Browse for Full Details PDF: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(optional)</span></label>
+        <input type="file" id="pdfFile" accept="application/pdf,.pdf">
+        <div id="pdfPreviewRow" style="display:none; margin-top:10px; padding:10px 12px; background:#f1f8fa; border-left:3px solid #21cbea; border-radius:3px; font-size:0.85rem; color:#333;">
+            Selected: <strong id="pdfFileName"></strong>
+            <button type="button" id="clearPdfBtn" style="float:right; background:none; border:none; color:#1aa8c4; cursor:pointer; font-size:0.85rem; padding:0;">Clear</button>
+        </div>
+
+        <label for="pdfPath">PDF Filename or URL: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(auto-filled when you browse, type a filename in /documents/yachts/featured/, or paste a full https:// URL. Leave blank to remove.)</span></label>
+        <input type="text" id="pdfPath" placeholder="e.g., riviera-545suv-spec.pdf or https://example.com/spec.pdf">
+        <button type="button" id="removePdfBtn" style="background:none; border:1px solid #d0d0d0; color:#888; padding:4px 12px; font-size:0.75rem; border-radius:3px; cursor:pointer; margin-top:6px;" onclick="removePdfAssociation()">Remove PDF from this slot</button>
+
         <button type="button" class="btn btn-secondary" onclick="loadCurrent()">Load Current Values</button>
         <button type="button" class="btn" onclick="saveFile()">SAVE</button>
 
@@ -268,7 +280,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-06 09:30 EDT</div>
+    <div class="admin-version" data-version>v: 2026-05-06 21:25 EDT</div>
 </div>
 
 <!-- Load current data -->
@@ -284,11 +296,14 @@
             name: 'Featured Listing',
             description: 'Details about this featured yacht will appear here.',
             link: 'contact.html',
-            linkText: 'Inquire'
+            linkText: 'Inquire',
+            pdf: ''
         });
     }
     // If there are more than 6 slots (leftover from older saves), trim down to 6
     workingData = workingData.slice(0, 6);
+    // Backfill pdf field on entries that pre-date the schema change
+    workingData.forEach(y => { if (typeof y.pdf === 'undefined') y.pdf = ''; });
 
     const posSel = document.getElementById('position');
     const imgInput = document.getElementById('imageName');
@@ -301,9 +316,15 @@
     const imagePreviewRow = document.getElementById('imagePreviewRow');
     const imageFileName = document.getElementById('imageFileName');
     const clearImageBtn = document.getElementById('clearImageBtn');
+    const pdfFileInput = document.getElementById('pdfFile');
+    const pdfPathInput = document.getElementById('pdfPath');
+    const pdfPreviewRow = document.getElementById('pdfPreviewRow');
+    const pdfFileNameEl = document.getElementById('pdfFileName');
+    const clearPdfBtn = document.getElementById('clearPdfBtn');
 
-    // Holds the File object the user picked via Browse; cleared after a successful save.
+    // Holds the File objects the user picked via Browse; cleared after a successful save.
     let pendingImageFile = null;
+    let pendingPdfFile = null;
 
     function sanitizeFilename(name) {
         const dot = name.lastIndexOf('.');
@@ -336,6 +357,37 @@
         imagePreviewRow.style.display = 'none';
     });
 
+    // PDF: Browse-handler. Same sanitize-and-stash pattern as image.
+    pdfFileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) {
+            pendingPdfFile = null;
+            pdfPreviewRow.style.display = 'none';
+            return;
+        }
+        pendingPdfFile = file;
+        const cleanName = sanitizeFilename(file.name);
+        pdfPathInput.value = cleanName;
+        pdfFileNameEl.textContent = cleanName;
+        pdfPreviewRow.style.display = 'block';
+        showStatus('PDF selected. Click SAVE to copy it and update the listing.', 'success');
+    });
+
+    clearPdfBtn.addEventListener('click', () => {
+        pendingPdfFile = null;
+        pdfFileInput.value = '';
+        pdfPreviewRow.style.display = 'none';
+    });
+
+    // "Remove PDF from this slot" - clears the path input. Saved on next SAVE.
+    function removePdfAssociation() {
+        pendingPdfFile = null;
+        pdfFileInput.value = '';
+        pdfPathInput.value = '';
+        pdfPreviewRow.style.display = 'none';
+        showStatus('PDF cleared. Click SAVE to remove it from this slot.', 'success');
+    }
+
     // Live character counters
     titleInput.addEventListener('input', () => {
         titleCount.textContent = `${titleInput.value.length} / 60`;
@@ -358,6 +410,17 @@
         imgInput.value = filename;
         titleInput.value = y.name === 'Featured Listing' ? '' : y.name;
         descInput.value = y.description.startsWith('Details about') ? '' : y.description;
+        // PDF: show full URL if external, just filename if local
+        const pdfVal = y.pdf || '';
+        if (/^https?:\/\//i.test(pdfVal)) {
+            pdfPathInput.value = pdfVal;
+        } else {
+            pdfPathInput.value = pdfVal ? pdfVal.replace(/^.*\//, '') : '';
+        }
+        // Reset any pending PDF browse from a prior load
+        pendingPdfFile = null;
+        pdfFileInput.value = '';
+        pdfPreviewRow.style.display = 'none';
         titleInput.dispatchEvent(new Event('input'));
         descInput.dispatchEvent(new Event('input'));
         showStatus(`Loaded current values for position ${pos}.`, 'success');
@@ -507,6 +570,17 @@
         await writable.close();
     }
 
+    async function copyPdfToFeatured(file, filename) {
+        const root = await getSiteRoot();
+        const docsDir = await root.getDirectoryHandle('documents', { create: true });
+        const yachtsDir = await docsDir.getDirectoryHandle('yachts', { create: true });
+        const featuredDir = await yachtsDir.getDirectoryHandle('featured', { create: true });
+        const fileHandle = await featuredDir.getFileHandle(filename, { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(file);
+        await writable.close();
+    }
+
     // Try to bind site root on page load (no prompt - silent if not granted)
     (async () => {
         try {
@@ -532,8 +606,9 @@
         const filename = imgInput.value.trim();
         const title = titleInput.value.trim();
         const desc = descInput.value.trim();
+        const pdfRaw = pdfPathInput.value.trim();
 
-        if (!filename && !title && !desc && !pendingImageFile) {
+        if (!filename && !title && !desc && !pendingImageFile && !pendingPdfFile && !pdfRaw) {
             showStatus('Please fill in at least one field.', 'error');
             return;
         }
@@ -544,7 +619,7 @@
             return;
         }
 
-        // Step 1: if a Browse-selected image is pending, copy it into the featured folder first.
+        // Step 1a: if a Browse-selected image is pending, copy it into the featured folder first.
         if (pendingImageFile) {
             try {
                 await copyImageToFeatured(pendingImageFile, filename);
@@ -558,6 +633,21 @@
             }
         }
 
+        // Step 1b: if a Browse-selected PDF is pending, copy it into documents/yachts/featured/.
+        if (pendingPdfFile) {
+            try {
+                // pdfRaw at this point is the sanitized filename auto-filled at browse time.
+                await copyPdfToFeatured(pendingPdfFile, pdfRaw);
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    showStatus('PDF copy canceled.', 'error');
+                } else {
+                    showStatus('PDF copy failed: ' + err.message, 'error');
+                }
+                return;
+            }
+        }
+
         // Step 2: update working copy of featuredYachts
         const entry = workingData[pos - 1];
         if (filename) entry.image = 'images/yachts/featured/' + filename;
@@ -565,6 +655,15 @@
         if (desc) entry.description = desc;
         entry.link = entry.link || 'contact.html';
         entry.linkText = entry.linkText || 'Inquire';
+
+        // PDF: blank => removed; full URL => external; bare filename => local doc.
+        if (!pdfRaw) {
+            entry.pdf = '';
+        } else if (/^https?:\/\//i.test(pdfRaw)) {
+            entry.pdf = pdfRaw;
+        } else {
+            entry.pdf = 'documents/yachts/featured/' + pdfRaw.replace(/^.*\//, '');
+        }
 
         const fileContent = buildFileContent(workingData);
 
@@ -586,11 +685,16 @@
                 throw new Error('File on disk does not match what was written. Save may have gone to the wrong location. Click "Change folder" and re-pick the site root.');
             }
 
-            // Clear the pending image so repeated SAVE clicks don't re-copy
+            // Clear the pending files so repeated SAVE clicks don't re-copy
             if (pendingImageFile) {
                 pendingImageFile = null;
                 fileInput.value = '';
                 imagePreviewRow.style.display = 'none';
+            }
+            if (pendingPdfFile) {
+                pendingPdfFile = null;
+                pdfFileInput.value = '';
+                pdfPreviewRow.style.display = 'none';
             }
             showStatus(`Saved! Position ${pos} updated. Commit + push + pull to deploy.`, 'success');
         } catch (err) {
@@ -631,10 +735,11 @@
             workingData.push({
                 image: '', name: 'Featured Listing',
                 description: 'Details about this featured yacht will appear here.',
-                link: 'contact.html', linkText: 'Inquire'
+                link: 'contact.html', linkText: 'Inquire', pdf: ''
             });
         }
         workingData = workingData.slice(0, 6);
+        workingData.forEach(y => { if (typeof y.pdf === 'undefined') y.pdf = ''; });
 
         const fileContent = buildFileContent(workingData);
 
@@ -673,6 +778,7 @@
             <div class="preview-row"><strong>Title:</strong> ${entry.name}</div>
             <div class="preview-row"><strong>Description:</strong> ${entry.description}</div>
             <div class="preview-row"><strong>Link:</strong> ${entry.link}</div>
+            <div class="preview-row"><strong>Full Details PDF:</strong> ${entry.pdf || '<em style="color:#999">(none - button hidden)</em>'}</div>
         `;
     }
 
@@ -683,13 +789,23 @@
         name: ${JSON.stringify(y.name)},
         description: ${JSON.stringify(y.description)},
         link: ${JSON.stringify(y.link)},
-        linkText: ${JSON.stringify(y.linkText)}
+        linkText: ${JSON.stringify(y.linkText)},
+        pdf: ${JSON.stringify(y.pdf || '')}
     }`;
         }).join(',\n');
 
         return `// ===== Featured Yachts - single source of truth =====
 // Generated by /admin/featured-yachts.html - Featured Image Maintenance
 // You can also edit this file manually if preferred.
+//
+// Schema per entry:
+//   image       - relative path to hero image (e.g. images/yachts/featured/foo.jpg)
+//   name        - display title shown above the description
+//   description - body copy under the title
+//   link        - destination URL for the primary "Inquire" button (usually contact.html)
+//   linkText    - label for the primary button
+//   pdf         - optional. Relative path to a Full Details PDF in documents/yachts/featured/
+//                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
 
 const featuredYachts = [
 ${entries}
@@ -711,13 +827,19 @@ function renderFeaturedYachts(containerId) {
             ? \`background-image: url('\${y.image}'); background-size: cover; background-position: center;\`
             : '';
         const imgLabel = y.image ? '' : 'Featured Yacht Image';
+        const pdfLink = (y.pdf && y.pdf.trim())
+            ? \`<a href="\${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Full Details</a>\`
+            : '';
         return \`
             <div class="card">
                 <div class="card-img" style="\${imgStyle}">\${imgLabel}</div>
                 <div class="card-body">
                     <h3>\${y.name}</h3>
                     <p>\${y.description}</p>
-                    <a href="\${y.link}" class="card-link">\${y.linkText}</a>
+                    <div class="card-actions">
+                        \${pdfLink}
+                        <a href="\${y.link}" class="card-link">\${y.linkText}</a>
+                    </div>
                 </div>
             </div>
         \`;
