@@ -17,42 +17,48 @@ const featuredYachts = [
         name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
         description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
         link: "contact.html",
-        linkText: "Inquire"
+        linkText: "Inquire",
+        pdf: ""
     },
     {
         image: "images/yachts/featured/riviera545suv.jpg",
         name: "2020 Riviera 545 SUV, \"Fringe Benefit IV\" $1,495,000",
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
         link: "contact.html",
-        linkText: "Inquire"
+        linkText: "Inquire",
+        pdf: ""
     },
     {
         image: "images/yachts/featured/southern-wind.jpg",
         name: "1991 Southern Wind 72, \"Fortunato\" - $495,000",
         description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
         link: "contact.html",
-        linkText: "Inquire"
+        linkText: "Inquire",
+        pdf: ""
     },
     {
         image: "images/yachts/featured/riviera-465suv.jpg",
         name: "2024 Riviera 465 SUV - $1,574,000",
         description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
         link: "contact.html",
-        linkText: "Inquire"
+        linkText: "Inquire",
+        pdf: ""
     },
     {
         image: "",
         name: "Featured Listing",
         description: "Details about this featured yacht will appear here.",
         link: "contact.html",
-        linkText: "Inquire"
+        linkText: "Inquire",
+        pdf: ""
     },
     {
         image: "",
         name: "Featured Listing",
         description: "Details about this featured yacht will appear here.",
         link: "contact.html",
-        linkText: "Inquire"
+        linkText: "Inquire",
+        pdf: ""
     }
 ];
 

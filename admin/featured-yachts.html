@@ -90,6 +90,8 @@
             transition: background 0.2s;
         }
         .btn:hover { background: #1aa8c4; }
+        .btn.saved { background: #2a9c45; }
+        .btn.saved:hover { background: #1f7a35; }
         .btn-secondary { background: #555; }
         .btn-secondary:hover { background: #333; }
         .output-section {
@@ -214,7 +216,7 @@
         <button type="button" class="reset-btn" onclick="resetSiteRoot()">Change folder</button>
     </div>
 
-    <form id="maintForm" onsubmit="event.preventDefault(); loadCurrent();">
+    <form id="maintForm" onsubmit="event.preventDefault();">
         <label for="position">Featured Image Position (1-6):</label>
         <select id="position" required>
             <option value="">-- Select --</option>
@@ -245,7 +247,7 @@
         <div class="char-count" id="descCount">0 / 250</div>
 
         <label for="pdfFile">Browse for Full Details PDF: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(optional)</span></label>
-        <input type="file" id="pdfFile" accept="application/pdf,.pdf">
+        <input type="file" id="pdfFile" accept=".pdf">
         <div id="pdfPreviewRow" style="display:none; margin-top:10px; padding:10px 12px; background:#f1f8fa; border-left:3px solid #21cbea; border-radius:3px; font-size:0.85rem; color:#333;">
             Selected: <strong id="pdfFileName"></strong>
             <button type="button" id="clearPdfBtn" style="float:right; background:none; border:none; color:#1aa8c4; cursor:pointer; font-size:0.85rem; padding:0;">Clear</button>
@@ -256,7 +258,7 @@
         <button type="button" id="removePdfBtn" style="background:none; border:1px solid #d0d0d0; color:#888; padding:4px 12px; font-size:0.75rem; border-radius:3px; cursor:pointer; margin-top:6px;" onclick="removePdfAssociation()">Remove PDF from this slot</button>
 
         <button type="button" class="btn btn-secondary" onclick="loadCurrent()">Load Current Values</button>
-        <button type="button" class="btn" onclick="saveFile()">SAVE</button>
+        <button type="button" id="saveBtn" class="btn" onclick="saveFile()">SAVE</button>
 
         <div style="margin-top:32px; padding-top:24px; border-top:1px solid #e5e5e5;">
             <label for="movePosition">Move loaded boat to Position:</label>
@@ -280,7 +282,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-06 21:25 EDT</div>
+    <div class="admin-version" data-version>v: 2026-05-06 22:05 EDT</div>
 </div>
 
 <!-- Load current data -->
@@ -321,6 +323,24 @@
     const pdfPreviewRow = document.getElementById('pdfPreviewRow');
     const pdfFileNameEl = document.getElementById('pdfFileName');
     const clearPdfBtn = document.getElementById('clearPdfBtn');
+    const saveBtn = document.getElementById('saveBtn');
+
+    // ===== Save-state visual feedback =====
+    function markSaved() {
+        saveBtn.classList.add('saved');
+        saveBtn.textContent = 'SAVED ✓';
+    }
+    function markUnsaved() {
+        saveBtn.classList.remove('saved');
+        saveBtn.textContent = 'SAVE';
+    }
+    // Any edit reverts the button. Position change / Load also resets (form contents change).
+    [imgInput, titleInput, descInput, pdfPathInput].forEach(el => {
+        el.addEventListener('input', markUnsaved);
+    });
+    posSel.addEventListener('change', markUnsaved);
+    pdfFileInput.addEventListener('change', markUnsaved);
+    fileInput.addEventListener('change', markUnsaved);
 
     // Holds the File objects the user picked via Browse; cleared after a successful save.
     let pendingImageFile = null;
@@ -696,6 +716,7 @@
                 pdfFileInput.value = '';
                 pdfPreviewRow.style.display = 'none';
             }
+            markSaved();
             showStatus(`Saved! Position ${pos} updated. Commit + push + pull to deploy.`, 'success');
         } catch (err) {
             if (err.name === 'AbortError') {
