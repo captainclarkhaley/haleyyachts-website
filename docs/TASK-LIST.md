@@ -1,5 +1,5 @@
 # Haley Yachts Website - Task List
-*Last updated: April 19, 2026*
+*Last updated: May 6, 2026*
 
 Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull.
 
@@ -8,8 +8,7 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 ## STILL TO DO
 
 ### Content Refinement
-- [ ] Articles: send me your first article (Word doc + hero image + category + edit level) so we can replace the placeholder cards on articles.html
-- [ ] articles.html filter UX (Terry, scheduled): default view shows articles from ALL categories, sorted by date published (newest first). Category chips act as exclusion filters - clicking a category hides it. All active by default; user clicks to narrow. Clark will review + test locally before publishing.
+- [x] articles.html filter UX - shipped 2026-05-06: chips toggle exclusion, single combined grid sorted newest-first, search overlay
 - [ ] Sell page: refine copy to match current branding
 - [ ] Services page: refine copy for Buying Assistance and Selling Assistance sections
 - [ ] Contact page: optional map/location reference
@@ -21,7 +20,7 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] Add sitemap.xml once a few articles are published
 
 ### Pre-Launch Hardening
-- [ ] Remove `noindex, nofollow` meta tags from any pages that still have them (site is live, should be indexable)
+- [x] Remove `noindex, nofollow` meta tags from any pages that still have them - audited 2026-05-06: only correctly present on admin pages; bonus added missing tag to `admin/featured-yachts.html`
 - [ ] Confirm Formsubmit email verification is current for contact form
 - [ ] Confirm Formsubmit email verification is current for valuation form
 - [x] HSTS (Strict-Transport-Security) - shipped with fresh root `.htaccess` 2026-04-19
@@ -35,9 +34,9 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] Revisit hero `min-height: 600px` safety floor during device testing
 
 ### Admin Tool Backlog
-- [ ] Future tool: Contact Form Submissions viewer (requires HubSpot or backend)
-- [ ] Future tool: Site Analytics dashboard (Google Analytics integration)
-- [ ] Future tool: Image Library browser
+- [ ] Contact Form Submissions viewer (waiting on HubSpot - Clark provisioning ~2026-05-08)
+- [x] Site Analytics dashboard - shipped 2026-05-06 at `/admin/site-analytics.html`: 9 pre-filled deep links into GA4 + Clarity, GA4 Property ID input upgrades links to direct deep links once set
+- [ ] Image Library browser
 
 ### Post-Launch
 - [ ] HubSpot CRM integration (replace Formsubmit with HubSpot forms)
@@ -46,6 +45,18 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] Email newsletter workflow
 
 ---
+
+## RECENTLY COMPLETED (May 4-6)
+
+- [x] Favicon swap: new Haley Yachts brand monogram (rounded blue square + wave mark) replaces old compass-rose; multi-res ICO + 6 PNG sizes + SVG wrapper
+- [x] Buy page: World Wide Listings broken yachtsite.com embed replaced with styled "coming soon" panel
+- [x] Article Manager: fixed `removeArticle` calling undefined `buildArticlesDataFile`; now mirrors the proven regex-replace pattern from `updateManifest`
+- [x] Featured Yacht admin: rewrote save flow to use site-root directory handle + read-back verification (the old per-file-handle approach was silently writing to wrong locations)
+- [x] Featured Yacht admin: new "Move to Position" feature (insert-shift reorder of slots)
+- [x] articles.html filter UX: 5 single-select tabs replaced with 5 chip toggles + one combined date-sorted grid
+- [x] Site Analytics: GA4 (`G-6CVE0DG8Z3`) + Microsoft Clarity (`wn3878tuvv`) installed via `js/analytics.js`; 4 conversion events live + buy_engaged_view proxy
+- [x] Site Analytics admin tool: `/admin/site-analytics.html` with pre-filled deep links into GA4 + Clarity dashboards, recordings, heatmaps, events
+- [x] noindex audit across all public pages (clean) + added missing tag to `admin/featured-yachts.html`
 
 ## RECENTLY COMPLETED (April 19)
 
