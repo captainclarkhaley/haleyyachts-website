@@ -45,20 +45,20 @@ const featuredYachts = [
         pdf: "documents/yachts/featured/2024-riviera-465-suv.pdf"
     },
     {
-        image: "",
-        name: "Featured Listing",
-        description: "Details about this featured yacht will appear here.",
+        image: "images/yachts/featured/2022 Sunseeker 68 Manhattan",
+        name: "2022 Sunseeker 68 Manhattan",
+        description: "This 2022 Sunseeker 68 Manhattan represents a rare opportunity to acquire the only 4 cabin layout currently availableon the market. Well maintained with approximately 900 hours on the MAN V8 1200 engines and full service records up to date.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: ""
+        pdf: "documents/yachts/featured/2022-sunseeker-manhattan_68.pdf"
     },
     {
-        image: "",
-        name: "Featured Listing",
-        description: "Details about this featured yacht will appear here.",
+        image: "images/yachts/featured/2018-absolute-60-fly.jpg",
+        name: "2018 Absolute 60 Fly",
+        description: "Introducing Mama’s House, a beautifully maintained 2018 Absolute 60 FLY that perfectly blends Italian design,performance, and comfort. Powered by twin Volvo Penta D11 IPS 950s with approximately 550 hours, she offers smooth, efficient cruising.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: ""
+        pdf: "documents/yachts/featured/2018-absolute-60-fly.pdf"
     }
 ];
 
