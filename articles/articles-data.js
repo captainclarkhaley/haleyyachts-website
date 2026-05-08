@@ -70,6 +70,17 @@ const publishedArticles = [
         "keywords": "Riviera, Sport Yacht, Motor Yacht"
     },
     {
+        "type": "travel",
+        "title": "A Simple Trip to the Abacos",
+        "excerpt": "Somewhere between the third anchorage and the first genuine sunset, you realize what you left behind on the mainland doesn't matter nearly as much as you thought. A week in the Abacos has a way of stripping the noise and showing you what does.",
+        "date": "2026-05-02",
+        "author": "Clark Haley",
+        "slug": "a-simple-trip-to-the-abacos",
+        "fileName": "2026-05-02-a-simple-trip-to-the-abacos.html",
+        "heroImage": "dsc02094.jpg",
+        "keywords": "Abacos, Bahamas cruising, Marsh Harbour, Man O' War Cay, Exumas, yacht travel, boat life, slow living, anchorage, cruising lifestyle, Bahamas yacht charter, captain's perspective, Clark Haley, Haley Yachts, why people buy boats"
+    },
+    {
         "type": "industry-news",
         "title": "Sunseeker gets a new permanent CEO",
         "excerpt": "Sunseeker completed the sale of the company to investment group. New owners first objective? Hire a new and permanent CEO",
