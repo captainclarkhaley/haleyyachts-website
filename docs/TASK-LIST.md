@@ -42,7 +42,7 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] HubSpot CRM integration (replace Formsubmit with HubSpot forms)
 - [ ] MLS service integration for Worldwide Listings (currently using YachtSite embed)
 - [ ] Begin publishing articles regularly
-- [ ] Email newsletter workflow
+- [x] Email newsletter workflow - "The Logbook" master template shipped 2026-05-07 at `email-templates/logbook.html` (+ plain-text companion + bake-masthead.py for monthly composite regen). Per-issue inputs: NOTE, 3 featured listings, 4 articles, 4 recent sales. UTM tracking wired through GA4.
 
 ---
 

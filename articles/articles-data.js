@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "industry-news",
+        "title": "Riviera Unveils Integrated Solar Breakthrough",
+        "excerpt": "Riviera is bonding a 2mm nano-composite solar skin directly into the hardtop during construction. Real boats are pulling 10kWh a day and running three days off-grid. Available on new builds 39 to 78 feet, with retrofits through Riviera Aftermarket.",
+        "date": "2026-05-08",
+        "author": "Clark Haley",
+        "slug": "riviera-unveils-integrated-solar-breakthrough",
+        "fileName": "2026-05-08-riviera-unveils-integrated-solar-breakthrough.html",
+        "heroImage": "praxis-solar3.jpg",
+        "keywords": "Riviera yachts, Praxis solar, integrated solar yacht, nano-composite solar, marine solar power, lithium iron phosphate, off-grid cruising, generator-free yacht, yacht broker Florida, Haley Yachts, Clark Haley, luxury motor yacht, Riviera Aftermarket retrofit"
+    },
+    {
         "type": "travel",
         "title": "Bahamas Cruising Permit Changes - April 2026",
         "excerpt": "Bahamas cruising permit fees changed again — effective April 1, 2026. If you're yacht shopping with the Bahamas on your radar, these new costs are part of the ownership conversation. Here's what you need to know.",
