@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "newsletters",
+        "title": "The Logbook | May 2026",
+        "excerpt": "The first issue of The Logbook: featured listings (Riviera 545, Manta 42 Sangaris, Southern Wind 72), industry news, recent sales, and a note from Clark on his first fast-cruiser run to the Abacos.",
+        "date": "2026-05-09",
+        "author": "Clark Haley",
+        "slug": "the-logbook-may-2026",
+        "fileName": "2026-05-09-the-logbook-may-2026.html",
+        "heroImage": "logbook-2026-05-hero.jpg",
+        "keywords": "Haley Yachts newsletter, The Logbook, May 2026, yacht broker newsletter, Clark Haley, Florida yacht broker, Riviera 545 SUV, Manta 42 Sangaris, Southern Wind 72 Fortunato, Abacos cruising, Ted Turner sailing, Riviera solar, Bahamas cruise, recent yacht sales"
+    },
+    {
         "type": "how-to",
         "title": "How to Plan Your First Bahamas Cruise",
         "excerpt": "The Bahamas is closer than most first-time cruisers think, and the prep is more straightforward than the dock talk suggests. Here's the routine I run on ROAM before every crossing - boat, provisions, weather, customs.",
