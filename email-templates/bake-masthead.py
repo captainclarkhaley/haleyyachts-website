@@ -24,13 +24,14 @@ from PIL import Image, ImageDraw, ImageFont
 DEFAULTS = {
     "photo":  "haleyyachts-website/images/email/nordhavn80.jpeg",
     "logo":   "haleyyachts-website/images/brand/haleyyachtslogo-reverse@2x.png",
+    "cobrand":"haleyyachts-website/images/email/owyg-banner-reverse.png",
     "out":    "haleyyachts-website/images/email/logbook-masthead.jpg",
     "title":  "The Logbook",
     "tagline":"MONTHLY BRIEFING FROM CLARK HALEY, LICENSED FLORIDA YACHT BROKER",
 }
 
 W, H = 1200, 720
-LOGO_W = 315           # +12.5% over original 280px size, per Clark
+LOGO_HEIGHT = 65       # logo HEIGHT - both Haley Yachts and OneWater scale to this
 TITLE_PT = 110
 TAGLINE_PT = 22
 ACCENT_PT_W = 80
@@ -41,6 +42,7 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--photo", default=DEFAULTS["photo"])
     p.add_argument("--logo",  default=DEFAULTS["logo"])
+    p.add_argument("--cobrand", default=DEFAULTS["cobrand"], help="Path to OneWater (or other co-brand) logo, white reverse PNG")
     p.add_argument("--out",   default=DEFAULTS["out"])
     p.add_argument("--title", default=DEFAULTS["title"])
     p.add_argument("--tagline", default=DEFAULTS["tagline"])
@@ -53,17 +55,34 @@ def main() -> int:
     nw, nh = photo.size
     photo = photo.crop(((nw - W) // 2, (nh - H) // 2, (nw + W) // 2, (nh + H) // 2))
 
+    # Darkening gradient: heavier at the top so white logos read cleanly even
+    # against bright sky photos, plus heavier at the bottom for the title.
     overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     od = ImageDraw.Draw(overlay)
     for y in range(H):
-        a = int(40 + (140 - 40) * ((y / H) ** 1.4))
+        t = y / H
+        if t < 0.20:
+            # Top 20%: dim from 95 down to 50
+            a = int(95 + (50 - 95) * (t / 0.20))
+        else:
+            # Below 20%: usual gradient from 50 up to 140
+            a = int(50 + (140 - 50) * (((t - 0.20) / 0.80) ** 1.4))
         od.line([(0, y), (W, y)], fill=(8, 22, 40, a))
     canvas = Image.alpha_composite(photo.convert("RGBA"), overlay)
 
+    # Place both logos top-aligned at equal height so they read as a co-brand pair.
+    margin = 40
     logo = Image.open(args.logo).convert("RGBA")
     lw, lh = logo.size
-    logo = logo.resize((LOGO_W, int(lh * LOGO_W / lw)), Image.LANCZOS)
-    canvas.paste(logo, (40, 40), logo)
+    new_lw = int(lw * LOGO_HEIGHT / lh)
+    logo = logo.resize((new_lw, LOGO_HEIGHT), Image.LANCZOS)
+    canvas.paste(logo, (margin, margin), logo)
+
+    cobrand = Image.open(args.cobrand).convert("RGBA")
+    cw, ch = cobrand.size
+    new_cw = int(cw * LOGO_HEIGHT / ch)
+    cobrand = cobrand.resize((new_cw, LOGO_HEIGHT), Image.LANCZOS)
+    canvas.paste(cobrand, (W - margin - new_cw, margin), cobrand)
 
     draw = ImageDraw.Draw(canvas)
     title_font = ImageFont.truetype(
