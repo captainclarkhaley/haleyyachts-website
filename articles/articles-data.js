@@ -4,6 +4,28 @@
 
 const publishedArticles = [
     {
+        "type": "how-to",
+        "title": "How to Plan Your First Bahamas Cruise",
+        "excerpt": "The Bahamas is closer than most first-time cruisers think, and the prep is more straightforward than the dock talk suggests. Here's the routine I run on ROAM before every crossing - boat, provisions, weather, customs.",
+        "date": "2026-05-09",
+        "author": "Clark Haley",
+        "slug": "how-to-plan-your-first-bahamas-cruise",
+        "fileName": "2026-05-09-how-to-plan-your-first-bahamas-cruise.html",
+        "heroImage": "conch-blow.jpg",
+        "keywords": "Bahamas cruise, first Bahamas cruise, cruising the Abacos, Abacos cruising guide, Bahamas crossing from Florida, first-time cruiser, yacht provisioning, boat preparation Bahamas, CLICK2CLEAR Bahamas customs, Bahamas weather windows, Gulf Stream crossing, Marsh Harbour, Florida yacht broker, Clark Haley, Haley Yachts"
+    },
+    {
+        "type": "industry-news",
+        "title": "We Lost a Yachting Giant",
+        "excerpt": "Ted Turner is gone. Most will remember the media mogul. Sailors will remember the amateur skipper who swept Courageous 4-0 at the 1977 America's Cup, won 500 trophies, and brought swagger to a sport that needed it. Fair winds, Captain.",
+        "date": "2026-05-09",
+        "author": "Clark Haley",
+        "slug": "we-lost-a-yachting-giant",
+        "fileName": "2026-05-09-we-lost-a-yachting-giant.html",
+        "heroImage": "ted-turner-3.jpg",
+        "keywords": "Ted Turner, Ted Turner sailing, Captain Outrageous, 1977 America's Cup, Courageous yacht, America's Cup history, competitive sailing, Yachtsman of the Year, Fastnet Race 1979, Sydney to Hobart, sailing legend, sailing tribute, Clark Haley, Haley Yachts, Florida yacht broker"
+    },
+    {
         "type": "industry-news",
         "title": "Riviera Unveils Integrated Solar Breakthrough",
         "excerpt": "Riviera is bonding a 2mm nano-composite solar skin directly into the hardtop during construction. Real boats are pulling 10kWh a day and running three days off-grid. Available on new builds 39 to 78 feet, with retrofits through Riviera Aftermarket.",
