@@ -37,6 +37,7 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] Contact Form Submissions viewer (waiting on HubSpot - Clark provisioning ~2026-05-08)
 - [x] Site Analytics dashboard - shipped 2026-05-06 at `/admin/site-analytics.html`: 9 pre-filled deep links into GA4 + Clarity, GA4 Property ID input upgrades links to direct deep links once set
 - [ ] Image Library browser
+- [ ] Article Manager: numbered-section rendering bug. Each section heading in a Word doc gets wrapped in its own single-item `<ol>`, so all sections render as "1." on the live site. Worked around manually on `2026-05-09-how-to-plan-your-first-bahamas-cruise.html` (added `start="N"` per `<ol>`). Real fix: render section headings as `<h2>` with the number baked into the text, or emit one continuous `<ol>`.
 
 ### Post-Launch
 - [ ] HubSpot CRM integration (replace Formsubmit with HubSpot forms)
