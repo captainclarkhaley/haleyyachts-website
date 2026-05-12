@@ -15,8 +15,11 @@ non-public reorg. Use this file to figure out which asset to grab.
 
 - **Favicon-square horizontal lockup** - rounded blue square containing
   an inset swoosh, paired with a "HALEY YACHTS" wordmark. This is the
-  version with a vector master under `favicon_logo/`. Used in the
-  newsletter masthead.
+  version with a vector master under `favicon_logo/`. **Not in use on
+  any consumer surface.** Per Clark's canonical-logo rule, the primary
+  standalone-swoosh lockup is the brand mark for site/email/social/print;
+  the favicon-square lockup must not appear in any of those surfaces.
+  Kept only because the vector master lives here.
 
 - **Favicon-only square mark** - just the rounded-square monogram (no
   wordmark) at various sizes plus an SVG. Used for browser favicons and
@@ -30,9 +33,9 @@ non-public reorg. Use this file to figure out which asset to grab.
 | Filename | Dimensions | Family | Variant | Intended use |
 |---|---|---|---|---|
 | `haleyyachtslogo.png` | 970x174 | Primary | Color (navy + brand blue) | Site header, footer on light, article schema logo |
-| `haleyyachtslogo-reverse.png` | 970x174 | Primary | "Reverse" - white outline wordmark + color swoosh | Currently unused on the live site; kept as the outline-style variant |
+| `haleyyachtslogo-reverse.png` | 970x174 | Primary | White wordmark + brand-blue swoosh, no square frame | Newsletter masthead source (`email-templates/bake-masthead.py`). Canonical white-on-dark primary mark. |
 | `haleyyachtslogo-footer.png` | 970x174 | Primary | All-white | Drop on dark backgrounds where pure white is required (newsletter footer) |
-| `haleyyachtslogo-reverse@2x.png` | 1940x348 | Favicon-square | White HALEY + brand-blue YACHTS, rounded-square swoosh | Source for the newsletter masthead (`email-templates/bake-masthead.py`). Misnamed - it is NOT a 2x of `haleyyachtslogo-reverse.png`, it is a different artwork family. Do not swap them. |
+| `haleyyachtslogo-reverse@2x.png` | 1940x348 | Favicon-square | White HALEY + brand-blue YACHTS, rounded-square swoosh | **No longer in the email pipeline as of 2026-05-12.** Misnamed - it is NOT a 2x of `haleyyachtslogo-reverse.png`, it is a different artwork family (rounded-square swoosh). Per Clark's canonical-logo rule, do not use this on site/email/social/print. Kept for reference only. |
 | `favicon.svg` | 512x512 viewBox | Favicon-monogram | Color | Modern browsers (`<link rel="icon" type="image/svg+xml">`) |
 | `favicon-16.png` | 16x16 | Favicon-monogram | Color | Legacy browser tab |
 | `favicon-32.png` | 32x32 | Favicon-monogram | Color | Browser tab |

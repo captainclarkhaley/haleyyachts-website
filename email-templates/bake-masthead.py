@@ -23,7 +23,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 DEFAULTS = {
     "photo":  "haleyyachts-website/images/email/nordhavn80.jpeg",
-    "logo":   "haleyyachts-website/images/brand/haleyyachtslogo-reverse@2x.png",
+    "logo":   "haleyyachts-website/images/brand/haleyyachtslogo-reverse.png",
     "cobrand":"haleyyachts-website/images/email/owyg-banner-reverse.png",
     "out":    "haleyyachts-website/images/email/logbook-masthead.jpg",
     "title":  "The Logbook",
