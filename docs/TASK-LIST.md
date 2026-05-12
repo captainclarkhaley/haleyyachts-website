@@ -1,5 +1,5 @@
 # Haley Yachts Website - Task List
-*Last updated: May 6, 2026*
+*Last updated: May 12, 2026*
 
 Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull.
 
@@ -41,11 +41,15 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 
 ### Post-Launch
 - [ ] HubSpot CRM integration (replace Formsubmit with HubSpot forms)
-- [ ] MLS service integration for Worldwide Listings (currently using YachtSite embed)
+- [ ] MLS service integration for Worldwide Listings (YachtSite embed retired 2026-05-06; replaced with coming-soon panel. Buy page default tab is now Featured Yachts until a real MLS feed is live - revert default to Worldwide once shipped.)
 - [ ] Begin publishing articles regularly
 - [x] Email newsletter workflow - "The Logbook" master template shipped 2026-05-07 at `email-templates/logbook.html` (+ plain-text companion + bake-masthead.py for monthly composite regen). Per-issue inputs: NOTE, 3 featured listings, 4 articles, 4 recent sales. UTM tracking wired through GA4.
 
 ---
+
+## RECENTLY COMPLETED (May 12)
+
+- [x] Buy page: default tab switched from World Wide Listings to Featured Yachts pending MLS API source. World Wide Listings remains accessible (now 2nd tab) and `/buy.html#worldwide` deep link still works. Rationale: the YachtSite embed was replaced with a "coming soon" panel on 2026-05-06, so leading with Featured Yachts is the better visitor experience until a real MLS feed is wired in. Tabs reordered visually so the active tab is leftmost: Featured | World Wide | New.
 
 ## RECENTLY COMPLETED (May 4-6)
 
