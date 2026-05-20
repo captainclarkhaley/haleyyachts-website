@@ -137,7 +137,9 @@ function _fySanitizeKuula(raw) {
 function _fyInjectKuulaStyles() {
     if (document.getElementById('fy-kuula-styles')) return;
     const css = `
+.card .card-img-wrap { position: relative; }
 .card .card-img { position: relative; }
+.card .card-img-link { display: block; }
 .fy-kuula-badge {
     display: inline-flex;
     align-items: center;
@@ -337,10 +339,11 @@ function renderFeaturedYachts(containerId) {
         const kuulaDataAttr = kuulaClean
             ? ` data-kuula="${_fyEscapeAttr(kuulaClean)}"`
             : '';
-        // Badge click must not bubble up to the surrounding image anchor (when
-        // a card has both a 360 badge and a `page` link wrapping the image).
+        // Badge lives as a sibling of the image anchor (not inside it) so the
+        // browser's anchor-navigation default never fires for badge clicks. A
+        // nested <button> inside <a> is also invalid HTML.
         const kuulaBadge = kuulaClean
-            ? `<button type="button" class="fy-kuula-badge" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="event.stopPropagation(); _fyOpenKuula(this)">360&deg; Tour</button>`
+            ? `<button type="button" class="fy-kuula-badge" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="_fyOpenKuula(this)">360&deg; Tour</button>`
             : '';
         const kuulaLink = kuulaClean
             ? `<button type="button" class="fy-kuula-link" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="_fyOpenKuula(this)">View 360&deg; Tour</button>`
@@ -351,10 +354,11 @@ function renderFeaturedYachts(containerId) {
         // and the primary action falls back to the standard mailto Inquire.
         const hasPage = !!(y.page && y.page.trim());
         const pageHref = hasPage ? y.page : '';
-        const imgInner = `${imgLabel}${kuulaBadge}`;
-        const imgBlock = hasPage
-            ? `<a href="${pageHref}" class="card-img-link"><div class="card-img" style="${imgStyle}">${imgInner}</div></a>`
-            : `<div class="card-img" style="${imgStyle}">${imgInner}</div>`;
+        const imgEl = `<div class="card-img" style="${imgStyle}">${imgLabel}</div>`;
+        const imgAnchored = hasPage
+            ? `<a href="${pageHref}" class="card-img-link">${imgEl}</a>`
+            : imgEl;
+        const imgBlock = `<div class="card-img-wrap">${imgAnchored}${kuulaBadge}</div>`;
         const titleBlock = hasPage
             ? `<h3><a href="${pageHref}" class="card-title-link">${y.name}</a></h3>`
             : `<h3>${y.name}</h3>`;
