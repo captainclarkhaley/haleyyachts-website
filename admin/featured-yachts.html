@@ -288,7 +288,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-19 23:08 EDT</div>
+    <div class="admin-version" data-version>v: 2026-05-20 10:22 EDT</div>
 </div>
 
 <!-- Load current data -->
@@ -315,6 +315,7 @@
     workingData.forEach(y => {
         if (typeof y.pdf === 'undefined') y.pdf = '';
         if (typeof y.kuula === 'undefined') y.kuula = '';
+        if (typeof y.page === 'undefined') y.page = '';
     });
 
     const posSel = document.getElementById('position');
@@ -921,7 +922,8 @@
         link: ${JSON.stringify(y.link)},
         linkText: ${JSON.stringify(y.linkText)},
         pdf: ${JSON.stringify(y.pdf || '')},
-        kuula: ${JSON.stringify(y.kuula || '')}
+        kuula: ${JSON.stringify(y.kuula || '')},
+        page: ${JSON.stringify(y.page || '')}
     }`;
         }).join(',\n');
 
@@ -939,6 +941,9 @@
 //                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
 //   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
 //                 kuula.co. Empty/missing = no 360 section, no badge.
+//   page        - optional. Relative path to a dedicated listing page (e.g. yachts/fringe-benefits.html).
+//                 When present, the card image + title + primary action link to this page.
+//                 Empty/missing = primary action is the standard mailto Inquire.
 
 const featuredYachts = [
 ${entries}

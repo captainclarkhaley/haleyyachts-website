@@ -12,6 +12,9 @@
 //                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
 //   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
 //                 kuula.co. Empty/missing = no 360 section, no badge.
+//   page        - optional. Relative path to a dedicated listing page (e.g. yachts/fringe-benefits.html).
+//                 When present, the card image + title + primary action link to this page.
+//                 Empty/missing = primary action is the standard mailto Inquire.
 
 const featuredYachts = [
     {
@@ -25,12 +28,13 @@ const featuredYachts = [
     },
     {
         image: "images/yachts/featured/riviera545suv.jpg",
-        name: "2020 Riviera 545 SUV, \"Fringe Benefit IV\" $1,495,000",
+        name: "2020 Riviera 545 SUV, \"Fringe Benefits\" $1,495,000",
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2020-riviera-545-suv.pdf",
-        kuula: ""
+        kuula: "",
+        page: "yachts/fringe-benefits.html"
     },
     {
         image: "images/yachts/featured/southern-wind.jpg",
@@ -205,6 +209,7 @@ function renderFeaturedYachts(containerId) {
         const pdfLink = (y.pdf && y.pdf.trim())
             ? `<a href="${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Spec Sheet (PDF)</a>`
             : '';
+        const hasPage = y.page && y.page.trim();
         const inquireHref = _fyInquireMailto(y.name);
         const kuulaClean = _fySanitizeKuula(y.kuula);
         const kuulaBadge = kuulaClean
@@ -213,15 +218,31 @@ function renderFeaturedYachts(containerId) {
         const kuulaSection = kuulaClean
             ? `<div class="fy-kuula-section" style="display:none;"><h4>360 Walkthrough</h4><div class="fy-kuula-frame">${kuulaClean}</div></div>`
             : '';
+
+        // If a dedicated listing page exists, image and title link to it, primary action
+        // is "View Listing" (with secondary Spec Sheet + Inquire). Otherwise keep the
+        // original mailto-Inquire flow.
+        const cardImg = hasPage
+            ? `<a href="${y.page}" class="card-img" style="${imgStyle} display:block;" aria-label="${y.name} - view listing">${imgLabel}${kuulaBadge}</a>`
+            : `<div class="card-img" style="${imgStyle}">${imgLabel}${kuulaBadge}</div>`;
+        const titleHtml = hasPage
+            ? `<h3><a href="${y.page}" style="color:inherit; text-decoration:none;">${y.name}</a></h3>`
+            : `<h3>${y.name}</h3>`;
+        const actions = hasPage
+            ? `<a href="${y.page}" class="card-link">View Listing</a>
+                        ${pdfLink}
+                        <a href="${inquireHref}" class="card-link card-link-secondary">Inquire</a>`
+            : `<a href="${inquireHref}" class="card-link">Inquire</a>
+                        ${pdfLink}`;
+
         return `
             <div class="card">
-                <div class="card-img" style="${imgStyle}">${imgLabel}${kuulaBadge}</div>
+                ${cardImg}
                 <div class="card-body">
-                    <h3>${y.name}</h3>
+                    ${titleHtml}
                     <p>${y.description}</p>
                     <div class="card-actions">
-                        <a href="${inquireHref}" class="card-link">Inquire</a>
-                        ${pdfLink}
+                        ${actions}
                     </div>
                     <a href="tel:5618171547" class="card-call">Call Clark: 561-817-1547</a>
                 </div>
