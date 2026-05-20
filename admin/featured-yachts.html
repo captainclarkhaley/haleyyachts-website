@@ -257,6 +257,12 @@
         <input type="text" id="pdfPath" placeholder="e.g., riviera-545suv-spec.pdf or https://example.com/spec.pdf">
         <button type="button" id="removePdfBtn" style="background:none; border:1px solid #d0d0d0; color:#888; padding:4px 12px; font-size:0.75rem; border-radius:3px; cursor:pointer; margin-top:6px;" onclick="removePdfAssociation()">Remove PDF from this slot</button>
 
+        <label for="kuulaEmbed">Kuula 360 Tour (iframe embed code): <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(optional)</span></label>
+        <textarea id="kuulaEmbed" placeholder='&lt;iframe width="640" height="480" src="https://kuula.co/share/..." frameborder="0" allow="xr-spatial-tracking; gyroscope; accelerometer" allowfullscreen&gt;&lt;/iframe&gt;' style="min-height:100px; font-family:'Courier New', monospace; font-size:0.78rem;"></textarea>
+        <div style="font-size:0.78rem; color:#666; margin-top:4px; line-height:1.5;">Paste the full &lt;iframe&gt; embed code from Kuula &gt; Share &gt; Embed. Leave blank if no tour. Only iframes pointing to kuula.co are accepted.</div>
+        <button type="button" id="kuulaPreviewBtn" style="background:none; border:1px solid #d0d0d0; color:#888; padding:4px 12px; font-size:0.75rem; border-radius:3px; cursor:pointer; margin-top:8px;" onclick="toggleKuulaPreview()">Preview tour</button>
+        <div id="kuulaPreviewBox" style="display:none; margin-top:12px; width:400px; max-width:100%; height:225px; background:#0a1628; border-radius:4px; overflow:hidden;"></div>
+
         <button type="button" class="btn btn-secondary" onclick="loadCurrent()">Load Current Values</button>
         <button type="button" id="saveBtn" class="btn" onclick="saveFile()">SAVE</button>
 
@@ -282,7 +288,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-06 22:55 EDT</div>
+    <div class="admin-version" data-version>v: 2026-05-19 23:08 EDT</div>
 </div>
 
 <!-- Load current data -->
@@ -299,13 +305,17 @@
             description: 'Details about this featured yacht will appear here.',
             link: 'contact.html',
             linkText: 'Inquire',
-            pdf: ''
+            pdf: '',
+            kuula: ''
         });
     }
     // If there are more than 6 slots (leftover from older saves), trim down to 6
     workingData = workingData.slice(0, 6);
-    // Backfill pdf field on entries that pre-date the schema change
-    workingData.forEach(y => { if (typeof y.pdf === 'undefined') y.pdf = ''; });
+    // Backfill fields on entries that pre-date schema changes
+    workingData.forEach(y => {
+        if (typeof y.pdf === 'undefined') y.pdf = '';
+        if (typeof y.kuula === 'undefined') y.kuula = '';
+    });
 
     const posSel = document.getElementById('position');
     const imgInput = document.getElementById('imageName');
@@ -323,6 +333,8 @@
     const pdfPreviewRow = document.getElementById('pdfPreviewRow');
     const pdfFileNameEl = document.getElementById('pdfFileName');
     const clearPdfBtn = document.getElementById('clearPdfBtn');
+    const kuulaInput = document.getElementById('kuulaEmbed');
+    const kuulaPreviewBox = document.getElementById('kuulaPreviewBox');
     const saveBtn = document.getElementById('saveBtn');
 
     // ===== Save-state visual feedback =====
@@ -335,7 +347,7 @@
         saveBtn.textContent = 'SAVE';
     }
     // Any edit reverts the button. Position change / Load also resets (form contents change).
-    [imgInput, titleInput, descInput, pdfPathInput].forEach(el => {
+    [imgInput, titleInput, descInput, pdfPathInput, kuulaInput].forEach(el => {
         el.addEventListener('input', markUnsaved);
     });
     posSel.addEventListener('change', markUnsaved);
@@ -410,6 +422,71 @@
         showStatus('PDF cleared. Click SAVE to remove it from this slot.', 'success');
     }
 
+    // ===== Kuula 360 iframe sanitize + preview =====
+    // Accept ONLY a single <iframe> tag whose src is on kuula.co. Strip everything else.
+    // Returns the sanitized iframe HTML, or '' if the input doesn't qualify.
+    function sanitizeKuulaIframe(raw) {
+        if (!raw || !raw.trim()) return '';
+        const match = raw.match(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/i);
+        if (!match) return '';
+        const tagStart = match[0].match(/<iframe\b[^>]*>/i);
+        if (!tagStart) return '';
+        const openTag = tagStart[0];
+        // Extract src and confirm kuula.co
+        const srcMatch = openTag.match(/\bsrc\s*=\s*(['"])(.*?)\1/i);
+        if (!srcMatch) return '';
+        const src = srcMatch[2];
+        if (!/(^|\/\/|\.)kuula\.co(\/|$)/i.test(src)) {
+            console.warn('[Kuula] Rejected iframe: src is not kuula.co ->', src);
+            return '';
+        }
+        // Whitelisted attributes only
+        const allowed = ['src','width','height','frameborder','allow','allowfullscreen','style'];
+        const attrs = {};
+        const attrRe = /(\w[\w-]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))|(\ballowfullscreen\b)/gi;
+        let m;
+        while ((m = attrRe.exec(openTag)) !== null) {
+            if (m[5]) { attrs['allowfullscreen'] = ''; continue; }
+            const name = m[1].toLowerCase();
+            if (!allowed.includes(name)) continue;
+            attrs[name] = m[2] !== undefined ? m[2] : (m[3] !== undefined ? m[3] : (m[4] || ''));
+        }
+        // Build a clean iframe
+        const parts = ['<iframe'];
+        for (const k of allowed) {
+            if (!(k in attrs)) continue;
+            if (k === 'allowfullscreen') { parts.push('allowfullscreen'); continue; }
+            const v = String(attrs[k]).replace(/"/g, '&quot;');
+            parts.push(`${k}="${v}"`);
+        }
+        parts.push('></iframe>');
+        return parts.join(' ');
+    }
+
+    function toggleKuulaPreview() {
+        const raw = kuulaInput.value.trim();
+        const clean = sanitizeKuulaIframe(raw);
+        if (!clean) {
+            kuulaPreviewBox.style.display = 'none';
+            kuulaPreviewBox.innerHTML = '';
+            if (raw) {
+                showStatus('Preview rejected. Paste must be a Kuula iframe (src on kuula.co).', 'error');
+            } else {
+                showStatus('Nothing to preview. Paste a Kuula iframe first.', 'error');
+            }
+            return;
+        }
+        if (kuulaPreviewBox.style.display === 'block') {
+            kuulaPreviewBox.style.display = 'none';
+            kuulaPreviewBox.innerHTML = '';
+            return;
+        }
+        // Force the preview iframe to fill the preview box regardless of pasted dimensions
+        const sized = clean.replace(/<iframe\b/i, '<iframe style="width:100%;height:100%;border:0;"');
+        kuulaPreviewBox.innerHTML = sized;
+        kuulaPreviewBox.style.display = 'block';
+    }
+
     // Live character counters
     titleInput.addEventListener('input', () => {
         titleCount.textContent = `${titleInput.value.length} / 60`;
@@ -443,6 +520,10 @@
         pendingPdfFile = null;
         pdfFileInput.value = '';
         pdfPreviewRow.style.display = 'none';
+        // Kuula 360 embed
+        kuulaInput.value = y.kuula || '';
+        kuulaPreviewBox.style.display = 'none';
+        kuulaPreviewBox.innerHTML = '';
         titleInput.dispatchEvent(new Event('input'));
         descInput.dispatchEvent(new Event('input'));
         showStatus(`Loaded current values for position ${pos}.`, 'success');
@@ -629,10 +710,21 @@
         const title = titleInput.value.trim();
         const desc = descInput.value.trim();
         const pdfRaw = pdfPathInput.value.trim();
+        const kuulaRaw = kuulaInput.value.trim();
 
-        if (!filename && !title && !desc && !pendingImageFile && !pendingPdfFile && !pdfRaw) {
+        if (!filename && !title && !desc && !pendingImageFile && !pendingPdfFile && !pdfRaw && !kuulaRaw) {
             showStatus('Please fill in at least one field.', 'error');
             return;
+        }
+
+        // Validate Kuula paste up front: if non-empty but invalid, fail before writing.
+        let kuulaClean = '';
+        if (kuulaRaw) {
+            kuulaClean = sanitizeKuulaIframe(kuulaRaw);
+            if (!kuulaClean) {
+                showStatus('Kuula embed rejected. Paste must be a single <iframe> with src on kuula.co.', 'error');
+                return;
+            }
         }
 
         // Check API support
@@ -686,6 +778,9 @@
         } else {
             entry.pdf = 'documents/yachts/featured/' + pdfRaw.replace(/^.*\//, '');
         }
+
+        // Kuula 360: sanitized iframe HTML, or '' if cleared.
+        entry.kuula = kuulaClean;
 
         const fileContent = buildFileContent(workingData);
 
@@ -744,10 +839,15 @@
         const filename = imgInput.value.trim();
         const title = titleInput.value.trim();
         const desc = descInput.value.trim();
+        const kuulaRawMove = kuulaInput.value.trim();
         const src = workingData[fromIdx];
         if (filename) src.image = 'images/yachts/featured/' + filename;
         if (title) src.name = title;
         if (desc) src.description = desc;
+        if (kuulaRawMove) {
+            const c = sanitizeKuulaIframe(kuulaRawMove);
+            if (c) src.kuula = c;
+        }
 
         // Insert-shift: pull source out, splice into destination index.
         const [moved] = workingData.splice(fromIdx, 1);
@@ -758,11 +858,14 @@
             workingData.push({
                 image: '', name: 'Featured Listing',
                 description: 'Details about this featured yacht will appear here.',
-                link: 'contact.html', linkText: 'Inquire', pdf: ''
+                link: 'contact.html', linkText: 'Inquire', pdf: '', kuula: ''
             });
         }
         workingData = workingData.slice(0, 6);
-        workingData.forEach(y => { if (typeof y.pdf === 'undefined') y.pdf = ''; });
+        workingData.forEach(y => {
+            if (typeof y.pdf === 'undefined') y.pdf = '';
+            if (typeof y.kuula === 'undefined') y.kuula = '';
+        });
 
         const fileContent = buildFileContent(workingData);
 
@@ -795,6 +898,9 @@
 
     function renderPreview(pos, entry) {
         const box = document.getElementById('previewBox');
+        const kuulaStatus = entry.kuula
+            ? '<span style="color:#2a7a2a">attached</span>'
+            : '<em style="color:#999">(none - no 360 section)</em>';
         box.innerHTML = `
             <h4>Position ${pos}</h4>
             <div class="preview-row"><strong>Image:</strong> ${entry.image || '<em style="color:#999">(none)</em>'}</div>
@@ -802,6 +908,7 @@
             <div class="preview-row"><strong>Description:</strong> ${entry.description}</div>
             <div class="preview-row"><strong>Link:</strong> ${entry.link}</div>
             <div class="preview-row"><strong>Full Details PDF:</strong> ${entry.pdf || '<em style="color:#999">(none - button hidden)</em>'}</div>
+            <div class="preview-row"><strong>Kuula 360 Tour:</strong> ${kuulaStatus}</div>
         `;
     }
 
@@ -813,7 +920,8 @@
         description: ${JSON.stringify(y.description)},
         link: ${JSON.stringify(y.link)},
         linkText: ${JSON.stringify(y.linkText)},
-        pdf: ${JSON.stringify(y.pdf || '')}
+        pdf: ${JSON.stringify(y.pdf || '')},
+        kuula: ${JSON.stringify(y.kuula || '')}
     }`;
         }).join(',\n');
 
@@ -829,6 +937,8 @@
 //   linkText    - label for the primary button
 //   pdf         - optional. Relative path to a Full Details PDF in documents/yachts/featured/
 //                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
+//   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
+//                 kuula.co. Empty/missing = no 360 section, no badge.
 
 const featuredYachts = [
 ${entries}
@@ -851,9 +961,115 @@ function _fyInquireMailto(name) {
     return \`mailto:clark@haleyyachts.com?subject=\${subject}\`;
 }
 
+// Re-sanitize the stored Kuula iframe at render time as a defense-in-depth check.
+// Admin already sanitizes on save; this also rejects any hand-edited entries that
+// don't point at kuula.co.
+function _fySanitizeKuula(raw) {
+    if (!raw || !raw.trim()) return '';
+    const tagStart = raw.match(/<iframe\\b[^>]*>/i);
+    if (!tagStart) return '';
+    const openTag = tagStart[0];
+    const srcMatch = openTag.match(/\\bsrc\\s*=\\s*(['"])(.*?)\\1/i);
+    if (!srcMatch) return '';
+    const src = srcMatch[2];
+    if (!/(^|\\/\\/|\\.)kuula\\.co(\\/|$)/i.test(src)) {
+        console.warn('[Kuula] Rejected iframe at render: src is not kuula.co ->', src);
+        return '';
+    }
+    const allowed = ['src','width','height','frameborder','allow','allowfullscreen','style'];
+    const attrs = {};
+    const attrRe = /(\\w[\\w-]*)\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))|(\\ballowfullscreen\\b)/gi;
+    let m;
+    while ((m = attrRe.exec(openTag)) !== null) {
+        if (m[5]) { attrs['allowfullscreen'] = ''; continue; }
+        const name = m[1].toLowerCase();
+        if (!allowed.includes(name)) continue;
+        attrs[name] = m[2] !== undefined ? m[2] : (m[3] !== undefined ? m[3] : (m[4] || ''));
+    }
+    const parts = ['<iframe'];
+    for (const k of allowed) {
+        if (!(k in attrs)) continue;
+        if (k === 'allowfullscreen') { parts.push('allowfullscreen'); continue; }
+        const v = String(attrs[k]).replace(/"/g, '&quot;');
+        parts.push(\`\${k}="\${v}"\`);
+    }
+    parts.push('></iframe>');
+    return parts.join(' ');
+}
+
+// Inject the 360-section CSS once. Card grid renders many times; styles inject once.
+function _fyInjectKuulaStyles() {
+    if (document.getElementById('fy-kuula-styles')) return;
+    const css = \`
+.fy-kuula-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(10, 22, 40, 0.85);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    backdrop-filter: blur(2px);
+}
+.fy-kuula-badge:hover { background: #21cbea; }
+.fy-kuula-badge::before { content: '360°'; }
+.fy-kuula-badge .fy-kuula-badge-text { display: none; }
+.card .card-img { position: relative; }
+.fy-kuula-section {
+    background: #0a1628;
+    color: #c9e7f0;
+    padding: 18px 20px 22px;
+    border-top: 1px solid #1c2c44;
+}
+.fy-kuula-section h4 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #21cbea;
+    margin: 0 0 12px;
+}
+.fy-kuula-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.fy-kuula-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+\`;
+    const style = document.createElement('style');
+    style.id = 'fy-kuula-styles';
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+// Card click handler: toggles the 360 section below the card.
+function _fyToggleKuula(btn) {
+    const card = btn.closest('.card');
+    if (!card) return;
+    const section = card.querySelector('.fy-kuula-section');
+    if (!section) return;
+    const isHidden = section.style.display === 'none' || !section.style.display;
+    section.style.display = isHidden ? 'block' : 'none';
+    btn.setAttribute('aria-expanded', String(isHidden));
+}
+
 function renderFeaturedYachts(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
+
+    _fyInjectKuulaStyles();
 
     container.innerHTML = featuredYachts.filter(isFilledYacht).map(y => {
         const imgStyle = y.image
@@ -864,9 +1080,16 @@ function renderFeaturedYachts(containerId) {
             ? \`<a href="\${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Spec Sheet (PDF)</a>\`
             : '';
         const inquireHref = _fyInquireMailto(y.name);
+        const kuulaClean = _fySanitizeKuula(y.kuula);
+        const kuulaBadge = kuulaClean
+            ? \`<button type="button" class="fy-kuula-badge" aria-label="Open 360 walkthrough" aria-expanded="false" onclick="_fyToggleKuula(this)"><span class="fy-kuula-badge-text">360 Tour</span></button>\`
+            : '';
+        const kuulaSection = kuulaClean
+            ? \`<div class="fy-kuula-section" style="display:none;"><h4>360 Walkthrough</h4><div class="fy-kuula-frame">\${kuulaClean}</div></div>\`
+            : '';
         return \`
             <div class="card">
-                <div class="card-img" style="\${imgStyle}">\${imgLabel}</div>
+                <div class="card-img" style="\${imgStyle}">\${imgLabel}\${kuulaBadge}</div>
                 <div class="card-body">
                     <h3>\${y.name}</h3>
                     <p>\${y.description}</p>
@@ -876,6 +1099,7 @@ function renderFeaturedYachts(containerId) {
                     </div>
                     <a href="tel:5618171547" class="card-call">Call Clark: 561-817-1547</a>
                 </div>
+                \${kuulaSection}
             </div>
         \`;
     }).join('');

@@ -10,6 +10,8 @@
 //   linkText    - label for the primary button
 //   pdf         - optional. Relative path to a Full Details PDF in documents/yachts/featured/
 //                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
+//   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
+//                 kuula.co. Empty/missing = no 360 section, no badge.
 
 const featuredYachts = [
     {
@@ -18,7 +20,8 @@ const featuredYachts = [
         description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf"
+        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf",
+        kuula: ""
     },
     {
         image: "images/yachts/featured/riviera545suv.jpg",
@@ -26,7 +29,8 @@ const featuredYachts = [
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2020-riviera-545-suv.pdf"
+        pdf: "documents/yachts/featured/2020-riviera-545-suv.pdf",
+        kuula: ""
     },
     {
         image: "images/yachts/featured/southern-wind.jpg",
@@ -34,7 +38,8 @@ const featuredYachts = [
         description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/1991-southern-wind-bruce-farr-fast-72.pdf"
+        pdf: "documents/yachts/featured/1991-southern-wind-bruce-farr-fast-72.pdf",
+        kuula: ""
     },
     {
         image: "images/yachts/featured/riviera-465suv.jpg",
@@ -42,7 +47,8 @@ const featuredYachts = [
         description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2024-riviera-465-suv.pdf"
+        pdf: "documents/yachts/featured/2024-riviera-465-suv.pdf",
+        kuula: ""
     },
     {
         image: "images/yachts/featured/2022 Sunseeker 68 Manhattan",
@@ -50,7 +56,8 @@ const featuredYachts = [
         description: "This 2022 Sunseeker 68 Manhattan represents a rare opportunity to acquire the only 4 cabin layout currently availableon the market. Well maintained with approximately 900 hours on the MAN V8 1200 engines and full service records up to date.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2022-sunseeker-manhattan_68.pdf"
+        pdf: "documents/yachts/featured/2022-sunseeker-manhattan_68.pdf",
+        kuula: ""
     },
     {
         image: "images/yachts/featured/2018-absolute-60-fly.jpg",
@@ -58,7 +65,8 @@ const featuredYachts = [
         description: "Introducing Mama’s House, a beautifully maintained 2018 Absolute 60 FLY that perfectly blends Italian design,performance, and comfort. Powered by twin Volvo Penta D11 IPS 950s with approximately 550 hours, she offers smooth, efficient cruising.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2018-absolute-60-fly.pdf"
+        pdf: "documents/yachts/featured/2018-absolute-60-fly.pdf",
+        kuula: ""
     }
 ];
 
@@ -79,9 +87,115 @@ function _fyInquireMailto(name) {
     return `mailto:clark@haleyyachts.com?subject=${subject}`;
 }
 
+// Re-sanitize the stored Kuula iframe at render time as a defense-in-depth check.
+// Admin already sanitizes on save; this also rejects any hand-edited entries that
+// don't point at kuula.co.
+function _fySanitizeKuula(raw) {
+    if (!raw || !raw.trim()) return '';
+    const tagStart = raw.match(/<iframe\b[^>]*>/i);
+    if (!tagStart) return '';
+    const openTag = tagStart[0];
+    const srcMatch = openTag.match(/\bsrc\s*=\s*(['"])(.*?)\1/i);
+    if (!srcMatch) return '';
+    const src = srcMatch[2];
+    if (!/(^|\/\/|\.)kuula\.co(\/|$)/i.test(src)) {
+        console.warn('[Kuula] Rejected iframe at render: src is not kuula.co ->', src);
+        return '';
+    }
+    const allowed = ['src','width','height','frameborder','allow','allowfullscreen','style'];
+    const attrs = {};
+    const attrRe = /(\w[\w-]*)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))|(\ballowfullscreen\b)/gi;
+    let m;
+    while ((m = attrRe.exec(openTag)) !== null) {
+        if (m[5]) { attrs['allowfullscreen'] = ''; continue; }
+        const name = m[1].toLowerCase();
+        if (!allowed.includes(name)) continue;
+        attrs[name] = m[2] !== undefined ? m[2] : (m[3] !== undefined ? m[3] : (m[4] || ''));
+    }
+    const parts = ['<iframe'];
+    for (const k of allowed) {
+        if (!(k in attrs)) continue;
+        if (k === 'allowfullscreen') { parts.push('allowfullscreen'); continue; }
+        const v = String(attrs[k]).replace(/"/g, '&quot;');
+        parts.push(`${k}="${v}"`);
+    }
+    parts.push('></iframe>');
+    return parts.join(' ');
+}
+
+// Inject the 360-section CSS once. Card grid renders many times; styles inject once.
+function _fyInjectKuulaStyles() {
+    if (document.getElementById('fy-kuula-styles')) return;
+    const css = `
+.fy-kuula-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(10, 22, 40, 0.85);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2;
+    backdrop-filter: blur(2px);
+}
+.fy-kuula-badge:hover { background: #21cbea; }
+.fy-kuula-badge::before { content: '360°'; }
+.fy-kuula-badge .fy-kuula-badge-text { display: none; }
+.card .card-img { position: relative; }
+.fy-kuula-section {
+    background: #0a1628;
+    color: #c9e7f0;
+    padding: 18px 20px 22px;
+    border-top: 1px solid #1c2c44;
+}
+.fy-kuula-section h4 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #21cbea;
+    margin: 0 0 12px;
+}
+.fy-kuula-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.fy-kuula-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
+`;
+    const style = document.createElement('style');
+    style.id = 'fy-kuula-styles';
+    style.textContent = css;
+    document.head.appendChild(style);
+}
+
+// Card badge click handler: toggles the 360 section below the card.
+function _fyToggleKuula(btn) {
+    const card = btn.closest('.card');
+    if (!card) return;
+    const section = card.querySelector('.fy-kuula-section');
+    if (!section) return;
+    const isHidden = section.style.display === 'none' || !section.style.display;
+    section.style.display = isHidden ? 'block' : 'none';
+    btn.setAttribute('aria-expanded', String(isHidden));
+}
+
 function renderFeaturedYachts(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
+
+    _fyInjectKuulaStyles();
 
     container.innerHTML = featuredYachts.filter(isFilledYacht).map(y => {
         const imgStyle = y.image
@@ -92,9 +206,16 @@ function renderFeaturedYachts(containerId) {
             ? `<a href="${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Spec Sheet (PDF)</a>`
             : '';
         const inquireHref = _fyInquireMailto(y.name);
+        const kuulaClean = _fySanitizeKuula(y.kuula);
+        const kuulaBadge = kuulaClean
+            ? `<button type="button" class="fy-kuula-badge" aria-label="Open 360 walkthrough" aria-expanded="false" onclick="_fyToggleKuula(this)"><span class="fy-kuula-badge-text">360 Tour</span></button>`
+            : '';
+        const kuulaSection = kuulaClean
+            ? `<div class="fy-kuula-section" style="display:none;"><h4>360 Walkthrough</h4><div class="fy-kuula-frame">${kuulaClean}</div></div>`
+            : '';
         return `
             <div class="card">
-                <div class="card-img" style="${imgStyle}">${imgLabel}</div>
+                <div class="card-img" style="${imgStyle}">${imgLabel}${kuulaBadge}</div>
                 <div class="card-body">
                     <h3>${y.name}</h3>
                     <p>${y.description}</p>
@@ -104,6 +225,7 @@ function renderFeaturedYachts(containerId) {
                     </div>
                     <a href="tel:5618171547" class="card-call">Call Clark: 561-817-1547</a>
                 </div>
+                ${kuulaSection}
             </div>
         `;
     }).join('');
