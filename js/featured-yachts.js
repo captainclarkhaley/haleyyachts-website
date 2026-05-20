@@ -356,20 +356,37 @@ function renderFeaturedYachts(containerId) {
         const kuulaDataAttr = kuulaClean
             ? ` data-kuula="${_fyEscapeAttr(kuulaClean)}" data-kuula-title="${_fyEscapeAttr(kuulaTitle)}"`
             : '';
+        // Badge click must not bubble up to the surrounding image anchor (when
+        // a card has both a 360 badge and a `page` link wrapping the image).
         const kuulaBadge = kuulaClean
-            ? `<button type="button" class="fy-kuula-badge" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="_fyOpenKuula(this)">360&deg; Tour</button>`
+            ? `<button type="button" class="fy-kuula-badge" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="event.stopPropagation(); _fyOpenKuula(this)">360&deg; Tour</button>`
             : '';
         const kuulaLink = kuulaClean
             ? `<button type="button" class="fy-kuula-link" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="_fyOpenKuula(this)">View 360&deg; Tour</button>`
             : '';
+
+        // If a dedicated listing page exists, image + title + primary action
+        // all point at it. Otherwise the image and title are plain (no anchor)
+        // and the primary action falls back to the standard mailto Inquire.
+        const hasPage = !!(y.page && y.page.trim());
+        const pageHref = hasPage ? y.page : '';
+        const imgInner = `${imgLabel}${kuulaBadge}`;
+        const imgBlock = hasPage
+            ? `<a href="${pageHref}" class="card-img-link"><div class="card-img" style="${imgStyle}">${imgInner}</div></a>`
+            : `<div class="card-img" style="${imgStyle}">${imgInner}</div>`;
+        const titleBlock = hasPage
+            ? `<h3><a href="${pageHref}" class="card-title-link">${y.name}</a></h3>`
+            : `<h3>${y.name}</h3>`;
+        const primaryHref = hasPage ? pageHref : inquireHref;
+
         return `
             <div class="card">
-                <div class="card-img" style="${imgStyle}">${imgLabel}${kuulaBadge}</div>
+                ${imgBlock}
                 <div class="card-body">
-                    <h3>${y.name}</h3>
+                    ${titleBlock}
                     <p>${y.description}</p>
                     <div class="card-actions">
-                        <a href="${inquireHref}" class="card-link">Inquire</a>
+                        <a href="${primaryHref}" class="card-link">${hasPage ? 'View Listing' : 'Inquire'}</a>
                         ${pdfLink}
                         ${kuulaLink}
                     </div>

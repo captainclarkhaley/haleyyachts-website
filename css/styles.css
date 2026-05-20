@@ -368,6 +368,20 @@ a:hover { color: #1aa8c4; }
 }
 .card-call:hover { color: #21cbea; }
 .card-call::before { content: '\260E\00A0'; font-size: 0.85rem; }
+/* Invisible-until-hover links that wrap the card image and title when a yacht
+   has a dedicated listing page. Inherit color, no underline, no blue default. */
+.card-img-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+.card-title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.card-title-link:hover,
+.card-title-link:focus-visible { color: #21cbea; outline: none; }
 
 /* ===== TWO-COLUMN LAYOUT ===== */
 .two-col {
