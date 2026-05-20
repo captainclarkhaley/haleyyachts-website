@@ -209,30 +209,15 @@ function _fyInjectKuulaStyles() {
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
 }
-.fy-kuula-modal-inner iframe {
+.fy-kuula-modal-frame {
+    position: absolute;
+    inset: 0;
+}
+.fy-kuula-modal-frame iframe {
     width: 100%;
     height: 100%;
     border: 0;
     display: block;
-}
-.fy-kuula-modal-title {
-    position: absolute;
-    top: 14px;
-    left: 18px;
-    color: #fff;
-    font-size: 0.82rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    background: rgba(10, 22, 40, 0.75);
-    padding: 6px 12px;
-    border-radius: 3px;
-    z-index: 1;
-    pointer-events: none;
-    max-width: calc(100% - 80px);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 .fy-kuula-modal-close {
     position: absolute;
@@ -279,9 +264,8 @@ function _fyInjectKuulaStyles() {
         modal.setAttribute('aria-label', '360 walkthrough');
         modal.innerHTML = `
             <div class="fy-kuula-modal-inner">
-                <div class="fy-kuula-modal-title" id="fy-kuula-modal-title"></div>
-                <button type="button" class="fy-kuula-modal-close" aria-label="Close 360 walkthrough">&times;</button>
                 <div class="fy-kuula-modal-frame"></div>
+                <button type="button" class="fy-kuula-modal-close" aria-label="Close 360 walkthrough">&times;</button>
             </div>
         `;
         document.body.appendChild(modal);
@@ -307,10 +291,8 @@ function _fyOpenKuula(trigger) {
     const modal = document.getElementById('fy-kuula-modal');
     if (!modal) return;
     const iframeHtml = trigger.getAttribute('data-kuula');
-    const title = trigger.getAttribute('data-kuula-title') || '360 Walkthrough';
     if (!iframeHtml) return;
     modal.querySelector('.fy-kuula-modal-frame').innerHTML = iframeHtml;
-    modal.querySelector('#fy-kuula-modal-title').textContent = title;
     modal.classList.add('is-open');
     document.body.style.overflow = 'hidden';
     const closeBtn = modal.querySelector('.fy-kuula-modal-close');
@@ -352,9 +334,8 @@ function renderFeaturedYachts(containerId) {
             : '';
         const inquireHref = _fyInquireMailto(y.name);
         const kuulaClean = _fySanitizeKuula(y.kuula);
-        const kuulaTitle = _fyStripPrice(y.name) + ' - 360 Walkthrough';
         const kuulaDataAttr = kuulaClean
-            ? ` data-kuula="${_fyEscapeAttr(kuulaClean)}" data-kuula-title="${_fyEscapeAttr(kuulaTitle)}"`
+            ? ` data-kuula="${_fyEscapeAttr(kuulaClean)}"`
             : '';
         // Badge click must not bubble up to the surrounding image anchor (when
         // a card has both a 360 badge and a `page` link wrapping the image).
