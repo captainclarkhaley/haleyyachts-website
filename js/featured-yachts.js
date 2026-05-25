@@ -34,7 +34,7 @@ const featuredYachts = [
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2020-riviera-545-suv.pdf",
-        kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&logosize=190&fs=1&vr=0&zoom=1&gyro=0&thumbs=3&keys=0\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
+        kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&logosize=190&fs=1&vr=0&zoom=1&gyro=0&thumbs=3&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         page: "yachts/fringe-benefits.html"
     },
     {
