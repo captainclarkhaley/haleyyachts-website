@@ -34,7 +34,7 @@ const featuredYachts = [
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2020-riviera-545-suv.pdf",
-        kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&logosize=190&fs=1&vr=1&zoom=1&thumbs=3\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
+        kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&logosize=190&fs=1&vr=0&zoom=1&gyro=0&thumbs=3&keys=0\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         page: "yachts/fringe-benefits.html"
     },
     {
@@ -132,192 +132,72 @@ function _fySanitizeKuula(raw) {
     return parts.join(' ');
 }
 
-// Inject the 360 CSS + modal scaffold once. Card grid renders many times;
-// styles + modal markup inject once and are reused for every card.
+// Inject the 360-section CSS once. Card grid renders many times; styles inject once.
 function _fyInjectKuulaStyles() {
     if (document.getElementById('fy-kuula-styles')) return;
     const css = `
-.card .card-img-wrap { position: relative; }
-.card .card-img { position: relative; }
-.card .card-img-link { display: block; }
 .fy-kuula-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(10, 22, 40, 0.88);
+    gap: 4px;
+    background: rgba(10, 22, 40, 0.85);
     color: #fff;
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    padding: 7px 12px;
-    border-radius: 3px;
-    border: 1px solid rgba(33, 203, 234, 0.55);
-    cursor: pointer;
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 2;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-    transition: background 0.2s, transform 0.2s, border-color 0.2s;
-}
-.fy-kuula-badge:hover,
-.fy-kuula-badge:focus-visible {
-    background: #21cbea;
-    border-color: #21cbea;
-    transform: translateY(-1px);
-    outline: none;
-}
-.fy-kuula-badge::before {
-    content: '\\25F0';
-    font-size: 0.95rem;
-    line-height: 1;
-}
-.fy-kuula-link {
-    background: none;
-    border: none;
-    padding: 0;
-    font: inherit;
-    cursor: pointer;
-    font-size: 0.82rem;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #21cbea;
-}
-.fy-kuula-link:hover { color: #1aa8c4; }
-.fy-kuula-link::after { content: ' \\2192'; transition: margin-left 0.2s; }
-.fy-kuula-link:hover::after { margin-left: 4px; }
-
-.fy-kuula-modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 12, 24, 0.92);
-    z-index: 10000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-}
-.fy-kuula-modal.is-open { display: flex; }
-.fy-kuula-modal-inner {
-    position: relative;
-    width: 100%;
-    max-width: 1280px;
-    aspect-ratio: 16 / 9;
-    max-height: calc(100vh - 48px);
-    background: #000;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
-}
-.fy-kuula-modal-frame {
-    position: absolute;
-    inset: 0;
-}
-.fy-kuula-modal-frame iframe {
-    width: 100%;
-    height: 100%;
-    border: 0;
-    display: block;
-}
-.fy-kuula-modal-close {
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: none;
+    cursor: pointer;
     position: absolute;
     top: 10px;
     right: 10px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(10, 22, 40, 0.85);
-    color: #fff;
-    font-size: 1.4rem;
-    line-height: 1;
-    cursor: pointer;
     z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
+    backdrop-filter: blur(2px);
 }
-.fy-kuula-modal-close:hover,
-.fy-kuula-modal-close:focus-visible {
-    background: #21cbea;
-    outline: none;
+.fy-kuula-badge:hover { background: #21cbea; }
+.fy-kuula-badge::before { content: '360°'; }
+.fy-kuula-badge .fy-kuula-badge-text { display: none; }
+.card .card-img { position: relative; }
+.fy-kuula-section {
+    background: #0a1628;
+    color: #c9e7f0;
+    padding: 18px 20px 22px;
+    border-top: 1px solid #1c2c44;
 }
-@media (max-width: 600px) {
-    .fy-kuula-modal { padding: 0; }
-    .fy-kuula-modal-inner { border-radius: 0; max-height: 100vh; aspect-ratio: auto; height: 100vh; }
-    .fy-kuula-badge { font-size: 0.66rem; padding: 6px 10px; }
+.fy-kuula-section h4 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #21cbea;
+    margin: 0 0 12px;
 }
+.fy-kuula-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.fy-kuula-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
 `;
     const style = document.createElement('style');
     style.id = 'fy-kuula-styles';
     style.textContent = css;
     document.head.appendChild(style);
-
-    // Build the single shared modal once.
-    if (!document.getElementById('fy-kuula-modal')) {
-        const modal = document.createElement('div');
-        modal.id = 'fy-kuula-modal';
-        modal.className = 'fy-kuula-modal';
-        modal.setAttribute('role', 'dialog');
-        modal.setAttribute('aria-modal', 'true');
-        modal.setAttribute('aria-label', '360 walkthrough');
-        modal.innerHTML = `
-            <div class="fy-kuula-modal-inner">
-                <div class="fy-kuula-modal-frame"></div>
-                <button type="button" class="fy-kuula-modal-close" aria-label="Close 360 walkthrough">&times;</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        // Close on backdrop click, close button, or Escape.
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal || e.target.closest('.fy-kuula-modal-close')) {
-                _fyCloseKuula();
-            }
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.classList.contains('is-open')) {
-                _fyCloseKuula();
-            }
-        });
-    }
 }
 
-// Open the shared lightbox with the iframe HTML stashed on the trigger element.
-// Iframe HTML lives on a data attribute so we don't depend on any DOM structure
-// inside the card.
-function _fyOpenKuula(trigger) {
-    const modal = document.getElementById('fy-kuula-modal');
-    if (!modal) return;
-    const iframeHtml = trigger.getAttribute('data-kuula');
-    if (!iframeHtml) return;
-    modal.querySelector('.fy-kuula-modal-frame').innerHTML = iframeHtml;
-    modal.classList.add('is-open');
-    document.body.style.overflow = 'hidden';
-    const closeBtn = modal.querySelector('.fy-kuula-modal-close');
-    if (closeBtn) closeBtn.focus();
-}
-
-function _fyCloseKuula() {
-    const modal = document.getElementById('fy-kuula-modal');
-    if (!modal) return;
-    modal.classList.remove('is-open');
-    // Wipe the iframe to stop audio/loading.
-    modal.querySelector('.fy-kuula-modal-frame').innerHTML = '';
-    document.body.style.overflow = '';
-}
-
-// HTML-escape a string for safe insertion into a data-* attribute.
-function _fyEscapeAttr(s) {
-    return String(s)
-        .replace(/&/g, '&amp;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+// Card click handler: toggles the 360 section below the card.
+function _fyToggleKuula(btn) {
+    const card = btn.closest('.card');
+    if (!card) return;
+    const section = card.querySelector('.fy-kuula-section');
+    if (!section) return;
+    const isHidden = section.style.display === 'none' || !section.style.display;
+    section.style.display = isHidden ? 'block' : 'none';
+    btn.setAttribute('aria-expanded', String(isHidden));
 }
 
 function renderFeaturedYachts(containerId) {
@@ -336,47 +216,25 @@ function renderFeaturedYachts(containerId) {
             : '';
         const inquireHref = _fyInquireMailto(y.name);
         const kuulaClean = _fySanitizeKuula(y.kuula);
-        const kuulaDataAttr = kuulaClean
-            ? ` data-kuula="${_fyEscapeAttr(kuulaClean)}"`
-            : '';
-        // Badge lives as a sibling of the image anchor (not inside it) so the
-        // browser's anchor-navigation default never fires for badge clicks. A
-        // nested <button> inside <a> is also invalid HTML.
         const kuulaBadge = kuulaClean
-            ? `<button type="button" class="fy-kuula-badge" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="_fyOpenKuula(this)">360&deg; Tour</button>`
+            ? `<button type="button" class="fy-kuula-badge" aria-label="Open 360 walkthrough" aria-expanded="false" onclick="_fyToggleKuula(this)"><span class="fy-kuula-badge-text">360 Tour</span></button>`
             : '';
-        const kuulaLink = kuulaClean
-            ? `<button type="button" class="fy-kuula-link" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="_fyOpenKuula(this)">View 360&deg; Tour</button>`
+        const kuulaSection = kuulaClean
+            ? `<div class="fy-kuula-section" style="display:none;"><h4>360 Walkthrough</h4><div class="fy-kuula-frame">${kuulaClean}</div></div>`
             : '';
-
-        // If a dedicated listing page exists, image + title + primary action
-        // all point at it. Otherwise the image and title are plain (no anchor)
-        // and the primary action falls back to the standard mailto Inquire.
-        const hasPage = !!(y.page && y.page.trim());
-        const pageHref = hasPage ? y.page : '';
-        const imgEl = `<div class="card-img" style="${imgStyle}">${imgLabel}</div>`;
-        const imgAnchored = hasPage
-            ? `<a href="${pageHref}" class="card-img-link">${imgEl}</a>`
-            : imgEl;
-        const imgBlock = `<div class="card-img-wrap">${imgAnchored}${kuulaBadge}</div>`;
-        const titleBlock = hasPage
-            ? `<h3><a href="${pageHref}" class="card-title-link">${y.name}</a></h3>`
-            : `<h3>${y.name}</h3>`;
-        const primaryHref = hasPage ? pageHref : inquireHref;
-
         return `
             <div class="card">
-                ${imgBlock}
+                <div class="card-img" style="${imgStyle}">${imgLabel}${kuulaBadge}</div>
                 <div class="card-body">
-                    ${titleBlock}
+                    <h3>${y.name}</h3>
                     <p>${y.description}</p>
                     <div class="card-actions">
-                        <a href="${primaryHref}" class="card-link">${hasPage ? 'View Listing' : 'Inquire'}</a>
+                        <a href="${inquireHref}" class="card-link">Inquire</a>
                         ${pdfLink}
-                        ${kuulaLink}
                     </div>
                     <a href="tel:5618171547" class="card-call">Call Clark: 561-817-1547</a>
                 </div>
+                ${kuulaSection}
             </div>
         `;
     }).join('');
