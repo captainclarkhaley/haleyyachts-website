@@ -5,6 +5,12 @@ Thumbs.db
 # Backup and build archives
 *.zip
 
+# Large media (GitHub blocks files >100MB). Keep raw video out of the repo;
+# publish hosted versions (Vimeo/YouTube/Cloudinary) and embed by URL.
+*.mp4
+*.mov
+*.m4v
+
 # Dev preview files
 logo-preview.html
 
