@@ -301,7 +301,7 @@
 
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-25 22:27 EDT</div>
+    <div class="admin-version" data-version>v: 2026-05-25 22:45 EDT</div>
 </div>
 
 <script>
@@ -362,13 +362,17 @@ $('heroFile').addEventListener('change', (e) => {
     if (!file) {
         pendingHeroFile = null;
         savedHeroFilename = null;
+        setPendingHeroBlobUrl(null);
         renderHeroRow();
+        renderPreview();
         return;
     }
     pendingHeroFile = file;
     savedHeroFilename = null; // will be set after save
+    setPendingHeroBlobUrl(file);
     renderHeroRow();
-    showStatus('Hero image selected. Click "Save hero image" to copy it into the site folder, then "Update preview".', 'info');
+    renderPreview();
+    showStatus('Hero image selected. Preview is using the local copy. Click "Save hero image" to write it into /images/email/hero/.', 'info');
 });
 
 function renderHeroRow() {
@@ -663,21 +667,49 @@ async function loadTemplate() {
     }
 }
 
-function buildHeroUrl() {
+// SVG placeholder used in the preview when no hero is selected yet.
+const HERO_PLACEHOLDER_SVG = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630' preserveAspectRatio='xMidYMid slice'>" +
+    "<rect width='1200' height='630' fill='#0a1628'/>" +
+    "<text x='600' y='315' font-family='-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif' " +
+    "font-size='42' font-weight='600' fill='#21cbea' text-anchor='middle' dominant-baseline='middle'>" +
+    "Hero image pending</text></svg>"
+);
+
+// Cached blob URL for the in-memory pending file. We revoke + recreate on
+// each new file selection to avoid leaking object URLs.
+let pendingHeroBlobUrl = null;
+
+function setPendingHeroBlobUrl(file) {
+    if (pendingHeroBlobUrl) {
+        URL.revokeObjectURL(pendingHeroBlobUrl);
+        pendingHeroBlobUrl = null;
+    }
+    if (file) pendingHeroBlobUrl = URL.createObjectURL(file);
+}
+
+// Build the hero <img src> value.
+//   forPreview=true  -> use the local copy (blob URL for the in-memory file,
+//                       or the locally-served file under ../images/email/hero/
+//                       if it has already been saved this session). This is
+//                       what the iframe preview gets, so Clark sees the real
+//                       image immediately instead of a 404 from production.
+//   forPreview=false -> use the production URL on haleyyachts.com. This is
+//                       what gets pasted into Constant Contact.
+function buildHeroUrl(forPreview) {
+    if (forPreview) {
+        if (savedHeroFilename) {
+            // Served by the local dev server from the same site root.
+            return '../images/email/hero/' + savedHeroFilename;
+        }
+        if (pendingHeroBlobUrl) {
+            // File picked but not yet saved to disk.
+            return pendingHeroBlobUrl;
+        }
+        return HERO_PLACEHOLDER_SVG;
+    }
     if (savedHeroFilename) return HERO_URL_BASE + savedHeroFilename;
-    // Until saved, return an inline SVG placeholder so the preview always
-    // renders. (The old via.placeholder.com service was shut down in 2024,
-    // which left a broken image just under the header band and pushed the
-    // rest of the email layout around.) This data: URI is preview-only -
-    // once Clark uploads + saves a real hero image, buildHeroUrl returns
-    // the production /images/email/hero/ URL instead.
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(
-        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630' preserveAspectRatio='xMidYMid slice'>" +
-        "<rect width='1200' height='630' fill='#0a1628'/>" +
-        "<text x='600' y='315' font-family='-apple-system,BlinkMacSystemFont,Segoe UI,Arial,sans-serif' " +
-        "font-size='42' font-weight='600' fill='#21cbea' text-anchor='middle' dominant-baseline='middle'>" +
-        "Hero image pending</text></svg>"
-    );
+    return HERO_PLACEHOLDER_SVG;
 }
 
 function buildHeadlineBlock(headlineText) {
@@ -694,7 +726,7 @@ function buildHeadlineBlock(headlineText) {
     ].join('\n');
 }
 
-async function buildStitchedHtml() {
+async function buildStitchedHtml(forPreview) {
     const src = await loadTemplate();
     const subject = $('subject').value.trim();
     const headline = $('headline').value.trim();
@@ -714,7 +746,7 @@ async function buildStitchedHtml() {
     // "HALEY YACHTS - GENERAL PURPOSE EMAIL TEMPLATE"). The MSO conditional
     // comments stay - those are required for Outlook rendering.
     out = out.replace(/<!--\s*HALEY YACHTS[\s\S]*?-->/, '<!-- Haley Yachts email -->');
-    out = out.replace(/{{HERO_IMAGE_URL}}/g, escapeAttr(buildHeroUrl()));
+    out = out.replace(/{{HERO_IMAGE_URL}}/g, escapeAttr(buildHeroUrl(forPreview)));
     out = out.replace(/{{HERO_ALT}}/g, escapeAttr(heroAlt));
     out = out.replace(/{{PREHEADER}}/g, escapeHtml(preheader));
     out = out.replace(/{{HEADLINE_BLOCK}}/g, buildHeadlineBlock(headline));
@@ -729,19 +761,25 @@ async function buildStitchedHtml() {
 
 // ============== Preview + output ==============
 async function renderPreview() {
-    let html;
-    try { html = await buildStitchedHtml(); }
-    catch (err) { return; }
+    // Two separate builds:
+    //   previewHtml -> iframe srcdoc; hero src points at the local file so
+    //                  what Clark just selected/saved is actually visible.
+    //   outputHtml  -> what gets copied/downloaded for Constant Contact;
+    //                  hero src is the production /images/email/hero/ URL.
+    let previewHtml, outputHtml;
+    try {
+        previewHtml = await buildStitchedHtml(true);
+        outputHtml = await buildStitchedHtml(false);
+    } catch (err) { return; }
 
-    // Stuff into iframe via srcdoc
-    $('previewFrame').srcdoc = html;
-    $('htmlOutput').value = html;
-    $('htmlLen').textContent = html.length.toLocaleString();
+    $('previewFrame').srcdoc = previewHtml;
+    $('htmlOutput').value = outputHtml;
+    $('htmlLen').textContent = outputHtml.length.toLocaleString();
 }
 
 async function copyHtml() {
     let html;
-    try { html = await buildStitchedHtml(); }
+    try { html = await buildStitchedHtml(false); }
     catch (err) { return; }
     try {
         await navigator.clipboard.writeText(html);
@@ -761,7 +799,7 @@ async function copyHtml() {
 
 async function downloadHtml() {
     let html;
-    try { html = await buildStitchedHtml(); }
+    try { html = await buildStitchedHtml(false); }
     catch (err) { return; }
     const subject = $('subject').value.trim() || 'haley-yachts-email';
     const filename = timestampSlug() + '-' + slugifySubject(subject) + '.html';
