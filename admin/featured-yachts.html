@@ -288,7 +288,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-20 10:22 EDT</div>
+    <div class="admin-version" data-version>v: 2026-05-25 14:10 EDT</div>
 </div>
 
 <!-- Load current data -->
@@ -763,35 +763,57 @@
             }
         }
 
-        // Step 2: update working copy of featuredYachts
+        // Step 2: update working copy of featuredYachts (in-memory) so subsequent
+        // edits in this session see the new values. The actual on-disk write
+        // below is a TARGETED PATCH - it only mutates the fields the user
+        // changed, leaving the renderer code and all other entries untouched.
         const entry = workingData[pos - 1];
-        if (filename) entry.image = 'images/yachts/featured/' + filename;
-        if (title) entry.name = title;
-        if (desc) entry.description = desc;
+        const updates = {};
+        if (filename) {
+            updates.image = 'images/yachts/featured/' + filename;
+            entry.image = updates.image;
+        }
+        if (title) {
+            updates.name = title;
+            entry.name = title;
+        }
+        if (desc) {
+            updates.description = desc;
+            entry.description = desc;
+        }
         entry.link = entry.link || 'contact.html';
         entry.linkText = entry.linkText || 'Inquire';
 
         // PDF: blank => removed; full URL => external; bare filename => local doc.
+        // Always write the PDF field on save (blank clears it intentionally).
+        let pdfValue;
         if (!pdfRaw) {
-            entry.pdf = '';
+            pdfValue = '';
         } else if (/^https?:\/\//i.test(pdfRaw)) {
-            entry.pdf = pdfRaw;
+            pdfValue = pdfRaw;
         } else {
-            entry.pdf = 'documents/yachts/featured/' + pdfRaw.replace(/^.*\//, '');
+            pdfValue = 'documents/yachts/featured/' + pdfRaw.replace(/^.*\//, '');
         }
+        updates.pdf = pdfValue;
+        entry.pdf = pdfValue;
 
-        // Kuula 360: sanitized iframe HTML, or '' if cleared.
+        // Kuula 360: sanitized iframe HTML, or '' if cleared. Always written.
+        updates.kuula = kuulaClean;
         entry.kuula = kuulaClean;
-
-        const fileContent = buildFileContent(workingData);
 
         // Preview
         renderPreview(pos, entry);
         document.getElementById('outputSection').style.display = 'block';
 
-        // Step 3: write featured-yachts.js, then read back to verify
+        // Step 3: read the file fresh, patch only the touched fields of the
+        // target entry, then write it back. This guarantees we never overwrite
+        // the renderer code in js/featured-yachts.js even if it has been
+        // updated since this admin tool last loaded.
         try {
             const handle = await getDataFileHandle();
+            const currentFile = await handle.getFile();
+            const currentText = await currentFile.text();
+            const fileContent = patchFeaturedYachtsEntry(currentText, pos - 1, updates);
             const writable = await handle.createWritable();
             await writable.write(fileContent);
             await writable.close();
@@ -868,11 +890,13 @@
             if (typeof y.kuula === 'undefined') y.kuula = '';
         });
 
-        const fileContent = buildFileContent(workingData);
-
-        // Write
+        // Targeted reorder of the on-disk file: only the data array is rewritten;
+        // the renderer code and all helpers in js/featured-yachts.js are left alone.
         try {
             const handle = await getDataFileHandle();
+            const currentFile = await handle.getFile();
+            const currentText = await currentFile.text();
+            const fileContent = patchFeaturedYachtsReorder(currentText, fromIdx, toIdx);
             const writable = await handle.createWritable();
             await writable.write(fileContent);
             await writable.close();
@@ -911,6 +935,186 @@
             <div class="preview-row"><strong>Full Details PDF:</strong> ${entry.pdf || '<em style="color:#999">(none - button hidden)</em>'}</div>
             <div class="preview-row"><strong>Kuula 360 Tour:</strong> ${kuulaStatus}</div>
         `;
+    }
+
+    // ===== Targeted in-place file patchers =====
+    // Why: regenerating the whole file from a template here meant that anytime
+    // the renderer code in js/featured-yachts.js evolved (lightbox modal, hasPage
+    // listing-page support, etc.), saving from this admin tool would clobber the
+    // newer code with this file's older embedded template. The patchers below
+    // only mutate the data array - they never touch the renderer code, CSS,
+    // modal scaffold, or helper functions in js/featured-yachts.js.
+    //
+    // Read the current featured-yachts.js text from disk.
+    async function readCurrentFile() {
+        const handle = await getDataFileHandle();
+        const f = await handle.getFile();
+        return await f.text();
+    }
+
+    // Find the byte range of the JS array literal that follows
+    // `const featuredYachts = [`. Returns { start, end } where start is the
+    // index of '[' and end is the index of the matching ']' (inclusive).
+    function findFeaturedYachtsArrayRange(text) {
+        const marker = /const\s+featuredYachts\s*=\s*\[/g;
+        const m = marker.exec(text);
+        if (!m) throw new Error('Could not locate `const featuredYachts = [` in js/featured-yachts.js.');
+        const start = text.indexOf('[', m.index);
+        if (start < 0) throw new Error('Malformed featuredYachts array: opening bracket not found.');
+        // Walk forward tracking depth, ignoring brackets inside strings/comments.
+        let i = start + 1;
+        let depth = 1;
+        let inStr = null;       // " or ' or `
+        let inLineComment = false;
+        let inBlockComment = false;
+        while (i < text.length) {
+            const c = text[i];
+            const n = text[i + 1];
+            if (inLineComment) {
+                if (c === '\n') inLineComment = false;
+                i++; continue;
+            }
+            if (inBlockComment) {
+                if (c === '*' && n === '/') { inBlockComment = false; i += 2; continue; }
+                i++; continue;
+            }
+            if (inStr) {
+                if (c === '\\') { i += 2; continue; }
+                if (c === inStr) { inStr = null; i++; continue; }
+                i++; continue;
+            }
+            if (c === '/' && n === '/') { inLineComment = true; i += 2; continue; }
+            if (c === '/' && n === '*') { inBlockComment = true; i += 2; continue; }
+            if (c === '"' || c === "'" || c === '`') { inStr = c; i++; continue; }
+            if (c === '[' || c === '{') { depth++; i++; continue; }
+            if (c === ']' || c === '}') {
+                depth--;
+                if (depth === 0) return { start, end: i };
+                i++; continue;
+            }
+            i++;
+        }
+        throw new Error('Malformed featuredYachts array: closing bracket not found.');
+    }
+
+    // Walk the array text and return the byte ranges of each top-level entry
+    // object (the `{ ... }` blocks). Indices are relative to `arrayText`.
+    function findEntryRanges(arrayText) {
+        const ranges = [];
+        let i = 0;
+        let inStr = null;
+        let inLineComment = false;
+        let inBlockComment = false;
+        let entryStart = -1;
+        let depth = 0;
+        while (i < arrayText.length) {
+            const c = arrayText[i];
+            const n = arrayText[i + 1];
+            if (inLineComment) { if (c === '\n') inLineComment = false; i++; continue; }
+            if (inBlockComment) { if (c === '*' && n === '/') { inBlockComment = false; i += 2; continue; } i++; continue; }
+            if (inStr) {
+                if (c === '\\') { i += 2; continue; }
+                if (c === inStr) { inStr = null; i++; continue; }
+                i++; continue;
+            }
+            if (c === '/' && n === '/') { inLineComment = true; i += 2; continue; }
+            if (c === '/' && n === '*') { inBlockComment = true; i += 2; continue; }
+            if (c === '"' || c === "'" || c === '`') { inStr = c; i++; continue; }
+            if (c === '{') {
+                if (depth === 0) entryStart = i;
+                depth++;
+                i++; continue;
+            }
+            if (c === '}') {
+                depth--;
+                if (depth === 0 && entryStart >= 0) {
+                    ranges.push({ start: entryStart, end: i });
+                    entryStart = -1;
+                }
+                i++; continue;
+            }
+            i++;
+        }
+        return ranges;
+    }
+
+    // Inside a single entry's text, replace the value of one field. Preserves
+    // surrounding whitespace, indentation, and the trailing comma if present.
+    // If the field is absent, inserts it just before the closing `}`.
+    function replaceFieldInEntry(entryText, field, newValueLiteral) {
+        const fieldRe = new RegExp('(^|[\\s,{])(' + field + ')(\\s*:\\s*)', 'g');
+        let m = fieldRe.exec(entryText);
+        if (!m) {
+            // Field missing: insert just before the closing `}`.
+            const lastBrace = entryText.lastIndexOf('}');
+            if (lastBrace < 0) return entryText;
+            // Find indentation of the line containing `}`.
+            const lineStart = entryText.lastIndexOf('\n', lastBrace);
+            const braceIndent = entryText.slice(lineStart + 1, lastBrace).match(/^[ \t]*/)[0];
+            const fieldIndent = braceIndent + '    ';
+            // Trim trailing whitespace before `}` and ensure a trailing comma on the prior field.
+            let head = entryText.slice(0, lastBrace).replace(/[ \t\r\n]+$/, '');
+            if (!/[,{]$/.test(head)) head = head + ',';
+            return head + '\n' + fieldIndent + field + ': ' + newValueLiteral + '\n' + braceIndent + '}';
+        }
+        // Found the field. Find the end of its value (next top-level comma or `}`).
+        const valStart = m.index + m[0].length;
+        let i = valStart;
+        let inStr = null;
+        let depth = 0;
+        while (i < entryText.length) {
+            const c = entryText[i];
+            if (inStr) {
+                if (c === '\\') { i += 2; continue; }
+                if (c === inStr) { inStr = null; i++; continue; }
+                i++; continue;
+            }
+            if (c === '"' || c === "'" || c === '`') { inStr = c; i++; continue; }
+            if (c === '{' || c === '[' || c === '(') { depth++; i++; continue; }
+            if (c === '}' || c === ']' || c === ')') {
+                if (depth === 0) break;
+                depth--; i++; continue;
+            }
+            if (c === ',' && depth === 0) break;
+            i++;
+        }
+        return entryText.slice(0, valStart) + newValueLiteral + entryText.slice(i);
+    }
+
+    // Apply a set of field updates to entry at index `idx` in the on-disk file text.
+    // updates: { image, name, description, link, linkText, pdf, kuula, page }
+    // Only keys with defined values are written; undefined keys are left untouched.
+    function patchFeaturedYachtsEntry(fileText, idx, updates) {
+        const arrRange = findFeaturedYachtsArrayRange(fileText);
+        const arrText = fileText.slice(arrRange.start + 1, arrRange.end);
+        const entries = findEntryRanges(arrText);
+        if (idx < 0 || idx >= entries.length) {
+            throw new Error('Entry index ' + idx + ' is out of range (file has ' + entries.length + ' entries).');
+        }
+        const er = entries[idx];
+        let entryText = arrText.slice(er.start, er.end + 1);
+        for (const [field, value] of Object.entries(updates)) {
+            if (typeof value === 'undefined') continue;
+            entryText = replaceFieldInEntry(entryText, field, JSON.stringify(value));
+        }
+        const newArrText = arrText.slice(0, er.start) + entryText + arrText.slice(er.end + 1);
+        return fileText.slice(0, arrRange.start + 1) + newArrText + fileText.slice(arrRange.end);
+    }
+
+    // Reorder entries inside the array region. Used by MOVE. Preserves the
+    // renderer code outside the array entirely; only the array body is rewritten.
+    function patchFeaturedYachtsReorder(fileText, fromIdx, toIdx) {
+        const arrRange = findFeaturedYachtsArrayRange(fileText);
+        const arrText = fileText.slice(arrRange.start + 1, arrRange.end);
+        const entries = findEntryRanges(arrText);
+        if (fromIdx < 0 || fromIdx >= entries.length) throw new Error('from index out of range');
+        if (toIdx < 0 || toIdx >= entries.length) throw new Error('to index out of range');
+        if (fromIdx === toIdx) return fileText;
+        const entryTexts = entries.map(e => arrText.slice(e.start, e.end + 1));
+        const [moved] = entryTexts.splice(fromIdx, 1);
+        entryTexts.splice(toIdx, 0, moved);
+        const newArrText = '\n    ' + entryTexts.join(',\n    ') + '\n';
+        return fileText.slice(0, arrRange.start + 1) + newArrText + fileText.slice(arrRange.end);
     }
 
     function buildFileContent(data) {

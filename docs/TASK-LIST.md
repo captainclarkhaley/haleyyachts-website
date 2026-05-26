@@ -1,7 +1,14 @@
 # Haley Yachts Website - Task List
-*Last updated: May 12, 2026*
+*Last updated: May 25, 2026*
 
 Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull.
+
+---
+
+## RECENTLY COMPLETED (May 25)
+
+- [x] Featured Yachts: restored lightbox/modal 360 UX on /buy. The previous save from `admin/featured-yachts.html` (when Clark added Fortunato's Kuula tour) had regenerated `js/featured-yachts.js` from the admin tool's older embedded template, clobbering the newer lightbox + hasPage code with the old inline-panel renderer. Restored on disk: full-screen modal opened by the 360 badge AND a separate "View 360 Tour" text button in card actions, image + title clickable to the dedicated `yachts/*.html` listing page when `page` is set (Fringe Benefits has one; Fortunato does not). Fortunato's `kuula:` URL preserved exactly.
+- [x] Featured Yachts admin tool: root-cause fix. Save flow no longer regenerates `js/featured-yachts.js` from an embedded template. Instead it reads the current file, parses the `featuredYachts` array region with a brace-aware walker, and applies targeted field replacements to the chosen entry. Move-to-position rewrites only the array region. The renderer code, CSS, modal scaffold, and helper functions in `js/featured-yachts.js` are never touched - the admin tool can only mutate data, not behavior. This prevents the lightbox UX from being clobbered again the next time anyone edits a listing.
 
 ---
 
