@@ -44,7 +44,7 @@ const featuredYachts = [
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/featured/1991-southern-wind-bruce-farr-fast-72.pdf",
-        kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=-1&info=1&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
+        kuula: "<iframe src=\"https://kuula.co/share/collection/7MFLp?logo=-1&info=1&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         page: ""
     },
     {
