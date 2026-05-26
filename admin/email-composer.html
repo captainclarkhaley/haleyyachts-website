@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Email Composer - Haley Yachts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 40px 20px 60px;
+            color: #333;
+        }
+        .admin-container {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 980px) {
+            .admin-grid { grid-template-columns: 1fr; }
+        }
+        .card {
+            background: #fff;
+            padding: 32px 36px;
+            border-radius: 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 8px;
+            color: #0a1628;
+        }
+        .accent-line { width: 60px; height: 3px; background: #21cbea; margin-bottom: 20px; }
+        .instructions {
+            font-style: italic;
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.7;
+            background: #f9fafb;
+            padding: 16px 20px;
+            border-left: 3px solid #21cbea;
+            margin-bottom: 24px;
+        }
+        .instructions strong { font-style: normal; color: #333; }
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555;
+            margin-bottom: 6px;
+            margin-top: 18px;
+        }
+        label .hint {
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            color: #888;
+            font-size: 0.75rem;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 10px 14px;
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 0.95rem;
+            border: 1px solid #d0d0d0;
+            border-radius: 3px;
+            background: #fff;
+            color: #333;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        .btn {
+            display: inline-block;
+            padding: 11px 24px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #21cbea;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 18px;
+            margin-right: 8px;
+            transition: background 0.2s;
+        }
+        .btn:hover { background: #1aa8c4; }
+        .btn.saved { background: #2a9c45; }
+        .btn-secondary { background: #555; }
+        .btn-secondary:hover { background: #333; }
+        .btn-ghost { background: none; color: #21cbea; border: 1px solid #21cbea; }
+        .btn-ghost:hover { background: #21cbea; color: #fff; }
+        .status {
+            padding: 12px 16px;
+            border-radius: 3px;
+            font-size: 0.9rem;
+            margin-top: 16px;
+            display: none;
+        }
+        .status.success { background: #e8f7ea; color: #1b6e2e; display: block; }
+        .status.error { background: #fbeaea; color: #a82020; display: block; }
+        .status.info { background: #eef5fa; color: #1a4d6b; display: block; }
+        .nav-links { margin-bottom: 24px; font-size: 0.85rem; }
+        .nav-links .nav-sep { color: #bbb; margin: 0 10px; }
+        .back-link { display: inline-block; font-size: 0.85rem; color: #21cbea; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        .root-status-box {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            background: #f1f5f9; border: 1px solid #d6dde3; border-radius: 4px;
+            padding: 10px 14px; margin-bottom: 20px; font-size: 0.85rem;
+        }
+        .root-status-box #rootStatus { color: #4a5560; }
+        .reset-btn {
+            background: none; border: 1px solid #c5ccd3; color: #4a5560;
+            font-size: 0.78rem; padding: 5px 10px; border-radius: 3px; cursor: pointer;
+        }
+        .reset-btn:hover { background: #e5ebf0; }
+        .admin-version {
+            text-align: right; font-size: 0.7rem; color: #999;
+            font-family: 'Courier New', monospace; margin-top: 24px; letter-spacing: 0.5px;
+        }
+        .editor-toolbar {
+            display: flex; flex-wrap: wrap; gap: 4px;
+            background: #f4f6f8; border: 1px solid #d0d0d0; border-bottom: none;
+            border-radius: 3px 3px 0 0; padding: 6px;
+        }
+        .editor-toolbar button {
+            background: #fff; border: 1px solid #d0d0d0; border-radius: 3px;
+            padding: 5px 10px; font-size: 0.85rem; cursor: pointer; color: #333;
+            min-width: 32px;
+        }
+        .editor-toolbar button:hover { background: #21cbea; color: #fff; border-color: #21cbea; }
+        .editor-toolbar .sep { width: 1px; background: #d0d0d0; margin: 0 4px; }
+        #bodyEditor {
+            border: 1px solid #d0d0d0; border-top: none; border-radius: 0 0 3px 3px;
+            min-height: 320px; padding: 14px 16px; background: #fff;
+            font-family: 'Open Sans', Arial, sans-serif; font-size: 0.95rem;
+            color: #333; line-height: 1.5; outline: none; overflow-y: auto;
+        }
+        #bodyEditor:focus { border-color: #21cbea; }
+        #bodyEditor p { margin: 0 0 12px 0; }
+        #bodyEditor a { color: #21cbea; }
+        .file-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; background: #f9fafb;
+            border: 1px solid #e5e5e5; border-radius: 3px;
+            font-size: 0.85rem; margin-top: 8px;
+        }
+        .file-row.empty { color: #888; font-style: italic; }
+        .file-row .file-name { font-weight: 600; color: #333; }
+        .file-row .file-meta { color: #666; font-size: 0.78rem; }
+        .dim-hint {
+            font-size: 0.78rem; color: #1a4d6b; margin-top: 6px;
+            padding: 8px 12px; background: #eef5fa; border-radius: 3px;
+        }
+        .preview-frame-wrap {
+            border: 1px solid #d0d0d0; border-radius: 3px; overflow: hidden;
+            background: #f4f6f8; margin-top: 12px;
+        }
+        #previewFrame { width: 100%; height: 720px; border: 0; background: #f4f6f8; display: block; }
+        #htmlOutput {
+            width: 100%; min-height: 240px;
+            font-family: 'Courier New', monospace; font-size: 0.78rem;
+            padding: 12px; background: #0a1628; color: #c9e7f0;
+            border: none; border-radius: 3px; white-space: pre; margin-top: 12px;
+        }
+        .copy-bar { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+        details { margin-top: 16px; }
+        summary { cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #555; }
+        .heading-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+        .heading-row h2 { margin: 0; font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #555; }
+        .toolbar-spacer { flex: 1; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="nav-links">
+        <a href="index.html" class="back-link">&larr; Back to Admin</a>
+        <span class="nav-sep">&middot;</span>
+        <a href="../index.html" class="back-link">View Live Site &rarr;</a>
+    </div>
+
+    <div class="card" style="margin-bottom:24px;">
+        <h1>Email Composer</h1>
+        <div class="accent-line"></div>
+
+        <div class="instructions">
+            <strong>How to use:</strong><br>
+            (1) Upload a <strong>hero image</strong> (recommended 1200x630 JPEG, &lt;300 KB). It saves into <code>/images/email/hero/</code> with a timestamped filename.<br>
+            (2) <em>Optional:</em> add an <strong>H2 headline</strong> above the body.<br>
+            (3) Write or paste your <strong>body content</strong>. Basic formatting buttons cover most needs.<br>
+            (4) The <strong>preview pane</strong> shows what Constant Contact will render. Refresh it any time.<br>
+            (5) Click <strong>Copy HTML</strong>, then paste into Constant Contact's <em>Custom Code</em> template editor. The <strong>subject line</strong> goes into CC's subject field separately.<br>
+            <br>
+            CC handles all tracking (opens, clicks, unsubscribe, list management). No tracking code is added on our side.<br>
+            <br>
+            The <em>first</em> time you save a hero image, your browser will prompt you to pick the <strong>haleyyachts-website</strong> folder (the site root). Grant access once and future saves go through automatically.
+        </div>
+
+        <div class="root-status-box">
+            <span id="rootStatus">Site folder: not selected yet.</span>
+            <button type="button" class="reset-btn" onclick="resetSiteRoot()">Change folder</button>
+        </div>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <div class="admin-grid">
+
+        <!-- LEFT: form -->
+        <div class="card">
+            <div class="heading-row"><h2>Compose</h2></div>
+
+            <label for="subject">Subject line <span class="hint">(paste into CC's subject field separately)</span></label>
+            <input type="text" id="subject" placeholder="e.g., Spring cruising notes from Clark" />
+
+            <label for="preheader">Preheader <span class="hint">(inbox preview text, ~80 chars)</span></label>
+            <input type="text" id="preheader" placeholder="e.g., A quick update from the dock plus three new listings." maxlength="160" />
+
+            <label for="headline">H2 headline <span class="hint">(optional, shows above the body)</span></label>
+            <input type="text" id="headline" placeholder="e.g., Notes from the Abacos" />
+
+            <label for="heroFile">Hero image <span class="hint">(upload here, it copies into /images/email/hero/)</span></label>
+            <input type="file" id="heroFile" accept="image/*" />
+            <div class="dim-hint">
+                <strong>Upload at 1200x630</strong> (displays at 600x315 in the email). JPEG, sRGB, target under 300 KB.
+            </div>
+            <div id="heroRow" class="file-row empty">No hero image selected yet.</div>
+            <label for="heroAlt">Hero alt text <span class="hint">(short description for accessibility)</span></label>
+            <input type="text" id="heroAlt" placeholder="e.g., Sunset over Hope Town harbour" />
+
+            <label>Body content <span class="hint">(rich text - paragraphs, links, lists)</span></label>
+            <div class="editor-toolbar" role="toolbar">
+                <button type="button" data-cmd="bold" title="Bold (Cmd/Ctrl+B)"><strong>B</strong></button>
+                <button type="button" data-cmd="italic" title="Italic (Cmd/Ctrl+I)"><em>I</em></button>
+                <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+                <span class="sep"></span>
+                <button type="button" data-cmd="formatBlock" data-arg="H3" title="Subheading">H3</button>
+                <button type="button" data-cmd="formatBlock" data-arg="P" title="Paragraph">&para;</button>
+                <span class="sep"></span>
+                <button type="button" data-cmd="insertUnorderedList" title="Bulleted list">&bull; List</button>
+                <button type="button" data-cmd="insertOrderedList" title="Numbered list">1. List</button>
+                <span class="sep"></span>
+                <button type="button" id="linkBtn" title="Insert link">Link</button>
+                <button type="button" id="unlinkBtn" title="Remove link">Unlink</button>
+                <span class="sep"></span>
+                <button type="button" data-cmd="formatBlock" data-arg="BLOCKQUOTE" title="Quote">&ldquo;Quote&rdquo;</button>
+                <button type="button" id="clearFmtBtn" title="Clear formatting">Clear</button>
+            </div>
+            <div id="bodyEditor" contenteditable="true" spellcheck="true"></div>
+
+            <details>
+                <summary>Or paste HTML directly</summary>
+                <textarea id="rawHtml" placeholder="Paste pre-written HTML here. Click 'Use raw HTML' to load it into the editor." style="margin-top:8px; min-height:140px; font-family:'Courier New', monospace; font-size:0.78rem;"></textarea>
+                <button type="button" class="btn btn-ghost" onclick="loadRawHtml()">Use raw HTML</button>
+            </details>
+
+            <div style="margin-top:24px; padding-top:20px; border-top:1px solid #e5e5e5;">
+                <button type="button" class="btn" id="renderBtn" onclick="renderPreview()">Update preview</button>
+                <button type="button" class="btn btn-secondary" onclick="saveHero()">Save hero image</button>
+            </div>
+        </div>
+
+        <!-- RIGHT: preview + output -->
+        <div class="card">
+            <div class="heading-row">
+                <h2>Preview</h2>
+                <div>
+                    <button type="button" class="btn btn-ghost" id="copyBtn" onclick="copyHtml()" style="margin:0;">Copy HTML</button>
+                    <button type="button" class="btn btn-ghost" onclick="downloadHtml()" style="margin:0;">Download .html</button>
+                </div>
+            </div>
+            <div class="preview-frame-wrap">
+                <iframe id="previewFrame" title="Email preview"></iframe>
+            </div>
+
+            <details>
+                <summary>Show stitched HTML (what you'll paste into CC)</summary>
+                <div class="copy-bar">
+                    <button type="button" class="btn btn-ghost" onclick="copyHtml()" style="margin:0;">Copy HTML</button>
+                    <span style="font-size:0.78rem; color:#888;">Length: <span id="htmlLen">0</span> chars</span>
+                </div>
+                <textarea id="htmlOutput" readonly></textarea>
+            </details>
+        </div>
+
+    </div>
+
+    <div class="admin-version" data-version>v: 2026-05-25 21:26 EDT</div>
+</div>
+
+<script>
+// ============================================================
+// EMAIL COMPOSER - admin/email-composer.html
+// Loads /email-templates/general.html, stitches user input into the
+// {{HERO_IMAGE_URL}}, {{HERO_ALT}}, {{PREHEADER}}, {{HEADLINE_BLOCK}},
+// {{BODY_HTML}} slots, and produces a Constant-Contact-paste-ready HTML.
+// ============================================================
+
+const TEMPLATE_URL = '../email-templates/general.html';
+const HERO_DIR_PATH = ['images', 'email', 'hero'];
+const HERO_URL_BASE = 'https://haleyyachts.com/images/email/hero/';
+
+let templateSource = null;     // Raw template HTML once fetched
+let pendingHeroFile = null;    // File object from <input type=file>
+let savedHeroFilename = null;  // Filename actually written to disk this session
+
+const $ = (id) => document.getElementById(id);
+
+// ============== Status messaging ==============
+function showStatus(msg, type) {
+    const el = $('status');
+    el.textContent = msg;
+    el.className = 'status ' + (type || 'info');
+    if (type === 'success' || type === 'info') {
+        setTimeout(() => { el.style.display = 'none'; }, 6000);
+    }
+}
+
+// ============== Filename generation ==============
+function timestampSlug() {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mn = String(d.getMinutes()).padStart(2, '0');
+    return yyyy + '-' + mm + '-' + dd + '-' + hh + mn;
+}
+function slugifySubject(subject) {
+    if (!subject) return 'hero';
+    return subject.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 40) || 'hero';
+}
+function buildHeroFilename(originalName, subject) {
+    const dot = originalName.lastIndexOf('.');
+    let ext = dot > 0 ? originalName.substring(dot).toLowerCase() : '.jpg';
+    if (!/^\.(jpg|jpeg|png|gif|webp)$/i.test(ext)) ext = '.jpg';
+    return timestampSlug() + '-' + slugifySubject(subject) + ext;
+}
+
+// ============== Hero file handling ==============
+$('heroFile').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+        pendingHeroFile = null;
+        savedHeroFilename = null;
+        renderHeroRow();
+        return;
+    }
+    pendingHeroFile = file;
+    savedHeroFilename = null; // will be set after save
+    renderHeroRow();
+    showStatus('Hero image selected. Click "Save hero image" to copy it into the site folder, then "Update preview".', 'info');
+});
+
+function renderHeroRow() {
+    const row = $('heroRow');
+    if (savedHeroFilename) {
+        row.classList.remove('empty');
+        row.innerHTML = '<span class="file-name">' + savedHeroFilename + '</span>' +
+            ' <span class="file-meta">saved to /images/email/hero/</span>';
+        return;
+    }
+    if (pendingHeroFile) {
+        const kb = Math.round(pendingHeroFile.size / 1024);
+        row.classList.remove('empty');
+        row.innerHTML = '<span class="file-name">' + pendingHeroFile.name + '</span>' +
+            ' <span class="file-meta">' + kb + ' KB - not saved yet</span>';
+        return;
+    }
+    row.className = 'file-row empty';
+    row.textContent = 'No hero image selected yet.';
+}
+
+async function saveHero() {
+    if (!pendingHeroFile) {
+        showStatus('Pick a hero image first.', 'error');
+        return;
+    }
+    const filename = buildHeroFilename(pendingHeroFile.name, $('subject').value);
+
+    // FSA-API path
+    if ('showDirectoryPicker' in window) {
+        try {
+            const root = await getSiteRoot();
+            let dir = root;
+            for (const segment of HERO_DIR_PATH) {
+                dir = await dir.getDirectoryHandle(segment, { create: true });
+            }
+            const fh = await dir.getFileHandle(filename, { create: true });
+            const w = await fh.createWritable();
+            await w.write(pendingHeroFile);
+            await w.close();
+            savedHeroFilename = filename;
+            renderHeroRow();
+            showStatus('Hero image saved to /images/email/hero/' + filename + '. Click "Update preview".', 'success');
+            renderPreview();
+            return;
+        } catch (err) {
+            if (err && err.name === 'AbortError') {
+                showStatus('Save canceled.', 'error');
+                return;
+            }
+            console.error(err);
+            showStatus('FSA save failed: ' + err.message + '. Falling back to manual drop instructions.', 'error');
+            // fall through to manual fallback
+        }
+    }
+
+    // Manual fallback: tell Clark where to drop the file
+    savedHeroFilename = filename;
+    renderHeroRow();
+    showStatus(
+        'Your browser does not support direct file saving. Manually rename your image to "' + filename +
+        '" and drop it into /images/email/hero/ in the repo. The composed HTML already points to that URL.',
+        'info'
+    );
+    renderPreview();
+}
+
+// ============== File System Access API site-root handle ==============
+const DB_NAME = 'haley-admin';
+const STORE = 'handles';
+const SITE_ROOT_KEY = 'site-root-dir';
+
+function openDb() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = () => req.result.createObjectStore(STORE);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+}
+async function idbGet(key) {
+    const db = await openDb();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readonly');
+        const req = tx.objectStore(STORE).get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+}
+async function idbSet(key, value) {
+    const db = await openDb();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).put(value, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+}
+async function idbDelete(key) {
+    const db = await openDb();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).delete(key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+    });
+}
+async function ensureWritePermission(handle) {
+    const opts = { mode: 'readwrite' };
+    if ((await handle.queryPermission(opts)) === 'granted') return true;
+    if ((await handle.requestPermission(opts)) === 'granted') return true;
+    return false;
+}
+async function validateSiteRoot(handle) {
+    const required = { files: ['index.html'], dirs: ['js', 'images'] };
+    const missing = [];
+    for (const f of required.files) {
+        try { await handle.getFileHandle(f); } catch (e) { missing.push(f); }
+    }
+    for (const d of required.dirs) {
+        try { await handle.getDirectoryHandle(d); } catch (e) { missing.push(d + '/'); }
+    }
+    return { ok: missing.length === 0, name: handle.name, missing };
+}
+let siteRootHandle = null;
+function updateRootStatus() {
+    const el = $('rootStatus');
+    if (!el) return;
+    if (siteRootHandle) {
+        el.textContent = 'Site folder: ' + siteRootHandle.name + ' (validated)';
+        el.style.color = '#2a7a2a';
+    } else {
+        el.textContent = 'Site folder: not selected yet.';
+        el.style.color = '#666';
+    }
+}
+async function resetSiteRoot() {
+    siteRootHandle = null;
+    await idbDelete(SITE_ROOT_KEY);
+    updateRootStatus();
+    showStatus('Site folder cleared. Next hero save will prompt you to pick it again.', 'info');
+}
+async function getSiteRoot() {
+    if (siteRootHandle) {
+        if (await ensureWritePermission(siteRootHandle)) return siteRootHandle;
+        siteRootHandle = null;
+    }
+    let handle = await idbGet(SITE_ROOT_KEY);
+    if (handle) {
+        if (await ensureWritePermission(handle)) {
+            const v = await validateSiteRoot(handle);
+            if (v.ok) { siteRootHandle = handle; updateRootStatus(); return handle; }
+            await idbDelete(SITE_ROOT_KEY);
+        }
+    }
+    showStatus('Please pick the haleyyachts-website folder (the site root).', 'info');
+    handle = await window.showDirectoryPicker({ id: 'haley-site-root', mode: 'readwrite' });
+    if (!(await ensureWritePermission(handle))) throw new Error('Write permission denied for site folder.');
+    const v = await validateSiteRoot(handle);
+    if (!v.ok) {
+        throw new Error('Wrong folder: "' + v.name + '" is missing ' + v.missing.join(', ') +
+            '. Pick the haleyyachts-website folder (it contains index.html, js/, images/).');
+    }
+    await idbSet(SITE_ROOT_KEY, handle);
+    siteRootHandle = handle;
+    updateRootStatus();
+    return handle;
+}
+// Silent bind on load
+(async () => {
+    try {
+        const handle = await idbGet(SITE_ROOT_KEY);
+        if (!handle) return;
+        const opts = { mode: 'readwrite' };
+        if ((await handle.queryPermission(opts)) === 'granted') {
+            const v = await validateSiteRoot(handle);
+            if (v.ok) { siteRootHandle = handle; updateRootStatus(); }
+        }
+    } catch (e) { /* ignore */ }
+})();
+
+// ============== Rich text editor ==============
+const editor = $('bodyEditor');
+
+document.querySelectorAll('.editor-toolbar button[data-cmd]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const cmd = btn.getAttribute('data-cmd');
+        const arg = btn.getAttribute('data-arg') || null;
+        editor.focus();
+        document.execCommand(cmd, false, arg);
+    });
+});
+
+$('linkBtn').addEventListener('click', () => {
+    editor.focus();
+    const url = prompt('Link URL (include https://):');
+    if (!url) return;
+    let safe = url.trim();
+    if (!/^https?:\/\//i.test(safe) && !safe.startsWith('mailto:') && !safe.startsWith('tel:')) {
+        safe = 'https://' + safe;
+    }
+    document.execCommand('createLink', false, safe);
+});
+$('unlinkBtn').addEventListener('click', () => { editor.focus(); document.execCommand('unlink'); });
+$('clearFmtBtn').addEventListener('click', () => { editor.focus(); document.execCommand('removeFormat'); });
+
+// Paste handler: strip everything except plain text + safe inline tags
+editor.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    // Convert blank lines to paragraph breaks
+    const html = text.split(/\n{2,}/).map(p => '<p>' + escapeHtml(p).replace(/\n/g, '<br>') + '</p>').join('');
+    document.execCommand('insertHTML', false, html);
+});
+
+function loadRawHtml() {
+    const raw = $('rawHtml').value.trim();
+    if (!raw) { showStatus('Paste some HTML into the raw box first.', 'error'); return; }
+    editor.innerHTML = sanitizeBodyHtml(raw);
+    renderPreview();
+    showStatus('Raw HTML loaded into the editor.', 'success');
+}
+
+// ============== Sanitization ==============
+// Only allow a whitelist of tags inside the body zone. CC is strict about
+// what it accepts, and we don't want <script>/<style>/<iframe> sneaking in.
+const ALLOWED_TAGS = new Set(['P','BR','STRONG','B','EM','I','U','A','UL','OL','LI','H3','BLOCKQUOTE','SPAN','DIV']);
+const ALLOWED_ATTRS = { 'A': ['href','title','target','rel'] };
+
+function sanitizeBodyHtml(rawHtml) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = rawHtml;
+    walk(wrapper);
+    return wrapper.innerHTML;
+
+    function walk(node) {
+        const children = Array.from(node.childNodes);
+        for (const child of children) {
+            if (child.nodeType === Node.ELEMENT_NODE) {
+                const tag = child.tagName.toUpperCase();
+                if (!ALLOWED_TAGS.has(tag)) {
+                    // Unwrap: keep its children but drop the tag
+                    while (child.firstChild) child.parentNode.insertBefore(child.firstChild, child);
+                    child.parentNode.removeChild(child);
+                    walk(node);
+                    return;
+                }
+                // Strip disallowed attributes
+                const allowed = ALLOWED_ATTRS[tag] || [];
+                Array.from(child.attributes).forEach(attr => {
+                    if (!allowed.includes(attr.name.toLowerCase())) child.removeAttribute(attr.name);
+                });
+                // Force-safe anchors
+                if (tag === 'A') {
+                    const href = child.getAttribute('href') || '';
+                    if (!/^(https?:|mailto:|tel:|#)/i.test(href)) child.removeAttribute('href');
+                    child.setAttribute('target', '_blank');
+                    child.setAttribute('rel', 'noopener');
+                }
+                walk(child);
+            } else if (child.nodeType === Node.COMMENT_NODE) {
+                child.parentNode.removeChild(child);
+            }
+        }
+    }
+}
+
+function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s) { return escapeHtml(s); }
+
+// Build a plain-text version of the body for the (auto-generated) preheader fallback
+function htmlToPlainText(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+// ============== Template fetch + stitch ==============
+async function loadTemplate() {
+    if (templateSource) return templateSource;
+    try {
+        const res = await fetch(TEMPLATE_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        templateSource = await res.text();
+        return templateSource;
+    } catch (err) {
+        showStatus('Could not load template at ' + TEMPLATE_URL + ' (' + err.message + '). ' +
+            'Open this page from a local server (e.g. cd to the repo and run "python3 -m http.server"), then visit http://localhost:8000/admin/email-composer.html.', 'error');
+        throw err;
+    }
+}
+
+function buildHeroUrl() {
+    if (savedHeroFilename) return HERO_URL_BASE + savedHeroFilename;
+    // Until saved, point at a placeholder so the preview at least renders
+    return 'https://via.placeholder.com/1200x630/0a1628/21cbea?text=Hero+image+pending';
+}
+
+function buildHeadlineBlock(headlineText) {
+    if (!headlineText || !headlineText.trim()) return '';
+    const safe = escapeHtml(headlineText.trim());
+    return [
+        '<tr>',
+        '  <td bgcolor="#5b7a96" style="background-color:#5b7a96; padding:18px 24px;" align="center">',
+        '    <div class="ff" style="font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Arial,sans-serif; font-size:22px; line-height:28px; color:#ffffff; font-weight:700; letter-spacing:0.5px; text-align:center;">',
+        '      ' + safe,
+        '    </div>',
+        '  </td>',
+        '</tr>'
+    ].join('\n');
+}
+
+async function buildStitchedHtml() {
+    const src = await loadTemplate();
+    const subject = $('subject').value.trim();
+    const headline = $('headline').value.trim();
+    const heroAlt = $('heroAlt').value.trim() || (headline || 'Haley Yachts');
+    let preheader = $('preheader').value.trim();
+    const bodyHtmlRaw = editor.innerHTML;
+    const bodyHtml = sanitizeBodyHtml(bodyHtmlRaw);
+
+    // If no preheader, derive one from the first 100 chars of body text
+    if (!preheader) {
+        const plain = htmlToPlainText(bodyHtml);
+        preheader = plain.slice(0, 100);
+    }
+
+    let out = src;
+    // Strip the template's developer-docs comment block (the one starting with
+    // "HALEY YACHTS - GENERAL PURPOSE EMAIL TEMPLATE"). The MSO conditional
+    // comments stay - those are required for Outlook rendering.
+    out = out.replace(/<!--\s*HALEY YACHTS[\s\S]*?-->/, '<!-- Haley Yachts email -->');
+    out = out.replace(/{{HERO_IMAGE_URL}}/g, escapeAttr(buildHeroUrl()));
+    out = out.replace(/{{HERO_ALT}}/g, escapeAttr(heroAlt));
+    out = out.replace(/{{PREHEADER}}/g, escapeHtml(preheader));
+    out = out.replace(/{{HEADLINE_BLOCK}}/g, buildHeadlineBlock(headline));
+    out = out.replace(/{{BODY_HTML}}/g, bodyHtml || '<p style="color:#888;">Body content goes here.</p>');
+
+    // Title tag: nicer to set it from the subject for previews
+    if (subject) {
+        out = out.replace(/<title>[^<]*<\/title>/, '<title>' + escapeHtml(subject) + '</title>');
+    }
+    return out;
+}
+
+// ============== Preview + output ==============
+async function renderPreview() {
+    let html;
+    try { html = await buildStitchedHtml(); }
+    catch (err) { return; }
+
+    // Stuff into iframe via srcdoc
+    $('previewFrame').srcdoc = html;
+    $('htmlOutput').value = html;
+    $('htmlLen').textContent = html.length.toLocaleString();
+}
+
+async function copyHtml() {
+    let html;
+    try { html = await buildStitchedHtml(); }
+    catch (err) { return; }
+    try {
+        await navigator.clipboard.writeText(html);
+        const btn = $('copyBtn');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('saved');
+        setTimeout(() => { btn.textContent = orig; btn.classList.remove('saved'); }, 1800);
+        showStatus('HTML copied. Paste into Constant Contact > Custom Code template.', 'success');
+    } catch (err) {
+        // Fallback: select the textarea
+        $('htmlOutput').select();
+        document.execCommand('copy');
+        showStatus('HTML copied (fallback method).', 'success');
+    }
+}
+
+async function downloadHtml() {
+    let html;
+    try { html = await buildStitchedHtml(); }
+    catch (err) { return; }
+    const subject = $('subject').value.trim() || 'haley-yachts-email';
+    const filename = timestampSlug() + '-' + slugifySubject(subject) + '.html';
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showStatus('Downloaded ' + filename + '.', 'success');
+}
+
+// Initial seed
+editor.innerHTML = '<p>Write your message here. Use the toolbar above for formatting, links, and lists.</p>';
+
+// Auto-render on edits (debounced)
+let renderTimer = null;
+function queueRender() {
+    if (renderTimer) clearTimeout(renderTimer);
+    renderTimer = setTimeout(renderPreview, 400);
+}
+editor.addEventListener('input', queueRender);
+['subject','preheader','headline','heroAlt'].forEach(id => $(id).addEventListener('input', queueRender));
+
+// First render
+window.addEventListener('load', () => { renderPreview(); });
+</script>
+
+</body>
+</html>
