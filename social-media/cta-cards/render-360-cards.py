@@ -291,87 +291,98 @@ def autosize_font(weight, text, max_width, start_size, min_size=40, letterspacin
 
 
 def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
-                cta_label, cta_url):
-    img = fast_gradient()
-    composite_photo_top(img, photo_filename, photo_height=900, dim_alpha=110)
-    draw = ImageDraw.Draw(img)
+                cta_label, cta_url, canvas_h=1920):
+    """Render a single 1080-wide CTA card. canvas_h controls the aspect:
+       - 1920 -> 9:16 portrait (default; FB/IG Reels, Stories)
+       - 1350 -> 4:5 portrait (FB/IG in-feed image posts, no scroll-crop)
+       - 1080 -> 1:1 square (universal)
+    All absolute Y positions and the photo strip scale proportionally to
+    canvas_h / 1920. Headline + chip fonts stay at full size so messaging
+    holds at thumb-stop distance; white space tightens instead."""
+    global H
+    saved_h = H
+    H = canvas_h
+    try:
+        scale = H / 1920.0
 
-    # Hard horizontal budget for any text line.
-    text_max_w = W - (MARGIN_X * 2)
+        img = fast_gradient()
+        composite_photo_top(img, photo_filename,
+                            photo_height=int(900 * scale), dim_alpha=110)
+        draw = ImageDraw.Draw(img)
 
-    # ---- Eyebrow (above headline, on the photo, uppercase cyan)
-    # Auto-size and choose letter-spacing that still fits in the safe width.
-    eyebrow_text = eyebrow.upper()
-    ls = 4
-    eyebrow_font = autosize_font("semibold", eyebrow_text, text_max_w, 40, 26, letterspacing_px=ls)
-    y_eyebrow = 740
-    draw_text_centered(
-        draw, eyebrow_text, eyebrow_font, y_eyebrow, ACCENT, letterspacing_px=ls
-    )
+        # Hard horizontal budget for any text line.
+        text_max_w = W - (MARGIN_X * 2)
 
-    # ---- Hull name (the big headline, bottom of photo zone) - auto-size to fit
-    name_text = hull_name.upper()
-    name_font = autosize_font("bold", name_text, text_max_w, 156, 70, letterspacing_px=4)
-    y_name = 820
-    draw_text_centered(draw, name_text, name_font, y_name, WHITE, letterspacing_px=4)
+        # ---- Eyebrow (above headline, on the photo, uppercase cyan)
+        eyebrow_text = eyebrow.upper()
+        ls = 4
+        eyebrow_font = autosize_font("semibold", eyebrow_text, text_max_w, 40, 26, letterspacing_px=ls)
+        y_eyebrow = int(740 * scale)
+        draw_text_centered(
+            draw, eyebrow_text, eyebrow_font, y_eyebrow, ACCENT, letterspacing_px=ls
+        )
 
-    # Position downstream elements relative to the actual rendered headline size.
-    name_h = name_font.size
-    accent_y = y_name + name_h + 38
-    draw_accent_line(draw, accent_y, width=60, thickness=3)
+        # ---- Hull name (the big headline) - auto-size to fit width
+        name_text = hull_name.upper()
+        name_font = autosize_font("bold", name_text, text_max_w, 156, 70, letterspacing_px=4)
+        y_name = int(820 * scale)
+        draw_text_centered(draw, name_text, name_font, y_name, WHITE, letterspacing_px=4)
 
-    # ---- Sub line (year/builder/price line, on navy base) - auto-size
-    sub_font = autosize_font("semibold", sub_line, text_max_w, 46, 32)
-    y_sub = accent_y + 64
-    draw_text_centered(draw, sub_line, sub_font, y_sub, WHITE)
+        # Position downstream elements relative to the actual rendered headline.
+        name_h = name_font.size
+        accent_y = y_name + name_h + int(38 * scale)
+        draw_accent_line(draw, accent_y, width=60, thickness=3)
 
-    # ---- Teaser line
-    teaser_font = load_font("regular", 38)
-    y_teaser = y_sub + 110
-    teaser_text = "Step aboard from anywhere."
-    draw_text_centered(draw, teaser_text, teaser_font, y_teaser, DIM[:3])
+        # ---- Sub line (year/builder/price line, on navy base) - auto-size
+        sub_font = autosize_font("semibold", sub_line, text_max_w, 46, 32)
+        y_sub = accent_y + int(64 * scale)
+        draw_text_centered(draw, sub_line, sub_font, y_sub, WHITE)
 
-    # ---- HOT CTA chip in the thumb zone: wider/brighter cyan pill with the
-    # URL printed inside as second-line subtext, so the button itself is the
-    # primary call-to-action (per Clark: "make the button hot").
-    chip_label_font = load_font("bold", 56)
-    chip_url_font = load_font("semibold", 30)
-    # Auto-shrink the label font if the chip would exceed the safe width.
-    chip_y_center = H - SAFE_BOTTOM + 20
-    while chip_label_font.size > 38:
-        label_w = int(chip_label_font.getlength(cta_label.upper()))
-        if label_w + 70 * 2 <= text_max_w:
-            break
-        chip_label_font = load_font("bold", chip_label_font.size - 4)
-    while chip_url_font.size > 22:
-        url_w = int(chip_url_font.getlength(cta_url))
-        if url_w + 70 * 2 <= text_max_w:
-            break
-        chip_url_font = load_font("semibold", chip_url_font.size - 2)
-    draw_hot_cta_chip(
-        img, cta_label.upper(), cta_url, chip_y_center,
-        chip_label_font, chip_url_font,
-        pad_x=70, pad_y=30, label_url_gap=14,
-    )
-    # Re-bind draw because draw_hot_cta_chip may have swapped the underlying image.
-    draw = ImageDraw.Draw(img)
+        # ---- Teaser line (skip on tighter aspects where the chip would crowd it)
+        teaser_font = load_font("regular", 38)
+        y_teaser = y_sub + int(110 * scale)
+        if canvas_h >= 1500:
+            teaser_text = "Step aboard from anywhere."
+            draw_text_centered(draw, teaser_text, teaser_font, y_teaser, DIM[:3])
 
-    # ---- Brand mark, bottom-right CORNER, with contact strip on the LEFT in
-    # line with the logo (per Clark: "in line with the haleyyachts logo, add
-    # DM Clark Haley or call +1 561-817-1547").
-    logo_rect = place_logo_bottom_corner(
-        img, max_width=240, max_height=64,
-        x_pad=60, y_pad=80, corner="right",
-    )
-    draw_contact_strip(
-        draw, x_left=MARGIN_X, logo_rect=logo_rect,
-        line1="DM CLARK HALEY",
-        line2="+1 561-817-1547",
-    )
+        # ---- HOT CTA chip in the thumb zone
+        chip_label_font = load_font("bold", 56)
+        chip_url_font = load_font("semibold", 30)
+        chip_y_center = H - int(SAFE_BOTTOM * scale) + int(20 * scale)
+        while chip_label_font.size > 38:
+            label_w = int(chip_label_font.getlength(cta_label.upper()))
+            if label_w + 70 * 2 <= text_max_w:
+                break
+            chip_label_font = load_font("bold", chip_label_font.size - 4)
+        while chip_url_font.size > 22:
+            url_w = int(chip_url_font.getlength(cta_url))
+            if url_w + 70 * 2 <= text_max_w:
+                break
+            chip_url_font = load_font("semibold", chip_url_font.size - 2)
+        draw_hot_cta_chip(
+            img, cta_label.upper(), cta_url, chip_y_center,
+            chip_label_font, chip_url_font,
+            pad_x=70, pad_y=30, label_url_gap=14,
+        )
+        # Re-bind draw because draw_hot_cta_chip may have swapped the surface.
+        draw = ImageDraw.Draw(img)
 
-    out = os.path.join(OUT_DIR, out_filename)
-    img.save(out, "PNG", optimize=True)
-    print("Wrote:", out)
+        # ---- Brand mark, bottom-right; contact strip on the left in line.
+        logo_rect = place_logo_bottom_corner(
+            img, max_width=240, max_height=64,
+            x_pad=60, y_pad=int(80 * scale), corner="right",
+        )
+        draw_contact_strip(
+            draw, x_left=MARGIN_X, logo_rect=logo_rect,
+            line1="DM CLARK HALEY",
+            line2="+1 561-817-1547",
+        )
+
+        out = os.path.join(OUT_DIR, out_filename)
+        img.save(out, "PNG", optimize=True)
+        print("Wrote:", out)
+    finally:
+        H = saved_h
 
 
 if __name__ == "__main__":
@@ -397,4 +408,22 @@ if __name__ == "__main__":
         sub_line="Bruce Farr Fast 72  |  $435,000",
         cta_label="Take the 360 Tour",
         cta_url="360.haleyyachts.com/fortunato",
+    )
+
+    # ---- 4:5 image-post variants (1080x1350) -----------------------------
+    # FB/IG static image posts cap their feed preview around 4:5; portrait
+    # 9:16 gets clipped or shrunken in-feed. The 4:5 sibling fills the feed
+    # column edge-to-edge on mobile, no bars on desktop, and works on IG main
+    # feed too. Reels keep using the 9:16 above; these are for static posts.
+
+    # Fringe Benefits 4:5
+    render_card(
+        out_filename="fringe-benefits-360-1080x1350.png",
+        photo_filename="riviera545suv.jpg",
+        eyebrow="2020 Riviera 545 SUV",
+        hull_name="Fringe Benefits",
+        sub_line="West Palm Beach, FL  |  $1,495,000",
+        cta_label="Take the 360 Tour",
+        cta_url="360.haleyyachts.com/fringebenefit",
+        canvas_h=1350,
     )
