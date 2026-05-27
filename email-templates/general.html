@@ -7,18 +7,27 @@
 <title>Haley Yachts</title>
 
 <!--
-  HALEY YACHTS - GENERAL PURPOSE EMAIL TEMPLATE (V2 - 2026-05-25)
-  Fixed header (dark blue band + COLOR primary lockup) and footer (signature
-  + about-link row + dark brand band). Variable zones:
-    1. {{HERO_IMAGE_URL}}  - full-bleed photo under the header
-    2. {{HEADLINE_BLOCK}}  - optional slate-blue RIBBON title (composer emits
-                             the full <tr>; collapses to empty string when
-                             the headline field is blank, so no empty band)
-    3. {{BODY_HTML}}       - rich text body content (paragraphs, links, lists, h3)
-  Built for Constant Contact: paste the rendered file into a Custom Code template.
-  CC handles all tracking (opens, clicks, UNSUBSCRIBE, list management). No
-  unsubscribe link is rendered in this template - CC injects its own. No UTM
-  tagging on our side. No <script>, no external CSS, no fancy ES6.
+  HALEY YACHTS - GENERAL PURPOSE EMAIL TEMPLATE (V3 - 2026-05-26)
+  Redesigned to read as a direct extension of haleyyachts.com. Visual through-lines:
+    - Navy gradient masthead band that mirrors .page-header on the website
+    - Reverse logo lockup on navy (same treatment as the site footer)
+    - Site-canonical H1 device: 300-weight uppercase headline + centered 60x3 cyan accent line
+    - Open Sans loaded via Google Fonts with Arial/system fallback for clients that strip @import
+    - Hero photo with a navy gradient strip below (subtle, evokes the home-page hero overlay
+      without trying to embed video)
+    - Signature block uses the site's .about-layout cadence: portrait headshot, quiet contact
+      bar in slate copy, no boxed real-estate-flyer look
+    - Dark navy footer (#070e1a) matches .site-footer exactly, with the reverse-mark logo
+
+  Variable zones (composer replaces these tokens):
+    1. {{HERO_IMAGE_URL}} / {{HERO_ALT}} - photo under the masthead
+    2. {{HEADLINE_BLOCK}}                - optional H1 + accent line block (collapses to '')
+    3. {{BODY_HTML}}                     - rich text body content
+    4. {{PREHEADER}}                     - hidden inbox preview text
+
+  Built for Constant Contact: paste rendered file into a Custom Code template. CC handles
+  open/click tracking and injects its own UNSUBSCRIBE footer - do not re-add one here. No
+  <script>, no external CSS (Google Fonts is a <link> not a script). MSO conditionals stay.
 -->
 
 <!--[if mso]>
@@ -33,6 +42,12 @@
 </style>
 <![endif]-->
 
+<!-- Google Fonts: progressive enhancement only. Clients that ignore <link> fall back to
+     the Arial / system stack defined inline on every text element. -->
+<!--[if !mso]><!-->
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" type="text/css" />
+<!--<![endif]-->
+
 <style type="text/css">
   /* Client resets */
   body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
@@ -41,20 +56,21 @@
   body { margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #f4f6f8; }
   a { color: #21cbea; text-decoration: none; }
 
-  /* Shared classes paired with inline styles for clients that strip <style> */
-  .ff { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
-  .h2 { font-size: 22px; line-height: 28px; color: #0a1628; font-weight: 700; margin: 0 0 16px 0; }
-  .body-copy { font-size: 16px; line-height: 24px; color: #333333; margin: 0 0 14px 0; }
-  .footer-copy { font-size: 12px; line-height: 18px; color: #cfd6df; margin: 0 0 10px 0; }
+  /* Shared classes - paired with inline styles for clients that strip <style> */
+  .ff { font-family: 'Open Sans', Arial, Helvetica, sans-serif; }
+  .h1-site { font-family: 'Open Sans', Arial, Helvetica, sans-serif; font-size: 28px; line-height: 34px; color: #0a1628; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
+  .h1-site strong { font-weight: 700; }
+  .body-copy { font-size: 16px; line-height: 26px; color: #333333; margin: 0 0 14px 0; font-weight: 400; }
+  .footer-copy { font-size: 12px; line-height: 18px; color: rgba(255,255,255,0.55); margin: 0 0 10px 0; }
 
-  /* Body-content element defaults (rich text from the composer) */
-  .body-zone p { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 16px; line-height: 24px; color: #333333; margin: 0 0 14px 0; }
-  .body-zone h3 { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 18px; line-height: 24px; color: #0a1628; font-weight: 700; margin: 22px 0 10px 0; }
-  .body-zone ul, .body-zone ol { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; font-size: 16px; line-height: 24px; color: #333333; margin: 0 0 14px 24px; padding: 0; }
+  /* Body-content element defaults (rich text from the composer). Tracks .article-body on the site. */
+  .body-zone p { font-family: 'Open Sans', Arial, Helvetica, sans-serif; font-size: 16px; line-height: 26px; color: #333333; margin: 0 0 16px 0; font-weight: 400; }
+  .body-zone h3 { font-family: 'Open Sans', Arial, Helvetica, sans-serif; font-size: 18px; line-height: 24px; color: #0d2847; font-weight: 600; letter-spacing: 0.3px; margin: 24px 0 10px 0; }
+  .body-zone ul, .body-zone ol { font-family: 'Open Sans', Arial, Helvetica, sans-serif; font-size: 16px; line-height: 26px; color: #333333; margin: 0 0 16px 24px; padding: 0; }
   .body-zone li { margin: 0 0 6px 0; }
   .body-zone a { color: #21cbea; text-decoration: underline; }
-  .body-zone strong { color: #0a1628; }
-  .body-zone blockquote { margin: 14px 0; padding: 8px 16px; border-left: 3px solid #21cbea; color: #555; font-style: italic; }
+  .body-zone strong { color: #0d2847; font-weight: 600; }
+  .body-zone blockquote { margin: 18px 0; padding: 8px 0 8px 24px; border-left: 4px solid #21cbea; color: #0d2847; font-style: italic; font-size: 17px; line-height: 26px; font-weight: 300; }
 
   /* Mobile collapse: stack columns under 600px */
   @media screen and (max-width: 600px) {
@@ -63,9 +79,10 @@
     .stack-pad { padding-left: 24px !important; padding-right: 24px !important; }
     .stack-img { width: 100% !important; height: auto !important; max-width: 100% !important; }
     .mobile-center { text-align: center !important; }
-    .sig-headshot { margin: 0 auto 18px auto !important; display: block !important; }
+    .sig-headshot { margin: 0 auto 20px auto !important; display: block !important; }
     .sig-text { padding: 0 !important; text-align: center !important; }
-    h2 { font-size: 20px !important; line-height: 26px !important; }
+    .h1-site { font-size: 22px !important; line-height: 28px !important; letter-spacing: 1.5px !important; }
+    .masthead-pad { padding: 28px 24px !important; }
   }
 </style>
 </head>
@@ -85,26 +102,37 @@
       <!-- 600px container -->
       <table role="presentation" class="container" border="0" cellpadding="0" cellspacing="0" width="600" style="width:600px; max-width:600px; background-color:#ffffff;" bgcolor="#ffffff">
 
-        <!-- ===== HEADER (FIXED) - white band w/ COLOR lockup, bracketed by
-             thin brand-cyan accent bands above and below to match the look of
-             the website header. ===== -->
+        <!-- ===== MASTHEAD (FIXED) - navy gradient band w/ reverse logo lockup =====
+             Mirrors .page-header on the website: linear-gradient from #0a1628 through
+             #0d2847 to #134a6e. Reverse logo is the same mark used in .site-footer.
+             VML fallback paints a solid #0d2847 for Outlook so the band still looks brand-correct.
+        -->
         <tr>
-          <td bgcolor="#21cbea" height="8" style="background-color:#21cbea; height:8px; line-height:8px; font-size:0; padding:0;">&nbsp;</td>
-        </tr>
-        <tr>
-          <td bgcolor="#ffffff" style="background-color:#ffffff; padding:24px;" align="center">
+          <td align="center" valign="middle" bgcolor="#0d2847" class="masthead-pad"
+              style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:36px 32px;">
+            <!--[if gte mso 9]>
+            <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="position:absolute;width:600px;height:120px;" fillcolor="#0d2847">
+              <v:fill type="gradient" color="#0a1628" color2="#134a6e" angle="135" />
+            </v:rect>
+            <v:shape xmlns:v="urn:schemas-microsoft-com:vml" style="position:absolute;width:600px;height:120px;">
+            <![endif]-->
             <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">
-              <img src="https://haleyyachts.com/images/brand/haleyyachtslogo.png"
+              <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-reverse.png"
                    width="240" height="43" alt="Haley Yachts"
                    style="display:block; width:240px; max-width:240px; height:auto; border:0; outline:none;" />
             </a>
+            <!--[if gte mso 9]></v:shape><![endif]-->
           </td>
         </tr>
+
+        <!-- Thin cyan keyline under the masthead - the single-line, site-canonical accent.
+             Replaces the previous "two thick cyan stripes" treatment. -->
         <tr>
-          <td bgcolor="#21cbea" height="8" style="background-color:#21cbea; height:8px; line-height:8px; font-size:0; padding:0;">&nbsp;</td>
+          <td bgcolor="#21cbea" height="3" style="background-color:#21cbea; height:3px; line-height:3px; font-size:0; padding:0;">&nbsp;</td>
         </tr>
 
-        <!-- ===== HERO IMAGE (VARIABLE) - full-bleed under header ===== -->
+        <!-- ===== HERO IMAGE (VARIABLE) - full-bleed photo under the masthead =====
+             Sized 600x315 to feel like the home-page hero proportion without trying to embed video. -->
         <tr>
           <td bgcolor="#ffffff" style="background-color:#ffffff; padding:0; font-size:0; line-height:0;" align="center">
             <img src="{{HERO_IMAGE_URL}}"
@@ -114,57 +142,62 @@
           </td>
         </tr>
 
-        <!-- ===== OPTIONAL HEADLINE (VARIABLE) ===== -->
+        <!-- ===== OPTIONAL HEADLINE BLOCK (VARIABLE) =====
+             Composer emits the site-style H1: 300-weight uppercase + centered 60x3 cyan
+             accent line. When the headline field is blank the composer emits '' and the
+             email flows straight from the hero into the body copy. -->
         {{HEADLINE_BLOCK}}
 
         <!-- ===== BODY CONTENT (VARIABLE) ===== -->
         <tr>
-          <td bgcolor="#ffffff" style="background-color:#ffffff; padding:24px 32px 32px 32px;" class="stack-pad">
-            <div class="body-zone ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:16px; line-height:24px; color:#333333;">
+          <td bgcolor="#ffffff" style="background-color:#ffffff; padding:28px 40px 36px 40px;" class="stack-pad">
+            <div class="body-zone ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:16px; line-height:26px; color:#333333; font-weight:400;">
               {{BODY_HTML}}
             </div>
           </td>
         </tr>
 
-        <!-- divider -->
+        <!-- thin hairline divider before the signature, mirroring .article-header bottom rule -->
         <tr>
-          <td style="padding:0 32px;" class="stack-pad">
+          <td style="padding:0 40px;" class="stack-pad">
             <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-              <tr><td style="border-top:1px solid #e5e5e5; font-size:0; line-height:0;">&nbsp;</td></tr>
+              <tr><td style="border-top:1px solid #e2e2e2; font-size:0; line-height:0;">&nbsp;</td></tr>
             </table>
           </td>
         </tr>
 
-        <!-- ===== SIGNATURE BLOCK (FIXED) - headshot left, contact right ===== -->
+        <!-- ===== SIGNATURE BLOCK (FIXED) - portrait headshot + quiet contact bar =====
+             Models .about-layout: a portrait image alongside short slate-grey contact copy.
+             Photo is 180x180 (was 200x200) so it doesn't dominate; copy gets more breathing room. -->
         <tr>
-          <td bgcolor="#ffffff" style="background-color:#ffffff; padding:32px;" class="stack-pad">
+          <td bgcolor="#ffffff" style="background-color:#ffffff; padding:32px 40px 16px 40px;" class="stack-pad">
             <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
               <tr>
                 <!-- Headshot left -->
-                <td class="stack" valign="top" width="200" style="width:200px; padding-right:20px;">
+                <td class="stack" valign="top" width="180" style="width:180px; padding-right:24px;">
                   <img class="sig-headshot" src="https://haleyyachts.com/images/people/clark-haley-headshot-square.jpg"
-                       width="200" height="200" alt="Clark Haley"
-                       style="display:block; width:200px; max-width:200px; height:200px; border:0; outline:none; border-radius:4px;" />
+                       width="180" height="180" alt="Clark Haley"
+                       style="display:block; width:180px; max-width:180px; height:180px; border:0; outline:none; border-radius:4px;" />
                 </td>
                 <!-- Contact right -->
                 <td class="stack sig-text" valign="top" style="padding:0;">
-                  <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:16px; line-height:22px; color:#0a1628; font-weight:700; margin:0 0 4px 0;">
+                  <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#5b7a96; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 6px 0;">
+                    Your Broker
+                  </p>
+                  <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:20px; line-height:26px; color:#0a1628; font-weight:600; margin:0 0 2px 0;">
                     Clark Haley
                   </p>
-                  <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; line-height:20px; color:#333333; margin:0 0 14px 0;">
-                    Licensed Florida Yacht Broker
+                  <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:14px; line-height:20px; color:#5b7a96; font-weight:400; margin:0 0 14px 0;">
+                    Licensed Florida Yacht Broker &middot; IYBA Member
                   </p>
-                  <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; line-height:20px; margin:0 0 2px 0;">
-                    <a href="mailto:clark@haleyyachts.com" style="color:#21cbea; text-decoration:none;">clark@haleyyachts.com</a>
+                  <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:14px; line-height:22px; color:#333333; margin:0 0 2px 0;">
+                    <a href="tel:5618171547" style="color:#333333; text-decoration:none;">561-817-1547</a>
                   </p>
-                  <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; line-height:20px; margin:0 0 2px 0;">
-                    <a href="tel:5618171547" style="color:#21cbea; text-decoration:none;">561-817-1547</a>
+                  <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:14px; line-height:22px; color:#333333; margin:0 0 2px 0;">
+                    <a href="mailto:clark@haleyyachts.com" style="color:#333333; text-decoration:none;">clark@haleyyachts.com</a>
                   </p>
-                  <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:14px; line-height:20px; margin:0 0 14px 0;">
+                  <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:14px; line-height:22px; margin:0;">
                     <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="color:#21cbea; text-decoration:none; font-weight:600;">haleyyachts.com</a>
-                  </p>
-                  <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:12px; line-height:16px; color:#666666; letter-spacing:0.5px; text-transform:uppercase; margin:0;">
-                    IYBA Member
                   </p>
                 </td>
               </tr>
@@ -172,36 +205,39 @@
           </td>
         </tr>
 
-        <!-- ===== ABOUT-PAGE LINK ROW (V2) - between signature and dark footer =====
-             Single centered link in the slate-blue family. Sits on white so it
-             reads as a sign-off, not part of the dark footer brand band. -->
+        <!-- ===== ABOUT-PAGE LINK ROW - quiet sign-off above the dark footer =====
+             Captain-grounded copy that matches the voice of the site's recent rewrites. -->
         <tr>
-          <td bgcolor="#ffffff" style="background-color:#ffffff; padding:8px 32px 28px 32px;" class="stack-pad" align="center">
-            <p class="ff" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:15px; line-height:22px; color:#3a5a7a; margin:0;">
-              <a href="https://haleyyachts.com/about.html" target="_blank" rel="noopener" style="color:#3a5a7a; text-decoration:underline; font-weight:600;">
-                Learn more about Clark Haley
+          <td bgcolor="#ffffff" style="background-color:#ffffff; padding:8px 40px 32px 40px;" class="stack-pad" align="center">
+            <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:14px; line-height:22px; color:#5b7a96; margin:0;">
+              <a href="https://haleyyachts.com/about.html" target="_blank" rel="noopener" style="color:#5b7a96; text-decoration:underline; font-weight:600;">
+                More about Clark
+              </a>
+              &nbsp;&middot;&nbsp;
+              <a href="https://haleyyachts.com/contact.html" target="_blank" rel="noopener" style="color:#5b7a96; text-decoration:underline; font-weight:600;">
+                Start a conversation
               </a>
             </p>
           </td>
         </tr>
 
-        <!-- ===== FOOTER (FIXED) - dark brand band =====
-             V2 note: unsubscribe paragraph removed. Constant Contact injects
-             its own unsubscribe footer on every send. Do not re-add. -->
+        <!-- ===== FOOTER (FIXED) - dark brand band, mirrors .site-footer on the website =====
+             Constant Contact appends its own unsubscribe footer below this on every send.
+             Do not re-add an unsubscribe link here. -->
         <tr>
           <td bgcolor="#070e1a" style="background-color:#070e1a; padding:32px 32px 28px 32px;" class="stack-pad" align="center">
-            <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block; margin-bottom:12px;">
+            <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block; margin-bottom:14px;">
               <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-footer.png"
-                   width="201" height="36" alt="Haley Yachts"
-                   style="display:block; width:201px; max-width:201px; height:36px; border:0; outline:none;" />
+                   width="180" height="32" alt="Haley Yachts"
+                   style="display:block; width:180px; max-width:180px; height:32px; border:0; outline:none; opacity:0.85;" />
             </a>
-            <p class="ff footer-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 16px 0;">
+            <p class="ff footer-copy" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 14px 0;">
               &copy; 2026 Haley Yachts. All rights reserved. &nbsp;|&nbsp; Licensed Florida Yacht Broker &nbsp;|&nbsp; Jupiter, Florida
             </p>
-            <p class="ff footer-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:12px; line-height:18px; color:#cfd6df; margin:0 0 10px 0;">
+            <p class="ff footer-copy" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.7); margin:0 0 10px 0;">
               You're receiving this because you connected with Clark Haley at Haley Yachts.
             </p>
-            <p class="ff footer-copy" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif; font-size:12px; line-height:18px; color:#cfd6df; margin:0;">
+            <p class="ff footer-copy" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.7); margin:0;">
               Haley Yachts &middot; <a href="https://owyg.com" target="_blank" rel="noopener" style="color:#21cbea; text-decoration:none;">One Water Yacht Group</a> &middot; 2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410
             </p>
           </td>
