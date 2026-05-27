@@ -178,9 +178,58 @@ def draw_cta_chip(draw, label, y_center, font, pad_x=46, pad_y=22):
     draw.text((tx, ty), label, font=font, fill=NAVY_TOP)
 
 
+def draw_hot_cta_chip(canvas, label, url, y_center, label_font, url_font,
+                       pad_x=70, pad_y=30, label_url_gap=14):
+    """One unified 'hot' CTA: wider, brighter cyan pill with a glow shadow.
+    Label sits on top, URL printed as smaller subtext on a second line INSIDE
+    the same chip. Reads as a single clickable button."""
+    label_w = int(label_font.getlength(label))
+    url_w = int(url_font.getlength(url))
+    text_w = max(label_w, url_w)
+    chip_w = text_w + pad_x * 2
+    chip_h = label_font.size + url_font.size + label_url_gap + pad_y * 2
+    x0 = (W - chip_w) // 2
+    y0 = y_center - chip_h // 2
+    radius = chip_h // 2
+
+    # Outer glow / shadow halo - draw on an RGBA layer and composite back.
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gdraw = ImageDraw.Draw(glow)
+    halo_pad = 22
+    gdraw.rounded_rectangle(
+        [x0 - halo_pad, y0 - halo_pad, x0 + chip_w + halo_pad, y0 + chip_h + halo_pad],
+        radius=radius + halo_pad,
+        fill=(33, 203, 234, 110),
+    )
+    glow = glow.filter(ImageFilter.GaussianBlur(radius=24))
+    if canvas.mode != "RGBA":
+        # Convert in place by re-pasting the merged composite onto canvas.
+        merged = Image.alpha_composite(canvas.convert("RGBA"), glow).convert("RGB")
+        canvas.paste(merged, (0, 0))
+    else:
+        canvas.alpha_composite(glow)
+
+    # Re-bind draw to the (possibly mutated) canvas surface.
+    draw = ImageDraw.Draw(canvas)
+    draw.rounded_rectangle(
+        [x0, y0, x0 + chip_w, y0 + chip_h], radius=radius, fill=ACCENT
+    )
+
+    # Label centered
+    lx = x0 + (chip_w - label_w) // 2
+    ly = y0 + pad_y - 4
+    draw.text((lx, ly), label, font=label_font, fill=NAVY_TOP)
+
+    # URL centered, slightly translucent navy so it reads as subtext but stays legible
+    ux = x0 + (chip_w - url_w) // 2
+    uy = ly + label_font.size + label_url_gap - 4
+    draw.text((ux, uy), url, font=url_font, fill=(10, 22, 40))
+
+
 def place_logo_bottom_corner(canvas, max_width=320, max_height=90, x_pad=60, y_pad=70, corner="left"):
     """Reverse-on-dark logo lockup in a bottom corner. Default left; pass
-    corner='right' to anchor at the bottom-right."""
+    corner='right' to anchor at the bottom-right. Returns the (x, y, w, h)
+    rect actually drawn so callers can vertically align siblings to the logo."""
     logo = Image.open(LOGO_PATH).convert("RGBA")
     scale = min(max_width / logo.width, max_height / logo.height)
     new_w = int(logo.width * scale)
@@ -192,6 +241,30 @@ def place_logo_bottom_corner(canvas, max_width=320, max_height=90, x_pad=60, y_p
         x = x_pad
     y = H - new_h - y_pad
     canvas.paste(logo, (x, y), logo)
+    return (x, y, new_w, new_h)
+
+
+def draw_contact_strip(draw, x_left, logo_rect, line1="DM CLARK HALEY",
+                        line2="+1 561-817-1547"):
+    """Two-line uppercase contact strip in brand cyan, vertically centered to
+    the supplied logo rect, anchored on the left side of the canvas."""
+    lx, ly, lw, lh = logo_rect
+    font = load_font("bold", 30)
+    ls = 2
+    # Vertical layout: two lines + small gap, centered on the logo's mid-y.
+    line_gap = 8
+    block_h = font.size * 2 + line_gap
+    logo_mid = ly + lh // 2
+    y0 = logo_mid - block_h // 2 - 4  # tiny optical lift to align to caps
+
+    for i, text in enumerate((line1, line2)):
+        text = text.upper()
+        # Manual letterspacing draw, left-anchored at x_left.
+        x = x_left
+        advances = [int(font.getlength(ch)) for ch in text]
+        for ch, adv in zip(text, advances):
+            draw.text((x, y0 + i * (font.size + line_gap)), ch, font=font, fill=ACCENT)
+            x += adv + ls
 
 
 def place_logo_bottom_center(canvas, max_width=300, max_height=80, y_pad=80):
@@ -258,22 +331,43 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
     teaser_text = "Step aboard from anywhere."
     draw_text_centered(draw, teaser_text, teaser_font, y_teaser, DIM[:3])
 
-    # ---- CTA chip in the thumb zone
-    chip_font = load_font("bold", 44)
-    chip_y_center = H - SAFE_BOTTOM + 30
-    draw_cta_chip(draw, cta_label.upper(), chip_y_center, chip_font,
-                  pad_x=50, pad_y=24)
+    # ---- HOT CTA chip in the thumb zone: wider/brighter cyan pill with the
+    # URL printed inside as second-line subtext, so the button itself is the
+    # primary call-to-action (per Clark: "make the button hot").
+    chip_label_font = load_font("bold", 56)
+    chip_url_font = load_font("semibold", 30)
+    # Auto-shrink the label font if the chip would exceed the safe width.
+    chip_y_center = H - SAFE_BOTTOM + 20
+    while chip_label_font.size > 38:
+        label_w = int(chip_label_font.getlength(cta_label.upper()))
+        if label_w + 70 * 2 <= text_max_w:
+            break
+        chip_label_font = load_font("bold", chip_label_font.size - 4)
+    while chip_url_font.size > 22:
+        url_w = int(chip_url_font.getlength(cta_url))
+        if url_w + 70 * 2 <= text_max_w:
+            break
+        chip_url_font = load_font("semibold", chip_url_font.size - 2)
+    draw_hot_cta_chip(
+        img, cta_label.upper(), cta_url, chip_y_center,
+        chip_label_font, chip_url_font,
+        pad_x=70, pad_y=30, label_url_gap=14,
+    )
+    # Re-bind draw because draw_hot_cta_chip may have swapped the underlying image.
+    draw = ImageDraw.Draw(img)
 
-    # ---- URL centered under the chip
-    url_font = load_font("regular", 32)
-    y_url = chip_y_center + 80
-    draw_text_centered(draw, cta_url, url_font, y_url, DIM[:3])
-
-    # ---- Brand mark, bottom-right CORNER (Clark spec: "top or bottom corner,
-    # not centered like a poster"). Tucked below the URL line so the chip + URL
-    # remain the clear focal point.
-    place_logo_bottom_corner(img, max_width=240, max_height=64,
-                             x_pad=60, y_pad=80, corner="right")
+    # ---- Brand mark, bottom-right CORNER, with contact strip on the LEFT in
+    # line with the logo (per Clark: "in line with the haleyyachts logo, add
+    # DM Clark Haley or call +1 561-817-1547").
+    logo_rect = place_logo_bottom_corner(
+        img, max_width=240, max_height=64,
+        x_pad=60, y_pad=80, corner="right",
+    )
+    draw_contact_strip(
+        draw, x_left=MARGIN_X, logo_rect=logo_rect,
+        line1="DM CLARK HALEY",
+        line2="+1 561-817-1547",
+    )
 
     out = os.path.join(OUT_DIR, out_filename)
     img.save(out, "PNG", optimize=True)
