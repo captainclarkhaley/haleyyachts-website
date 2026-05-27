@@ -7,8 +7,8 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 
 ## RECENTLY COMPLETED (May 26)
 
-- [x] Fortunato dedicated listing page shipped at `yachts/fortunato.html`, modeled on `yachts/fringe-benefits.html` + adds an inline "360 Walkthrough" section (Kuula collection 7MFLp embedded) above the gallery so social-campaign traffic lands directly on the walkthrough. Featured Yachts data: `page` field updated to `yachts/fortunato.html` so the buy.html grid's image + title now deep-link to the dedicated page (previously only the Inquire/360 buttons worked).
-- [x] 360-walkthrough social campaign: two 1080x1920 vertical cards rendered at `social-media/cta-cards/fringe-benefits-360-1080x1920.png` and `fortunato-360-1080x1920.png` via new `render-360-cards.py` script. Navy gradient + photo hero + auto-sized headline + cyan "TAKE THE 360 TOUR" chip + URL. Same asset works for both FB and LinkedIn; only captions differ by platform.
+- [x] Fortunata dedicated listing page shipped at `yachts/fortunata.html`, modeled on `yachts/fringe-benefits.html` + adds an inline "360 Walkthrough" section (Kuula collection 7MFLp embedded) above the gallery so social-campaign traffic lands directly on the walkthrough. Featured Yachts data: `page` field updated to `yachts/fortunata.html` so the buy.html grid's image + title now deep-link to the dedicated page (previously only the Inquire/360 buttons worked). (Hull name corrected from "Fortunato" to "Fortunata" later same day.)
+- [x] 360-walkthrough social campaign: two 1080x1920 vertical cards rendered at `social-media/cta-cards/fringe-benefits-360-1080x1920.png` and `fortunata-360-1080x1920.png` via new `render-360-cards.py` script. Navy gradient + photo hero + auto-sized headline + cyan "TAKE THE 360 TOUR" chip + URL. Same asset works for both FB and LinkedIn; only captions differ by platform. CTAs use the clean redirects `360.haleyyachts.com/fringebenefit` and `360.haleyyachts.com/Fortunata`.
 
 ## RECENTLY COMPLETED (May 25)
 

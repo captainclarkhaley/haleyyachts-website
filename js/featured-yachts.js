@@ -39,13 +39,13 @@ const featuredYachts = [
     },
     {
         image: "images/yachts/featured/southern-wind.jpg",
-        name: "1991 Southern Wind 72, \"Fortunato\" - $435,000",
+        name: "1991 Southern Wind 72, \"Fortunata\" - $435,000",
         description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/featured/1991-southern-wind-bruce-farr-fast-72.pdf",
         kuula: "<iframe src=\"https://kuula.co/share/collection/7MFLp?logo=-1&info=1&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
-        page: "yachts/fortunato.html"
+        page: "yachts/fortunata.html"
     },
     {
         image: "images/yachts/featured/riviera-465suv.jpg",

@@ -10,7 +10,7 @@ in the thumb zone. Same V3-email-template design language:
 
 Outputs:
   social-media/cta-cards/fringe-benefits-360-1080x1920.png
-  social-media/cta-cards/fortunato-360-1080x1920.png
+  social-media/cta-cards/fortunata-360-1080x1920.png
 """
 
 import os
@@ -294,13 +294,13 @@ if __name__ == "__main__":
         cta_url="360.haleyyachts.com/fringebenefit",
     )
 
-    # Fortunato - 1991 Southern Wind 72
+    # Fortunata - 1991 Southern Wind 72
     render_card(
-        out_filename="fortunato-360-1080x1920.png",
+        out_filename="fortunata-360-1080x1920.png",
         photo_filename="southern-wind.jpg",
         eyebrow="1991 Southern Wind 72",
-        hull_name="Fortunato",
+        hull_name="Fortunata",
         sub_line="Bruce Farr Fast 72  |  $435,000",
         cta_label="Take the 360 Tour",
-        cta_url="360.haleyyachts.com/fortunato",
+        cta_url="360.haleyyachts.com/Fortunata",
     )
