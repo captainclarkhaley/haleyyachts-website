@@ -407,19 +407,116 @@
             color: #fff;
         }
 
+        /* Mode toggle (Upload Word Doc vs Write Article) */
+        .mode-toggle {
+            display: inline-flex;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+        .mode-toggle button {
+            background: #fff;
+            border: none;
+            border-right: 1px solid #d0d0d0;
+            padding: 10px 22px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.15s;
+        }
+        .mode-toggle button:last-child { border-right: none; }
+        .mode-toggle button:hover { background: #f0f0f0; }
+        .mode-toggle button.selected { background: #21cbea; color: #fff; }
+        .mode-panel { display: none; }
+        .mode-panel.visible { display: block; }
+
+        /* Write-mode rich text editor (ported from email-composer.html) */
+        .editor-toolbar {
+            display: flex; flex-wrap: wrap; gap: 4px;
+            background: #f4f6f8; border: 1px solid #d0d0d0; border-bottom: none;
+            border-radius: 3px 3px 0 0; padding: 6px;
+        }
+        .editor-toolbar button {
+            background: #fff; border: 1px solid #d0d0d0; border-radius: 3px;
+            padding: 5px 10px; font-size: 0.85rem; cursor: pointer; color: #333;
+            min-width: 32px;
+        }
+        .editor-toolbar button:hover { background: #21cbea; color: #fff; border-color: #21cbea; }
+        .editor-toolbar .sep { width: 1px; background: #d0d0d0; margin: 0 4px; }
+        #bodyEditor {
+            border: 1px solid #d0d0d0; border-top: none; border-radius: 0 0 3px 3px;
+            min-height: 360px; padding: 14px 16px; background: #fff;
+            font-family: 'Open Sans', Arial, sans-serif; font-size: 0.95rem;
+            color: #333; line-height: 1.6; outline: none; overflow-y: auto;
+        }
+        #bodyEditor:focus { border-color: #21cbea; }
+        #bodyEditor p { margin: 0 0 12px 0; }
+        #bodyEditor a { color: #21cbea; }
+        #bodyEditor h2, #bodyEditor h3, #bodyEditor h4 { color: #0a1628; margin: 18px 0 8px; }
+        /* In-editor figures mirror the live .article-figure float rules */
+        #bodyEditor figure.article-figure { margin: 1.4em 0; }
+        #bodyEditor figure.article-figure img { width: 100%; height: auto; border-radius: 2px; display: block; }
+        #bodyEditor figure.article-figure.float-left { float: left; width: 45%; margin: 0.4em 1.5em 1em 0; }
+        #bodyEditor figure.article-figure.float-right { float: right; width: 45%; margin: 0.4em 0 1em 1.5em; }
+        #bodyEditor figure.article-figure.centered { float: none; margin: 1.6em auto; text-align: center; max-width: 80%; }
+        #bodyEditor figcaption { font-size: 0.82rem; color: #888; font-style: italic; text-align: center; margin-top: 6px; }
+        #bodyEditor::after { content: ""; display: table; clear: both; }
+
+        /* GitHub publish settings box */
+        .gh-box {
+            background: #f1f5f9; border: 1px solid #d6dde3; border-radius: 4px;
+            padding: 14px 16px; margin-bottom: 24px; font-size: 0.85rem;
+        }
+        .gh-box h3 {
+            font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; color: #555; margin: 0 0 8px;
+        }
+        .gh-box .gh-warn {
+            font-size: 0.78rem; color: #8a6820; background: #fff7e6;
+            border-left: 3px solid #e89c20; padding: 8px 12px; border-radius: 3px;
+            margin: 8px 0; line-height: 1.5;
+        }
+        .gh-box .gh-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+        .gh-box input[type="password"], .gh-box input[type="text"] { flex: 1; min-width: 200px; }
+        .gh-status { font-size: 0.8rem; margin-top: 8px; }
+        .gh-status.ok { color: #2a7a2a; }
+        .gh-status.none { color: #888; }
+        .small-btn {
+            background: #eee; border: 1px solid #ccc; border-radius: 3px;
+            padding: 7px 14px; font-size: 0.78rem; cursor: pointer; color: #444;
+        }
+        .small-btn:hover { background: #e0e0e0; }
+
+        /* Drafts panel */
+        .drafts-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px; border: 1px solid #e5e5e5; border-radius: 4px;
+            margin-bottom: 8px; background: #fff; gap: 12px;
+        }
+        .drafts-row .d-info { flex: 1; min-width: 0; }
+        .drafts-row .d-title { font-weight: 600; font-size: 0.9rem; color: #333; }
+        .drafts-row .d-meta { font-size: 0.78rem; color: #888; }
+        .drafts-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
         /* Responsive */
         @media (max-width: 600px) {
             .admin-container { padding: 24px 20px; }
             .btn-row { flex-direction: column; }
             .btn-row .btn { text-align: center; }
             .placement-card { grid-template-columns: 1fr; }
+            .mode-toggle { display: flex; width: 100%; }
+            .mode-toggle button { flex: 1; }
         }
     </style>
 </head>
 <body>
 
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-05-04 21:15 EDT</div>
+    <div class="admin-version" data-version>v: 2026-06-04 15:10 EDT</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -431,12 +528,31 @@
 
     <div class="instructions">
         <strong>How to use:</strong><br>
-        (1) Select the article type.<br>
-        (2) Upload your article as a Word document (.docx). The content will be extracted and converted automatically.<br>
-        (3) Upload a hero image and any additional images for the article.<br>
-        (4) Fill in the title, excerpt, and any category-specific fields.<br>
-        (5) Click <strong>Preview</strong> to review, then <strong>Publish</strong> to go live.<br><br>
-        <strong style="color:#c00;">Publish location:</strong> On the first publish in a session, your browser will ask you to pick the <strong>site root folder</strong>. This is the folder named <code>haleyyachts-website</code> that contains <code>index.html</code>, <code>articles/</code>, <code>css/</code>, and <code>images/</code>. Do NOT pick the <code>articles/</code> folder itself - picking the wrong folder will create files in the wrong place. If in doubt, click "Reset publish location" below and try again.
+        (1) Pick a mode below: <strong>Write Article</strong> to type directly in the browser, or <strong>Upload Word Doc</strong> to convert a .docx.<br>
+        (2) Select the article type and fill in title, excerpt, and any category fields.<br>
+        (3) Add a hero image. In Write mode you can also insert images right where the cursor is, and they are resized for you.<br>
+        (4) Click <strong>Preview</strong> to review, <strong>Save Draft</strong> to come back later, then <strong>Publish</strong> to go live.<br><br>
+        <strong>Where it publishes:</strong> With a GitHub token set (below), articles and images commit straight to the repo over the internet, so this works from any computer's browser. Without a token, it falls back to the older "pick the site root folder" method, which only works in Chrome or Edge on a machine that has the repo.
+    </div>
+
+    <!-- GitHub publish settings -->
+    <div class="gh-box" id="ghBox">
+        <h3>GitHub Publishing</h3>
+        <div class="gh-warn">
+            This token grants write access to the website repo. Use a fine-grained personal access token scoped to only the <code>captainclarkhaley/haleyyachts-website</code> repository with <strong>Contents: Read and write</strong> permission. It is stored only in this browser (localStorage), never in the repo. Clear it on shared machines.
+        </div>
+        <div class="gh-row">
+            <input type="password" id="ghToken" placeholder="Paste GitHub personal access token (github_pat_... or ghp_...)" autocomplete="off">
+            <button type="button" class="small-btn" onclick="saveGhToken()">Save token</button>
+            <button type="button" class="small-btn" onclick="clearGhToken()">Clear token</button>
+        </div>
+        <div class="gh-status none" id="ghStatus">No token set. Publish will use the local-folder fallback.</div>
+    </div>
+
+    <!-- Mode toggle -->
+    <div class="mode-toggle" id="modeToggle">
+        <button type="button" data-mode="write" class="selected" onclick="setMode('write')">Write Article</button>
+        <button type="button" data-mode="upload" onclick="setMode('upload')">Upload Word Doc</button>
     </div>
 
     <form id="articleForm" onsubmit="event.preventDefault();">
@@ -454,7 +570,37 @@
             </select>
         </div>
 
-        <!-- Article Upload -->
+        <!-- WRITE MODE: rich text editor -->
+        <div class="mode-panel visible" id="panel-write">
+            <div class="form-group">
+                <label>Article Body <span class="hint">(write or paste here; use the toolbar for formatting and to insert images)</span></label>
+                <div class="editor-toolbar" role="toolbar">
+                    <button type="button" data-cmd="bold" title="Bold"><strong>B</strong></button>
+                    <button type="button" data-cmd="italic" title="Italic"><em>I</em></button>
+                    <button type="button" data-cmd="underline" title="Underline"><u>U</u></button>
+                    <span class="sep"></span>
+                    <button type="button" data-cmd="formatBlock" data-arg="H2" title="Section heading">H2</button>
+                    <button type="button" data-cmd="formatBlock" data-arg="H3" title="Subheading">H3</button>
+                    <button type="button" data-cmd="formatBlock" data-arg="P" title="Paragraph">&para;</button>
+                    <span class="sep"></span>
+                    <button type="button" data-cmd="insertUnorderedList" title="Bulleted list">&bull; List</button>
+                    <button type="button" data-cmd="insertOrderedList" title="Numbered list">1. List</button>
+                    <span class="sep"></span>
+                    <button type="button" id="linkBtn" title="Insert link">Link</button>
+                    <button type="button" id="unlinkBtn" title="Remove link">Unlink</button>
+                    <span class="sep"></span>
+                    <button type="button" data-cmd="formatBlock" data-arg="BLOCKQUOTE" title="Pull quote">&ldquo;Quote&rdquo;</button>
+                    <button type="button" id="clearFmtBtn" title="Clear formatting">Clear</button>
+                    <span class="sep"></span>
+                    <button type="button" id="insertImageBtn" title="Insert image at cursor">Insert Image</button>
+                </div>
+                <div id="bodyEditor" contenteditable="true" spellcheck="true"></div>
+                <input type="file" id="inlineImageFile" accept="image/*" style="display:none;">
+            </div>
+        </div>
+
+        <!-- UPLOAD MODE: Word doc -->
+        <div class="mode-panel" id="panel-upload">
         <div class="form-group">
             <label>Article Document <span class="hint">(.docx files only)</span></label>
             <div class="upload-zone" id="docUploadZone">
@@ -474,6 +620,8 @@
                 <div class="file-name" id="docFileName"></div>
             </div>
         </div>
+        </div>
+        <!-- end UPLOAD MODE panel -->
 
         <!-- Image Uploads -->
         <div class="form-group">
@@ -605,10 +753,14 @@
         <!-- Action buttons -->
         <div class="btn-row">
             <button type="button" class="btn btn-secondary" onclick="previewArticle()">Preview</button>
+            <button type="button" class="btn btn-secondary" id="saveDraftBtn" onclick="saveDraft()">Save Draft</button>
             <button type="button" class="btn" id="publishBtn" onclick="publishArticle()">Publish</button>
             <button type="button" class="btn btn-danger" onclick="clearForm()">Clear Form</button>
         </div>
         <div style="margin-top:10px;font-size:0.8rem;color:#666;">
+            <span id="publishMethod">Publish method: local-folder fallback (set a GitHub token above to publish over the internet).</span>
+        </div>
+        <div style="margin-top:6px;font-size:0.8rem;color:#666;" id="rootStatusWrap">
             <span id="rootStatus">Publish location: not selected yet.</span>
             <button type="button" onclick="resetPublishLocation()" style="margin-left:8px;padding:4px 10px;font-size:0.75rem;background:#eee;border:1px solid #ccc;border-radius:3px;cursor:pointer;">Reset publish location</button>
         </div>
@@ -624,6 +776,18 @@
         <h3>Article Preview</h3>
         <div class="preview-body" id="previewBody"></div>
     </div>
+
+    <hr class="section-divider" style="margin-top:48px;">
+
+    <!-- Drafts -->
+    <h2 style="font-size:1.2rem;font-weight:300;text-transform:uppercase;letter-spacing:2px;color:#0a1628;margin:0 0 8px;">Drafts</h2>
+    <div class="accent-line"></div>
+    <p style="font-size:0.85rem;color:#666;margin-bottom:16px;">Drafts are saved into the repo at <code>drafts/</code> (blocked from the public site). Requires a GitHub token. Recall a draft to keep working on it, then publish or delete it.</p>
+    <div class="gh-row" style="margin-bottom:16px;">
+        <button type="button" class="btn btn-secondary" onclick="loadDrafts()" style="margin:0;">Load Drafts</button>
+        <input type="text" id="draftSearch" placeholder="Filter drafts by title..." oninput="renderDraftList()" style="flex:1;min-width:180px;">
+    </div>
+    <div id="draftList"></div>
 
     <hr class="section-divider" style="margin-top:48px;">
 
@@ -643,6 +807,20 @@ let heroFile = null;      // Hero image File object
 let extraFiles = [];      // Additional image File objects with placement data
                           // Each entry: { file, align: 'left'|'right'|'center', afterPara: N, alt: '', caption: '' }
 let siteRootHandle = null; // Directory handle for the site root
+
+// ----- Write-mode + GitHub state -----
+let currentMode = 'write';   // 'write' or 'upload'
+let inlineUploads = [];      // Images inserted via the write-mode editor:
+                             // { filename, blob (resized), blobUrl } - filed on publish
+let savedSelectionRange = null; // Caret range captured before toolbar clicks steal focus
+let draftsCache = [];        // Last-loaded draft list from drafts/
+
+// GitHub repo + API config
+const GH_OWNER = 'captainclarkhaley';
+const GH_REPO  = 'haleyyachts-website';
+const GH_BRANCH = 'main';
+const GH_API = 'https://api.github.com';
+const GH_TOKEN_KEY = 'haley-gh-token';
 
 // ===== Category labels and slug mappings =====
 const CATEGORIES = {
@@ -677,7 +855,419 @@ document.addEventListener('DOMContentLoaded', () => {
     // Image upload handlers
     setupImageUpload('heroImage', 'heroUploadZone', 'heroFileName', 'heroPreview', false);
     setupInlineImageUpload();
+
+    // Write-mode editor + GitHub token + initial mode
+    setupWriteEditor();
+    initGhToken();
+    setMode('write');
 });
+
+// ===== Mode toggle =====
+function setMode(mode) {
+    currentMode = mode;
+    document.querySelectorAll('#modeToggle button').forEach(b => {
+        b.classList.toggle('selected', b.dataset.mode === mode);
+    });
+    document.getElementById('panel-write').classList.toggle('visible', mode === 'write');
+    document.getElementById('panel-upload').classList.toggle('visible', mode === 'upload');
+}
+
+// ===== Body source: write-mode editor vs Mammoth doc =====
+// Returns the article body HTML for preview/publish based on the active mode.
+function getBodyHtml() {
+    if (currentMode === 'write') {
+        return sanitizeArticleHtml(document.getElementById('bodyEditor').innerHTML);
+    }
+    return docHtml;
+}
+function hasBody() {
+    if (currentMode === 'write') {
+        return document.getElementById('bodyEditor').textContent.trim().length > 0;
+    }
+    return !!docHtml;
+}
+
+// ============================================================
+// WRITE-MODE RICH TEXT EDITOR (ported from email-composer.html,
+// extended with inline image insert + in-browser resize)
+// ============================================================
+function setupWriteEditor() {
+    const editor = document.getElementById('bodyEditor');
+    if (!editor.innerHTML.trim()) {
+        editor.innerHTML = '<p>Start writing your article here. Use the toolbar above for headings, lists, links, and to insert images.</p>';
+    }
+
+    document.querySelectorAll('#panel-write .editor-toolbar button[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const cmd = btn.getAttribute('data-cmd');
+            const arg = btn.getAttribute('data-arg') || null;
+            editor.focus();
+            restoreSelection();
+            document.execCommand(cmd, false, arg);
+        });
+    });
+
+    document.getElementById('linkBtn').addEventListener('click', () => {
+        editor.focus();
+        restoreSelection();
+        const url = prompt('Link URL (include https://):');
+        if (!url) return;
+        let safe = url.trim();
+        if (!/^https?:\/\//i.test(safe) && !safe.startsWith('mailto:') && !safe.startsWith('tel:')) {
+            safe = 'https://' + safe;
+        }
+        document.execCommand('createLink', false, safe);
+    });
+    document.getElementById('unlinkBtn').addEventListener('click', () => { editor.focus(); restoreSelection(); document.execCommand('unlink'); });
+    document.getElementById('clearFmtBtn').addEventListener('click', () => { editor.focus(); restoreSelection(); document.execCommand('removeFormat'); });
+
+    // Capture the caret position whenever it moves inside the editor, so a
+    // toolbar click (which blurs the editor) can still insert at the right spot.
+    document.addEventListener('selectionchange', () => {
+        const sel = window.getSelection();
+        if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+            savedSelectionRange = sel.getRangeAt(0).cloneRange();
+        }
+    });
+
+    // Paste as plain text, mapping blank lines to paragraphs.
+    editor.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        const html = text.split(/\n{2,}/).map(p => '<p>' + escHtml(p).replace(/\n/g, '<br>') + '</p>').join('');
+        document.execCommand('insertHTML', false, html);
+    });
+
+    // Insert image
+    document.getElementById('insertImageBtn').addEventListener('click', () => {
+        document.getElementById('inlineImageFile').click();
+    });
+    document.getElementById('inlineImageFile').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        e.target.value = ''; // allow re-picking the same file
+        if (!file) return;
+        await handleInlineImageInsert(file);
+    });
+}
+
+function restoreSelection() {
+    if (!savedSelectionRange) return;
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedSelectionRange);
+}
+
+// Resize an image File in-browser via canvas before insert/upload.
+// maxEdge caps the longest side. Source PNGs with transparency stay PNG;
+// everything else is re-encoded as JPEG at ~0.85 quality to keep files small.
+async function resizeImage(file, maxEdge, quality) {
+    const dataUrl = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(file);
+    });
+    const img = await new Promise((res, rej) => {
+        const i = new Image();
+        i.onload = () => res(i);
+        i.onerror = rej;
+        i.src = dataUrl;
+    });
+    let { width, height } = img;
+    if (Math.max(width, height) > maxEdge) {
+        const scale = maxEdge / Math.max(width, height);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, width, height);
+
+    const isPng = /\.png$/i.test(file.name) || file.type === 'image/png';
+    const keepPng = isPng && pngHasAlpha(ctx, width, height);
+    const mime = keepPng ? 'image/png' : 'image/jpeg';
+    const blob = await new Promise(res => canvas.toBlob(res, mime, quality));
+    return { blob, mime, ext: keepPng ? '.png' : '.jpg' };
+}
+
+function pngHasAlpha(ctx, w, h) {
+    // Sample the alpha channel; if any pixel is non-opaque, keep PNG.
+    try {
+        const data = ctx.getImageData(0, 0, w, h).data;
+        for (let i = 3; i < data.length; i += 4) {
+            if (data[i] < 255) return true;
+        }
+    } catch (e) { /* tainted canvas should not happen for local files */ }
+    return false;
+}
+
+async function handleInlineImageInsert(file) {
+    showStatus('Resizing image...', 'info');
+    const size = (prompt('Image size and placement:\n  L = Large, floats left\n  R = Large, floats right\n  C = Centered, full width\n(default L)', 'L') || 'L').trim().toUpperCase();
+    let alignClass = 'float-left', maxEdge = 1600;
+    if (size === 'R') alignClass = 'float-right';
+    else if (size === 'C') { alignClass = 'centered'; maxEdge = 1600; }
+
+    let resized;
+    try {
+        resized = await resizeImage(file, maxEdge, 0.85);
+    } catch (err) {
+        showStatus('Could not process that image: ' + err.message, 'error');
+        return;
+    }
+
+    const base = normalizeFilename(file.name.replace(/\.[^.]+$/, '')) || ('image-' + Date.now());
+    const filename = base + resized.ext;
+    const blobUrl = URL.createObjectURL(resized.blob);
+    inlineUploads.push({ filename, blob: resized.blob, blobUrl, alignClass });
+
+    const alt = (prompt('Alt text (describe the image for accessibility and SEO):', '') || '').trim();
+
+    // Build the figure via DOM so we never emit literal closing tags in a
+    // template literal (GoDaddy injection safety) and insert at the caret.
+    const editor = document.getElementById('bodyEditor');
+    editor.focus();
+    restoreSelection();
+    const figure = document.createElement('figure');
+    figure.className = 'article-figure ' + alignClass;
+    figure.setAttribute('data-inline-src', filename);
+    const imgEl = document.createElement('img');
+    imgEl.src = blobUrl;
+    imgEl.setAttribute('data-inline-src', filename);
+    if (alt) imgEl.alt = alt;
+    imgEl.setAttribute('loading', 'lazy');
+    figure.appendChild(imgEl);
+
+    const sel = window.getSelection();
+    if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+        const range = sel.getRangeAt(0);
+        range.collapse(false);
+        range.insertNode(figure);
+        range.setStartAfter(figure);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        savedSelectionRange = range.cloneRange();
+    } else {
+        editor.appendChild(figure);
+    }
+    showStatus('Image inserted and resized (longest edge ' + maxEdge + 'px).', 'success');
+}
+
+// ============================================================
+// ARTICLE BODY SANITIZER (whitelist for write-mode output).
+// Richer than the email composer: allows headings, figures, images.
+// Rewrites inline-image blob src to the final images/ path.
+// ============================================================
+const ART_ALLOWED_TAGS = new Set(['P','BR','STRONG','B','EM','I','U','A','UL','OL','LI','H2','H3','H4','BLOCKQUOTE','FIGURE','FIGCAPTION','IMG','SPAN']);
+const ART_ALLOWED_ATTRS = {
+    'A': ['href','title','target','rel'],
+    'IMG': ['src','alt','class','loading','data-inline-src'],
+    'FIGURE': ['class','data-inline-src'],
+    'FIGCAPTION': []
+};
+
+function sanitizeArticleHtml(rawHtml) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = rawHtml;
+    walk(wrapper);
+    return wrapper.innerHTML;
+
+    function walk(node) {
+        const children = Array.from(node.childNodes);
+        for (const child of children) {
+            if (child.nodeType === Node.ELEMENT_NODE) {
+                const tag = child.tagName.toUpperCase();
+                if (!ART_ALLOWED_TAGS.has(tag)) {
+                    while (child.firstChild) child.parentNode.insertBefore(child.firstChild, child);
+                    child.parentNode.removeChild(child);
+                    walk(node);
+                    return;
+                }
+                const allowed = ART_ALLOWED_ATTRS[tag] || [];
+                Array.from(child.attributes).forEach(attr => {
+                    if (!allowed.includes(attr.name.toLowerCase())) child.removeAttribute(attr.name);
+                });
+                if (tag === 'A') {
+                    const href = child.getAttribute('href') || '';
+                    if (!/^(https?:|mailto:|tel:|#|\.\.?\/)/i.test(href)) child.removeAttribute('href');
+                }
+                walk(child);
+            } else if (child.nodeType === Node.COMMENT_NODE) {
+                child.parentNode.removeChild(child);
+            }
+        }
+    }
+}
+
+// Convert in-editor blob image src to the published images/ path.
+// Used at publish time after sanitize.
+function rewriteInlineImageSrc(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    wrapper.querySelectorAll('img[data-inline-src]').forEach(img => {
+        const fname = img.getAttribute('data-inline-src');
+        img.setAttribute('src', 'images/' + fname);
+        img.removeAttribute('data-inline-src');
+    });
+    wrapper.querySelectorAll('figure[data-inline-src]').forEach(fig => fig.removeAttribute('data-inline-src'));
+    return wrapper.innerHTML;
+}
+
+// ============================================================
+// MAMMOTH OL-FIX: Word "Heading"-styled sections come back as their
+// own single-item <ol><li>...</li></ol>, so each renders "1." on the
+// live site. Convert any single-item <ol> whose lone <li> is short and
+// heading-like into a real <h2>. This runs only on the Mammoth path.
+// ============================================================
+function fixWordSectionLists(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    wrapper.querySelectorAll('ol').forEach(ol => {
+        const items = ol.querySelectorAll(':scope > li');
+        if (items.length !== 1) return;
+        const li = items[0];
+        // Heading-like: no nested block content, reasonably short.
+        const hasBlock = li.querySelector('p,ul,ol,table,img,figure');
+        const text = li.textContent.trim();
+        if (hasBlock || text.length === 0 || text.length > 120) return;
+        const h2 = document.createElement('h2');
+        h2.innerHTML = li.innerHTML;
+        ol.replaceWith(h2);
+    });
+    return wrapper.innerHTML;
+}
+
+// ============================================================
+// GITHUB CONTENTS API LAYER
+// ============================================================
+function getGhToken() { return localStorage.getItem(GH_TOKEN_KEY) || ''; }
+function hasGhToken() { return !!getGhToken(); }
+
+function initGhToken() {
+    updateGhStatus();
+    updatePublishMethod();
+}
+function saveGhToken() {
+    const val = document.getElementById('ghToken').value.trim();
+    if (!val) { showStatus('Paste a token first.', 'error'); return; }
+    localStorage.setItem(GH_TOKEN_KEY, val);
+    document.getElementById('ghToken').value = '';
+    updateGhStatus();
+    updatePublishMethod();
+    showStatus('Token saved in this browser. Publishing will commit straight to GitHub.', 'success');
+}
+function clearGhToken() {
+    localStorage.removeItem(GH_TOKEN_KEY);
+    updateGhStatus();
+    updatePublishMethod();
+    showStatus('Token cleared from this browser.', 'info');
+}
+function updateGhStatus() {
+    const el = document.getElementById('ghStatus');
+    if (hasGhToken()) {
+        el.className = 'gh-status ok';
+        el.textContent = 'Token set. Publishing and drafts will use GitHub (' + GH_OWNER + '/' + GH_REPO + ', branch ' + GH_BRANCH + ').';
+    } else {
+        el.className = 'gh-status none';
+        el.textContent = 'No token set. Publish will use the local-folder fallback.';
+    }
+}
+function updatePublishMethod() {
+    const pm = document.getElementById('publishMethod');
+    const rootWrap = document.getElementById('rootStatusWrap');
+    if (hasGhToken()) {
+        pm.textContent = 'Publish method: GitHub API (commits to ' + GH_OWNER + '/' + GH_REPO + ').';
+        if (rootWrap) rootWrap.style.display = 'none';
+    } else {
+        pm.textContent = 'Publish method: local-folder fallback (set a GitHub token above to publish over the internet).';
+        if (rootWrap) rootWrap.style.display = 'block';
+    }
+}
+
+function ghHeaders() {
+    return {
+        'Authorization': 'Bearer ' + getGhToken(),
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28'
+    };
+}
+
+// GET a file's sha (and decoded text if asked). Returns null if 404.
+async function ghGetFile(path, wantText) {
+    const url = GH_API + '/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeApiPath(path) + '?ref=' + GH_BRANCH;
+    const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error('GitHub GET ' + path + ' failed: ' + res.status + ' ' + (await res.text()).slice(0, 200));
+    const json = await res.json();
+    let text = null;
+    if (wantText && json.content) {
+        text = decodeURIComponent(escape(atob(json.content.replace(/\n/g, ''))));
+    }
+    return { sha: json.sha, text };
+}
+
+// PUT (create/update) a file. content is a base64 string. Retries once on sha conflict.
+async function ghPutFile(path, base64Content, message, sha) {
+    const url = GH_API + '/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeApiPath(path);
+    const body = { message, content: base64Content, branch: GH_BRANCH };
+    if (sha) body.sha = sha;
+    let res = await fetch(url, { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
+    if (res.status === 409) {
+        const fresh = await ghGetFile(path, false);
+        body.sha = fresh ? fresh.sha : undefined;
+        res = await fetch(url, { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
+    }
+    if (!res.ok) throw new Error('GitHub PUT ' + path + ' failed: ' + res.status + ' ' + (await res.text()).slice(0, 200));
+    return res.json();
+}
+
+async function ghDeleteFile(path, message) {
+    const existing = await ghGetFile(path, false);
+    if (!existing) return;
+    const url = GH_API + '/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeApiPath(path);
+    const res = await fetch(url, {
+        method: 'DELETE', headers: ghHeaders(),
+        body: JSON.stringify({ message, sha: existing.sha, branch: GH_BRANCH })
+    });
+    if (!res.ok) throw new Error('GitHub DELETE ' + path + ' failed: ' + res.status);
+}
+
+async function ghListDir(path) {
+    const url = GH_API + '/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeApiPath(path) + '?ref=' + GH_BRANCH;
+    const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+    if (res.status === 404) return [];
+    if (!res.ok) throw new Error('GitHub list ' + path + ' failed: ' + res.status);
+    return res.json();
+}
+
+function encodeApiPath(path) {
+    return path.split('/').map(encodeURIComponent).join('/');
+}
+
+// base64 helpers
+function strToBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+}
+async function blobToBase64(blob) {
+    const buf = await blob.arrayBuffer();
+    let binary = '';
+    const bytes = new Uint8Array(buf);
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+}
+
+// Ensure drafts/.htaccess deny rule exists (idempotent).
+async function ensureDraftsDeny() {
+    const existing = await ghGetFile('drafts/.htaccess', false);
+    if (existing) return;
+    await ghPutFile('drafts/.htaccess', strToBase64('Require all denied\n'),
+        'Add drafts/ deny rule (block from public site)', null);
+}
 
 function toggleCategoryFields() {
     document.querySelectorAll('.category-fields').forEach(el => el.classList.remove('visible'));
@@ -1041,8 +1631,8 @@ function renderPlacementCards() {
 
 // ===== Preview =====
 function previewArticle() {
-    if (!docHtml) {
-        showStatus('Please upload a Word document first.', 'error');
+    if (!hasBody()) {
+        showStatus(currentMode === 'write' ? 'Please write some article body first.' : 'Please upload a Word document first.', 'error');
         return;
     }
     const panel = document.getElementById('previewPanel');
@@ -1063,8 +1653,11 @@ function previewArticle() {
         heroHtml = `<img src="${URL.createObjectURL(heroFile)}" style="${heroStyle}">`;
     }
 
-    // Build body with inline images inserted at their positions
-    const bodyWithImages = buildBodyWithInlineImages(docHtml, true);
+    // Build body. Write-mode already has inline figures (blob URLs) baked in,
+    // so render it as-is. Upload-mode distributes the separately-uploaded images.
+    const bodyWithImages = currentMode === 'write'
+        ? getBodyHtml()
+        : buildBodyWithInlineImages(docHtml, true);
 
     body.innerHTML = `
         <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:#21cbea;margin-bottom:8px;">${catLabel}</div>
@@ -1179,13 +1772,18 @@ async function publishArticle() {
 
     if (!type) { showStatus('Please select an article type.', 'error'); return; }
     if (!title) { showStatus('Please enter an article title.', 'error'); return; }
-    if (!docHtml) { showStatus('Please upload a Word document.', 'error'); return; }
+    if (!hasBody()) { showStatus(currentMode === 'write' ? 'Please write some article body.' : 'Please upload a Word document.', 'error'); return; }
     if (!excerpt) { showStatus('Please enter an excerpt.', 'error'); return; }
     if (!heroFile) { showStatus('Please upload a hero image.', 'error'); return; }
 
-    // Check browser support
+    // Prefer the GitHub API path when a token is set (works from any browser).
+    if (hasGhToken()) {
+        return publishViaGitHub({ type, title, excerpt, date, author, keywords, heroAlt });
+    }
+
+    // ---- Local-folder (File System Access API) fallback ----
     if (!('showDirectoryPicker' in window)) {
-        showStatus('Your browser does not support direct file saving. Please use Chrome or Edge.', 'error');
+        showStatus('No GitHub token set and this browser does not support local file saving. Set a token above (recommended) or use Chrome/Edge.', 'error');
         return;
     }
 
@@ -1286,6 +1884,243 @@ async function publishArticle() {
     }
 }
 
+// ===== Publish via GitHub Contents API =====
+async function publishViaGitHub(meta) {
+    const { type, title, excerpt, date, author, keywords, heroAlt } = meta;
+    const publishBtn = document.getElementById('publishBtn');
+    publishBtn.disabled = true;
+    showProgress(0);
+
+    try {
+        const slug = buildSlug(title);
+        const articleFileName = date + '-' + slug + '.html';
+        const heroFileName = normalizeFilename(heroFile.name);
+
+        showStatus('Filing hero image...', 'info');
+        showProgress(15);
+        // Hero image
+        await ghPutFile(
+            'articles/' + type + '/images/' + heroFileName,
+            await blobToBase64(heroFile),
+            'Add hero image for ' + title,
+            (await ghGetFile('articles/' + type + '/images/' + heroFileName, false))?.sha
+        );
+        showProgress(35);
+
+        // Inline images (write-mode) or distributed extras (upload-mode)
+        if (currentMode === 'write') {
+            for (const up of inlineUploads) {
+                // Skip images that are no longer present in the body (Clark deleted them)
+                if (!document.querySelector('#bodyEditor img[data-inline-src="' + cssEsc(up.filename) + '"]')) continue;
+                const p = 'articles/' + type + '/images/' + up.filename;
+                await ghPutFile(p, await blobToBase64(up.blob), 'Add inline image ' + up.filename + ' for ' + title, (await ghGetFile(p, false))?.sha);
+            }
+        } else {
+            for (const entry of extraFiles) {
+                const fname = normalizeFilename(entry.file.name);
+                const p = 'articles/' + type + '/images/' + fname;
+                await ghPutFile(p, await blobToBase64(entry.file), 'Add inline image ' + fname + ' for ' + title, (await ghGetFile(p, false))?.sha);
+            }
+        }
+        showProgress(55);
+
+        // Article HTML
+        showStatus('Generating and committing article page...', 'info');
+        const articleHtml = buildArticleHtml({ type, title, excerpt, date, author, keywords, heroAlt, heroFileName, slug, articleFileName });
+        const artPath = 'articles/' + type + '/' + articleFileName;
+        await ghPutFile(artPath, strToBase64(articleHtml), 'Publish article: ' + title, (await ghGetFile(artPath, false))?.sha);
+        showProgress(75);
+
+        // Patch articles-data.js
+        showStatus('Updating article listings...', 'info');
+        await updateManifestViaGitHub({ type, title, excerpt, date, author, slug, fileName: articleFileName, heroImage: heroFileName, keywords });
+        showProgress(90);
+
+        // Optionally remove the matching draft
+        try { await ghDeleteFile('drafts/' + slug + '.json', 'Remove draft after publishing ' + title); } catch (e) { /* no draft */ }
+        showProgress(100);
+
+        showStatus('Published. "' + title + '" committed to ' + GH_OWNER + '/' + GH_REPO + ' at ' + artPath + '. Deploy via cPanel Git pull when ready.', 'success');
+    } catch (err) {
+        showStatus('GitHub publish failed: ' + err.message, 'error');
+        console.error(err);
+    } finally {
+        publishBtn.disabled = false;
+    }
+}
+
+function cssEsc(s) { return s.replace(/["\\]/g, '\\$&'); }
+
+// Read articles-data.js via API, merge the new entry, write it back.
+async function updateManifestViaGitHub(entry) {
+    const path = 'articles/articles-data.js';
+    const existing = await ghGetFile(path, true);
+    let articles = [];
+    let existingText = existing ? existing.text : '';
+    if (existingText) {
+        const match = existingText.match(/const publishedArticles = (\[[\s\S]*?\]);/);
+        if (match) { try { articles = JSON.parse(match[1]); } catch (e) { articles = []; } }
+    }
+    const idx = articles.findIndex(a => a.type === entry.type && a.slug === entry.slug);
+    if (idx >= 0) articles[idx] = entry; else articles.push(entry);
+    articles.sort((a, b) => b.date.localeCompare(a.date));
+
+    const newDataLine = 'const publishedArticles = ' + JSON.stringify(articles, null, 4) + ';';
+    let jsContent;
+    if (existingText && existingText.match(/const publishedArticles = \[[\s\S]*?\];/)) {
+        jsContent = existingText.replace(/const publishedArticles = \[[\s\S]*?\];/, newDataLine);
+    } else {
+        jsContent = '// ===== Published Articles - single source of truth =====\n';
+        jsContent += '// Generated by /admin/article-manager.html - Article Manager\n\n';
+        jsContent += newDataLine + '\n';
+    }
+    await ghPutFile(path, strToBase64(jsContent), 'Update article listings: ' + entry.title, existing ? existing.sha : null);
+}
+
+// ===== Drafts (GitHub-backed) =====
+function collectDraftPayload() {
+    const type = document.getElementById('articleType').value;
+    const title = document.getElementById('articleTitle').value.trim();
+    if (!title) { showStatus('Enter a title before saving a draft.', 'error'); return null; }
+    // Inline image blobs cannot be serialized to JSON, so a draft keeps the
+    // body markup and metadata; re-inserted images need re-adding on recall.
+    return {
+        savedAt: new Date().toISOString(),
+        mode: currentMode,
+        type,
+        title,
+        excerpt: document.getElementById('articleExcerpt').value,
+        date: document.getElementById('articleDate').value,
+        author: document.getElementById('articleAuthor').value,
+        keywords: document.getElementById('articleKeywords').value,
+        heroAlt: document.getElementById('heroAlt').value,
+        heroLayout: document.getElementById('heroLayout').value,
+        bodyHtml: currentMode === 'write' ? document.getElementById('bodyEditor').innerHTML : docHtml,
+        category: {
+            yachtMake: (document.getElementById('yachtMake')||{}).value || '',
+            yachtModel: (document.getElementById('yachtModel')||{}).value || '',
+            difficulty: (document.getElementById('difficulty')||{}).value || '',
+            destination: (document.getElementById('destination')||{}).value || '',
+            newsSource: (document.getElementById('newsSource')||{}).value || ''
+        }
+    };
+}
+
+async function saveDraft() {
+    if (!hasGhToken()) { showStatus('Set a GitHub token above to save drafts to the repo.', 'error'); return; }
+    const payload = collectDraftPayload();
+    if (!payload) return;
+    const slug = buildSlug(payload.title);
+    const btn = document.getElementById('saveDraftBtn');
+    btn.disabled = true;
+    try {
+        await ensureDraftsDeny();
+        const path = 'drafts/' + slug + '.json';
+        const existing = await ghGetFile(path, false);
+        await ghPutFile(path, strToBase64(JSON.stringify(payload, null, 2)), 'Save draft: ' + payload.title, existing ? existing.sha : null);
+        showStatus('Draft saved to ' + path + '. Note: inserted images are not stored in the draft and need re-inserting on recall.', 'success');
+    } catch (err) {
+        showStatus('Could not save draft: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function loadDrafts() {
+    if (!hasGhToken()) { showStatus('Set a GitHub token to load drafts.', 'error'); return; }
+    const listEl = document.getElementById('draftList');
+    listEl.innerHTML = '<p style="color:#888;font-size:0.9rem;">Loading...</p>';
+    try {
+        const entries = await ghListDir('drafts');
+        draftsCache = entries.filter(e => e.type === 'file' && e.name.endsWith('.json'));
+        renderDraftList();
+    } catch (err) {
+        listEl.innerHTML = '<p style="color:#a82020;">Error loading drafts: ' + err.message + '</p>';
+    }
+}
+
+function renderDraftList() {
+    const listEl = document.getElementById('draftList');
+    const q = (document.getElementById('draftSearch').value || '').toLowerCase();
+    const items = draftsCache.filter(d => d.name.toLowerCase().includes(q));
+    if (!items.length) {
+        listEl.innerHTML = '<p style="color:#888;font-size:0.9rem;">No drafts' + (q ? ' match that filter.' : ' saved yet.') + '</p>';
+        return;
+    }
+    listEl.innerHTML = '';
+    items.forEach(d => {
+        const row = document.createElement('div');
+        row.className = 'drafts-row';
+        const info = document.createElement('div');
+        info.className = 'd-info';
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'd-title';
+        titleDiv.textContent = d.name.replace(/\.json$/, '');
+        const meta = document.createElement('div');
+        meta.className = 'd-meta';
+        meta.textContent = 'drafts/' + d.name;
+        info.appendChild(titleDiv); info.appendChild(meta);
+        row.appendChild(info);
+
+        const actions = document.createElement('div');
+        actions.className = 'drafts-actions';
+        const recall = document.createElement('button');
+        recall.className = 'small-btn';
+        recall.textContent = 'Recall';
+        recall.onclick = () => recallDraft(d.path);
+        const del = document.createElement('button');
+        del.className = 'small-btn';
+        del.textContent = 'Delete';
+        del.onclick = () => deleteDraft(d.path, d.name);
+        actions.appendChild(recall); actions.appendChild(del);
+        row.appendChild(actions);
+        listEl.appendChild(row);
+    });
+}
+
+async function recallDraft(path) {
+    try {
+        const f = await ghGetFile(path, true);
+        if (!f || !f.text) { showStatus('Could not read draft.', 'error'); return; }
+        const d = JSON.parse(f.text);
+        setMode(d.mode === 'upload' ? 'upload' : 'write');
+        document.getElementById('articleType').value = d.type || '';
+        toggleCategoryFields();
+        document.getElementById('articleTitle').value = d.title || '';
+        document.getElementById('articleExcerpt').value = d.excerpt || '';
+        document.getElementById('articleExcerpt').dispatchEvent(new Event('input'));
+        document.getElementById('articleDate').value = d.date || '';
+        document.getElementById('articleAuthor').value = d.author || 'Clark Haley';
+        document.getElementById('articleKeywords').value = d.keywords || '';
+        document.getElementById('heroAlt').value = d.heroAlt || '';
+        document.getElementById('heroLayout').value = d.heroLayout || 'default';
+        if (d.mode === 'upload') { docHtml = d.bodyHtml || ''; parseParagraphs(); }
+        else { document.getElementById('bodyEditor').innerHTML = d.bodyHtml || ''; }
+        if (d.category) {
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+            set('yachtMake', d.category.yachtMake); set('yachtModel', d.category.yachtModel);
+            set('difficulty', d.category.difficulty); set('destination', d.category.destination);
+            set('newsSource', d.category.newsSource);
+        }
+        showStatus('Draft recalled. Re-insert and re-upload the hero and any inline images before publishing.', 'info');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err) {
+        showStatus('Could not recall draft: ' + err.message, 'error');
+    }
+}
+
+async function deleteDraft(path, name) {
+    if (!confirm('Delete draft "' + name + '"? This cannot be undone.')) return;
+    try {
+        await ghDeleteFile(path, 'Delete draft ' + name);
+        draftsCache = draftsCache.filter(d => d.path !== path);
+        renderDraftList();
+        showStatus('Draft deleted.', 'success');
+    } catch (err) {
+        showStatus('Could not delete draft: ' + err.message, 'error');
+    }
+}
+
 // ===== Helper: Build Slug =====
 function buildSlug(title) {
     return title
@@ -1354,21 +2189,32 @@ function buildArticleHtml(data) {
     const isoDate = date + 'T12:00:00';
     const displayDate = new Date(isoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
+    // Source body from the active mode
+    const sourceBody = getBodyHtml();
+
     // Estimate read time (~200 words per minute)
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = docHtml;
+    tempDiv.innerHTML = sourceBody;
     const wordCount = tempDiv.textContent.split(/\s+/).length;
     const readTime = Math.max(1, Math.round(wordCount / 200));
 
-    // Clean up article body HTML
-    let bodyContent = docHtml;
-    // Remove any extracted title if it matches (avoid duplication)
-    bodyContent = bodyContent.replace(/^<h[12][^>]*>.*?<\/h[12]>\s*/i, '');
-    // Make first paragraph a lead paragraph
-    bodyContent = bodyContent.replace(/^<p>/, '<p class="article-lead">');
-
-    // Insert inline images at their positions using CSS classes
-    bodyContent = buildBodyWithCssClasses(bodyContent);
+    let bodyContent;
+    if (currentMode === 'write') {
+        // Write-mode body already contains inline figures and the author's own
+        // headings. Do not strip a leading heading (it is intentional content).
+        // Just rewrite the blob image src to the published images/ path and
+        // promote the first paragraph to the lead style.
+        bodyContent = rewriteInlineImageSrc(sourceBody);
+        bodyContent = bodyContent.replace(/^<p>/, '<p class="article-lead">');
+    } else {
+        // Upload-mode: fix the Word single-item OL section headings, strip a
+        // duplicate leading title, lead the first para, then distribute the
+        // separately-uploaded inline images by position.
+        bodyContent = fixWordSectionLists(sourceBody);
+        bodyContent = bodyContent.replace(/^<h[12][^>]*>.*?<\/h[12]>\s*/i, '');
+        bodyContent = bodyContent.replace(/^<p>/, '<p class="article-lead">');
+        bodyContent = buildBodyWithCssClasses(bodyContent);
+    }
 
     // Hero layout class
     const heroLayout = document.getElementById('heroLayout').value;
@@ -1662,6 +2508,11 @@ function clearForm() {
     docParagraphs = [];
     heroFile = null;
     extraFiles = [];
+    inlineUploads.forEach(u => { try { URL.revokeObjectURL(u.blobUrl); } catch (e) {} });
+    inlineUploads = [];
+    savedSelectionRange = null;
+    const ed = document.getElementById('bodyEditor');
+    if (ed) ed.innerHTML = '<p>Start writing your article here. Use the toolbar above for headings, lists, links, and to insert images.</p>';
     document.getElementById('docFileName').textContent = '';
     document.getElementById('heroFileName').textContent = '';
     document.getElementById('docUploadZone').classList.remove('has-file');
@@ -1682,6 +2533,21 @@ function clearForm() {
 async function loadPublishedArticles() {
     const listEl = document.getElementById('publishedList');
     listEl.innerHTML = '<p style="color:#888;font-size:0.9rem;">Loading...</p>';
+
+    // GitHub path
+    if (hasGhToken()) {
+        try {
+            const f = await ghGetFile('articles/articles-data.js', true);
+            const match = f && f.text ? f.text.match(/const publishedArticles = (\[[\s\S]*?\]);/) : null;
+            if (!match) { listEl.innerHTML = '<p style="color:#888;">No published articles found.</p>'; return; }
+            const articles = JSON.parse(match[1]);
+            if (!articles.length) { listEl.innerHTML = '<p style="color:#888;">No published articles found.</p>'; return; }
+            renderPublishedList(articles, listEl);
+        } catch (err) {
+            listEl.innerHTML = '<p style="color:#a82020;">Error loading articles: ' + err.message + '</p>';
+        }
+        return;
+    }
 
     try {
         if (!siteRootHandle) {
@@ -1754,6 +2620,27 @@ function renderPublishedList(articles, container) {
 
 async function removeArticle(index, title) {
     if (!confirm(`Remove "${title}" from the site?\n\nThis removes it from the article listings. The HTML file will remain in the folder in case you want to restore it later.`)) return;
+
+    // GitHub path: re-read, splice, commit the patched articles-data.js
+    if (hasGhToken()) {
+        try {
+            const f = await ghGetFile('articles/articles-data.js', true);
+            const match = f && f.text ? f.text.match(/const publishedArticles = (\[[\s\S]*?\]);/) : null;
+            if (!match) { showStatus('Could not parse articles data.', 'error'); return; }
+            const articles = JSON.parse(match[1]);
+            const removed = articles.splice(index, 1)[0];
+            const newDataLine = 'const publishedArticles = ' + JSON.stringify(articles, null, 4) + ';';
+            const jsContent = f.text.replace(/const publishedArticles = \[[\s\S]*?\];/, newDataLine);
+            await ghPutFile('articles/articles-data.js', strToBase64(jsContent), 'Remove article from listings: ' + (removed ? removed.title : title), f.sha);
+            showStatus('Removed "' + (removed ? removed.title : title) + '" from the listings (committed to GitHub).', 'success');
+            const listEl = document.getElementById('publishedList');
+            if (articles.length) renderPublishedList(articles, listEl);
+            else listEl.innerHTML = '<p style="color:#888;">No published articles remaining.</p>';
+        } catch (err) {
+            showStatus('Error removing article: ' + err.message, 'error');
+        }
+        return;
+    }
 
     try {
         const articlesDir = await siteRootHandle.getDirectoryHandle('articles');

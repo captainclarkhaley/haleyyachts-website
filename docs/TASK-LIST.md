@@ -1,5 +1,16 @@
 # Haley Yachts Website - Task List
-*Last updated: May 26, 2026*
+*Last updated: June 4, 2026*
+
+## BUILT, AWAITING COMMIT + UPLOAD (June 4)
+
+- [ ] Article Manager upgrade (built on disk in `admin/article-manager.html`, NOT yet committed - git was unavailable in the build environment, so Clark or William must commit + push, then deploy via cPanel Git pull):
+  - New **Write Article** mode: in-browser rich text editor (ported from `email-composer.html`) with **insert image at cursor** and **automatic in-browser resize** (1600px longest edge, JPEG ~0.85; PNG kept only when it has transparency). Removes Clark's manual image pre-sizing step.
+  - Existing **Upload Word Doc** path kept intact behind a mode toggle.
+  - Storage/publish moved to the **GitHub Contents API** using a personal access token stored in the browser (localStorage). Publishes article HTML + images + patches `articles/articles-data.js`, all over the internet, so it works from any computer's browser with no local repo. Old File System Access (folder-picker) flow retained as a **transitional fallback** when no token is set.
+  - **Drafts**: save / recall / search / delete under `drafts/` via the API. New `drafts/.htaccess` (`Require all denied`) blocks drafts from the public site.
+  - "Manage Published Articles" load + remove also works via the API when a token is set.
+  - **Folded-in fix**: the numbered-section `<ol>` bug (see Admin Tool Backlog below) - on the Word path, single-item heading-like `<ol>` blocks now convert to `<h2>`.
+  - Prereq for Clark: create a fine-grained PAT scoped to the `haleyyachts-website` repo with Contents: Read and write, at https://github.com/settings/personal-access-tokens , then paste it into the GitHub Publishing box once.
 
 Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull.
 
@@ -49,7 +60,7 @@ Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /publ
 - [ ] Contact Form Submissions viewer (waiting on HubSpot - Clark provisioning ~2026-05-08)
 - [x] Site Analytics dashboard - shipped 2026-05-06 at `/admin/site-analytics.html`: 9 pre-filled deep links into GA4 + Clarity, GA4 Property ID input upgrades links to direct deep links once set
 - [ ] Image Library browser
-- [ ] Article Manager: numbered-section rendering bug. Each section heading in a Word doc gets wrapped in its own single-item `<ol>`, so all sections render as "1." on the live site. Worked around manually on `2026-05-09-how-to-plan-your-first-bahamas-cruise.html` (added `start="N"` per `<ol>`). Real fix: render section headings as `<h2>` with the number baked into the text, or emit one continuous `<ol>`.
+- [x] Article Manager: numbered-section rendering bug. Each section heading in a Word doc got wrapped in its own single-item `<ol>`, so all sections rendered as "1." Real fix shipped in the June 4 upgrade: `fixWordSectionLists()` converts single-item heading-like `<ol>` blocks to `<h2>` on the Word path (write mode emits clean markup and is unaffected). The old manual `start="N"` workaround on the Bahamas how-to article can be left as-is or cleaned up on next edit.
 
 ### Post-Launch
 - [ ] HubSpot CRM integration (replace Formsubmit with HubSpot forms)
