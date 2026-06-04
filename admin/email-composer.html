@@ -129,6 +129,38 @@
             font-size: 0.78rem; padding: 5px 10px; border-radius: 3px; cursor: pointer;
         }
         .reset-btn:hover { background: #e5ebf0; }
+        .gh-box {
+            background: #f1f5f9; border: 1px solid #d6dde3; border-radius: 4px;
+            padding: 14px 16px; margin-bottom: 20px; font-size: 0.85rem;
+        }
+        .gh-box h3 {
+            font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; color: #555; margin: 0 0 8px;
+        }
+        .gh-box .gh-warn {
+            font-size: 0.78rem; color: #8a6820; background: #fff7e6;
+            border-left: 3px solid #e89c20; padding: 8px 12px; border-radius: 3px;
+            margin: 8px 0; line-height: 1.5;
+        }
+        .gh-box .gh-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+        .gh-box input[type="password"], .gh-box input[type="text"] { flex: 1; min-width: 200px; }
+        .gh-status { font-size: 0.8rem; margin-top: 8px; }
+        .gh-status.ok { color: #2a7a2a; }
+        .gh-status.none { color: #888; }
+        .small-btn {
+            background: #eee; border: 1px solid #ccc; border-radius: 3px;
+            padding: 7px 14px; font-size: 0.78rem; cursor: pointer; color: #444;
+        }
+        .small-btn:hover { background: #e0e0e0; }
+        .gh-confirmed {
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+            font-size: 0.85rem; color: #2a7a2a;
+        }
+        .gh-confirmed .gh-check { font-weight: 700; margin-right: 2px; }
+        .gh-reveal-link {
+            font-size: 0.78rem; color: #888; text-decoration: underline; cursor: pointer;
+        }
+        .gh-reveal-link:hover { color: #555; }
         .admin-version {
             text-align: right; font-size: 0.7rem; color: #999;
             font-family: 'Courier New', monospace; margin-top: 24px; letter-spacing: 0.5px;
@@ -209,10 +241,32 @@
             <br>
             CC handles all tracking (opens, clicks, unsubscribe, list management). No tracking code is added on our side.<br>
             <br>
-            The <em>first</em> time you save a hero image, your browser will prompt you to pick the <strong>haleyyachts-website</strong> folder (the site root). Grant access once and future saves go through automatically.
+            With a <strong>GitHub token</strong> set below, the hero image commits straight to GitHub from any browser. With no token, saving falls back to picking the local <strong>haleyyachts-website</strong> folder on this machine. The composed email HTML is always copy/pasted into Constant Contact, regardless of token.
         </div>
 
-        <div class="root-status-box">
+        <!-- GitHub publish settings (hero-image save only) -->
+        <div class="gh-box" id="ghBox">
+            <h3>GitHub Publishing</h3>
+
+            <div class="gh-confirmed" id="ghConfirmed" style="display:none;">
+                <span class="gh-confirmed-msg"><span class="gh-check">&#10003;</span> GitHub token set and active. Hero-image saving is ready.</span>
+                <a href="#" class="gh-reveal-link" id="ghRevealLink" onclick="toggleGhControls(event)">Replace / clear token</a>
+            </div>
+
+            <div class="gh-entry" id="ghEntry">
+                <div class="gh-warn">
+                    This token grants write access to the website repo. Use a fine-grained personal access token scoped to only the <code>captainclarkhaley/haleyyachts-website</code> repository with <strong>Contents: Read and write</strong> permission. It is stored only in this browser (localStorage), never in the repo. It is the same token used by the Article Manager and Featured Yachts tools. Clear it on shared machines.
+                </div>
+                <div class="gh-row">
+                    <input type="password" id="ghToken" placeholder="Paste GitHub personal access token (github_pat_... or ghp_...)" autocomplete="off">
+                    <button type="button" class="small-btn" onclick="saveGhToken()">Save token</button>
+                    <button type="button" class="small-btn" onclick="clearGhToken()">Clear token</button>
+                </div>
+                <div class="gh-status none" id="ghStatus">No token set. Hero-image saving will use the local-folder fallback.</div>
+            </div>
+        </div>
+
+        <div class="root-status-box" id="rootStatusWrap">
             <span id="rootStatus">Site folder: not selected yet.</span>
             <button type="button" class="reset-btn" onclick="resetSiteRoot()">Change folder</button>
         </div>
@@ -301,9 +355,11 @@
 
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-26 10:30 EDT</div>
+    <div class="admin-version" data-version>v: 2026-06-04 16:03 EDT</div>
 </div>
 
+<!-- Shared GitHub Contents API layer (token, gh* helpers, 401 handling) -->
+<script src="js/github-api.js"></script>
 <script>
 // ============================================================
 // EMAIL COMPOSER - admin/email-composer.html
@@ -330,6 +386,76 @@ function showStatus(msg, type) {
     if (type === 'success' || type === 'info') {
         setTimeout(() => { el.style.display = 'none'; }, 6000);
     }
+}
+
+// ============== GitHub token box (thin wiring over shared github-api.js) ==============
+// The gh* helpers, token storage, and 401 handling live in js/github-api.js.
+// Only the hero-image save uses GitHub; the email HTML is always copy/pasted.
+setGhStatusReporter(showStatus);
+
+function initGhToken() {
+    updateGhStatus();
+    updateGhBoxState();
+    updatePublishMethod();
+}
+function updateGhBoxState(forceReveal) {
+    const confirmed = $('ghConfirmed');
+    const entry = $('ghEntry');
+    if (!confirmed || !entry) return;
+    if (hasGhToken() && !forceReveal) {
+        confirmed.style.display = 'flex';
+        entry.style.display = 'none';
+    } else {
+        confirmed.style.display = 'none';
+        entry.style.display = 'block';
+    }
+}
+function toggleGhControls(e) {
+    if (e) e.preventDefault();
+    updateGhBoxState(true);
+}
+function saveGhToken() {
+    const val = $('ghToken').value.trim();
+    if (!val) { showStatus('Paste a token first.', 'error'); return; }
+    if (hasGhToken()) {
+        const ok = window.confirm('A token is already saved. Replace it with the new one? If you are unsure, cancel - the current token is working.');
+        if (!ok) { showStatus('Kept the existing token.', 'info'); return; }
+    }
+    setGhToken(val);
+    $('ghToken').value = '';
+    updateGhStatus();
+    updateGhBoxState();
+    updatePublishMethod();
+    showStatus('Token saved in this browser. Hero images will commit straight to GitHub.', 'success');
+}
+function clearGhToken() {
+    if (hasGhToken()) {
+        const ok = window.confirm('Remove the saved GitHub token? Hero-image saving will fall back to the local folder until a new token is entered. Continue?');
+        if (!ok) return;
+    }
+    removeGhToken();
+    $('ghToken').value = '';
+    updateGhStatus();
+    updateGhBoxState();
+    updatePublishMethod();
+    showStatus('Token cleared from this browser.', 'info');
+}
+function updateGhStatus() {
+    const el = $('ghStatus');
+    if (!el) return;
+    if (hasGhToken()) {
+        el.className = 'gh-status ok';
+        el.textContent = 'Token set. Hero images save to GitHub (' + GH_OWNER + '/' + GH_REPO + ', branch ' + GH_BRANCH + ').';
+    } else {
+        el.className = 'gh-status none';
+        el.textContent = 'No token set. Hero-image saving will use the local-folder fallback.';
+    }
+}
+function updatePublishMethod() {
+    const rootWrap = $('rootStatusWrap');
+    if (!rootWrap) return;
+    // The local-folder picker is only relevant in the no-token fallback.
+    rootWrap.style.display = hasGhToken() ? 'none' : 'flex';
 }
 
 // ============== Filename generation ==============
@@ -401,7 +527,26 @@ async function saveHero() {
     }
     const filename = buildHeroFilename(pendingHeroFile.name, $('subject').value);
 
-    // FSA-API path
+    // GitHub-API path (preferred when a token is set: works from any browser).
+    if (hasGhToken()) {
+        try {
+            const repoPath = HERO_DIR_PATH.join('/') + '/' + filename;
+            const b64 = await blobToBase64(pendingHeroFile);
+            const existing = await ghGetFile(repoPath, false);
+            await ghPutFile(repoPath, b64, 'Email composer: upload hero image ' + filename,
+                existing ? existing.sha : null);
+            savedHeroFilename = filename;
+            renderHeroRow();
+            showStatus('Hero image committed to GitHub at /images/email/hero/' + filename + '. Clark runs the cPanel pull to deploy. Click "Update preview".', 'success');
+            renderPreview();
+            return;
+        } catch (err) {
+            showGhError(err, 'Hero image upload to GitHub failed: ' + err.message);
+            return;
+        }
+    }
+
+    // FSA-API path (no-token fallback on this machine)
     if ('showDirectoryPicker' in window) {
         try {
             const root = await getSiteRoot();
@@ -541,6 +686,9 @@ async function getSiteRoot() {
     updateRootStatus();
     return handle;
 }
+// Reflect saved-token state in the token box on load.
+initGhToken();
+
 // Silent bind on load
 (async () => {
     try {

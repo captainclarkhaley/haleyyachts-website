@@ -176,6 +176,38 @@
             cursor: pointer;
         }
         .root-status-box .reset-btn:hover { background: #e5ebf0; }
+        .gh-box {
+            background: #f1f5f9; border: 1px solid #d6dde3; border-radius: 4px;
+            padding: 14px 16px; margin-bottom: 24px; font-size: 0.85rem;
+        }
+        .gh-box h3 {
+            font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; color: #555; margin: 0 0 8px;
+        }
+        .gh-box .gh-warn {
+            font-size: 0.78rem; color: #8a6820; background: #fff7e6;
+            border-left: 3px solid #e89c20; padding: 8px 12px; border-radius: 3px;
+            margin: 8px 0; line-height: 1.5;
+        }
+        .gh-box .gh-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+        .gh-box input[type="password"], .gh-box input[type="text"] { flex: 1; min-width: 200px; }
+        .gh-status { font-size: 0.8rem; margin-top: 8px; }
+        .gh-status.ok { color: #2a7a2a; }
+        .gh-status.none { color: #888; }
+        .small-btn {
+            background: #eee; border: 1px solid #ccc; border-radius: 3px;
+            padding: 7px 14px; font-size: 0.78rem; cursor: pointer; color: #444;
+        }
+        .small-btn:hover { background: #e0e0e0; }
+        .gh-confirmed {
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+            font-size: 0.85rem; color: #2a7a2a;
+        }
+        .gh-confirmed .gh-check { font-weight: 700; margin-right: 2px; }
+        .gh-reveal-link {
+            font-size: 0.78rem; color: #888; text-decoration: underline; cursor: pointer;
+        }
+        .gh-reveal-link:hover { color: #555; }
         .admin-version {
             text-align: right;
             font-size: 0.7rem;
@@ -208,10 +240,34 @@
         <br>
         <strong>Reorder slots:</strong> Load a position, choose a destination from <em>Move to Position</em>, then click <strong>MOVE</strong>. The boat you move takes the new slot and the other slots shift to make room.<br>
         <br>
-        The <em>first</em> time you save, your browser will prompt you to pick the <strong>haleyyachts-website</strong> folder (the site root). Grant access once and future saves go through automatically. If saves stop working, click <em>Change folder</em> below to re-pick.
+        With a <strong>GitHub token</strong> set below, saving commits straight to GitHub from any browser. With no token, saving falls back to picking the local <strong>haleyyachts-website</strong> folder on this machine. Either way, Clark runs the cPanel pull to deploy.
     </div>
 
-    <div class="root-status-box">
+    <!-- GitHub publish settings -->
+    <div class="gh-box" id="ghBox">
+        <h3>GitHub Publishing</h3>
+
+        <!-- Calm confirmed state: shown when a token is already saved -->
+        <div class="gh-confirmed" id="ghConfirmed" style="display:none;">
+            <span class="gh-confirmed-msg"><span class="gh-check">&#10003;</span> GitHub token set and active. Saving is ready.</span>
+            <a href="#" class="gh-reveal-link" id="ghRevealLink" onclick="toggleGhControls(event)">Replace / clear token</a>
+        </div>
+
+        <!-- Entry controls: shown when no token, or revealed from confirmed state -->
+        <div class="gh-entry" id="ghEntry">
+            <div class="gh-warn">
+                This token grants write access to the website repo. Use a fine-grained personal access token scoped to only the <code>captainclarkhaley/haleyyachts-website</code> repository with <strong>Contents: Read and write</strong> permission. It is stored only in this browser (localStorage), never in the repo. It is the same token used by the Article Manager. Clear it on shared machines.
+            </div>
+            <div class="gh-row">
+                <input type="password" id="ghToken" placeholder="Paste GitHub personal access token (github_pat_... or ghp_...)" autocomplete="off">
+                <button type="button" class="small-btn" onclick="saveGhToken()">Save token</button>
+                <button type="button" class="small-btn" onclick="clearGhToken()">Clear token</button>
+            </div>
+            <div class="gh-status none" id="ghStatus">No token set. Saving will use the local-folder fallback.</div>
+        </div>
+    </div>
+
+    <div class="root-status-box" id="rootStatusWrap">
         <span id="rootStatus">Site folder: not selected yet.</span>
         <button type="button" class="reset-btn" onclick="resetSiteRoot()">Change folder</button>
     </div>
@@ -288,9 +344,11 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-05-25 14:10 EDT</div>
+    <div class="admin-version" data-version>v: 2026-06-04 16:03 EDT</div>
 </div>
 
+<!-- Shared GitHub Contents API layer (token, gh* helpers, 401 handling) -->
+<script src="js/github-api.js"></script>
 <!-- Load current data -->
 <script src="../js/featured-yachts.js"></script>
 <script>
@@ -536,6 +594,78 @@
         setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
     }
 
+    // ===== GitHub token box UI (thin wiring over shared github-api.js) =====
+    // The gh* helpers, token storage, and 401 handling live in js/github-api.js.
+    // These functions only drive this page's token box and status text.
+    setGhStatusReporter(showStatus);
+
+    function initGhToken() {
+        updateGhStatus();
+        updatePublishMethod();
+        updateGhBoxState();
+    }
+    // Show the calm confirmed state when a token is set; show entry controls otherwise.
+    // forceReveal=true keeps the entry controls open even though a token is set.
+    function updateGhBoxState(forceReveal) {
+        const confirmed = document.getElementById('ghConfirmed');
+        const entry = document.getElementById('ghEntry');
+        if (!confirmed || !entry) return;
+        if (hasGhToken() && !forceReveal) {
+            confirmed.style.display = 'flex';
+            entry.style.display = 'none';
+        } else {
+            confirmed.style.display = 'none';
+            entry.style.display = 'block';
+        }
+    }
+    function toggleGhControls(e) {
+        if (e) e.preventDefault();
+        updateGhBoxState(true);
+    }
+    function saveGhToken() {
+        const val = document.getElementById('ghToken').value.trim();
+        if (!val) { showStatus('Paste a token first.', 'error'); return; }
+        if (hasGhToken()) {
+            const ok = window.confirm('A token is already saved. Replace it with the new one? If you are unsure, cancel - the current token is working.');
+            if (!ok) { showStatus('Kept the existing token.', 'info'); return; }
+        }
+        setGhToken(val);
+        document.getElementById('ghToken').value = '';
+        updateGhStatus();
+        updatePublishMethod();
+        updateGhBoxState();
+        showStatus('Token saved in this browser. Saving will commit straight to GitHub.', 'success');
+    }
+    function clearGhToken() {
+        if (hasGhToken()) {
+            const ok = window.confirm('Remove the saved GitHub token? Saving will fall back to the local folder until a new token is entered. Continue?');
+            if (!ok) return;
+        }
+        removeGhToken();
+        document.getElementById('ghToken').value = '';
+        updateGhStatus();
+        updatePublishMethod();
+        updateGhBoxState();
+        showStatus('Token cleared from this browser.', 'info');
+    }
+    function updateGhStatus() {
+        const el = document.getElementById('ghStatus');
+        if (!el) return;
+        if (hasGhToken()) {
+            el.className = 'gh-status ok';
+            el.textContent = 'Token set. Saving will use GitHub (' + GH_OWNER + '/' + GH_REPO + ', branch ' + GH_BRANCH + ').';
+        } else {
+            el.className = 'gh-status none';
+            el.textContent = 'No token set. Saving will use the local-folder fallback.';
+        }
+    }
+    function updatePublishMethod() {
+        const rootWrap = document.getElementById('rootStatusWrap');
+        if (!rootWrap) return;
+        // The local-folder picker is only relevant in the no-token fallback.
+        rootWrap.style.display = hasGhToken() ? 'none' : 'flex';
+    }
+
     // ===== File System Access API: persistent SITE ROOT handle via IndexedDB =====
     const DB_NAME = 'haley-admin';
     const STORE = 'handles';
@@ -685,6 +815,18 @@
         await writable.close();
     }
 
+    // ===== GitHub-mode binary upload (used when a token is set) =====
+    // Commits a File (image or PDF) to the repo. Fetches the existing sha first
+    // so an update to an existing path succeeds; ghPutFile also retries on 409.
+    async function ghUploadBinary(file, repoPath, commitMessage) {
+        const b64 = await blobToBase64(file);
+        const existing = await ghGetFile(repoPath, false);
+        await ghPutFile(repoPath, b64, commitMessage, existing ? existing.sha : null);
+    }
+
+    // Reflect saved-token state in the token box on load.
+    initGhToken();
+
     // Try to bind site root on page load (no prompt - silent if not granted)
     (async () => {
         try {
@@ -728,36 +870,48 @@
             }
         }
 
-        // Check API support
-        if (!('showOpenFilePicker' in window) || !('showDirectoryPicker' in window)) {
-            showStatus('Your browser does not support direct file saving. Please use Chrome or Edge.', 'error');
+        const useGitHub = hasGhToken();
+
+        // No-token fallback needs the File System Access API; GitHub mode does not.
+        if (!useGitHub && (!('showOpenFilePicker' in window) || !('showDirectoryPicker' in window))) {
+            showStatus('No GitHub token set and this browser does not support the local-folder fallback. Set a token above, or use Chrome or Edge.', 'error');
             return;
         }
 
-        // Step 1a: if a Browse-selected image is pending, copy it into the featured folder first.
+        // Step 1a: if a Browse-selected image is pending, write it into the featured folder first.
         if (pendingImageFile) {
             try {
-                await copyImageToFeatured(pendingImageFile, filename);
+                if (useGitHub) {
+                    await ghUploadBinary(pendingImageFile, 'images/yachts/featured/' + filename,
+                        'Featured yacht: upload image ' + filename);
+                } else {
+                    await copyImageToFeatured(pendingImageFile, filename);
+                }
             } catch (err) {
                 if (err.name === 'AbortError') {
                     showStatus('Image copy canceled.', 'error');
                 } else {
-                    showStatus('Image copy failed: ' + err.message, 'error');
+                    showGhError(err, 'Image upload failed: ' + err.message);
                 }
                 return;
             }
         }
 
-        // Step 1b: if a Browse-selected PDF is pending, copy it into documents/yachts/featured/.
+        // Step 1b: if a Browse-selected PDF is pending, write it into documents/yachts/featured/.
         if (pendingPdfFile) {
             try {
                 // pdfRaw at this point is the sanitized filename auto-filled at browse time.
-                await copyPdfToFeatured(pendingPdfFile, pdfRaw);
+                if (useGitHub) {
+                    await ghUploadBinary(pendingPdfFile, 'documents/yachts/featured/' + pdfRaw,
+                        'Featured yacht: upload PDF ' + pdfRaw);
+                } else {
+                    await copyPdfToFeatured(pendingPdfFile, pdfRaw);
+                }
             } catch (err) {
                 if (err.name === 'AbortError') {
                     showStatus('PDF copy canceled.', 'error');
                 } else {
-                    showStatus('PDF copy failed: ' + err.message, 'error');
+                    showGhError(err, 'PDF upload failed: ' + err.message);
                 }
                 return;
             }
@@ -808,21 +962,38 @@
         // Step 3: read the file fresh, patch only the touched fields of the
         // target entry, then write it back. This guarantees we never overwrite
         // the renderer code in js/featured-yachts.js even if it has been
-        // updated since this admin tool last loaded.
+        // updated since this admin tool last loaded. The brace-aware patcher
+        // (patchFeaturedYachtsEntry) is identical in both modes; only the
+        // read/write mechanism differs.
         try {
-            const handle = await getDataFileHandle();
-            const currentFile = await handle.getFile();
-            const currentText = await currentFile.text();
-            const fileContent = patchFeaturedYachtsEntry(currentText, pos - 1, updates);
-            const writable = await handle.createWritable();
-            await writable.write(fileContent);
-            await writable.close();
+            if (useGitHub) {
+                const path = 'js/featured-yachts.js';
+                const current = await ghGetFile(path, true);
+                if (!current) throw new Error('js/featured-yachts.js not found in the repo.');
+                const fileContent = patchFeaturedYachtsEntry(current.text, pos - 1, updates);
+                await ghPutFile(path, strToBase64(fileContent),
+                    'Featured yacht: update position ' + pos, current.sha);
 
-            // Read-back verification: confirm the file on disk now matches what we wrote
-            const verifyFile = await handle.getFile();
-            const verifyText = await verifyFile.text();
-            if (verifyText !== fileContent) {
-                throw new Error('File on disk does not match what was written. Save may have gone to the wrong location. Click "Change folder" and re-pick the site root.');
+                // Read-back verification against GitHub.
+                const verify = await ghGetFile(path, true);
+                if (!verify || verify.text !== fileContent) {
+                    throw new Error('GitHub read-back did not match what was committed. Re-open the page and try saving again; if it persists, check the token.');
+                }
+            } else {
+                const handle = await getDataFileHandle();
+                const currentFile = await handle.getFile();
+                const currentText = await currentFile.text();
+                const fileContent = patchFeaturedYachtsEntry(currentText, pos - 1, updates);
+                const writable = await handle.createWritable();
+                await writable.write(fileContent);
+                await writable.close();
+
+                // Read-back verification: confirm the file on disk now matches what we wrote
+                const verifyFile = await handle.getFile();
+                const verifyText = await verifyFile.text();
+                if (verifyText !== fileContent) {
+                    throw new Error('File on disk does not match what was written. Save may have gone to the wrong location. Click "Change folder" and re-pick the site root.');
+                }
             }
 
             // Clear the pending files so repeated SAVE clicks don't re-copy
@@ -837,12 +1008,16 @@
                 pdfPreviewRow.style.display = 'none';
             }
             markSaved();
-            showStatus(`Saved! Position ${pos} updated. Commit + push + pull to deploy.`, 'success');
+            if (useGitHub) {
+                showStatus(`Saved! Position ${pos} updated and committed to GitHub. Clark runs the cPanel pull to deploy.`, 'success');
+            } else {
+                showStatus(`Saved! Position ${pos} updated in the local folder. Commit + push + pull to deploy.`, 'success');
+            }
         } catch (err) {
             if (err.name === 'AbortError') {
                 showStatus('Save canceled.', 'error');
             } else {
-                showStatus('Save failed: ' + err.message, 'error');
+                showGhError(err, 'Save failed: ' + err.message);
             }
         }
     }
@@ -890,33 +1065,54 @@
             if (typeof y.kuula === 'undefined') y.kuula = '';
         });
 
-        // Targeted reorder of the on-disk file: only the data array is rewritten;
-        // the renderer code and all helpers in js/featured-yachts.js are left alone.
+        // Targeted reorder of the data file: only the data array is rewritten;
+        // the renderer code and all helpers in js/featured-yachts.js are left
+        // alone. The brace-aware reorder patcher is identical in both modes;
+        // only the read/write mechanism differs.
+        const useGitHub = hasGhToken();
         try {
-            const handle = await getDataFileHandle();
-            const currentFile = await handle.getFile();
-            const currentText = await currentFile.text();
-            const fileContent = patchFeaturedYachtsReorder(currentText, fromIdx, toIdx);
-            const writable = await handle.createWritable();
-            await writable.write(fileContent);
-            await writable.close();
+            if (useGitHub) {
+                const path = 'js/featured-yachts.js';
+                const current = await ghGetFile(path, true);
+                if (!current) throw new Error('js/featured-yachts.js not found in the repo.');
+                const fileContent = patchFeaturedYachtsReorder(current.text, fromIdx, toIdx);
+                await ghPutFile(path, strToBase64(fileContent),
+                    'Featured yacht: move position ' + fromPos + ' to ' + toPos, current.sha);
 
-            const verifyFile = await handle.getFile();
-            const verifyText = await verifyFile.text();
-            if (verifyText !== fileContent) {
-                throw new Error('File on disk does not match what was written. Click "Change folder" and re-pick the site root.');
+                const verify = await ghGetFile(path, true);
+                if (!verify || verify.text !== fileContent) {
+                    throw new Error('GitHub read-back did not match what was committed. Re-open the page and try the move again; if it persists, check the token.');
+                }
+            } else {
+                const handle = await getDataFileHandle();
+                const currentFile = await handle.getFile();
+                const currentText = await currentFile.text();
+                const fileContent = patchFeaturedYachtsReorder(currentText, fromIdx, toIdx);
+                const writable = await handle.createWritable();
+                await writable.write(fileContent);
+                await writable.close();
+
+                const verifyFile = await handle.getFile();
+                const verifyText = await verifyFile.text();
+                if (verifyText !== fileContent) {
+                    throw new Error('File on disk does not match what was written. Click "Change folder" and re-pick the site root.');
+                }
             }
 
             // Reload form on the moved entry's new position so Clark sees the result
             posSel.value = String(toPos);
             loadCurrent();
             document.getElementById('movePosition').value = '';
-            showStatus(`Moved "${moved.name}" from Position ${fromPos} to Position ${toPos}. Commit + push + pull to deploy.`, 'success');
+            if (useGitHub) {
+                showStatus(`Moved "${moved.name}" from Position ${fromPos} to Position ${toPos} and committed to GitHub. Clark runs the cPanel pull to deploy.`, 'success');
+            } else {
+                showStatus(`Moved "${moved.name}" from Position ${fromPos} to Position ${toPos}. Commit + push + pull to deploy.`, 'success');
+            }
         } catch (err) {
             if (err.name === 'AbortError') {
                 showStatus('Move canceled.', 'error');
             } else {
-                showStatus('Move failed: ' + err.message, 'error');
+                showGhError(err, 'Move failed: ' + err.message);
             }
         }
     }
