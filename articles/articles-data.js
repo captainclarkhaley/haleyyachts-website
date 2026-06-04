@@ -15,6 +15,17 @@ const publishedArticles = [
         "keywords": "Riviera Yachts, HCB CenterConsoles, Sunseeker Yachts, OneWater Yacht Group, HaleyYachts, Bahamas, Grand Bahama Yacht Club"
     },
     {
+        "type": "boat-reviews",
+        "title": "test article",
+        "excerpt": "this is the excerpt",
+        "date": "2026-06-04",
+        "author": "Clark Haley",
+        "slug": "test-article",
+        "fileName": "2026-06-04-test-article.html",
+        "heroImage": "img9628.jpg",
+        "keywords": "test"
+    },
+    {
         "type": "newsletters",
         "title": "The Logbook | May 2026",
         "excerpt": "The first issue of The Logbook: featured listings (Riviera 545, Manta 42 Sangaris, Southern Wind 72), industry news, recent sales, and a note from Clark on his first fast-cruiser run to the Abacos.",
