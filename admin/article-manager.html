@@ -84,6 +84,20 @@
             color: #888;
             font-size: 0.75rem;
         }
+        label .req {
+            color: #c0392b;
+            font-weight: 700;
+            margin-left: 2px;
+        }
+        .req-legend {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 14px;
+        }
+        .req-legend .req {
+            color: #c0392b;
+            font-weight: 700;
+        }
         input[type="text"], input[type="date"], textarea, select {
             width: 100%;
             padding: 10px 14px;
@@ -516,7 +530,7 @@
 <body>
 
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-06-04 15:10 EDT</div>
+    <div class="admin-version" data-version>v: 2026-06-04 15:51 EDT</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -557,9 +571,11 @@
 
     <form id="articleForm" onsubmit="event.preventDefault();">
 
+        <div class="req-legend"><span class="req">*</span> required</div>
+
         <!-- Article Type -->
         <div class="form-group">
-            <label for="articleType">Article Type</label>
+            <label for="articleType">Article Type <span class="req">*</span></label>
             <select id="articleType" required>
                 <option value="">-- Select Category --</option>
                 <option value="boat-reviews">Boat Reviews</option>
@@ -573,7 +589,7 @@
         <!-- WRITE MODE: rich text editor -->
         <div class="mode-panel visible" id="panel-write">
             <div class="form-group">
-                <label>Article Body <span class="hint">(write or paste here; use the toolbar for formatting and to insert images)</span></label>
+                <label>Article Body <span class="req">*</span> <span class="hint">(write or paste here; use the toolbar for formatting and to insert images)</span></label>
                 <div class="editor-toolbar" role="toolbar">
                     <button type="button" data-cmd="bold" title="Bold"><strong>B</strong></button>
                     <button type="button" data-cmd="italic" title="Italic"><em>I</em></button>
@@ -602,7 +618,7 @@
         <!-- UPLOAD MODE: Word doc -->
         <div class="mode-panel" id="panel-upload">
         <div class="form-group">
-            <label>Article Document <span class="hint">(.docx files only)</span></label>
+            <label>Article Document <span class="req">*</span> <span class="hint">(.docx files only)</span></label>
             <div class="upload-zone" id="docUploadZone">
                 <input type="file" id="docFile" accept=".docx">
                 <div class="upload-icon">
@@ -625,7 +641,7 @@
 
         <!-- Image Uploads -->
         <div class="form-group">
-            <label>Hero Image <span class="hint">(main image displayed at top of article)</span></label>
+            <label>Hero Image <span class="req">*</span> <span class="hint">(main image displayed at top of article)</span></label>
             <div class="upload-zone" id="heroUploadZone">
                 <input type="file" id="heroImage" accept="image/*">
                 <div class="upload-icon">
@@ -682,12 +698,12 @@
 
         <!-- Metadata Fields -->
         <div class="form-group">
-            <label for="articleTitle">Article Title</label>
+            <label for="articleTitle">Article Title <span class="req">*</span></label>
             <input type="text" id="articleTitle" placeholder="e.g., Riviera 505 SUV - A Broker's Review" required>
         </div>
 
         <div class="form-group">
-            <label for="articleExcerpt">Excerpt <span class="hint">(1-2 sentences shown in article listings, max 250 characters)</span></label>
+            <label for="articleExcerpt">Excerpt <span class="req">*</span> <span class="hint">(1-2 sentences shown in article listings, max 250 characters)</span></label>
             <textarea id="articleExcerpt" maxlength="250" placeholder="A short summary of the article..."></textarea>
             <div class="char-count" id="excerptCount">0 / 250</div>
         </div>
