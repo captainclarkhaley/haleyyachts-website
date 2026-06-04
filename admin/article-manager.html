@@ -504,6 +504,15 @@
             padding: 7px 14px; font-size: 0.78rem; cursor: pointer; color: #444;
         }
         .small-btn:hover { background: #e0e0e0; }
+        .gh-confirmed {
+            display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+            font-size: 0.85rem; color: #2a7a2a;
+        }
+        .gh-confirmed .gh-check { font-weight: 700; margin-right: 2px; }
+        .gh-reveal-link {
+            font-size: 0.78rem; color: #888; text-decoration: underline; cursor: pointer;
+        }
+        .gh-reveal-link:hover { color: #555; }
 
         /* Drafts panel */
         .drafts-row {
@@ -530,7 +539,7 @@
 <body>
 
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-06-04 15:51 EDT</div>
+    <div class="admin-version" data-version>v: 2026-06-04 15:53 EDT</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -552,15 +561,25 @@
     <!-- GitHub publish settings -->
     <div class="gh-box" id="ghBox">
         <h3>GitHub Publishing</h3>
-        <div class="gh-warn">
-            This token grants write access to the website repo. Use a fine-grained personal access token scoped to only the <code>captainclarkhaley/haleyyachts-website</code> repository with <strong>Contents: Read and write</strong> permission. It is stored only in this browser (localStorage), never in the repo. Clear it on shared machines.
+
+        <!-- Calm confirmed state: shown when a token is already saved -->
+        <div class="gh-confirmed" id="ghConfirmed" style="display:none;">
+            <span class="gh-confirmed-msg"><span class="gh-check">&#10003;</span> GitHub token set and active. Publishing is ready.</span>
+            <a href="#" class="gh-reveal-link" id="ghRevealLink" onclick="toggleGhControls(event)">Replace / clear token</a>
         </div>
-        <div class="gh-row">
-            <input type="password" id="ghToken" placeholder="Paste GitHub personal access token (github_pat_... or ghp_...)" autocomplete="off">
-            <button type="button" class="small-btn" onclick="saveGhToken()">Save token</button>
-            <button type="button" class="small-btn" onclick="clearGhToken()">Clear token</button>
+
+        <!-- Entry controls: shown when no token, or revealed from confirmed state -->
+        <div class="gh-entry" id="ghEntry">
+            <div class="gh-warn">
+                This token grants write access to the website repo. Use a fine-grained personal access token scoped to only the <code>captainclarkhaley/haleyyachts-website</code> repository with <strong>Contents: Read and write</strong> permission. It is stored only in this browser (localStorage), never in the repo. Clear it on shared machines.
+            </div>
+            <div class="gh-row">
+                <input type="password" id="ghToken" placeholder="Paste GitHub personal access token (github_pat_... or ghp_...)" autocomplete="off">
+                <button type="button" class="small-btn" onclick="saveGhToken()">Save token</button>
+                <button type="button" class="small-btn" onclick="clearGhToken()">Clear token</button>
+            </div>
+            <div class="gh-status none" id="ghStatus">No token set. Publish will use the local-folder fallback.</div>
         </div>
-        <div class="gh-status none" id="ghStatus">No token set. Publish will use the local-folder fallback.</div>
     </div>
 
     <!-- Mode toggle -->
@@ -1164,20 +1183,51 @@ function hasGhToken() { return !!getGhToken(); }
 function initGhToken() {
     updateGhStatus();
     updatePublishMethod();
+    updateGhBoxState();
+}
+// Show the calm confirmed state when a token is set; show entry controls otherwise.
+// forceReveal=true keeps the entry controls open even though a token is set
+// (used when the user clicks "Replace / clear token").
+function updateGhBoxState(forceReveal) {
+    const confirmed = document.getElementById('ghConfirmed');
+    const entry = document.getElementById('ghEntry');
+    if (!confirmed || !entry) return;
+    if (hasGhToken() && !forceReveal) {
+        confirmed.style.display = 'flex';
+        entry.style.display = 'none';
+    } else {
+        confirmed.style.display = 'none';
+        entry.style.display = 'block';
+    }
+}
+function toggleGhControls(e) {
+    if (e) e.preventDefault();
+    updateGhBoxState(true);
 }
 function saveGhToken() {
     const val = document.getElementById('ghToken').value.trim();
     if (!val) { showStatus('Paste a token first.', 'error'); return; }
+    if (hasGhToken()) {
+        const ok = window.confirm('A token is already saved. Replace it with the new one? If you are unsure, cancel - the current token is working.');
+        if (!ok) { showStatus('Kept the existing token.', 'info'); return; }
+    }
     localStorage.setItem(GH_TOKEN_KEY, val);
     document.getElementById('ghToken').value = '';
     updateGhStatus();
     updatePublishMethod();
+    updateGhBoxState();
     showStatus('Token saved in this browser. Publishing will commit straight to GitHub.', 'success');
 }
 function clearGhToken() {
+    if (hasGhToken()) {
+        const ok = window.confirm('Remove the saved GitHub token? Publishing will stop working until a new token is entered. Continue?');
+        if (!ok) return;
+    }
     localStorage.removeItem(GH_TOKEN_KEY);
+    document.getElementById('ghToken').value = '';
     updateGhStatus();
     updatePublishMethod();
+    updateGhBoxState();
     showStatus('Token cleared from this browser.', 'info');
 }
 function updateGhStatus() {
