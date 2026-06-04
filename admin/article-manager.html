@@ -539,7 +539,7 @@
 <body>
 
 <div class="admin-container">
-    <div class="admin-version" data-version>v: 2026-06-04 15:53 EDT</div>
+    <div class="admin-version" data-version>v: 2026-06-04 15:57 EDT</div>
     <div class="nav-links">
         <a href="index.html" class="back-link">&larr; Back to Admin</a>
         <span class="nav-sep">·</span>
@@ -1260,10 +1260,32 @@ function ghHeaders() {
     };
 }
 
+// Plain-English message for a rejected/expired GitHub token.
+const GH_AUTH_MESSAGE = 'GitHub rejected the token (it may be expired, revoked, or invalid). Open the GitHub Publishing section, replace the token with a fresh one, and try again.';
+
+// Build a tagged auth error so every call site can recognize a 401 and show
+// the friendly token message instead of a raw status dump.
+function ghAuthError() {
+    const e = new Error(GH_AUTH_MESSAGE);
+    e.isGhAuthError = true;
+    return e;
+}
+
+// In a catch block, show the friendly token message on a 401, otherwise the
+// supplied generic fallback (already including the error detail).
+function showGhError(err, fallbackMessage) {
+    if (err && err.isGhAuthError) {
+        showStatus(GH_AUTH_MESSAGE, 'error');
+    } else {
+        showStatus(fallbackMessage, 'error');
+    }
+}
+
 // GET a file's sha (and decoded text if asked). Returns null if 404.
 async function ghGetFile(path, wantText) {
     const url = GH_API + '/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeApiPath(path) + '?ref=' + GH_BRANCH;
     const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+    if (res.status === 401) throw ghAuthError();
     if (res.status === 404) return null;
     if (!res.ok) throw new Error('GitHub GET ' + path + ' failed: ' + res.status + ' ' + (await res.text()).slice(0, 200));
     const json = await res.json();
@@ -1285,6 +1307,7 @@ async function ghPutFile(path, base64Content, message, sha) {
         body.sha = fresh ? fresh.sha : undefined;
         res = await fetch(url, { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
     }
+    if (res.status === 401) throw ghAuthError();
     if (!res.ok) throw new Error('GitHub PUT ' + path + ' failed: ' + res.status + ' ' + (await res.text()).slice(0, 200));
     return res.json();
 }
@@ -1297,12 +1320,14 @@ async function ghDeleteFile(path, message) {
         method: 'DELETE', headers: ghHeaders(),
         body: JSON.stringify({ message, sha: existing.sha, branch: GH_BRANCH })
     });
+    if (res.status === 401) throw ghAuthError();
     if (!res.ok) throw new Error('GitHub DELETE ' + path + ' failed: ' + res.status);
 }
 
 async function ghListDir(path) {
     const url = GH_API + '/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeApiPath(path) + '?ref=' + GH_BRANCH;
     const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+    if (res.status === 401) throw ghAuthError();
     if (res.status === 404) return [];
     if (!res.ok) throw new Error('GitHub list ' + path + ' failed: ' + res.status);
     return res.json();
@@ -2008,7 +2033,7 @@ async function publishViaGitHub(meta) {
 
         showStatus('Published. "' + title + '" committed to ' + GH_OWNER + '/' + GH_REPO + ' at ' + artPath + '. Deploy via cPanel Git pull when ready.', 'success');
     } catch (err) {
-        showStatus('GitHub publish failed: ' + err.message, 'error');
+        showGhError(err, 'GitHub publish failed: ' + err.message);
         console.error(err);
     } finally {
         publishBtn.disabled = false;
@@ -2086,7 +2111,7 @@ async function saveDraft() {
         await ghPutFile(path, strToBase64(JSON.stringify(payload, null, 2)), 'Save draft: ' + payload.title, existing ? existing.sha : null);
         showStatus('Draft saved to ' + path + '. Note: inserted images are not stored in the draft and need re-inserting on recall.', 'success');
     } catch (err) {
-        showStatus('Could not save draft: ' + err.message, 'error');
+        showGhError(err, 'Could not save draft: ' + err.message);
     } finally {
         btn.disabled = false;
     }
@@ -2101,7 +2126,12 @@ async function loadDrafts() {
         draftsCache = entries.filter(e => e.type === 'file' && e.name.endsWith('.json'));
         renderDraftList();
     } catch (err) {
-        listEl.innerHTML = '<p style="color:#a82020;">Error loading drafts: ' + err.message + '</p>';
+        if (err && err.isGhAuthError) {
+            listEl.innerHTML = '<p style="color:#a82020;">' + GH_AUTH_MESSAGE + '</p>';
+            showGhError(err);
+        } else {
+            listEl.innerHTML = '<p style="color:#a82020;">Error loading drafts: ' + err.message + '</p>';
+        }
     }
 }
 
@@ -2171,7 +2201,7 @@ async function recallDraft(path) {
         showStatus('Draft recalled. Re-insert and re-upload the hero and any inline images before publishing.', 'info');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
-        showStatus('Could not recall draft: ' + err.message, 'error');
+        showGhError(err, 'Could not recall draft: ' + err.message);
     }
 }
 
@@ -2183,7 +2213,7 @@ async function deleteDraft(path, name) {
         renderDraftList();
         showStatus('Draft deleted.', 'success');
     } catch (err) {
-        showStatus('Could not delete draft: ' + err.message, 'error');
+        showGhError(err, 'Could not delete draft: ' + err.message);
     }
 }
 
@@ -2610,7 +2640,12 @@ async function loadPublishedArticles() {
             if (!articles.length) { listEl.innerHTML = '<p style="color:#888;">No published articles found.</p>'; return; }
             renderPublishedList(articles, listEl);
         } catch (err) {
-            listEl.innerHTML = '<p style="color:#a82020;">Error loading articles: ' + err.message + '</p>';
+            if (err && err.isGhAuthError) {
+                listEl.innerHTML = '<p style="color:#a82020;">' + GH_AUTH_MESSAGE + '</p>';
+                showGhError(err);
+            } else {
+                listEl.innerHTML = '<p style="color:#a82020;">Error loading articles: ' + err.message + '</p>';
+            }
         }
         return;
     }
@@ -2703,7 +2738,7 @@ async function removeArticle(index, title) {
             if (articles.length) renderPublishedList(articles, listEl);
             else listEl.innerHTML = '<p style="color:#888;">No published articles remaining.</p>';
         } catch (err) {
-            showStatus('Error removing article: ' + err.message, 'error');
+            showGhError(err, 'Error removing article: ' + err.message);
         }
         return;
     }
