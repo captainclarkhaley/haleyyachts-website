@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Haley Yachts - Video CTA End Card Template</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /*
+    HALEY YACHTS - REUSABLE VIDEO CTA END CARD
+    --------------------------------------------------------------
+    Two cards on this page, each rendered to PNG at exact pixel size:
+      .card-1x1  -> 1080 x 1080  (Instagram square)
+      .card-4x5  -> 1080 x 1350  (Instagram portrait, taller product zone)
+
+    HOW CLARK SWAPS IN A PER-VIDEO PRODUCT PHOTO + CAPTION:
+      1. Find the block marked  <!-- PRODUCT ZONE -->  in EACH card.
+      2. Set the product image: edit the .product-photo style
+            background-image: url('PATH-OR-URL-TO-YOUR-BOAT-PHOTO');
+         (or drop a file next to this template and use its filename).
+      3. Edit the caption text in .product-caption (1-2 short lines).
+      4. To hide the dashed placeholder hint, add class  has-photo
+         to the .product-zone element (e.g. <div class="product-zone has-photo">).
+      5. Re-render (see render-cards.js / the README in this folder).
+
+    BRAND: palette + Open Sans pulled from the live site. No em dashes.
+
+    FONT REFERENCE (match these so every video's text stays consistent):
+      Caption title  -> Open Sans SemiBold (600), 30px, color #0d2847
+      Caption detail -> Open Sans Regular  (400), 22px, color #5d6b78
+      Broker name    -> Open Sans ExtraBold (800), 54px (1x1) / 60px (4x5)
+      Broker title   -> Open Sans Regular  (400), 23px / 25px, color #bcd3e2
+      Contact lines  -> Open Sans Medium   (500), 25px / 27px
+      Open Sans is free on Google Fonts. In Premiere, use Open Sans at the
+      same weight/size/color when typing over or replacing any line.
+  */
+
+  :root{
+    --navy-1:#0a1628;
+    --navy-2:#0d2847;
+    --navy-3:#134a6e;
+    --cyan:#21cbea;
+    --ink:#333333;
+    --muted:#666666;
+    --white:#ffffff;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{background:#3a3f45;font-family:'Open Sans',Arial,sans-serif;}
+  body{display:flex;flex-direction:column;align-items:center;gap:40px;padding:40px;}
+
+  .card{
+    position:relative;
+    width:1080px;
+    background:linear-gradient(160deg,#0a1628 0%,#0d2847 55%,#134a6e 100%);
+    color:var(--white);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .card-1x1{height:1080px;}
+  .card-4x5{height:1350px;}
+
+  /* ---------- PRODUCT ZONE (per-video placeholder) ---------- */
+  .product-zone{
+    background:#eef3f7;
+    padding:40px 60px 34px;
+    flex:0 0 auto;
+  }
+  .card-1x1 .product-zone{height:472px;}
+  .card-4x5 .product-zone{height:660px;}
+
+  .product-photo{
+    margin:0 auto;
+    border-radius:10px;
+    background-color:#dde7ee;
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    /* dashed placeholder look (hidden once .has-photo is set) */
+    border:3px dashed #9bb4c6;
+  }
+  .card-1x1 .product-photo{height:316px;width:316px;}
+  .card-4x5 .product-photo{height:500px;width:500px;}
+
+  .placeholder-hint{
+    text-align:center;
+    color:#5e7488;
+    font-weight:600;
+    font-size:24px;
+    line-height:1.5;
+    letter-spacing:.3px;
+  }
+  .placeholder-hint .sub{
+    display:block;
+    font-weight:400;
+    font-size:17px;
+    margin-top:6px;
+    color:#7d93a5;
+  }
+  .has-photo .product-photo{border:0;}
+  .has-photo .placeholder-hint{display:none;}
+
+  .product-caption{
+    margin-top:24px;
+    color:var(--navy-2);
+    font-weight:600;
+    font-size:30px;
+    line-height:1.32;
+    letter-spacing:.2px;
+  }
+  .product-caption .caption-sub{
+    display:block;
+    font-weight:400;
+    font-size:22px;
+    color:#5d6b78;
+    margin-top:4px;
+  }
+  /* faint dashed underline cue on the caption while it's placeholder text */
+  .product-zone:not(.has-photo) .product-caption{
+    border-left:4px solid var(--cyan);
+    padding-left:18px;
+  }
+
+  /* ---------- BROKER BLOCK ---------- */
+  .broker{
+    flex:1 1 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:40px;
+    padding:0 60px;
+  }
+  .headshot{
+    flex:0 0 auto;
+    width:210px;
+    height:210px;
+    border-radius:50%;
+    background-size:cover;
+    background-position:center top;
+    border:4px solid var(--cyan);
+    box-shadow:0 8px 28px rgba(0,0,0,.35);
+  }
+  .card-4x5 .headshot{width:240px;height:240px;}
+
+  .broker-info{flex:0 1 auto;min-width:0;}
+  .broker-name{
+    font-size:54px;
+    font-weight:800;
+    letter-spacing:.5px;
+    line-height:1.05;
+  }
+  .card-4x5 .broker-name{font-size:60px;}
+  .broker-title{
+    margin-top:8px;
+    font-size:23px;
+    font-weight:400;
+    color:#bcd3e2;
+    line-height:1.3;
+  }
+  .card-4x5 .broker-title{font-size:25px;}
+
+  .broker-rule{
+    width:90px;height:4px;border-radius:2px;
+    background:var(--cyan);
+    margin:22px 0 20px;
+  }
+
+  .contact-line{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:25px;
+    font-weight:500;
+    line-height:1.9;
+    color:#eaf3f8;
+  }
+  .card-4x5 .contact-line{font-size:27px;}
+  .contact-line .ic{
+    color:var(--cyan);
+    font-weight:700;
+    width:30px;
+    flex:0 0 auto;
+    text-align:center;
+    font-size:23px;
+  }
+  .contact-line .ic svg{
+    width:26px;height:26px;
+    fill:var(--cyan);
+    vertical-align:middle;
+    display:inline-block;
+  }
+
+  /* ---------- FOOTER LOGOS ---------- */
+  .footer{
+    flex:0 0 auto;
+    border-top:1px solid rgba(33,203,234,.35);
+    background:rgba(0,0,0,.18);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:28px 60px;
+    gap:40px;
+  }
+  .card-1x1 .footer{height:150px;}
+  .card-4x5 .footer{height:170px;}
+
+  .footer img.haley{height:54px;width:auto;display:block;}
+  .footer .owyg-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:8px;}
+  .footer .owyg-label{
+    font-size:14px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:#8fb0c4;
+    font-weight:600;
+  }
+  .footer img.owyg{height:40px;width:auto;display:block;}
+  .card-4x5 .footer img.haley{height:60px;}
+  .card-4x5 .footer img.owyg{height:46px;}
+
+  /* ---------- RENDER MODES (used only by the render script) ----------
+     Loading the file with #only-1x1 or #only-4x5 isolates a single card
+     at exact canvas size with no page chrome, so a headless screenshot
+     produces a pixel-perfect PNG. Normal viewing (no hash) shows both. */
+  body.render-mode{padding:0;gap:0;background:#fff;align-items:stretch;}
+  body.only-1x1 .card-4x5{display:none;}
+  body.only-4x5 .card-1x1{display:none;}
+</style>
+</head>
+<body>
+
+<!-- ============================================================= -->
+<!-- CARD 1: 1080 x 1080 SQUARE                                     -->
+<!-- ============================================================= -->
+<div class="card card-1x1" id="card-1x1">
+
+  <!-- PRODUCT ZONE -->
+  <!-- To use a real photo: add class "has-photo" to the line below,
+       set background-image on .product-photo, edit .product-caption. -->
+  <div class="product-zone">
+    <div class="product-photo" style="background-image:none;">
+      <div class="placeholder-hint">
+        Drop product photo here
+        <span class="sub">Featured yacht from this video</span>
+      </div>
+    </div>
+    <div class="product-caption">
+      Listing name here - Open Sans SemiBold, 30px
+      <span class="caption-sub">Short detail line here - Open Sans Regular, 22px. Match this font for consistency.</span>
+    </div>
+  </div>
+
+  <!-- BROKER BLOCK -->
+  <div class="broker">
+    <div class="headshot" style="background-image:url('../../people/clark-haley-headshot-square.jpg');"></div>
+    <div class="broker-info">
+      <div class="broker-name">Clark Haley</div>
+      <div class="broker-title">Licensed and Bonded Broker<br>One Water Yacht Group</div>
+      <div class="broker-rule"></div>
+      <div class="contact-line"><span class="ic">&#9742;</span>(561) 817-1547</div>
+      <div class="contact-line"><span class="ic">&#9993;</span>clark@HaleyYachts.com</div>
+      <div class="contact-line"><span class="ic">&#9783;</span>HaleyYachts.com</div>
+      <div class="contact-line"><span class="ic"><svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3l-.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg></span>@clarkhaleyyachtbroker</div>
+      <div class="contact-line"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07c-1.27.06-2.15.27-2.91.57-.79.31-1.46.72-2.13 1.38C1.34 2.69.93 3.35.63 4.14c-.3.76-.51 1.64-.57 2.91C0 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.27 2.15.57 2.91.31.79.72 1.46 1.38 2.13.67.66 1.34 1.07 2.13 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.38.66-.67 1.07-1.34 1.38-2.13.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.38-2.13C21.31 1.34 20.65.93 19.86.63c-.76-.3-1.64-.51-2.91-.57C15.67.01 15.26 0 12 0m0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84M12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4M18.41 4.15a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44z"/></svg></span>@capnclark</div>
+    </div>
+  </div>
+
+  <!-- FOOTER LOGOS -->
+  <div class="footer">
+    <img class="haley" src="../../brand/haleyyachtslogo-reverse.png" alt="Haley Yachts">
+    <div class="owyg-wrap">
+      <span class="owyg-label">A member of</span>
+      <img class="owyg" src="../../email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- CARD 2: 1080 x 1350 PORTRAIT (4:5)                             -->
+<!-- ============================================================= -->
+<div class="card card-4x5" id="card-4x5">
+
+  <!-- PRODUCT ZONE (taller) -->
+  <div class="product-zone">
+    <div class="product-photo" style="background-image:none;">
+      <div class="placeholder-hint">
+        Drop product photo here
+        <span class="sub">Featured yacht from this video</span>
+      </div>
+    </div>
+    <div class="product-caption">
+      Listing name here - Open Sans SemiBold, 30px
+      <span class="caption-sub">Short detail line here - Open Sans Regular, 22px. Match this font for consistency.</span>
+    </div>
+  </div>
+
+  <!-- BROKER BLOCK -->
+  <div class="broker">
+    <div class="headshot" style="background-image:url('../../people/clark-haley-headshot-square.jpg');"></div>
+    <div class="broker-info">
+      <div class="broker-name">Clark Haley</div>
+      <div class="broker-title">Licensed and Bonded Broker<br>One Water Yacht Group</div>
+      <div class="broker-rule"></div>
+      <div class="contact-line"><span class="ic">&#9742;</span>(561) 817-1547</div>
+      <div class="contact-line"><span class="ic">&#9993;</span>clark@HaleyYachts.com</div>
+      <div class="contact-line"><span class="ic">&#9783;</span>HaleyYachts.com</div>
+      <div class="contact-line"><span class="ic"><svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3l-.5 3H13v6.8c4.56-.93 8-4.96 8-9.8z"/></svg></span>@clarkhaleyyachtbroker</div>
+      <div class="contact-line"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.43.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.43.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.43-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.43-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07c-1.27.06-2.15.27-2.91.57-.79.31-1.46.72-2.13 1.38C1.34 2.69.93 3.35.63 4.14c-.3.76-.51 1.64-.57 2.91C0 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.27 2.15.57 2.91.31.79.72 1.46 1.38 2.13.67.66 1.34 1.07 2.13 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.38.66-.67 1.07-1.34 1.38-2.13.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.38-2.13C21.31 1.34 20.65.93 19.86.63c-.76-.3-1.64-.51-2.91-.57C15.67.01 15.26 0 12 0m0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84M12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4M18.41 4.15a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44z"/></svg></span>@capnclark</div>
+    </div>
+  </div>
+
+  <!-- FOOTER LOGOS -->
+  <div class="footer">
+    <img class="haley" src="../../brand/haleyyachtslogo-reverse.png" alt="Haley Yachts">
+    <div class="owyg-wrap">
+      <span class="owyg-label">A member of</span>
+      <img class="owyg" src="../../email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var h = (location.hash || '').replace('#','');
+    if (h === 'only-1x1'){ document.body.className = 'render-mode only-1x1'; }
+    else if (h === 'only-4x5'){ document.body.className = 'render-mode only-4x5'; }
+  })();
+</script>
+</body>
+</html>

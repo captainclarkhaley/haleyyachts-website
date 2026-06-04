@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "industry-news",
+        "title": "One Water Announces \"OWYG Bahamas Rendezvous\" July 16-19, 2026",
+        "excerpt": "The annual Summer Rendezvous will bring together owners and guests aboard Sunseeker, Riviera, Absolute, and HCB yachts for four unforgettable days of cruising, dockside hospitality, beach club experiences, island excursions, and curated social events",
+        "date": "2026-06-04",
+        "author": "Clark Haley",
+        "slug": "one-water-announces-owyg-bahamas-rendezvous-july-16-19-2026",
+        "fileName": "2026-06-04-one-water-announces-owyg-bahamas-rendezvous-july-16-19-2026.html",
+        "heroImage": "hero1.png",
+        "keywords": "Riviera Yachts, HCB CenterConsoles, Sunseeker Yachts, OneWater Yacht Group, HaleyYachts, Bahamas, Grand Bahama Yacht Club"
+    },
+    {
         "type": "newsletters",
         "title": "The Logbook | May 2026",
         "excerpt": "The first issue of The Logbook: featured listings (Riviera 545, Manta 42 Sangaris, Southern Wind 72), industry news, recent sales, and a note from Clark on his first fast-cruiser run to the Abacos.",
