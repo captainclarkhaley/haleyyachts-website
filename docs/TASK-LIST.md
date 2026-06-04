@@ -1,16 +1,21 @@
 # Haley Yachts Website - Task List
-*Last updated: June 4, 2026*
+*Last updated: June 4, 2026 (PM - reconciled against git)*
 
-## BUILT, AWAITING COMMIT + UPLOAD (June 4)
+## RECENTLY COMPLETED (June 4)
 
-- [ ] Article Manager upgrade (built on disk in `admin/article-manager.html`, NOT yet committed - git was unavailable in the build environment, so Clark or William must commit + push, then deploy via cPanel Git pull):
+- [x] **Article Manager upgrade** - committed + pushed to origin/main (commits `ad2d865`, `4b60029`, `69e8fad`, `437723b`). GitHub-API publish round-trip verified live (test article published then removed, `66b35af` -> `1a36ce2`), confirming Clark's PAT is in place and working.
   - New **Write Article** mode: in-browser rich text editor (ported from `email-composer.html`) with **insert image at cursor** and **automatic in-browser resize** (1600px longest edge, JPEG ~0.85; PNG kept only when it has transparency). Removes Clark's manual image pre-sizing step.
   - Existing **Upload Word Doc** path kept intact behind a mode toggle.
   - Storage/publish moved to the **GitHub Contents API** using a personal access token stored in the browser (localStorage). Publishes article HTML + images + patches `articles/articles-data.js`, all over the internet, so it works from any computer's browser with no local repo. Old File System Access (folder-picker) flow retained as a **transitional fallback** when no token is set.
   - **Drafts**: save / recall / search / delete under `drafts/` via the API. New `drafts/.htaccess` (`Require all denied`) blocks drafts from the public site.
   - "Manage Published Articles" load + remove also works via the API when a token is set.
+  - Required article fields marked with red asterisk + legend (`69e8fad`); friendly token message on GitHub 401 (`437723b`); token controls guarded (`4b60029`).
   - **Folded-in fix**: the numbered-section `<ol>` bug (see Admin Tool Backlog below) - on the Word path, single-item heading-like `<ol>` blocks now convert to `<h2>`.
-  - Prereq for Clark: create a fine-grained PAT scoped to the `haleyyachts-website` repo with Contents: Read and write, at https://github.com/settings/personal-access-tokens , then paste it into the GitHub Publishing box once.
+- [x] **Shared GitHub API publishing layer** - `admin/featured-yachts.html` + `admin/email-composer.html` migrated onto the same `admin/js/github-api.js` layer as the article manager (`d4dc2a3`).
+- [x] **New article published**: "One Water Announces OWYG Bahamas Rendezvous (July 16-19, 2026)" at `articles/industry-news/2026-06-04-...html` (`adbc770`, `20ad079`).
+- [x] **Remote-access setup runbook** added at `docs/REMOTE-ACCESS-SETUP.md` (iMessage channel + Remote Control, scoped to Monterey 12.7.6 box) (`61a6cf0`).
+
+> Reminder: all of the above is committed + pushed to GitHub. To go live on haleyyachts.com / haleymarine.com it still needs a **cPanel Git Version Control Pull** (manual step). Article-manager-published content goes live immediately via the API and does not need the pull.
 
 Site is LIVE at haleyyachts.com (and haleymarine.com - both share the same /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull.
 
