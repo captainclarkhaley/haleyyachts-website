@@ -6,7 +6,7 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 4, 2026 (social icons now 100% sitewide - 15 pre-template pages back-filled; full audit 24/24 public footers covered, FB + IG live on disk, complete pending deploy)*
+*Last regenerated: June 4, 2026 (single-source footer shipped: `partials/footer.html` + `scripts/sync-footer.sh` drive ONE footer across all 24 public pages; social icons stay 100% sitewide, now sourced from the partial; committed + pushed, pending cPanel pull)*
 
 ---
 
@@ -40,7 +40,8 @@ Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
 ## Cross-owner handoffs
 - **Privacy policy**: Patrick drafts copy + Clark approves -> Terry ships page + cookie banner.
-- **Social icons (FB + IG)**: COMPLETE pending deploy, now 100% sitewide and audited. Patrick decided platforms + placement, Terry staged + activated the markup. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`) live on disk on every public footer. A 2026-06-04 audit found 15 pre-template pages still missing the block (13 articles + 2 yacht listings); all back-filled with the identical block. Final audit: 24/24 public pages with a `site-footer` covered, 0 missing. Needs commit + push + cPanel pull to go live on the web. (X/LinkedIn still deferred.)
+- **Social icons (FB + IG)**: COMPLETE, now 100% sitewide and sourced from the single footer partial. Patrick decided platforms + placement, Terry implemented. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`) live in `partials/footer.html`, injected to all 24 public footers. (X/LinkedIn still deferred.)
+- **Single-source footer**: SHIPPED 2026-06-04. `partials/footer.html` is the one source of truth for the site footer; `scripts/sync-footer.sh` injects it into all 24 public pages between FOOTER:START/END markers. To change the footer: edit the partial, run the script, commit + push, run cPanel pull. Workflow doc: `docs/FOOTER-WORKFLOW.md`. Committed + pushed; needs cPanel pull to deploy.
 
 ---
 
