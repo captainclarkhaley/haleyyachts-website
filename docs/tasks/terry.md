@@ -3,7 +3,7 @@
 > **Owner / sole writer: Terry.** This is the only task file Terry edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 4, 2026 (single-source footer shipped: `partials/footer.html` + `scripts/sync-footer.sh` inject ONE footer into all 24 public pages between FOOTER:START/END markers; social icons stay 100% sitewide, now driven from the partial)*
+*Last updated: June 5, 2026 (Fortunato price reduction to $395,000 across all live surfaces + bold-red "PRICE REDUCTION" overlay applied to the featured Southern Wind image)*
 
 ## OPEN
 
@@ -38,6 +38,10 @@
 ---
 
 ## RECENTLY COMPLETED / DONE
+
+### June 5
+- [x] **Fortunato price reduction: $435,000 -> $395,000** - changed the asking price on every live, forward-facing surface. `yachts/fortunato.html` (5 spots: `<title>`, meta description, `og:title`, `.listing-price`, and the Asking spec row). `js/featured-yachts.js` (the Fortunato card `name`, which also feeds the homepage + buy.html featured grid). `social-media/cta-cards/render-360-cards.py` (2 `sub_line` strings for the 360 social cards). DELIBERATELY LEFT UNCHANGED: the dated May 2026 Logbook archives (`email-templates/issues/logbook-2026-05.html` and `articles/newsletters/2026-05-09-the-logbook-may-2026.html`) - those are sent/published historical records and reflect the price at send time; rewriting them would falsify a dated issue. No other yacht's price touched. On disk + committed; needs cPanel pull.
+- [x] **"PRICE REDUCTION" overlay on the featured Southern Wind image** - `images/yachts/featured/southern-wind.jpg` (the image `js/featured-yachts.js` and `yachts/fortunato.html` use) now carries a bold red "PRICE REDUCTION" banner across the upper area with a black text stroke + a subtle dark backing band for legibility against the sky. Original aspect ratio preserved (4800x3200). Original backed up to `images/yachts/featured/southern-wind.original.jpg` (and tracked in git history). TOOLING NOTE: Clark's directive specified ImageMagick, but `magick`/`convert` is not installed on this box and there is no Homebrew to add it; used Python Pillow 11.3.0 (Arial Bold) to produce the equivalent overlay. If ImageMagick is wanted as the standard going forward, it needs installing. On disk + committed; needs cPanel pull.
 
 ### June 4
 - [x] **Single-source-of-truth footer shipped** - the footer (brand logo, FB + IG social icons, copyright) now lives in ONE file, `partials/footer.html`, and is injected into all 24 public pages by `scripts/sync-footer.sh` between `<!-- FOOTER:START -->` / `<!-- FOOTER:END -->` markers. Future footer changes = edit the partial, run the script, commit, pull. Build-time injection (not client-side JS), so the footer stays in the static HTML and is fully crawlable for SEO; works with no JS and no server config. **Asset paths normalized to root-absolute** (`/images/brand/haleyyachtslogo.png`) so the same partial renders correctly at every depth (root, `articles/<cat>/`, `yachts/`) with no per-depth `../` juggling - verified the logo + links resolve at all three depths. Script is idempotent and has a `--check` mode (non-zero exit on drift) for pre-commit/CI verification. Pure refactor: rendered footer is byte-equivalent to before (same icons, same live hrefs FB `https://facebook.com/clarkhaleyyachtbroker` + IG `https://instagram.com/capnclark`, same copyright) - no visible change. Scope: 8 root + 13 `articles/` (incl. `articles/_template.html` so new articles inherit it) + 2 `yachts/`. Correctly excluded: `admin/`, `email-templates/`, `images/video/cta-card/cta-card-template.html`. Workflow documented in `docs/FOOTER-WORKFLOW.md`. Committed + pushed; needs cPanel pull to deploy.

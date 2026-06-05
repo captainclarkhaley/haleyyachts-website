@@ -405,7 +405,7 @@ if __name__ == "__main__":
         photo_filename="southern-wind.jpg",
         eyebrow="1991 Southern Wind 72",
         hull_name="Fortunato",
-        sub_line="Bruce Farr Fast 72  |  $435,000",
+        sub_line="Bruce Farr Fast 72  |  $395,000",
         cta_label="Take the 360 Tour",
         cta_url="360.haleyyachts.com/fortunato",
     )
@@ -434,7 +434,7 @@ if __name__ == "__main__":
         photo_filename="southern-wind.jpg",
         eyebrow="1991 Southern Wind 72",
         hull_name="Fortunato",
-        sub_line="Bruce Farr Fast 72  |  $435,000",
+        sub_line="Bruce Farr Fast 72  |  $395,000",
         cta_label="Take the 360 Tour",
         cta_url="360.haleyyachts.com/fortunato",
         canvas_h=1350,
