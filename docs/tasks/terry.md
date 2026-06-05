@@ -3,12 +3,12 @@
 > **Owner / sole writer: Terry.** This is the only task file Terry edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 4, 2026 (Instagram link activated; FB + IG both live on disk)*
+*Last updated: June 4, 2026 (social icons now TRULY sitewide - articles.html index + articles/_template.html added; FB + IG live on disk)*
 
 ## OPEN
 
 ### Pages / Content (technical)
-- [x] Social icons (Facebook + Instagram): **BOTH LIVE on disk 2026-06-04.** Inline-SVG FB + IG icons in the footer site-wide (index, about, buy, sell, services, valuation, contact) and a "Follow Along" block in the contact-page contact-info column. All 8 FB anchors -> `https://facebook.com/clarkhaleyyachtbroker`, `data-social="facebook"`. All 8 IG anchors -> `https://instagram.com/capnclark`, `data-social="instagram"` (the `instagram-pending` state is cleared site-wide and the placeholder/TODO social comments are removed). aria-label, target="_blank", rel="noopener" in place. CSS: `.footer-social` + `.contact-social` in css/styles.css (brand-cyan #21cbea hover). NOTE: changes are on disk only -> needs commit + push + cPanel pull to go live.
+- [x] Social icons (Facebook + Instagram): **BOTH LIVE on disk 2026-06-04. Now TRULY sitewide.** Inline-SVG FB + IG icons in the footer on all 9 footers: the original 7 (index, about, buy, sell, services, valuation, contact) PLUS the articles index (`articles.html`) and the article template (`articles/_template.html`) added 2026-06-04 so every newly built article inherits the icons. Plus a "Follow Along" block in the contact-page contact-info column. All 8 FB anchors -> `https://facebook.com/clarkhaleyyachtbroker`, `data-social="facebook"`. All 8 IG anchors -> `https://instagram.com/capnclark`, `data-social="instagram"` (the `instagram-pending` state is cleared site-wide and the placeholder/TODO social comments are removed). aria-label, target="_blank", rel="noopener" in place. CSS: `.footer-social` + `.contact-social` in css/styles.css (brand-cyan #21cbea hover). NOTE: changes are on disk only -> needs commit + push + cPanel pull to go live.
 - [ ] Social icons - X and LinkedIn: still deferred. Only FB + IG requested 2026-06-04. Add later if Clark wants them (same pattern).
 
 ### Polish
@@ -40,6 +40,7 @@
 ## RECENTLY COMPLETED / DONE
 
 ### June 4
+- [x] **Social icons made truly sitewide** - the original staging missed two footers: `articles.html` (the articles index) and `articles/_template.html` (the template every new article is built from). Copied the exact `.footer-social` block from index.html into both, with live hrefs (FB `https://facebook.com/clarkhaleyyachtbroker`, IG `https://instagram.com/capnclark`) and matching `data-social` attributes. Block uses inline SVGs + absolute external hrefs, so no `../` path adjustment was needed at any depth; template's `../../css/styles.css` reference confirmed intact. Footer-social block now present on all 9 footers and byte-identical to index.html. Future articles built from the template inherit the icons automatically. On disk only; needs commit + push + cPanel pull.
 - [x] **Instagram link activated** - Clark sent the IG URL (`https://instagram.com/capnclark`). All 8 Instagram anchors (footer on all 7 pages + the "Follow Along" block on contact.html) now point to `https://instagram.com/capnclark`, `data-social="instagram"`. The `instagram-pending` state is cleared site-wide and the leftover placeholder/TODO social comments are removed. Social-icons task is now COMPLETE pending deploy (FB + IG both live on disk). On disk only; needs commit + push + cPanel pull.
 - [x] **Facebook link activated** - Clark sent the FB URL. All 8 Facebook anchors (footer on all 7 pages + the "Follow Along" block on contact.html) now point to `https://facebook.com/clarkhaleyyachtbroker`, `data-social="facebook"`. On disk only; needs commit + push + cPanel pull.
 - [x] **Social icons staged (Facebook + Instagram)** - inline-SVG FB + IG icons added to the footer on all 7 pages plus a "Follow Along" block on contact.html. All hrefs were placeholders (`href="#"`, `data-social="*-pending"`, TODO comments). New `.footer-social` / `.contact-social` styles in css/styles.css with #21cbea hover. No fabricated URLs. (FB since activated - see above.)

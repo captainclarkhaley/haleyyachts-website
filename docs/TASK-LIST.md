@@ -6,7 +6,7 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 4, 2026 (Facebook + Instagram both live on disk; social-icons task complete pending deploy)*
+*Last regenerated: June 4, 2026 (social icons now TRULY sitewide - articles index + template added; FB + IG live on disk, complete pending deploy)*
 
 ---
 
@@ -40,7 +40,7 @@ Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
 ## Cross-owner handoffs
 - **Privacy policy**: Patrick drafts copy + Clark approves -> Terry ships page + cookie banner.
-- **Social icons (FB + IG)**: COMPLETE pending deploy. Patrick decided platforms + placement, Terry staged + activated the markup. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`) both live on disk site-wide. Needs commit + push + cPanel pull to go live on the web. (X/LinkedIn still deferred.)
+- **Social icons (FB + IG)**: COMPLETE pending deploy, now TRULY sitewide. Patrick decided platforms + placement, Terry staged + activated the markup. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`) live on disk on all 9 footers - the original 7 pages plus `articles.html` and `articles/_template.html` (so future articles inherit the icons). Needs commit + push + cPanel pull to go live on the web. (X/LinkedIn still deferred.)
 
 ---
 
