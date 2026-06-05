@@ -7,9 +7,6 @@
 
 ## OPEN
 
-### Social Cards
-- [ ] **Re-render the Fortunato 360 social card with the new price** - the price in `render-360-cards.py` was updated to $395,000 (Fortunato price reduction, June 5), but the already-rendered PNG `social-media/cta-cards/fortunato-360-1080x1920.png` still shows the old $435,000 and was NOT regenerated (the script needs Pillow/run). Re-run `render-360-cards.py` before reusing that card in any FB/LinkedIn post. The Fringe Benefits card is unaffected.
-
 ### Content
 - [ ] Begin publishing articles regularly (set + hold a cadence)
 - [ ] Article CONTENT pipeline: keep feeding new pieces to the Article Manager (Terry owns the tool; Patrick owns the words)
@@ -32,7 +29,8 @@
 ## RECENTLY COMPLETED / DONE
 
 ### June 5
-- [x] **Fortunato 360 card price source updated** - `social-media/cta-cards/render-360-cards.py` sub_line changed $435,000 -> $395,000 (2 places) as part of the site-wide Fortunato price reduction. The rendered PNG still needs regenerating before reuse - see OPEN > Social Cards.
+- [x] **Fortunato 360 card re-rendered with new price** - re-ran `render-360-cards.py` (Pillow 11.3.0; no ImageMagick needed) so the rendered PNGs now show $395,000. Both Fortunato sizes regenerated: `social-media/cta-cards/fortunato-360-1080x1920.png` and `fortunato-360-1080x1350.png`. Verified the 9:16 visually reads "Bruce Farr Fast 72 | $395,000". Fringe Benefits cards re-emitted unchanged ($1,495,000, byte-identical). Cleared for reuse in FB/LinkedIn posts.
+- [x] **Fortunato 360 card price source updated** - `social-media/cta-cards/render-360-cards.py` sub_line changed $435,000 -> $395,000 (2 places) as part of the site-wide Fortunato price reduction.
 
 ### June 4
 - [x] **Article topic pipeline delivered** - 10 candidate article topics with short outlines handed to Clark (buyer guidance, seller guidance, survey/finance/insurance how-tos, Florida + Bahamas cruising, ownership-cost and trade-up angles). Fresh angles, no overlap with the 10+ already published. Clark to pick which to draft first.

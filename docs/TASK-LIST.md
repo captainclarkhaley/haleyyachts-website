@@ -6,7 +6,7 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 5, 2026 (Fortunato price cut to $395,000 across all live surfaces + "PRICE REDUCTION" overlay on the featured Southern Wind image; committed + pushed, pending cPanel pull. New open item: re-render the Fortunato 360 social card with the new price.)*
+*Last regenerated: June 5, 2026 (Fortunato 360 social cards re-rendered to show $395,000 - `fortunato-360-1080x1920.png` + `-1080x1350.png` regenerated via Pillow; Fringe Benefits cards unchanged. Earlier today: Fortunato price cut to $395,000 across all live surfaces + "PRICE REDUCTION" overlay on the featured Southern Wind image. Committed + pushed, pending cPanel pull.)*
 
 ---
 
@@ -30,7 +30,6 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 ## Open - Patrick (Marketing / Social / Content)
 Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
-- Re-render the Fortunato 360 social card with the new $395,000 price (script updated June 5; rendered PNG still shows old price)
 - Begin publishing articles regularly (set + hold cadence)
 - Article CONTENT pipeline (words; Terry owns the tool)
 - Article topics: 10 candidate topics + outlines delivered to Clark; awaiting his pick of which to draft first
