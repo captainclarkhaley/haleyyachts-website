@@ -6,14 +6,13 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 4, 2026*
+*Last regenerated: June 4, 2026 (Facebook + Instagram both live on disk; social-icons task complete pending deploy)*
 
 ---
 
 ## Open - Terry (Website + Engineering)
 Source of truth: [`tasks/terry.md`](tasks/terry.md)
 
-- Contact page: build social-icon link markup once Patrick supplies handles (handoff)
 - Final logo pass (if Clark revisits)
 - Review color scheme / typography on off-feeling pages
 - Add `sitemap.xml` once a few articles are published
@@ -33,7 +32,7 @@ Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
 - Begin publishing articles regularly (set + hold cadence)
 - Article CONTENT pipeline (words; Terry owns the tool)
-- Contact page social: decide handles/content for IG, X, FB, LinkedIn (handoff -> Terry builds links)
+- Article topics: 10 candidate topics + outlines delivered to Clark; awaiting his pick of which to draft first
 - Privacy policy: DRAFT written, awaiting Clark approval (in progress -> Terry ships page + cookie banner once approved)
 - Brand-voice copy refinements (ongoing)
 - Listing / positioning copy as new listings arrive
@@ -41,7 +40,7 @@ Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
 ## Cross-owner handoffs
 - **Privacy policy**: Patrick drafts copy + Clark approves -> Terry ships page + cookie banner.
-- **Contact social icons**: Patrick decides handles/content -> Terry builds the link markup. (deferred, Clark not ready)
+- **Social icons (FB + IG)**: COMPLETE pending deploy. Patrick decided platforms + placement, Terry staged + activated the markup. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`) both live on disk site-wide. Needs commit + push + cPanel pull to go live on the web. (X/LinkedIn still deferred.)
 
 ---
 

@@ -3,12 +3,13 @@
 > **Owner / sole writer: Terry.** This is the only task file Terry edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 4, 2026*
+*Last updated: June 4, 2026 (Instagram link activated; FB + IG both live on disk)*
 
 ## OPEN
 
 ### Pages / Content (technical)
-- [ ] Contact page: build the social-media icons/links markup (Instagram, X, Facebook, LinkedIn) once Patrick supplies the handles/decision. Currently deferred - Clark not ready (2026-05-06). (handoff: Patrick decides content/handles -> Terry builds links)
+- [x] Social icons (Facebook + Instagram): **BOTH LIVE on disk 2026-06-04.** Inline-SVG FB + IG icons in the footer site-wide (index, about, buy, sell, services, valuation, contact) and a "Follow Along" block in the contact-page contact-info column. All 8 FB anchors -> `https://facebook.com/clarkhaleyyachtbroker`, `data-social="facebook"`. All 8 IG anchors -> `https://instagram.com/capnclark`, `data-social="instagram"` (the `instagram-pending` state is cleared site-wide and the placeholder/TODO social comments are removed). aria-label, target="_blank", rel="noopener" in place. CSS: `.footer-social` + `.contact-social` in css/styles.css (brand-cyan #21cbea hover). NOTE: changes are on disk only -> needs commit + push + cPanel pull to go live.
+- [ ] Social icons - X and LinkedIn: still deferred. Only FB + IG requested 2026-06-04. Add later if Clark wants them (same pattern).
 
 ### Polish
 - [ ] Final logo pass if Clark still wants to revisit
@@ -39,6 +40,9 @@
 ## RECENTLY COMPLETED / DONE
 
 ### June 4
+- [x] **Instagram link activated** - Clark sent the IG URL (`https://instagram.com/capnclark`). All 8 Instagram anchors (footer on all 7 pages + the "Follow Along" block on contact.html) now point to `https://instagram.com/capnclark`, `data-social="instagram"`. The `instagram-pending` state is cleared site-wide and the leftover placeholder/TODO social comments are removed. Social-icons task is now COMPLETE pending deploy (FB + IG both live on disk). On disk only; needs commit + push + cPanel pull.
+- [x] **Facebook link activated** - Clark sent the FB URL. All 8 Facebook anchors (footer on all 7 pages + the "Follow Along" block on contact.html) now point to `https://facebook.com/clarkhaleyyachtbroker`, `data-social="facebook"`. On disk only; needs commit + push + cPanel pull.
+- [x] **Social icons staged (Facebook + Instagram)** - inline-SVG FB + IG icons added to the footer on all 7 pages plus a "Follow Along" block on contact.html. All hrefs were placeholders (`href="#"`, `data-social="*-pending"`, TODO comments). New `.footer-social` / `.contact-social` styles in css/styles.css with #21cbea hover. No fabricated URLs. (FB since activated - see above.)
 - [x] **Article Manager upgrade** - committed + pushed to origin/main (commits `ad2d865`, `4b60029`, `69e8fad`, `437723b`). GitHub-API publish round-trip verified live (test article published then removed, `66b35af` -> `1a36ce2`), confirming Clark's PAT is in place and working.
   - New **Write Article** mode: in-browser rich text editor (ported from `email-composer.html`) with **insert image at cursor** and **automatic in-browser resize** (1600px longest edge, JPEG ~0.85; PNG kept only when it has transparency). Removes Clark's manual image pre-sizing step.
   - Existing **Upload Word Doc** path kept intact behind a mode toggle.

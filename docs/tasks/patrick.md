@@ -12,7 +12,7 @@
 - [ ] Article CONTENT pipeline: keep feeding new pieces to the Article Manager (Terry owns the tool; Patrick owns the words)
 
 ### Contact Page Social
-- [ ] Contact page social icons: decide the content / handles for Instagram, X, Facebook, LinkedIn. Deferred - Clark not ready (2026-05-06). (handoff: Patrick decides handles/content -> Terry builds the link markup)
+- [~] Social icons - DECIDED 2026-06-04: Facebook + Instagram only (the two platforms a Florida brokerage actually feeds; X and LinkedIn deferred, not worth thin presence now). Placement: footer site-wide + a "Follow Along" block on the contact page. Terry has staged the markup with placeholder hrefs. BLOCKED on Clark supplying the real FB + IG URLs/handles - then Terry pastes them in. (handoff: Clark provides URLs -> Terry activates)
 
 ### Privacy Policy
 - [~] Privacy policy: DRAFT copy is WRITTEN and with Clark for approval (delivered via William, June 4). Awaiting Clark sign-off. Once approved, handoff to Terry to ship the page + cookie-consent banner. Draft discloses GA4 + Microsoft Clarity, Formsubmit-handled contact/valuation forms, OWYG affiliate sharing, retention, and user rights.
@@ -29,6 +29,8 @@
 ## RECENTLY COMPLETED / DONE
 
 ### June 4
+- [x] **Article topic pipeline delivered** - 10 candidate article topics with short outlines handed to Clark (buyer guidance, seller guidance, survey/finance/insurance how-tos, Florida + Bahamas cruising, ownership-cost and trade-up angles). Fresh angles, no overlap with the 10+ already published. Clark to pick which to draft first.
+- [x] **Social platform decision** - FB + IG chosen as the two platforms for Haley Yachts; X/LinkedIn deferred. Placement signed off: footer site-wide + contact-page "Follow Along". Staging handed to Terry; live once Clark sends URLs.
 - [x] **New article published**: "One Water Announces OWYG Bahamas Rendezvous (July 16-19, 2026)" at `articles/industry-news/2026-06-04-...html` (`adbc770`, `20ad079`).
 
 ### May 26
