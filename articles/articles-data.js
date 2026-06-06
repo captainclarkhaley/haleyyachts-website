@@ -15,6 +15,17 @@ const publishedArticles = [
         "keywords": "pre-purchase boat survey, yacht survey, marine survey, marine survey before buying a boat, boat survey cost, pre-purchase vs insurance survey, boat sea trial, yacht haul-out inspection, marine engine survey, used yacht inspection, hiring a marine surveyor, what does a boat survey cover"
     },
     {
+        "type": "how-to",
+        "title": "How to Sell Your Yacht",
+        "excerpt": "Excerpt / meta description: Getting the best price for your yacht is not luck. It comes down to pricing to today's market, prepping the boat before it lists, and presenting it with photography, video, and a 360 tour that make a buyer want to step abo",
+        "date": "2026-06-06",
+        "author": "Clark Haley",
+        "slug": "how-to-sell-your-yacht",
+        "fileName": "2026-06-06-how-to-sell-your-yacht.html",
+        "heroImage": "how-to-sell-your-yacht---heroimage.jpeg",
+        "keywords": "how to sell my yacht, sell my boat fast, selling a yacht in Florida, yacht broker, free yacht market analysis, how to price a yacht to sell, boat listing photography, yacht listing video walkthrough, 360 virtual boat tour, prepping a boat to sell, yacht service records and paperwork, what is my boat worth, get top dollar for your yacht, list my yacht for sale"
+    },
+    {
         "type": "industry-news",
         "title": "One Water Announces \"OWYG Bahamas Rendezvous\" July 16-19, 2026",
         "excerpt": "The annual Summer Rendezvous will bring together owners and guests aboard Sunseeker, Riviera, Absolute, and HCB yachts for four unforgettable days of cruising, dockside hospitality, beach club experiences, island excursions, and curated social events",
