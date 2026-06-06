@@ -468,6 +468,7 @@
             color: #333; line-height: 1.6; outline: none; overflow-y: auto;
         }
         #bodyEditor:focus { border-color: #21cbea; }
+        #bodyEditor.editor-dragover { border-color: #21cbea; box-shadow: 0 0 0 2px rgba(33,203,234,0.35) inset; }
         #bodyEditor p { margin: 0 0 12px 0; }
         #bodyEditor a { color: #21cbea; }
         #bodyEditor h2, #bodyEditor h3, #bodyEditor h4 { color: #0a1628; margin: 18px 0 8px; }
@@ -608,7 +609,7 @@
         <!-- WRITE MODE: rich text editor -->
         <div class="mode-panel visible" id="panel-write">
             <div class="form-group">
-                <label>Article Body <span class="req">*</span> <span class="hint">(write or paste here; use the toolbar for formatting and to insert images)</span></label>
+                <label>Article Body <span class="req">*</span> <span class="hint">(write or paste here; add body photos with the Insert Image button or by dragging images into the editor)</span></label>
                 <div class="editor-toolbar" role="toolbar">
                     <button type="button" data-cmd="bold" title="Bold"><strong>B</strong></button>
                     <button type="button" data-cmd="italic" title="Italic"><em>I</em></button>
@@ -982,6 +983,44 @@ function setupWriteEditor() {
         e.target.value = ''; // allow re-picking the same file
         if (!file) return;
         await handleInlineImageInsert(file);
+    });
+
+    // Drag image files straight into the editor. Routes through the same
+    // resize/insert path as the Insert Image button so they register in
+    // inlineUploads and land at the drop point.
+    editor.addEventListener('dragover', (e) => {
+        if (e.dataTransfer && Array.from(e.dataTransfer.items || []).some(it => it.kind === 'file')) {
+            e.preventDefault();
+            editor.classList.add('editor-dragover');
+        }
+    });
+    editor.addEventListener('dragleave', (e) => {
+        if (e.target === editor) editor.classList.remove('editor-dragover');
+    });
+    editor.addEventListener('drop', async (e) => {
+        const files = e.dataTransfer ? Array.from(e.dataTransfer.files || []) : [];
+        const images = files.filter(f => f.type && f.type.startsWith('image/'));
+        if (!images.length) return; // ignore non-image drops, let default handle text
+        e.preventDefault();
+        editor.classList.remove('editor-dragover');
+        // Place the caret at the drop point so the figure inserts there; fall
+        // back to the existing caret / end if the point cannot be resolved.
+        editor.focus();
+        let range = null;
+        if (document.caretRangeFromPoint) range = document.caretRangeFromPoint(e.clientX, e.clientY);
+        else if (document.caretPositionFromPoint) {
+            const pos = document.caretPositionFromPoint(e.clientX, e.clientY);
+            if (pos) { range = document.createRange(); range.setStart(pos.offsetNode, pos.offset); range.collapse(true); }
+        }
+        if (range && editor.contains(range.startContainer)) {
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            savedSelectionRange = range.cloneRange();
+        }
+        for (const file of images) {
+            await handleInlineImageInsert(file);
+        }
     });
 }
 
@@ -1851,6 +1890,36 @@ function buildBodyWithCssClasses(html) {
 }
 
 // ===== Publish =====
+// Detect body images staged in the control the current mode ignores, so they
+// are never silently dropped at publish. Returns true to proceed, false to abort.
+function confirmNoStrandedImages() {
+    if (currentMode === 'write') {
+        // Write mode commits inlineUploads (toolbar / drag inserts). Anything in
+        // the Inline Images uploader (extraFiles) would be left out.
+        const n = extraFiles.length;
+        if (n > 0) {
+            return confirm(
+                'You have ' + n + ' image(s) in the Inline Images uploader, which only applies to Upload (Word doc) mode. ' +
+                'In Write mode, add body photos with the Insert Image button in the editor toolbar, or drag them into the editor. ' +
+                'Publish anyway and leave those ' + n + ' out?'
+            );
+        }
+    } else {
+        // Upload mode commits extraFiles and distributes them. Any toolbar /
+        // drag inserts living in the editor would be left out.
+        const editor = document.getElementById('bodyEditor');
+        const inEditor = editor ? editor.querySelectorAll('img[data-inline-src]').length : 0;
+        if (inEditor > 0) {
+            return confirm(
+                'You have ' + inEditor + ' image(s) inserted in the editor, which only applies to Write mode. ' +
+                'In Upload (Word doc) mode, add body photos with the Inline Images uploader below. ' +
+                'Publish anyway and leave those ' + inEditor + ' out?'
+            );
+        }
+    }
+    return true;
+}
+
 async function publishArticle() {
     // Validate required fields
     const type = document.getElementById('articleType').value;
@@ -1866,6 +1935,12 @@ async function publishArticle() {
     if (!hasBody()) { showStatus(currentMode === 'write' ? 'Please write some article body.' : 'Please upload a Word document.', 'error'); return; }
     if (!excerpt) { showStatus('Please enter an excerpt.', 'error'); return; }
     if (!heroFile) { showStatus('Please upload a hero image.', 'error'); return; }
+
+    // Guard against staged body images that the current mode will silently drop.
+    if (!confirmNoStrandedImages()) {
+        showStatus('Publish canceled. Fix the stranded body images and try again.', 'error');
+        return;
+    }
 
     // Prefer the GitHub API path when a token is set (works from any browser).
     if (hasGhToken()) {
