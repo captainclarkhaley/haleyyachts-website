@@ -26,6 +26,17 @@ const publishedArticles = [
         "keywords": "how to sell my yacht, sell my boat fast, selling a yacht in Florida, yacht broker, free yacht market analysis, how to price a yacht to sell, boat listing photography, yacht listing video walkthrough, 360 virtual boat tour, prepping a boat to sell, yacht service records and paperwork, what is my boat worth, get top dollar for your yacht, list my yacht for sale"
     },
     {
+        "type": "boat-reviews",
+        "title": "Riviera 4300 Sports Express: The Day Boat That Knows How to Stay the Weekend",
+        "excerpt": "The Riviera 4300 Sports Express handles a Florida Saturday and a Bahamas weekend with equal ease. Haley Yachts has a new 4300 arriving in July, straight from Riviera, and it will not last long.",
+        "date": "2026-06-06",
+        "author": "Clark Haley",
+        "slug": "riviera-4300-sports-express-the-day-boat-that-knows-how-to-s",
+        "fileName": "2026-06-06-riviera-4300-sports-express-the-day-boat-that-knows-how-to-s.html",
+        "heroImage": "swimplatform-riv4300.jpg",
+        "keywords": "Riviera 4300 Sports Express, Riviera Sports Express for sale Florida, Volvo Penta IPS, joystick docking, Bahamas weekender, Florida day boat, luxury express cruiser, Haley Yachts, new Riviera for sale"
+    },
+    {
         "type": "industry-news",
         "title": "One Water Announces \"OWYG Bahamas Rendezvous\" July 16-19, 2026",
         "excerpt": "The annual Summer Rendezvous will bring together owners and guests aboard Sunseeker, Riviera, Absolute, and HCB yachts for four unforgettable days of cruising, dockside hospitality, beach club experiences, island excursions, and curated social events",
