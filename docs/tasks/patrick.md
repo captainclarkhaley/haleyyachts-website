@@ -3,19 +3,33 @@
 > **Owner / sole writer: Patrick.** This is the only task file Patrick edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 5, 2026*
+*Last updated: June 6, 2026*
 
 ## OPEN
+
+### SEO
+- [x] June 6: Delivered SEO keyword/tag set for Article 1 "What a Yacht Survey Really Covers (And Why It Protects You)" (source: docs/drafts/article-topic-01-yacht-survey-draft.md). Primary: pre-purchase boat survey. Comma-separated set for Article Manager keywords field: pre-purchase boat survey, yacht survey, marine survey, marine survey before buying a boat, boat survey cost, pre-purchase vs insurance survey, boat sea trial, yacht haul-out inspection, marine engine survey, used yacht inspection, hiring a marine surveyor, what does a boat survey cover. Returned to William for relay to Clark. No em dashes.
+- [x] June 6: Delivered SEO keyword/tag set for Article 5 "Selling Your Yacht: How to Get Top Dollar" (source: docs/drafts/article-topic-05-selling-top-dollar-draft.md). Primary: how to sell my yacht. Comma-separated set for Article Manager keywords field: how to sell my yacht, sell my boat fast, selling a yacht in Florida, yacht broker, free yacht market analysis, how to price a yacht to sell, boat listing photography, yacht listing video walkthrough, 360 virtual boat tour, prepping a boat to sell, yacht service records and paperwork, what is my boat worth, get top dollar for your yacht, list my yacht for sale. Seller-intent terms grounded in the article (pricing to current market, free evidence-based market analysis, prep/detail, paperwork, photo/video/360 presentation, listing services). Returned to William for relay to Clark. No em dashes.
 
 ### Content
 - [ ] Begin publishing articles regularly (set + hold a cadence)
 - [ ] Article CONTENT pipeline: keep feeding new pieces to the Article Manager (Terry owns the tool; Patrick owns the words)
+- [ ] QUEUED - remaining 8 approved article topics awaiting Clark's go-ahead to draft (Topics 1 + 5 drafted June 6, see Done). Source outlines: docs/drafts/article-topics.md. Still to draft:
+  - [ ] Topic 2: How to Buy a Yacht - The Step-by-Step Timeline
+  - [ ] Topic 3: Boat Loans and Marine Financing, Explained
+  - [ ] Topic 4: The True Cost of Yacht Ownership
+  - [ ] Topic 6: Diesel vs Outboard for the Florida Owner
+  - [ ] Topic 7: Trading Up - When to Move to a Bigger Yacht
+  - [ ] Topic 8: First-Time Buyer's Guide to Riviera
+  - [ ] Topic 9: Insuring a Yacht in Florida - What to Know
+  - [ ] Topic 10: Provisioning and Prepping for a Crossing to the Bahamas
 
 ### Contact Page Social
 - [~] Social icons - DECIDED 2026-06-04: Facebook + Instagram only (the two platforms a Florida brokerage actually feeds; X and LinkedIn deferred, not worth thin presence now). Placement: footer site-wide + a "Follow Along" block on the contact page. Terry has staged the markup with placeholder hrefs. BLOCKED on Clark supplying the real FB + IG URLs/handles - then Terry pastes them in. (handoff: Clark provides URLs -> Terry activates)
 
 ### Privacy Policy
 - [~] Privacy policy: DRAFT copy is WRITTEN and with Clark for approval (delivered via William, June 4). Awaiting Clark sign-off. Once approved, handoff to Terry to ship the page + cookie-consent banner. Draft discloses GA4 + Microsoft Clarity, Formsubmit-handled contact/valuation forms, OWYG affiliate sharing, retention, and user rights.
+  - June 6: Clark-approved CONTACT update applied to the draft (docs/drafts/privacy-policy-draft.md). All three email spots now read clark@haleyyachts.com (no separate admin/privacy email - Clark decided it is unnecessary). Mailing address removed entirely. Phone kept as +1 561-817-1547. Open items trimmed to effective date and age threshold. QA passed: no placeholders, no mailing address, no em dashes. Ready for Terry to ship as the HTML page when Clark greenlights the build.
 
 ### Brand / Copy
 - [ ] Brand-voice copy refinements on any pages that still feel off-voice (ongoing)
@@ -27,6 +41,12 @@
 ---
 
 ## RECENTLY COMPLETED / DONE
+
+### June 6
+- [x] **Drafted article Topics 1 and 5** (Clark-selected from the 10-topic pipeline). Full draft articles written, not published, saved as markdown alongside the privacy-policy draft:
+  - Topic 1: "What a Yacht Survey Really Covers (And Why It Protects You)" -> `docs/drafts/article-topic-01-yacht-survey-draft.md`
+  - Topic 5: "Selling Your Yacht: How to Get Top Dollar" -> `docs/drafts/article-topic-05-selling-top-dollar-draft.md`
+  - Brand voice (captain-grounded), one tasteful close each, 360-tour edge worked into Topic 5. QA: zero em dashes in both. Each carries a title line + excerpt/meta line, ready for the Article Manager when Clark greenlights publishing. Remaining 8 topics queued above under OPEN > Content.
 
 ### June 5
 - [x] **Fortunato 360 card re-rendered with new price** - re-ran `render-360-cards.py` (Pillow 11.3.0; no ImageMagick needed) so the rendered PNGs now show $395,000. Both Fortunato sizes regenerated: `social-media/cta-cards/fortunato-360-1080x1920.png` and `fortunato-360-1080x1350.png`. Verified the 9:16 visually reads "Bruce Farr Fast 72 | $395,000". Fringe Benefits cards re-emitted unchanged ($1,495,000, byte-identical). Cleared for reuse in FB/LinkedIn posts.
