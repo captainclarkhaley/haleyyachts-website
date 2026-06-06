@@ -3,7 +3,7 @@
 > **Owner / sole writer: Terry.** This is the only task file Terry edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 5, 2026 (Fortunato price reduction to $395,000 across all live surfaces + bold-red "PRICE REDUCTION" overlay applied to the featured Southern Wind image)*
+*Last updated: June 6, 2026 (Privacy Policy page built + shipped to repo: `privacy.html` at root, footer link wired single-source + synced across all 25 public pages; cookie-consent banner remains an open follow-up)*
 
 ## OPEN
 
@@ -19,7 +19,8 @@
 ### Pre-Launch Hardening
 - [ ] Confirm Formsubmit email verification is current for the contact form
 - [ ] Confirm Formsubmit email verification is current for the valuation form
-- [ ] Privacy policy PAGE: build + ship the page and cookie-consent banner. (handoff: Patrick drafts copy + Clark approves -> Terry ships the page/banner)
+- [x] Privacy policy PAGE: **BUILT + SHIPPED to repo 2026-06-06.** `privacy.html` at root, matches site design system (header/nav, `.page-header` hero, `.section`/`.container`, `.legal-content` prose styles added to css/styles.css). Full approved copy from `docs/drafts/privacy-policy-draft.md`. Resolved placeholders: Effective date + Last updated = June 6, 2026; children's-privacy age threshold = **13** (US COPPA; Clark may switch to 16 for EU). All contact points clark@haleyyachts.com / +1 561-817-1547 / 2601 PGA Blvd., West Palm Beach, FL 33410. No em dashes. Footer link added single-source in `partials/footer.html` (`.footer-links` -> `/privacy.html`), `privacy.html` added to the `sync-footer.sh` PAGES list, `sh scripts/sync-footer.sh` run clean (25/25, --check OK). NOTE: on disk + pushed to GitHub main; **needs cPanel git pull to go public.**
+- [ ] Cookie-consent banner: **does NOT exist on the site** (audited 2026-06-06: only "cookie-cutter" copy in services.html, no consent JS/HTML anywhere). The privacy page references a banner aspirationally. Build a real accept/decline non-essential-cookies banner (gate GA4 + Clarity on consent where required) as a follow-up. Not a blocker for the privacy page.
 - [ ] Mark GA4 conversion events as "key events" in the Analytics admin so they appear in Conversions reports (GA4 `G-6CVE0DG8Z3`)
 - [ ] Future: per-listing inquiry forms, brochure/spec PDF downloads, gallery component - then wire the remaining 3 events Patrick scoped (listing_inquiry_submit, brochure_download, gallery_complete)
 - [ ] Cross-browser test on Chrome, Safari, Firefox, Edge

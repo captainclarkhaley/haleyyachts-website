@@ -1157,6 +1157,16 @@ a:hover { color: #1aa8c4; }
     font-size: 0.8rem;
 }
 .site-footer a { color: rgba(255,255,255,0.7); }
+.footer-links {
+    margin-top: 8px;
+    font-size: 0.78rem;
+}
+.footer-links a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.footer-links a:hover { color: #21cbea; }
 .footer-brand {
     display: flex;
     align-items: center;
@@ -1462,3 +1472,46 @@ a:hover { color: #1aa8c4; }
 @media (min-width: 901px) {
     .listing-360-frame { height: 640px; }
 }
+
+/* Legal / policy pages (privacy.html) */
+.legal-content {
+    max-width: 780px;
+    margin: 0 auto;
+}
+.legal-content h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0a1628;
+    margin: 40px 0 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.legal-content p {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 16px;
+}
+.legal-content ul {
+    margin: 0 0 16px;
+    padding-left: 22px;
+}
+.legal-content li {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 10px;
+}
+.legal-content a {
+    color: #1f8fb5;
+    text-decoration: underline;
+    word-break: break-word;
+}
+.legal-content a:hover { color: #0a1628; }
+.legal-meta {
+    color: #888 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.04em;
+    margin-bottom: 28px !important;
+}
+.legal-contact { color: #333 !important; }

@@ -69,6 +69,7 @@ articles.html
 buy.html
 contact.html
 index.html
+privacy.html
 sell.html
 services.html
 valuation.html
