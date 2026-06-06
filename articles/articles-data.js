@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "how-to",
+        "title": "What a Survey Really Covers (and Why it Protects You)",
+        "excerpt": "A marine survey is the single best money you spend before buying a yacht. Here is what a pre-purchase survey actually covers, how the sea trial and haul-out fit in, and how the findings turn into real negotiating leverage.",
+        "date": "2026-06-06",
+        "author": "Clark Haley",
+        "slug": "what-a-survey-really-covers-and-why-it-protects-you",
+        "fileName": "2026-06-06-what-a-survey-really-covers-and-why-it-protects-you.html",
+        "heroImage": "survey-1st-hero-image.jpeg",
+        "keywords": "pre-purchase boat survey, yacht survey, marine survey, marine survey before buying a boat, boat survey cost, pre-purchase vs insurance survey, boat sea trial, yacht haul-out inspection, marine engine survey, used yacht inspection, hiring a marine surveyor, what does a boat survey cover"
+    },
+    {
         "type": "industry-news",
         "title": "One Water Announces \"OWYG Bahamas Rendezvous\" July 16-19, 2026",
         "excerpt": "The annual Summer Rendezvous will bring together owners and guests aboard Sunseeker, Riviera, Absolute, and HCB yachts for four unforgettable days of cruising, dockside hospitality, beach club experiences, island excursions, and curated social events",
