@@ -480,6 +480,27 @@
         #bodyEditor figure.article-figure.centered { float: none; margin: 1.6em auto; text-align: center; max-width: 80%; }
         #bodyEditor figcaption { font-size: 0.82rem; color: #888; font-style: italic; text-align: center; margin-top: 6px; }
         #bodyEditor::after { content: ""; display: table; clear: both; }
+        /* Highlight on the currently-selected figure. Editor-only: stripped on
+           deselect AND scrubbed in sanitize + draft-save so it never persists. */
+        #bodyEditor figure.article-figure.fig-selected { outline: 2px solid #21cbea; outline-offset: 2px; }
+        /* Floating control bar for the selected figure. Lives OUTSIDE
+           #bodyEditor (appended to <body>) so it is never part of saved HTML. */
+        #figControls {
+            position: absolute; z-index: 1000; display: none;
+            background: #0a1628; border-radius: 4px; padding: 4px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3); white-space: nowrap;
+            font-family: 'Open Sans', Arial, sans-serif;
+        }
+        #figControls.visible { display: block; }
+        #figControls button {
+            background: #1c2a3e; color: #fff; border: 1px solid #2d3f57;
+            border-radius: 3px; padding: 4px 8px; margin: 0 1px; cursor: pointer;
+            font-size: 0.78rem; line-height: 1.2;
+        }
+        #figControls button:hover:not(:disabled) { background: #21cbea; border-color: #21cbea; }
+        #figControls button:disabled { opacity: 0.35; cursor: default; }
+        #figControls button.fig-del:hover:not(:disabled) { background: #c0392b; border-color: #c0392b; }
+        #figControls .fig-sep { display: inline-block; width: 1px; height: 16px; background: #2d3f57; margin: 0 4px; vertical-align: middle; }
 
         /* GitHub publish settings box */
         .gh-box {
@@ -1022,6 +1043,158 @@ function setupWriteEditor() {
             await handleInlineImageInsert(file);
         }
     });
+
+    setupFigureControls(editor);
+}
+
+// ============================================================
+// IN-EDITOR FIGURE CONTROLS
+// Click a placed figure to select it and reveal a floating control bar
+// (delete / move earlier / move later / re-align left-center-right).
+// The control bar and the selection highlight are EDITOR-ONLY:
+//  - The bar is appended to <body>, OUTSIDE #bodyEditor, so it is never
+//    part of the innerHTML that gets saved or published.
+//  - The only thing placed on the figure is the .fig-selected highlight
+//    class, which is stripped on deselect AND scrubbed by
+//    stripEditorOnlyMarkup() in both sanitizeArticleHtml (publish/preview)
+//    and captureEditorBodyHtml (draft save). It can never persist.
+// ============================================================
+let selectedFigure = null;
+let figControlsEl = null;
+
+function setupFigureControls(editor) {
+    if (!figControlsEl) figControlsEl = buildFigControls();
+
+    // Select a figure when its image (or the figure) is clicked.
+    editor.addEventListener('click', (e) => {
+        const fig = e.target.closest && e.target.closest('figure.article-figure');
+        if (fig && editor.contains(fig)) {
+            selectFigure(fig);
+        } else {
+            deselectFigure();
+        }
+    });
+
+    // Click anywhere outside the editor and the bar deselects.
+    document.addEventListener('mousedown', (e) => {
+        if (!selectedFigure) return;
+        if (figControlsEl.contains(e.target)) return;          // a control click
+        if (selectedFigure.contains(e.target)) return;          // re-click selected fig
+        deselectFigure();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && selectedFigure) deselectFigure();
+    });
+
+    // Keep the bar glued to the figure on scroll / resize while selected.
+    window.addEventListener('scroll', positionFigControls, true);
+    window.addEventListener('resize', positionFigControls);
+}
+
+function buildFigControls() {
+    const bar = document.createElement('div');
+    bar.id = 'figControls';
+
+    const mkBtn = (label, title, cls, handler) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = label;
+        b.title = title;
+        if (cls) b.className = cls;
+        b.addEventListener('mousedown', (e) => { e.preventDefault(); }); // keep figure selected
+        b.addEventListener('click', (e) => { e.preventDefault(); handler(); });
+        return b;
+    };
+    const mkSep = () => { const s = document.createElement('span'); s.className = 'fig-sep'; return s; };
+
+    bar.appendChild(mkBtn('Left', 'Float left', 'fig-left', () => realignSelected('float-left')));
+    bar.appendChild(mkBtn('Center', 'Center', 'fig-center', () => realignSelected('centered')));
+    bar.appendChild(mkBtn('Right', 'Float right', 'fig-right', () => realignSelected('float-right')));
+    bar.appendChild(mkSep());
+    bar.appendChild(mkBtn('↑ Up', 'Move earlier', 'fig-up', () => moveSelected(-1)));
+    bar.appendChild(mkBtn('↓ Down', 'Move later', 'fig-down', () => moveSelected(1)));
+    bar.appendChild(mkSep());
+    bar.appendChild(mkBtn('Delete', 'Delete image', 'fig-del', deleteSelected));
+
+    document.body.appendChild(bar);
+    return bar;
+}
+
+function selectFigure(fig) {
+    if (selectedFigure && selectedFigure !== fig) selectedFigure.classList.remove('fig-selected');
+    selectedFigure = fig;
+    fig.classList.add('fig-selected');
+    refreshFigControlsState();
+    figControlsEl.classList.add('visible');
+    positionFigControls();
+}
+
+function deselectFigure() {
+    if (selectedFigure) selectedFigure.classList.remove('fig-selected');
+    selectedFigure = null;
+    if (figControlsEl) figControlsEl.classList.remove('visible');
+}
+
+function refreshFigControlsState() {
+    if (!selectedFigure || !figControlsEl) return;
+    const prev = selectedFigure.previousElementSibling;
+    const next = selectedFigure.nextElementSibling;
+    figControlsEl.querySelector('.fig-up').disabled = !prev;
+    figControlsEl.querySelector('.fig-down').disabled = !next;
+    figControlsEl.querySelector('.fig-left').disabled = selectedFigure.classList.contains('float-left');
+    figControlsEl.querySelector('.fig-center').disabled = selectedFigure.classList.contains('centered');
+    figControlsEl.querySelector('.fig-right').disabled = selectedFigure.classList.contains('float-right');
+}
+
+function positionFigControls() {
+    if (!selectedFigure || !figControlsEl || !figControlsEl.classList.contains('visible')) return;
+    const r = selectedFigure.getBoundingClientRect();
+    // Sit just above the figure; clamp to the top of the viewport if needed.
+    const barH = figControlsEl.offsetHeight || 30;
+    let top = r.top + window.scrollY - barH - 6;
+    if (r.top - barH - 6 < 0) top = r.top + window.scrollY + 6; // overlap inside if no room above
+    figControlsEl.style.top = top + 'px';
+    figControlsEl.style.left = (r.left + window.scrollX) + 'px';
+}
+
+function realignSelected(alignClass) {
+    if (!selectedFigure) return;
+    selectedFigure.classList.remove('float-left', 'float-right', 'centered');
+    selectedFigure.classList.add('article-figure', alignClass);
+    // Keep the in-memory upload record in sync so a fresh publish matches.
+    const fname = selectedFigure.getAttribute('data-inline-src');
+    if (fname) {
+        const up = inlineUploads.find(u => u.filename === fname);
+        if (up) up.alignClass = alignClass;
+    }
+    refreshFigControlsState();
+    positionFigControls();
+}
+
+function moveSelected(dir) {
+    if (!selectedFigure) return;
+    const editor = document.getElementById('bodyEditor');
+    if (dir < 0) {
+        const prev = selectedFigure.previousElementSibling;
+        if (!prev) return;
+        editor.insertBefore(selectedFigure, prev);
+    } else {
+        const next = selectedFigure.nextElementSibling;
+        if (!next) return;
+        editor.insertBefore(next, selectedFigure);
+    }
+    refreshFigControlsState();
+    positionFigControls();
+}
+
+function deleteSelected() {
+    if (!selectedFigure) return;
+    // DOM removal is enough: the publish loop skips any inline image whose
+    // img[data-inline-src] is no longer in #bodyEditor.
+    const fig = selectedFigure;
+    deselectFigure();
+    fig.remove();
 }
 
 function restoreSelection() {
@@ -1142,9 +1315,30 @@ const ART_ALLOWED_ATTRS = {
     'FIGCAPTION': []
 };
 
+// Belt-and-suspenders: remove any editor-only state (the figure-selection
+// highlight class) from a detached subtree before it is saved or published.
+// The selection class is also stripped live on deselect; this guarantees it
+// can never leak even if the editor is saved while a figure is selected.
+function stripEditorOnlyMarkup(rootEl) {
+    rootEl.querySelectorAll('figure.fig-selected').forEach(fig => {
+        fig.classList.remove('fig-selected');
+        if (!fig.getAttribute('class')) fig.removeAttribute('class');
+    });
+}
+
+// Snapshot the write-editor innerHTML for draft save with editor-only state
+// scrubbed (the selection highlight class). Works on a clone so the live
+// selection is untouched.
+function captureEditorBodyHtml() {
+    const clone = document.getElementById('bodyEditor').cloneNode(true);
+    stripEditorOnlyMarkup(clone);
+    return clone.innerHTML;
+}
+
 function sanitizeArticleHtml(rawHtml) {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = rawHtml;
+    stripEditorOnlyMarkup(wrapper);
     walk(wrapper);
     return wrapper.innerHTML;
 
@@ -2161,7 +2355,7 @@ function collectDraftPayload() {
         keywords: document.getElementById('articleKeywords').value,
         heroAlt: document.getElementById('heroAlt').value,
         heroLayout: document.getElementById('heroLayout').value,
-        bodyHtml: currentMode === 'write' ? document.getElementById('bodyEditor').innerHTML : docHtml,
+        bodyHtml: currentMode === 'write' ? captureEditorBodyHtml() : docHtml,
         category: {
             yachtMake: (document.getElementById('yachtMake')||{}).value || '',
             yachtModel: (document.getElementById('yachtModel')||{}).value || '',
