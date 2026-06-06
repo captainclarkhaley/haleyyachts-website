@@ -839,6 +839,7 @@ a:hover { color: #1aa8c4; }
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
+    object-position: center center;
 }
 .article-author-card h3 {
     font-size: 1.1rem;
