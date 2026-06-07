@@ -37,6 +37,12 @@
         .media-facade-btn-360 { font-family:'Open Sans', Arial, sans-serif; color:#ffffff; font-weight:700; font-size:20px; letter-spacing:0.03em; }
         .media-facade-btn-360::before { content:none; }
 
+        /* From Clark quote-card: note + image side by side (split the column), stack on phones */
+        .fromclark-card { display:flex; align-items:stretch; gap:24px; margin-top:24px; }
+        .fromclark-card > * { flex:1 1 0; min-width:0; }
+        .fromclark-cta { text-align:center; margin-top:20px; }
+        @media (max-width:600px) { .fromclark-card { flex-direction:column; } }
+
         /* Horizontal scrolling gallery strip (swipe/scroll sideways, does not wrap) */
         .gallery-strip { display:flex; gap:14px; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scroll-snap-type:x mandatory; padding:4px 4px 14px; scrollbar-width:thin; scrollbar-color:#21cbea rgba(255,255,255,0.18); }
         .gallery-strip::-webkit-scrollbar { height:8px; }
@@ -105,18 +111,17 @@
                 <p>As the name suggests, the Sports Express will propel you to your favorite spot at over 30 knots, effortlessly and economically. And it's here the 4300 excels. When you arrive, the entire stern of the yacht is free and open to allow exceptional access to the water; for swimming, snorkeling, paddle boarding, fishing or simply relaxing at the water's edge.</p>
                 <p style="font-size:0.85rem; color:#6b7785;">Model, layout, and design credited to Riviera.</p>
 
-                <div style="margin-top:24px;">
-                    <div style="display:flex; align-items:stretch; gap:24px; flex-wrap:wrap;">
-                        <div style="flex:1 1 300px; border-left:3px solid #21cbea; background:#f7fafc; padding:20px 24px; border-radius:0 6px 6px 0;">
+                <div>
+                    <div class="fromclark-card">
+                        <div style="border-left:3px solid #21cbea; background:#f7fafc; padding:20px 24px; border-radius:0 6px 6px 0;">
                             <p style="font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase; color:#21a8c4; font-weight:600; margin-bottom:8px;">From Clark Haley</p>
                             <p style="margin:0; color:#445; line-height:1.6;">It is the rare boat that does it all. An easy Florida day boat and entertainer, and a comfortable Bahamas weekender that sleeps five. With Volvo Penta IPS joystick docking, a couple can run her on their own easily.</p>
                         </div>
-                        <div style="flex:1 1 300px; min-height:240px; border-radius:6px; overflow:hidden;">
-                            <!-- Riviera gallery image 03, hotlinked for the draft; download to images/yachts/riviera/ for production -->
+                        <div style="min-height:240px; border-radius:6px; overflow:hidden;">
                             <img src="../images/yachts/riviera/riviera-4300-se-image-03.jpg" alt="Riviera 4300 Sports Express" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block;">
                         </div>
                     </div>
-                    <div style="margin-top:20px;">
+                    <div class="fromclark-cta">
                         <a href="#inquire" class="btn btn-outline" style="color:#0a1628; border-color:#0a1628;">Inquire About the 4300</a>
                     </div>
                 </div>
