@@ -10,7 +10,11 @@
   HALEY YACHTS - GENERAL PURPOSE EMAIL TEMPLATE (V3 - 2026-05-26)
   Redesigned to read as a direct extension of haleyyachts.com. Visual through-lines:
     - Navy gradient masthead band that mirrors .page-header on the website
-    - Reverse logo lockup on navy (same treatment as the site footer)
+    - Masthead now opens with a centered "A note from Clark Haley, Yacht Broker"
+      line in reverse text, then BOTH brand marks side by side beneath it:
+      the Haley Yachts reverse logo (links to haleyyachts.com) and the One Water
+      reverse banner (links to owyg.com), matched at 36px height in a centered
+      two-cell table with a spacer between them
     - Site-canonical H1 device: 300-weight uppercase headline + centered 60x3 cyan accent line
     - Open Sans loaded via Google Fonts with Arial/system fallback for clients that strip @import
     - Hero photo with a navy gradient strip below (subtle, evokes the home-page hero overlay
@@ -104,25 +108,48 @@
       <!-- 600px container -->
       <table role="presentation" class="container" border="0" cellpadding="0" cellspacing="0" width="600" style="width:600px; max-width:600px; background-color:#ffffff;" bgcolor="#ffffff">
 
-        <!-- ===== MASTHEAD (FIXED) - navy gradient band w/ reverse logo lockup =====
+        <!-- ===== MASTHEAD (FIXED) - navy gradient band, note line + dual reverse logos =====
              Mirrors .page-header on the website: linear-gradient from #0a1628 through
-             #0d2847 to #134a6e. Reverse logo is the same mark used in .site-footer.
-             VML fallback paints a solid #0d2847 for Outlook so the band still looks brand-correct.
+             #0d2847 to #134a6e. VML fallback paints a solid #0d2847 for Outlook so the band
+             still looks brand-correct. Layout: a centered "A note from Clark Haley" line in
+             reverse text, then both brand marks side by side, each linked, matched at 36px tall
+             (Haley reverse 201x36 -> haleyyachts.com, One Water reverse 177x46 -> owyg.com;
+             One Water bumped slightly taller than Haley so the two marks read as equal weight).
         -->
         <tr>
           <td align="center" valign="middle" bgcolor="#0d2847" class="masthead-pad"
-              style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:36px 32px;">
+              style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:34px 32px;">
             <!--[if gte mso 9]>
-            <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="position:absolute;width:600px;height:120px;" fillcolor="#0d2847">
+            <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="position:absolute;width:600px;height:140px;" fillcolor="#0d2847">
               <v:fill type="gradient" color="#0a1628" color2="#134a6e" angle="135" />
             </v:rect>
-            <v:shape xmlns:v="urn:schemas-microsoft-com:vml" style="position:absolute;width:600px;height:120px;">
+            <v:shape xmlns:v="urn:schemas-microsoft-com:vml" style="position:absolute;width:600px;height:140px;">
             <![endif]-->
-            <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">
-              <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-reverse.png"
-                   width="240" height="43" alt="Haley Yachts"
-                   style="display:block; width:240px; max-width:240px; height:auto; border:0; outline:none;" />
-            </a>
+            <!-- Note line -->
+            <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:16px; line-height:22px; color:#e8eef5; font-weight:400; letter-spacing:1px; margin:0 0 18px 0; text-align:center;">
+              A note from Clark Haley, Yacht Broker
+            </p>
+            <!-- Dual logo lockup: centered, each linked, vertically centered together.
+                 Haley 201x36, One Water 177x46 (bumped for equal visual weight). -->
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;">
+              <tr>
+                <td valign="middle" align="center">
+                  <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">
+                    <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-reverse.png"
+                         width="201" height="36" alt="Haley Yachts"
+                         style="display:block; width:201px; max-width:201px; height:36px; border:0; outline:none;" />
+                  </a>
+                </td>
+                <td width="24" style="width:24px; font-size:0; line-height:0;">&nbsp;</td>
+                <td valign="middle" align="center">
+                  <a href="https://owyg.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">
+                    <img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png"
+                         width="177" height="46" alt="One Water Yacht Group"
+                         style="display:block; width:177px; max-width:177px; height:46px; border:0; outline:none;" />
+                  </a>
+                </td>
+              </tr>
+            </table>
             <!--[if gte mso 9]></v:shape><![endif]-->
           </td>
         </tr>
