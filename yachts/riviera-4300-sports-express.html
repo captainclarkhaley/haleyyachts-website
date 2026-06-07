@@ -583,6 +583,12 @@
     if (next) next.addEventListener('click', function(){ strip.scrollBy({ left: amt(), behavior: 'smooth' }); });
     strip.addEventListener('scroll', update);
     window.addEventListener('resize', update);
+    window.addEventListener('load', update);
+    // Lazy gallery images grow the strip's scroll width as they load; re-check
+    // the arrows then, or the "next" arrow stays hidden until the first scroll.
+    Array.prototype.forEach.call(strip.querySelectorAll('img'), function(img){
+      if (!img.complete) img.addEventListener('load', update);
+    });
     update();
   });
 })();
