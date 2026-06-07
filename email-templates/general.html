@@ -17,7 +17,9 @@
       without trying to embed video)
     - Signature block uses the site's .about-layout cadence: portrait headshot, quiet contact
       bar in slate copy, no boxed real-estate-flyer look
-    - Dark navy footer (#070e1a) matches .site-footer exactly, with the reverse-mark logo
+    - Dark navy footer (#070e1a) matches .site-footer exactly, with the reverse-mark logo.
+      Co-brands Haley Yachts + One Water Yacht Group: the One Water reverse banner sits
+      above the Haley footer mark, mirroring The Logbook newsletter footer treatment.
 
   Variable zones (composer replaces these tokens):
     1. {{HERO_IMAGE_URL}} / {{HERO_ALT}} - photo under the masthead
@@ -222,10 +224,19 @@
         </tr>
 
         <!-- ===== FOOTER (FIXED) - dark brand band, mirrors .site-footer on the website =====
-             Constant Contact appends its own unsubscribe footer below this on every send.
-             Do not re-add an unsubscribe link here. -->
+             Co-brands Haley Yachts + One Water Yacht Group, matching The Logbook newsletter
+             footer: the One Water reverse banner sits above the Haley footer mark on the dark
+             #070e1a band. Constant Contact appends its own unsubscribe footer below this on
+             every send. Do not re-add an unsubscribe link here. -->
         <tr>
           <td bgcolor="#070e1a" style="background-color:#070e1a; padding:32px 32px 28px 32px;" class="stack-pad" align="center">
+            <!-- One Water Yacht Group co-brand banner (reverse version for the dark footer) -->
+            <a href="https://owyg.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block; margin-bottom:18px;">
+              <img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png"
+                   width="240" height="62" alt="One Water Yacht Group"
+                   style="display:block; width:240px; max-width:240px; height:62px; border:0; outline:none;" />
+            </a>
+            <br />
             <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block; margin-bottom:14px;">
               <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-footer.png"
                    width="180" height="32" alt="Haley Yachts"
