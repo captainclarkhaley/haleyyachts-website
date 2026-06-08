@@ -38,16 +38,6 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "images/yachts/featured/sangaris.jpg",
-        name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
-        description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf",
-        kuula: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/riviera-465suv.jpg",
         name: "2024 Riviera 465 SUV - $1,574,000",
         description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
@@ -74,6 +64,16 @@ const featuredYachts = [
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2018-absolute-60-fly.pdf",
+        kuula: "",
+        page: ""
+    },
+    {
+        image: "images/yachts/featured/sangaris.jpg",
+        name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
+        description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf",
         kuula: "",
         page: ""
     }
