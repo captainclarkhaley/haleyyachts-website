@@ -357,7 +357,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-06-08 15:56 EDT</div>
+    <div class="admin-version" data-version>v: 2026-06-08 16:01 EDT</div>
 </div>
 
 <!-- Shared GitHub Contents API layer (token, gh* helpers, 401 handling) -->
@@ -1149,8 +1149,10 @@
     // ===== DELETE a featured yacht =====
     // Removes the loaded position's entry from js/featured-yachts.js and deletes
     // its OWN unshared assets (its image and its local PDF). An asset that any
-    // other entry still references is kept and reported as skipped. Detail pages
-    // (the `page:` field) are never deleted in this pass.
+    // other entry still references is kept and reported as skipped. If the entry
+    // has a repo-relative `page:` detail page (yachts/*.html), that page is ALSO
+    // deleted, after scanning the rest of the site for inbound links to it and
+    // surfacing any in the confirm dialog (those other pages are NOT auto-edited).
     function isLocalAsset(p) {
         return !!(p && p.trim() && !/^https?:\/\//i.test(p));
     }
@@ -1165,6 +1167,65 @@
             if (y.pdf && y.pdf === path) n++;
         });
         return n;
+    }
+
+    // Treat a `page:` value as a deletable detail page only if it is a repo-relative
+    // html path (not external, not empty). Detail pages live under yachts/.
+    function isDeletableDetailPage(p) {
+        return !!(p && p.trim() && !/^https?:\/\//i.test(p) && /\.html?$/i.test(p.trim()));
+    }
+
+    // Scan other site HTML files for inbound links to a detail page so we can warn
+    // Clark which pages will be left with a dead link after the page is deleted.
+    // Matches on the page's basename inside an href-ish reference, so it catches
+    // both root-relative (yachts/foo.html) and relative (../yachts/foo.html) hrefs.
+    // Returns an array of repo paths that still reference the page (excluding the
+    // detail page itself). Works in GitHub mode (Contents API) and local-folder mode.
+    async function scanInboundLinks(detailPath, useGitHub) {
+        const base = detailPath.split('/').pop();          // e.g. fortunato.html
+        const needle = new RegExp('(href|src)\\s*=\\s*["\'][^"\']*' +
+            base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '["\']', 'i');
+        const hits = [];
+
+        // Build the candidate file list: top-level *.html plus yachts/*.html.
+        // We skip the detail page itself, the admin tool, and non-html assets.
+        const skipSelf = (p) => p.replace(/^\.?\//, '') !== detailPath.replace(/^\.?\//, '');
+
+        if (useGitHub) {
+            let entries = [];
+            try {
+                const root = await ghListDir('');
+                const yachts = await ghListDir('yachts');
+                entries = [].concat(root || [], yachts || []);
+            } catch (e) { return hits; } // listing failed -> skip the scan, don't block delete
+            for (const item of entries) {
+                if (item.type !== 'file' || !/\.html?$/i.test(item.name)) continue;
+                if (!skipSelf(item.path)) continue;
+                try {
+                    const f = await ghGetFile(item.path, true);
+                    if (f && f.text && needle.test(f.text)) hits.push(item.path);
+                } catch (e) { /* unreadable file -> ignore */ }
+            }
+        } else {
+            const root = await getSiteRoot();
+            const readDir = async (dirHandle, prefix) => {
+                for await (const [entryName, handle] of dirHandle.entries()) {
+                    if (handle.kind !== 'file' || !/\.html?$/i.test(entryName)) continue;
+                    const repoPath = prefix ? (prefix + '/' + entryName) : entryName;
+                    if (!skipSelf(repoPath)) continue;
+                    try {
+                        const text = await (await handle.getFile()).text();
+                        if (needle.test(text)) hits.push(repoPath);
+                    } catch (e) { /* ignore */ }
+                }
+            };
+            try { await readDir(root, ''); } catch (e) { /* ignore */ }
+            try {
+                const yachtsDir = await root.getDirectoryHandle('yachts');
+                await readDir(yachtsDir, 'yachts');
+            } catch (e) { /* yachts dir absent -> nothing */ }
+        }
+        return hits;
     }
 
     async function deleteLoaded() {
@@ -1191,14 +1252,36 @@
             else toDelete.push(c);
         });
 
+        // Determine the persistence mode up front: the inbound-link scan reads
+        // other site files the same way (Contents API vs local folder).
+        const useGitHub = hasGhToken();
+        if (!useGitHub && (!('showOpenFilePicker' in window) || !('showDirectoryPicker' in window))) {
+            showStatus('No GitHub token set and this browser does not support the local-folder fallback. Set a token above, or use Chrome or Edge.', 'error');
+            return;
+        }
+
+        // If this entry links to a repo detail page, mark it for deletion and scan
+        // the rest of the site for inbound links so Clark can see what is left dangling.
+        const detailPage = isDeletableDetailPage(entry.page) ? entry.page.trim() : '';
+        let inboundLinks = [];
+        if (detailPage) {
+            showStatus('Scanning the site for links to ' + detailPage + '...', 'info');
+            try {
+                inboundLinks = await scanInboundLinks(detailPage, useGitHub);
+            } catch (e) {
+                inboundLinks = []; // scan failure must not block the delete
+            }
+        }
+
         // Build the confirmation summary naming the yacht + exact file actions.
         let summary = 'Delete featured yacht at Position ' + pos + ':\n\n  "' + name + '"\n\n';
         summary += 'This removes the card from the listing.\n\n';
+        summary += 'Files that WILL be deleted from the repo:\n';
+        if (detailPage) summary += '  - Detail page: ' + detailPage + '\n';
         if (toDelete.length) {
-            summary += 'Files that WILL be deleted from the repo:\n';
             toDelete.forEach(c => { summary += '  - ' + c.kind + ': ' + c.path + '\n'; });
-        } else {
-            summary += 'No files will be deleted (none, or all shared/external).\n';
+        } else if (!detailPage) {
+            summary += '  (none - no files, or all shared/external)\n';
         }
         if (kept.length) {
             summary += '\nKept (still used by another featured slot, NOT deleted):\n';
@@ -1207,20 +1290,20 @@
         if (isLocalAsset(entry.pdf) === false && entry.pdf && entry.pdf.trim()) {
             summary += '\nKept (external URL, not a repo file):\n  - PDF: ' + entry.pdf + '\n';
         }
-        if (entry.page && entry.page.trim()) {
-            summary += '\nNote: this card links to the detail page ' + entry.page +
-                       '. Detail pages are NOT deleted here; it may be left orphaned.\n';
+        if (entry.page && entry.page.trim() && !detailPage) {
+            summary += '\nNote: this card links to ' + entry.page +
+                       ' (external or non-html); that link is NOT deleted.\n';
+        }
+        if (detailPage && inboundLinks.length) {
+            summary += '\nHeads-up: ' + detailPage + ' is still linked from ' +
+                       inboundLinks.length + ' other page(s). Those links will dangle ' +
+                       'after deletion (not auto-fixed here - clean up manually):\n';
+            inboundLinks.forEach(p => { summary += '  - ' + p + '\n'; });
         }
         summary += '\nThis is permanent. Continue?';
 
         if (!window.confirm(summary)) {
             showStatus('Delete canceled.', 'info');
-            return;
-        }
-
-        const useGitHub = hasGhToken();
-        if (!useGitHub && (!('showOpenFilePicker' in window) || !('showDirectoryPicker' in window))) {
-            showStatus('No GitHub token set and this browser does not support the local-folder fallback. Set a token above, or use Chrome or Edge.', 'error');
             return;
         }
 
@@ -1272,6 +1355,22 @@
                 }
             }
 
+            // Step 2b: delete the linked detail page, if any. Same Contents API /
+            // local-folder split as the asset deletes; both no-op on a missing file.
+            let pageDeleted = false;
+            if (detailPage) {
+                try {
+                    if (useGitHub) {
+                        await ghDeleteFile(detailPage, 'Featured yacht: delete detail page ' + detailPage);
+                    } else {
+                        await deleteFileLocal(detailPage);
+                    }
+                    pageDeleted = true;
+                } catch (e) {
+                    failures.push(detailPage + ' (' + e.message + ')');
+                }
+            }
+
             // Step 3: update in-memory working copy so the page reflects the delete.
             workingData.splice(pos - 1, 1);
             while (workingData.length < 6) {
@@ -1286,11 +1385,15 @@
             // Reload the now-empty slot so the form clears.
             loadCurrent();
 
-            const deletedCount = toDelete.length - failures.length;
             let msg = 'Deleted "' + name + '" from Position ' + pos + '. ' +
-                      deletedCount + ' file(s) removed';
+                      toDelete.length + ' asset file(s) removed';
+            if (pageDeleted) msg += ', detail page ' + detailPage + ' removed';
             if (kept.length) msg += ', ' + kept.length + ' shared file(s) kept';
-            if (failures.length) msg += '. Asset delete issues: ' + failures.join('; ');
+            if (pageDeleted && inboundLinks.length) {
+                msg += '. Note: ' + inboundLinks.length + ' page(s) still link to it (' +
+                       inboundLinks.join(', ') + ') - clean up those links manually';
+            }
+            if (failures.length) msg += '. Delete issues: ' + failures.join('; ');
             msg += useGitHub
                 ? '. Committed to GitHub. Clark runs the cPanel pull to deploy.'
                 : '. Saved to the local folder. Commit + push + pull to deploy.';
