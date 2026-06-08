@@ -28,16 +28,6 @@ const featuredYachts = [
         page: "yachts/fringe-benefits.html"
     },
     {
-        image: "images/yachts/featured/sangaris.jpg",
-        name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
-        description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf",
-        kuula: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/southern-wind.jpg",
         name: "1991 Southern Wind 72, \"Fortunato\" - $395,000",
         description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
@@ -46,6 +36,16 @@ const featuredYachts = [
         pdf: "documents/yachts/featured/1991-Southern_Wind-Bruce_Farr_Fast_72.pdf",
         kuula: "<iframe src=\"https://kuula.co/share/collection/7MFLp?logo=-1&info=1&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         page: "yachts/fortunato.html"
+    },
+    {
+        image: "images/yachts/featured/sangaris.jpg",
+        name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
+        description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf",
+        kuula: "",
+        page: ""
     },
     {
         image: "images/yachts/featured/riviera-465suv.jpg",
