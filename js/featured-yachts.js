@@ -68,12 +68,12 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/sangaris.jpg",
-        name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
-        description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf",
+        pdf: "",
         kuula: "",
         page: ""
     }
