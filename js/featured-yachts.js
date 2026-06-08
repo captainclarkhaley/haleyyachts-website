@@ -18,16 +18,6 @@
 
 const featuredYachts = [
     {
-        image: "images/yachts/featured/sangaris.jpg",
-        name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
-        description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf",
-        kuula: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/riviera545suv.jpg",
         name: "2020 Riviera 545 SUV, \"Fringe Benefits\" $1,495,000",
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
@@ -36,6 +26,16 @@ const featuredYachts = [
         pdf: "documents/yachts/featured/2020-riviera-545-suv.pdf",
         kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         page: "yachts/fringe-benefits.html"
+    },
+    {
+        image: "images/yachts/featured/sangaris.jpg",
+        name: "1995 Manta 42 Mark II - SANGARIS $259,000.00",
+        description: "Sangaris is a well equipped Blue Water Cruiser. She completed a refit in 2025 with new Volvo D1-30 Engines, New Generator, New Salon AC, New Refrigeration, New Windless, New Solar, New Mainsail Track, and so much more. This is a must see boat!",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/featured/2005-manta-42-mkii.pdf",
+        kuula: "",
+        page: ""
     },
     {
         image: "images/yachts/featured/southern-wind.jpg",
