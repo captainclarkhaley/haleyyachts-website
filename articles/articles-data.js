@@ -184,11 +184,14 @@ function getActiveCategories() {
         // No chip UI on this page - treat all categories as active.
         return Object.keys(CATEGORY_META);
     }
-    var active = [];
+    // Single-select model: find the one active chip. The "all" chip means every
+    // category; any real category chip means just that one. Default is "all".
+    var selected = null;
     chips.forEach(function(c) {
-        if (c.classList.contains('active')) active.push(c.dataset.category);
+        if (c.classList.contains('active')) selected = c.dataset.category;
     });
-    return active;
+    if (!selected || selected === 'all') return Object.keys(CATEGORY_META);
+    return [selected];
 }
 
 function renderArticles(searchTerm) {
@@ -271,12 +274,17 @@ document.addEventListener('DOMContentLoaded', function() {
     var searchInput = document.getElementById('articleSearch');
     function currentQuery() { return searchInput ? searchInput.value : ''; }
 
-    // Wire category chip toggles
-    document.querySelectorAll('.filter-chip[data-category]').forEach(function(chip) {
+    // Wire category chips as single-select. Clicking a chip activates only that
+    // chip and deactivates the rest. The "all" chip resets to every category.
+    var allChips = document.querySelectorAll('.filter-chip[data-category]');
+    allChips.forEach(function(chip) {
         chip.addEventListener('click', function() {
-            var nowActive = !chip.classList.contains('active');
-            chip.classList.toggle('active', nowActive);
-            chip.setAttribute('aria-pressed', String(nowActive));
+            allChips.forEach(function(c) {
+                c.classList.remove('active');
+                c.setAttribute('aria-pressed', 'false');
+            });
+            chip.classList.add('active');
+            chip.setAttribute('aria-pressed', 'true');
             renderArticles(currentQuery());
         });
     });
