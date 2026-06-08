@@ -1,0 +1,26 @@
+#!/bin/sh
+# post-commit.sample - OPTIONAL git hook that auto-runs sync-push after a commit.
+#
+# This is OPT-IN and NOT active by default. The reliable backbone is the
+# documented "commit then run scripts/sync-push.sh" agent workflow (see
+# CLAUDE.md and .claude/agents/terry.md). This hook is here for anyone who
+# wants the push to fire automatically on commit.
+#
+# WHY IT IS GUARDED
+#   sync-push.sh runs `git rebase`, and rebase creates commits, which would
+#   re-fire post-commit and recurse. The SYNC_PUSH_RUNNING guard below blocks
+#   re-entry so the hook runs exactly once per real commit.
+#
+# TO INSTALL (from the repo root):
+#   cp scripts/post-commit.sample .git/hooks/post-commit
+#   chmod +x .git/hooks/post-commit
+#
+# TO REMOVE:
+#   rm .git/hooks/post-commit
+
+# Re-entrancy guard: rebase-created commits must not trigger another push.
+[ -n "${SYNC_PUSH_RUNNING:-}" ] && exit 0
+
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+
+SYNC_PUSH_RUNNING=1 "$REPO_ROOT/scripts/sync-push.sh"
