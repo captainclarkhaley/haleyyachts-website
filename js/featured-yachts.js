@@ -68,12 +68,12 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "",
-        name: "Featured Listing",
-        description: "Details about this featured yacht will appear here.",
+        image: "images/yachts/featured/islandgirl-2.jpg",
+        name: "Island Girl - 1997 Offshore 48",
+        description: "Island Girl posing for her beauty shot at Jupiter Inlet",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "",
+        pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan.pdf",
         kuula: "",
         page: ""
     }
