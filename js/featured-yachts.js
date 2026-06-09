@@ -38,6 +38,16 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
+        image: "images/yachts/featured/islandgirl-2.jpg",
+        name: "Island Girl - 1997 Offshore 48",
+        description: "Island Girl posing for her beauty shot at Jupiter Inlet",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan (1).pdf",
+        kuula: "",
+        page: ""
+    },
+    {
         image: "images/yachts/featured/riviera-465suv.jpg",
         name: "2024 Riviera 465 SUV - $1,574,000",
         description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
@@ -64,16 +74,6 @@ const featuredYachts = [
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2018-absolute-60-fly.pdf",
-        kuula: "",
-        page: ""
-    },
-    {
-        image: "images/yachts/featured/islandgirl-2.jpg",
-        name: "Island Girl - 1997 Offshore 48",
-        description: "Island Girl posing for her beauty shot at Jupiter Inlet",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan (1).pdf",
         kuula: "",
         page: ""
     }
