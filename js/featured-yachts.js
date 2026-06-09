@@ -73,7 +73,7 @@ const featuredYachts = [
         description: "Island Girl posing for her beauty shot at Jupiter Inlet",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan.pdf",
+        pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan (1).pdf",
         kuula: "",
         page: ""
     }
