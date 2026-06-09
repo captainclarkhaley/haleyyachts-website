@@ -39,8 +39,8 @@ const featuredYachts = [
     },
     {
         image: "images/yachts/featured/islandgirl-2.jpg",
-        name: "Island Girl - 1997 Offshore 48",
-        description: "Island Girl posing for her beauty shot at Jupiter Inlet",
+        name: "1997 Offshore 48 - ISLAND GIRL",
+        description: "ISLAND GIRL is a classic 48' Offshore Sedan offering the comfortable ride, practical layout, and quality construction that have made Offshore Yachts so well respected. Her semi-displacement hull and wide 15'6\" beam provide a comfortable living space.",
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan (1).pdf",
