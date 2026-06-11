@@ -3,9 +3,17 @@
 > **Owner / sole writer: Patrick.** This is the only task file Patrick edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 6, 2026*
+*Last updated: June 10, 2026*
 
 ## OPEN
+
+### Off-site SEO / Visibility (June 10 batch - complements Terry's on-site technical-SEO push)
+> Off-site complement to Terry's on-site technical-SEO work. Goal: build Haley Yachts' external authority, local-search presence, and listing distribution.
+- [ ] **Google Business Profile (GBP)** - create/claim and fully optimize the Haley Yachts GBP. Category: Yacht Broker. Service area: Jupiter, FL. Phone: 561-817-1547. Add hours, photos, and link to haleyyachts.com. NEEDS CLARK: GBP access + verification (postcard/phone). This is the anchor for all local-search work below (NAP source of truth).
+- [ ] **Listing syndication** - get the active yacht listings syndicated to YachtWorld, boats.com, and YATCO. First confirm whether One Water Yacht Group (OWYG) feeds these portals centrally or whether it is per-broker. NEEDS CLARK/OWYG: answer on central vs per-broker feed before we duplicate effort.
+- [ ] **Local citations / NAP consistency** - build consistent Name/Address/Phone citations across major directories: Yelp, Bing Places, Apple Maps, IYBA directory, and marine-industry directories. Use the exact same NAP as the GBP (depends on GBP being set first as the source of truth).
+- [ ] **Buyer-keyword article cadence** - establish an ongoing cadence of buyer-intent articles to capture search demand: e.g. "best yachts under $X", "buying a yacht in Florida", and model/brand buyer guides. Tie into the existing article-draft workflow (Patrick writes -> Article Manager JSON draft -> Clark publishes). Complements the existing Content pipeline below.
+- [ ] **Backlinks** - pursue quality inbound links: IYBA, the One Water Yacht Group (OWYG) corporate site, local Jupiter / Palm Beach business and marine-industry sites, listing portals, and any PR opportunities.
 
 ### SEO
 - [x] June 6: Delivered SEO keyword/tag set for Article 1 "What a Yacht Survey Really Covers (And Why It Protects You)" (source: docs/drafts/article-topic-01-yacht-survey-draft.md). Primary: pre-purchase boat survey. Comma-separated set for Article Manager keywords field: pre-purchase boat survey, yacht survey, marine survey, marine survey before buying a boat, boat survey cost, pre-purchase vs insurance survey, boat sea trial, yacht haul-out inspection, marine engine survey, used yacht inspection, hiring a marine surveyor, what does a boat survey cover. Returned to William for relay to Clark. No em dashes.
