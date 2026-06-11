@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Library - Haley Yachts Admin</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../favicon.ico" sizes="any">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 40px 20px 80px;
+            color: #333;
+        }
+        .admin-container { max-width: 1080px; margin: 0 auto; }
+        .admin-header {
+            background: #0a1628;
+            color: #fff;
+            padding: 36px 48px;
+            border-radius: 6px 6px 0 0;
+            text-align: center;
+        }
+        .admin-header h1 {
+            font-size: 1.6rem;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0 0 8px;
+        }
+        .admin-header h1 strong { font-weight: 700; color: #21cbea; }
+        .admin-header .accent-line { width: 60px; height: 3px; background: #21cbea; margin: 12px auto 14px; }
+        .admin-header p { margin: 0; font-size: 0.92rem; color: rgba(255,255,255,0.75); font-style: italic; }
+        .admin-body {
+            background: #fff;
+            padding: 32px 40px 44px;
+            border-radius: 0 0 6px 6px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        a.back { color: #21cbea; text-decoration: none; font-size: 0.85rem; }
+        a.back:hover { text-decoration: underline; }
+
+        /* ----- GitHub token box (mirrors the other admin tools) ----- */
+        .gh-box {
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            padding: 18px 20px;
+            margin: 20px 0 8px;
+            background: #fbfcfd;
+        }
+        .gh-box h3 {
+            margin: 0 0 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #555;
+        }
+        .gh-confirmed { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+        .gh-confirmed-msg { font-size: 0.88rem; color: #1b6e2e; }
+        .gh-check { font-weight: 700; }
+        .gh-reveal-link { font-size: 0.8rem; color: #1aa8c4; text-decoration: none; }
+        .gh-reveal-link:hover { text-decoration: underline; }
+        .gh-warn {
+            font-size: 0.78rem; line-height: 1.6; color: #5a4a20;
+            background: #fff7e6; border-left: 3px solid #e89c20;
+            padding: 10px 14px; border-radius: 3px; margin-bottom: 12px;
+        }
+        .gh-warn code { background: rgba(0,0,0,0.05); padding: 1px 4px; border-radius: 3px; }
+        .gh-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .gh-row input {
+            flex: 1; min-width: 240px; padding: 8px 10px;
+            border: 1px solid #d0d0d0; border-radius: 3px; font-size: 0.85rem;
+        }
+        .small-btn {
+            background: #0a1628; color: #fff; border: none;
+            padding: 8px 14px; border-radius: 3px; font-size: 0.8rem;
+            cursor: pointer; font-family: inherit;
+        }
+        .small-btn:hover { background: #16233c; }
+        .gh-status { margin-top: 10px; font-size: 0.8rem; padding: 6px 10px; border-radius: 3px; }
+        .gh-status.none { background: #f0f2f5; color: #888; }
+        .gh-status.ok { background: #e8f7ea; color: #1b6e2e; }
+
+        /* ----- Tabs ----- */
+        .tabs { display: flex; gap: 4px; border-bottom: 2px solid #e5e5e5; margin: 24px 0 0; }
+        .tab-btn {
+            background: none; border: none; padding: 12px 22px;
+            font-family: inherit; font-size: 0.9rem; font-weight: 600;
+            color: #888; cursor: pointer; border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab-btn.active { color: #0a1628; border-bottom-color: #21cbea; }
+        .tab-panel { display: none; padding-top: 24px; }
+        .tab-panel.active { display: block; }
+
+        /* ----- Toolbar ----- */
+        .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+        .toolbar input[type=text], .toolbar select {
+            padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 3px; font-size: 0.85rem; font-family: inherit;
+        }
+        .toolbar input[type=text] { min-width: 220px; }
+        .btn {
+            background: #21cbea; color: #06212b; border: none;
+            padding: 9px 18px; border-radius: 3px; font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+        }
+        .btn:hover { background: #1aa8c4; }
+        .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+        .muted { color: #888; font-size: 0.82rem; }
+
+        /* ----- Thumbnail grid ----- */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 16px;
+        }
+        .thumb {
+            border: 1px solid #e5e5e5; border-radius: 4px; overflow: hidden;
+            background: #fff; cursor: pointer; transition: all 0.15s; position: relative;
+        }
+        .thumb:hover { border-color: #21cbea; box-shadow: 0 4px 14px rgba(33,203,234,0.18); }
+        .thumb .imgwrap {
+            height: 120px; background: #f0f2f5 repeating-linear-gradient(45deg,#f0f2f5,#f0f2f5 10px,#eaedf1 10px,#eaedf1 20px);
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .thumb .imgwrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .thumb .meta { padding: 8px 10px; }
+        .thumb .fname {
+            font-size: 0.72rem; color: #333; word-break: break-all; line-height: 1.35;
+            font-family: 'Courier New', monospace;
+        }
+        .thumb .dir { font-size: 0.66rem; color: #999; margin-top: 3px; }
+        .thumb .copied {
+            position: absolute; inset: 0; background: rgba(27,110,46,0.92); color: #fff;
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600;
+            opacity: 0; pointer-events: none; transition: opacity 0.15s;
+        }
+        .thumb.flash .copied { opacity: 1; }
+
+        /* ----- Usage table ----- */
+        .usage-summary { display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 18px; }
+        .stat { background: #f6f8fa; border: 1px solid #e5e5e5; border-radius: 4px; padding: 12px 18px; }
+        .stat .n { font-size: 1.4rem; font-weight: 700; color: #0a1628; }
+        .stat .l { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+        .stat.orphan .n { color: #b3471a; }
+        table.usage { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        table.usage th, table.usage td { text-align: left; padding: 9px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+        table.usage th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #888; border-bottom: 2px solid #e5e5e5; }
+        table.usage td.path { font-family: 'Courier New', monospace; color: #333; word-break: break-all; width: 30%; }
+        table.usage tr.orphan-row td { background: #fff5f0; }
+        .badge {
+            display: inline-block; font-size: 0.66rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.5px; padding: 2px 7px; border-radius: 3px;
+        }
+        .badge.used { background: #e8f7ea; color: #1b6e2e; }
+        .badge.orphan { background: #fde6da; color: #b3471a; }
+        .uses { list-style: none; margin: 0; padding: 0; }
+        .uses li { padding: 1px 0; color: #444; font-family: 'Courier New', monospace; font-size: 0.76rem; word-break: break-all; }
+        .best-effort {
+            background: #fff7e6; border-left: 4px solid #e89c20; padding: 12px 16px;
+            border-radius: 3px; font-size: 0.82rem; line-height: 1.6; color: #5a4a20; margin-bottom: 20px;
+        }
+        .best-effort strong { display: block; text-transform: uppercase; letter-spacing: 1px; font-size: 0.72rem; color: #8a6820; margin-bottom: 4px; }
+
+        .status { margin-top: 16px; font-size: 0.85rem; padding: 10px 14px; border-radius: 3px; display: none; }
+        .status.info { background: #eef6fb; color: #155; display: block; }
+        .status.success { background: #e8f7ea; color: #1b6e2e; display: block; }
+        .status.error { background: #fdecea; color: #b3261e; display: block; }
+        .spinner-note { color: #1aa8c4; font-size: 0.85rem; }
+        .admin-version { text-align: right; color: #bbb; font-size: 0.72rem; margin-top: 28px; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+
+    <div class="admin-header">
+        <h1>HALEY <strong>YACHTS</strong> IMAGE LIBRARY</h1>
+        <div class="accent-line"></div>
+        <p>Browse the images already on the site, copy a path, and see where each one is used</p>
+    </div>
+
+    <div class="admin-body">
+
+        <a href="index.html" class="back">&larr; Back to Admin</a>
+
+        <!-- GitHub token box (shared plumbing) -->
+        <div class="gh-box" id="ghBox">
+            <h3>GitHub Connection</h3>
+            <div class="gh-confirmed" id="ghConfirmed" style="display:none;">
+                <span class="gh-confirmed-msg"><span class="gh-check">&#10003;</span> GitHub token set and active. The library reads directly from the repo.</span>
+                <a href="#" class="gh-reveal-link" id="ghRevealLink" onclick="toggleGhControls(event)">Replace / clear token</a>
+            </div>
+            <div class="gh-entry" id="ghEntry">
+                <div class="gh-warn">
+                    This library reads the repo through the GitHub Contents API, so it needs the same token the Article Manager and Featured Yacht editor use. Use a fine-grained personal access token scoped to <code>captainclarkhaley/haleyyachts-website</code> with <strong>Contents: Read</strong> (read-only is enough here). It is stored only in this browser (localStorage), never in the repo. Clear it on shared machines.
+                </div>
+                <div class="gh-row">
+                    <input type="password" id="ghToken" placeholder="Paste GitHub personal access token (github_pat_... or ghp_...)" autocomplete="off">
+                    <button type="button" class="small-btn" onclick="saveGhToken()">Save token</button>
+                    <button type="button" class="small-btn" onclick="clearGhToken()">Clear token</button>
+                </div>
+                <div class="gh-status none" id="ghStatus">No token set. Set a token to load the library.</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button type="button" class="tab-btn active" data-tab="browse" onclick="switchTab('browse')">Browse &amp; Copy Path</button>
+            <button type="button" class="tab-btn" data-tab="usage" onclick="switchTab('usage')">Usage &amp; Orphans</button>
+        </div>
+
+        <!-- BROWSE PANEL -->
+        <div class="tab-panel active" id="panel-browse">
+            <div class="toolbar">
+                <button type="button" class="btn" id="loadBtn" onclick="loadImages()">Load images</button>
+                <input type="text" id="filter" placeholder="Filter by filename..." oninput="renderGrid()">
+                <select id="folderFilter" onchange="renderGrid()"><option value="">All folders</option></select>
+                <span class="muted" id="gridCount"></span>
+            </div>
+            <p class="muted" style="margin-top:-6px;">
+                Click any image to copy its site-relative path to the clipboard. Paste it into the Article Manager or Featured Yacht editor where an image path is asked for.
+            </p>
+            <div class="grid" id="grid"></div>
+        </div>
+
+        <!-- USAGE PANEL -->
+        <div class="tab-panel" id="panel-usage">
+            <div class="best-effort">
+                <strong>Best-effort scan</strong>
+                The orphan flag is a heuristic, not proof. It matches each image filename against the site's HTML, JS, CSS backgrounds, and the data registries (<code>articles/articles-data.js</code>, <code>js/featured-yachts.js</code>). It will NOT catch images referenced by a name built at runtime, pulled from an external CMS, or used only in files outside this repo. Treat "likely unused" as "verify before deleting," never as an automatic delete list.
+            </div>
+            <div class="toolbar">
+                <button type="button" class="btn" id="scanBtn" onclick="runUsageScan()">Run usage scan</button>
+                <input type="text" id="usageFilter" placeholder="Filter by filename..." oninput="renderUsage()">
+                <select id="usageView" onchange="renderUsage()">
+                    <option value="all">All images</option>
+                    <option value="orphan">Likely unused only</option>
+                    <option value="used">Used only</option>
+                </select>
+                <span class="spinner-note" id="scanNote"></span>
+            </div>
+            <div class="usage-summary" id="usageSummary" style="display:none;"></div>
+            <table class="usage" id="usageTable" style="display:none;">
+                <thead><tr><th>Image</th><th>Status</th><th>Used on</th></tr></thead>
+                <tbody id="usageBody"></tbody>
+            </table>
+        </div>
+
+        <div class="status" id="status"></div>
+
+        <div class="admin-version" data-version>v: 2026-06-10</div>
+    </div>
+</div>
+
+<!-- Shared GitHub Contents API layer (token, gh* helpers, 401 handling) -->
+<script src="js/github-api.js"></script>
+<script>
+    // ===========================================================
+    // Image Library: browse + usage scan, all client-side over the
+    // shared GitHub Contents API. No new plumbing - reuses github-api.js.
+    // ===========================================================
+
+    var IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif'];
+
+    // Where images live. Recursed into via the Contents API.
+    var IMAGE_ROOTS = ['images', 'articles'];   // articles/<cat>/images/* is found by recursion
+
+    // Files we scan for references. Bounded, recursive within these roots, by extension.
+    var SCAN_ROOTS = ['', 'css', 'js', 'yachts', 'partials', 'articles'];
+    var SCAN_EXTS = ['html', 'js', 'css'];
+    // Folders we never descend into during either pass.
+    var SKIP_DIRS = ['admin', 'docs', 'drafts', '.git', 'node_modules', 'documents', 'email-templates', 'social-media'];
+
+    var allImages = [];   // { path, name, dir, download_url }
+    var usageRows = [];    // { path, name, uses: [filePath], orphan: bool }
+
+    var statusEl = document.getElementById('status');
+    function showStatus(msg, type) {
+        statusEl.textContent = msg;
+        statusEl.className = 'status ' + (type || 'info');
+    }
+    function clearStatus() { statusEl.className = 'status'; statusEl.textContent = ''; }
+
+    setGhStatusReporter(showStatus);
+
+    // ----- Token box wiring (same pattern as the other tools) -----
+    function updateGhBoxState(forceReveal) {
+        var confirmed = document.getElementById('ghConfirmed');
+        var entry = document.getElementById('ghEntry');
+        if (hasGhToken() && !forceReveal) { confirmed.style.display = 'flex'; entry.style.display = 'none'; }
+        else { confirmed.style.display = 'none'; entry.style.display = 'block'; }
+    }
+    function toggleGhControls(e) { if (e) e.preventDefault(); updateGhBoxState(true); }
+    function updateGhStatus() {
+        var el = document.getElementById('ghStatus');
+        if (hasGhToken()) { el.className = 'gh-status ok'; el.textContent = 'Token set. Reading ' + GH_OWNER + '/' + GH_REPO + ', branch ' + GH_BRANCH + '.'; }
+        else { el.className = 'gh-status none'; el.textContent = 'No token set. Set a token to load the library.'; }
+    }
+    function saveGhToken() {
+        var val = document.getElementById('ghToken').value.trim();
+        if (!val) { showStatus('Paste a token first.', 'error'); return; }
+        if (hasGhToken()) {
+            var ok = window.confirm('A token is already saved. Replace it with the new one?');
+            if (!ok) { showStatus('Kept the existing token.', 'info'); return; }
+        }
+        setGhToken(val);
+        document.getElementById('ghToken').value = '';
+        updateGhStatus(); updateGhBoxState();
+        showStatus('Token saved in this browser.', 'success');
+    }
+    function clearGhToken() {
+        if (hasGhToken() && !window.confirm('Remove the saved GitHub token?')) return;
+        removeGhToken();
+        document.getElementById('ghToken').value = '';
+        updateGhStatus(); updateGhBoxState();
+        showStatus('Token cleared from this browser.', 'info');
+    }
+
+    // ----- Tabs -----
+    function switchTab(name) {
+        document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === name); });
+        document.querySelectorAll('.tab-panel').forEach(function (p) { p.classList.toggle('active', p.id === 'panel-' + name); });
+    }
+
+    // ----- Helpers -----
+    function extOf(name) { var i = name.lastIndexOf('.'); return i < 0 ? '' : name.slice(i + 1).toLowerCase(); }
+    function baseName(p) { return p.split('/').pop(); }
+    function isImage(name) { return IMAGE_EXTS.indexOf(extOf(name)) !== -1; }
+    function isScannable(name) { return SCAN_EXTS.indexOf(extOf(name)) !== -1; }
+    function topDir(path) { return path.indexOf('/') === -1 ? '' : path.slice(0, path.indexOf('/')); }
+
+    // Recursively list a directory, collecting files that pass `keep(name)`.
+    // Returns array of { path, download_url }.
+    async function walk(dir, keep, acc) {
+        acc = acc || [];
+        var items;
+        try { items = await ghListDir(dir); }
+        catch (e) { if (e && e.isGhAuthError) throw e; return acc; }
+        for (var i = 0; i < items.length; i++) {
+            var it = items[i];
+            if (it.type === 'dir') {
+                if (SKIP_DIRS.indexOf(baseName(it.path)) !== -1) continue;
+                await walk(it.path, keep, acc);
+            } else if (it.type === 'file' && keep(it.name)) {
+                acc.push({ path: it.path, download_url: it.download_url });
+            }
+        }
+        return acc;
+    }
+
+    // ============= BROWSE =============
+    async function loadImages() {
+        if (!hasGhToken()) { showStatus('Set a GitHub token first.', 'error'); return; }
+        var btn = document.getElementById('loadBtn');
+        btn.disabled = true; showStatus('Loading images from the repo...', 'info');
+        try {
+            var found = [];
+            for (var r = 0; r < IMAGE_ROOTS.length; r++) {
+                await walk(IMAGE_ROOTS[r], isImage, found);
+            }
+            allImages = found
+                .map(function (f) {
+                    var dir = f.path.slice(0, f.path.lastIndexOf('/'));
+                    return { path: f.path, name: baseName(f.path), dir: dir, download_url: f.download_url };
+                })
+                .sort(function (a, b) { return a.path < b.path ? -1 : a.path > b.path ? 1 : 0; });
+            populateFolderFilter();
+            renderGrid();
+            showStatus('Loaded ' + allImages.length + ' images.', 'success');
+        } catch (e) {
+            showGhError(e, 'Could not load images: ' + e.message);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function populateFolderFilter() {
+        var sel = document.getElementById('folderFilter');
+        var dirs = {};
+        allImages.forEach(function (im) { dirs[im.dir] = true; });
+        var keys = Object.keys(dirs).sort();
+        sel.innerHTML = '<option value="">All folders (' + allImages.length + ')</option>';
+        keys.forEach(function (d) {
+            var n = allImages.filter(function (im) { return im.dir === d; }).length;
+            var o = document.createElement('option');
+            o.value = d; o.textContent = d + ' (' + n + ')';
+            sel.appendChild(o);
+        });
+    }
+
+    function renderGrid() {
+        var grid = document.getElementById('grid');
+        var q = (document.getElementById('filter').value || '').toLowerCase();
+        var folder = document.getElementById('folderFilter').value;
+        var list = allImages.filter(function (im) {
+            if (folder && im.dir !== folder) return false;
+            if (q && im.name.toLowerCase().indexOf(q) === -1) return false;
+            return true;
+        });
+        document.getElementById('gridCount').textContent = list.length + ' of ' + allImages.length + ' shown';
+        grid.innerHTML = '';
+        list.forEach(function (im) {
+            var card = document.createElement('div');
+            card.className = 'thumb';
+            card.title = 'Click to copy: ' + im.path;
+            var imgwrap = document.createElement('div'); imgwrap.className = 'imgwrap';
+            var img = document.createElement('img');
+            img.loading = 'lazy'; img.alt = im.name;
+            img.src = im.download_url;   // authenticated raw URL from the Contents API
+            img.onerror = function () { imgwrap.innerHTML = '<span class="muted" style="font-size:0.7rem;">no preview</span>'; };
+            imgwrap.appendChild(img);
+            var meta = document.createElement('div'); meta.className = 'meta';
+            var fn = document.createElement('div'); fn.className = 'fname'; fn.textContent = im.name;
+            var dd = document.createElement('div'); dd.className = 'dir'; dd.textContent = im.dir + '/';
+            meta.appendChild(fn); meta.appendChild(dd);
+            var copied = document.createElement('div'); copied.className = 'copied'; copied.textContent = 'Path copied';
+            card.appendChild(imgwrap); card.appendChild(meta); card.appendChild(copied);
+            card.onclick = function () { copyPath(im.path, card); };
+            grid.appendChild(card);
+        });
+    }
+
+    function copyPath(path, card) {
+        var done = function () {
+            card.classList.add('flash');
+            setTimeout(function () { card.classList.remove('flash'); }, 900);
+            showStatus('Copied: ' + path, 'success');
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(path).then(done, function () { fallbackCopy(path); done(); });
+        } else { fallbackCopy(path); done(); }
+    }
+    function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+    }
+
+    // ============= USAGE SCAN =============
+    async function runUsageScan() {
+        if (!hasGhToken()) { showStatus('Set a GitHub token first.', 'error'); return; }
+        var btn = document.getElementById('scanBtn');
+        var note = document.getElementById('scanNote');
+        btn.disabled = true;
+        try {
+            // 1. Make sure we have the image list.
+            if (!allImages.length) {
+                note.textContent = 'Loading image list...';
+                var found = [];
+                for (var r = 0; r < IMAGE_ROOTS.length; r++) { await walk(IMAGE_ROOTS[r], isImage, found); }
+                allImages = found.map(function (f) {
+                    var dir = f.path.slice(0, f.path.lastIndexOf('/'));
+                    return { path: f.path, name: baseName(f.path), dir: dir, download_url: f.download_url };
+                });
+            }
+
+            // 2. Collect scannable source files (flat list of path strings).
+            note.textContent = 'Finding source files...';
+            var srcFiles = [];   // { path, download_url } from walk()
+            for (var s = 0; s < SCAN_ROOTS.length; s++) {
+                var root = SCAN_ROOTS[s];
+                if (root === '') {
+                    // root level: only the immediate scannable files; named roots below handle subdirs
+                    var top = await ghListDir('');
+                    top.forEach(function (it) { if (it.type === 'file' && isScannable(it.name)) srcFiles.push({ path: it.path }); });
+                } else {
+                    await walk(root, isScannable, srcFiles);
+                }
+            }
+            // flatten to unique paths
+            var sources = srcFiles.map(function (f) { return f.path; })
+                .filter(function (v, i, a) { return a.indexOf(v) === i; });
+
+            // 3. Fetch + concat the text of each source file.
+            note.textContent = 'Reading ' + sources.length + ' source files...';
+            var corpus = [];   // { file, text }
+            for (var f = 0; f < sources.length; f++) {
+                note.textContent = 'Reading source files... ' + (f + 1) + '/' + sources.length;
+                var got = await ghGetFile(sources[f], true);
+                if (got && got.text) corpus.push({ file: sources[f], text: got.text });
+            }
+
+            // 4. Match each image basename against every source file.
+            note.textContent = 'Matching references...';
+            usageRows = allImages.map(function (im) {
+                var base = im.name;
+                var uses = [];
+                for (var c = 0; c < corpus.length; c++) {
+                    if (corpus[c].text.indexOf(base) !== -1) uses.push(corpus[c].file);
+                }
+                return { path: im.path, name: im.name, dir: im.dir, uses: uses, orphan: uses.length === 0 };
+            }).sort(function (a, b) {
+                // orphans first, then by path
+                if (a.orphan !== b.orphan) return a.orphan ? -1 : 1;
+                return a.path < b.path ? -1 : 1;
+            });
+
+            note.textContent = '';
+            renderUsage();
+            showStatus('Scanned ' + sources.length + ' source files against ' + allImages.length + ' images.', 'success');
+        } catch (e) {
+            note.textContent = '';
+            showGhError(e, 'Usage scan failed: ' + e.message);
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function renderUsage() {
+        var view = document.getElementById('usageView').value;
+        var q = (document.getElementById('usageFilter').value || '').toLowerCase();
+        var rows = usageRows.filter(function (row) {
+            if (view === 'orphan' && !row.orphan) return false;
+            if (view === 'used' && row.orphan) return false;
+            if (q && row.name.toLowerCase().indexOf(q) === -1) return false;
+            return true;
+        });
+
+        var total = usageRows.length;
+        var orphans = usageRows.filter(function (r) { return r.orphan; }).length;
+        var summary = document.getElementById('usageSummary');
+        summary.style.display = total ? 'flex' : 'none';
+        summary.innerHTML =
+            '<div class="stat"><div class="n">' + total + '</div><div class="l">Images scanned</div></div>' +
+            '<div class="stat"><div class="n">' + (total - orphans) + '</div><div class="l">Referenced</div></div>' +
+            '<div class="stat orphan"><div class="n">' + orphans + '</div><div class="l">Likely unused</div></div>';
+
+        var table = document.getElementById('usageTable');
+        var body = document.getElementById('usageBody');
+        table.style.display = total ? 'table' : 'none';
+        body.innerHTML = '';
+        rows.forEach(function (row) {
+            var tr = document.createElement('tr');
+            if (row.orphan) tr.className = 'orphan-row';
+            var tdPath = document.createElement('td'); tdPath.className = 'path'; tdPath.textContent = row.path;
+            var tdStat = document.createElement('td');
+            tdStat.innerHTML = row.orphan
+                ? '<span class="badge orphan">Likely unused</span>'
+                : '<span class="badge used">Used (' + row.uses.length + ')</span>';
+            var tdUses = document.createElement('td');
+            if (row.orphan) {
+                tdUses.innerHTML = '<span class="muted">No reference found - verify before deleting.</span>';
+            } else {
+                var ul = document.createElement('ul'); ul.className = 'uses';
+                row.uses.forEach(function (u) { var li = document.createElement('li'); li.textContent = u; ul.appendChild(li); });
+                tdUses.appendChild(ul);
+            }
+            tr.appendChild(tdPath); tr.appendChild(tdStat); tr.appendChild(tdUses);
+            body.appendChild(tr);
+        });
+    }
+
+    // ----- init -----
+    updateGhStatus();
+    updateGhBoxState();
+</script>
+</body>
+</html>
