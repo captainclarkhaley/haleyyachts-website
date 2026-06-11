@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /docs/
+Disallow: /drafts/
+
+Sitemap: https://haleyyachts.com/sitemap.xml
