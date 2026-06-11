@@ -61,8 +61,11 @@
 <!-- HERO -->
 <section class="hero">
     <div class="hero-video-bg">
-        <video autoplay muted loop playsinline poster="images/hero-poster.jpg">
-            <source src="images/video/home-header-video.mp4" type="video/mp4">
+        <!-- The 14MB hero MP4 only loads on >=768px screens. On phones the source's
+             media query does not match, so no video is fetched and the poster shows.
+             Saves the full download on mobile data. -->
+        <video autoplay muted loop playsinline preload="metadata" poster="images/hero-poster.jpg">
+            <source src="images/video/home-header-video.mp4" type="video/mp4" media="(min-width: 768px)">
         </video>
     </div>
     <div class="hero-overlay"></div>
