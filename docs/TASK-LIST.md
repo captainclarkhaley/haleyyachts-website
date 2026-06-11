@@ -6,15 +6,25 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 11, 2026 (Privacy Policy page BUILT + shipped - `privacy.html`, footer-linked site-wide, pending only Clark's cPanel pull. Cookie-consent banner CLOSED by Clark's decision - privacy policy reworded to a browser/provider opt-out approach instead of an on-site banner. Admin Image Library browser BUILT + wired into Admin home + Article Manager + Featured Yacht editor. GitHub push auth from this machine now working - no longer a blocker. All this session's work pushed to GitHub.)*
+*Last regenerated: June 10, 2026 (Technical SEO tightening batch SHIPPED - authorized by Clark, run through William. Terry: sitemap.xml + robots.txt, sitewide LocalBusiness JSON-LD via the footer partial, canonical/OG/Twitter on the 7 money pages, Product JSON-LD + canonical on the 3 yacht listings, cheap CWV wins. floridayachts.ai investigated - it is a MASKED GoDaddy forward, NOT a 301; registrar redirect steps handed to Clark. Patrick: off-site SEO/visibility batch logged - GBP, listing syndication, local citations, buyer-keyword cadence, backlinks. All pushed to GitHub; needs cPanel pull to go live for the on-site changes.)*
 
 ---
 
-## Just completed this session (pending only cPanel pull to go live)
-- **Privacy policy page** - `privacy.html` built from Clark-approved copy, linked site-wide in the footer. Done + pushed.
-- **Cookie-consent banner** - CLOSED by decision. Clark chose a browser/provider opt-out approach in the privacy copy instead of an on-site banner. Revised copy committed + pushed. Revisit only if he ever targets EU/UK visitors.
-- **Admin Image Library browser** - built with usage-view + orphan-flagging; wired into Admin home, Article Manager, and Featured Yacht editor. Done + pushed.
-- **GitHub push auth from this machine** - fixed (credential saved); no longer a blocker.
+## Just completed this session (pushed to GitHub; on-site changes need a cPanel pull to go live)
+- **Technical SEO batch (Terry)** - 5 logical commits (`e2aac7f`, `974c896`, `c15bd4f`, `77090d1`, `704f221`) + log commit `09e6604`. sitemap.xml + robots.txt; sitewide LocalBusiness/ProfessionalService JSON-LD; canonical/OG/Twitter on index, buy, sell, services, about, contact, valuation; Product JSON-LD + canonical on the 3 yacht listings; cheap CWV wins (mobile hero-video gating + lazy headshot).
+- **Off-site SEO items (Patrick)** - logged in `tasks/patrick.md` (commit `3486963`). GBP, listing syndication, local citations, buyer-keyword article cadence, backlinks.
+
+---
+
+## NEEDS CLARK (decisions / access blocking work below)
+- **floridayachts.ai redirect** - it is currently a MASKED GoDaddy forward (duplicate content, no link equity, HTTPS fully broken). Clark to switch GoDaddy Domain Forwarding to a permanent (301), no masking, root + www -> https://haleyyachts.com. Step-by-step + verify commands delivered via William.
+- **Brokerage street address for JSON-LD** - omitted from the LocalBusiness block (none supplied). Privacy page uses "2601 PGA Blvd., West Palm Beach, FL 33410" but the site uses "Jupiter, FL" everywhere. Need the one canonical address; Terry will add it + reconcile.
+- **Business hours for JSON-LD** - omitted (unknown). Provide if wanted.
+- **Orphan duplicate article** `articles/travel/...bahamas-cruising-permit-changes-again.html` - self-canonical dup of the `-april-2026` version, not in articles-data.js, excluded from sitemap. Delete it or 301 it to the april file. Clark's call.
+- **Heavy media re-encoding** (flagged, not cheap) - hero MP4 14MB -> ~3MB; `clark-haley-headshot.jpg` 10.5MB, `riviera545suv.jpg` 7MB, `southern-wind.jpg` 3MB -> resize/recompress. LCP + OG-image weights.
+- **Google Business Profile access + verification** - gates GBP optimization and downstream local-citation work (GBP is the NAP source of truth).
+- **Listing syndication: OWYG question** - does One Water Yacht Group feed YachtWorld / boats.com / YATCO centrally, or is it per-broker? Answer needed before Patrick duplicates effort.
+- **OWYS -> OWYG cleanup** - pending Clark confirm (author cards + JSON-LD in `articles/_template.html` + published articles).
 
 ---
 
@@ -26,7 +36,6 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 - Social icons - X and LinkedIn: deferred (add later if Clark wants, same pattern)
 - Final logo pass (if Clark revisits)
 - Review color scheme / typography on off-feeling pages
-- Add `sitemap.xml` once a few articles are published
 - Confirm Formsubmit email verification - contact form
 - Confirm Formsubmit email verification - valuation form
 - Mark GA4 conversion events as "key events" in Analytics admin
@@ -40,6 +49,7 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 ## Open - Patrick (Marketing / Social / Content)
 Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
+- **Off-site SEO / Visibility (NEW June 10):** Google Business Profile, listing syndication (YachtWorld/boats.com/YATCO), local citations / NAP consistency, buyer-keyword article cadence, backlinks - the off-site complement to Terry's on-site technical-SEO push (several items gated on Clark - see NEEDS CLARK above)
 - Begin publishing articles regularly (set + hold cadence)
 - Article CONTENT pipeline (words; Terry owns the tool)
 - Article topics: 8 remaining approved topics queued, awaiting Clark's go-ahead to draft (Topics 1 + 5 drafted June 6). Source: `docs/drafts/article-topics.md`
@@ -48,9 +58,10 @@ Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 - "The Logbook" newsletter: run per-issue cadence (master template already built)
 
 ## Cross-owner handoffs
+- **Technical SEO (on-site + off-site)**: on-site SHIPPED by Terry (this session); off-site logged by Patrick and now in progress / partly Clark-gated. The two halves are designed to complement each other - on-page structure + structured data (Terry) and external authority + local presence + syndication (Patrick).
 - **Privacy policy**: COMPLETE. Patrick drafted copy, Clark approved + chose the browser/provider opt-out approach (no on-site cookie banner), Terry shipped `privacy.html` and the site-wide footer link. Pending only Clark's cPanel pull to go live.
-- **Social icons (FB + IG)**: COMPLETE, 100% sitewide, sourced from the single footer partial. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`) live in `partials/footer.html`, injected to all 24 public footers. (X/LinkedIn still deferred.)
-- **Single-source footer**: SHIPPED 2026-06-04. `partials/footer.html` is the one source of truth; `scripts/sync-footer.sh` injects it into all public pages. Workflow doc: `docs/FOOTER-WORKFLOW.md`. Pushed; needs cPanel pull to deploy.
+- **Social icons (FB + IG)**: COMPLETE, 100% sitewide, sourced from the single footer partial. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`). (X/LinkedIn still deferred.)
+- **Single-source footer**: SHIPPED. `partials/footer.html` is the one source of truth; `scripts/sync-footer.sh` injects it into all public pages (now also carries the sitewide LocalBusiness JSON-LD). Workflow doc: `docs/FOOTER-WORKFLOW.md`.
 
 ---
 
