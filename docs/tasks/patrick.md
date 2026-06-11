@@ -3,13 +3,13 @@
 > **Owner / sole writer: Patrick.** This is the only task file Patrick edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 10, 2026*
+*Last updated: June 11, 2026*
 
 ## OPEN
 
 ### Off-site SEO / Visibility (June 10 batch - complements Terry's on-site technical-SEO push)
 > Off-site complement to Terry's on-site technical-SEO work. Goal: build Haley Yachts' external authority, local-search presence, and listing distribution.
-- [ ] **Google Business Profile (GBP)** - create/claim and fully optimize the Haley Yachts GBP. Category: Yacht Broker. Service area: Jupiter, FL. Phone: 561-817-1547. Add hours, photos, and link to haleyyachts.com. NEEDS CLARK: GBP access + verification (postcard/phone). This is the anchor for all local-search work below (NAP source of truth).
+- [~] **Google Business Profile (GBP)** - full setup package/runbook is WRITTEN and committed at `docs/marketing/google-business-profile-setup.md`. Covers category (Yacht Broker), service area (Jupiter, FL), phone (561-817-1547), photos, and the link to haleyyachts.com - ready for Clark to claim + verify. This is the anchor for all local-search work below (NAP source of truth). Still OPEN because Clark has to claim + verify the profile. BLOCKED ON CLARK for exactly two things: (a) business HOURS - placeholder table sits in the doc, not yet provided; and (b) GOOGLE ACCOUNT ACCESS - which Google login owns the profile, needed to claim/verify (postcard/phone).
 - [ ] **Listing syndication** - get the active yacht listings syndicated to YachtWorld, boats.com, and YATCO. First confirm whether One Water Yacht Group (OWYG) feeds these portals centrally or whether it is per-broker. NEEDS CLARK/OWYG: answer on central vs per-broker feed before we duplicate effort.
 - [ ] **Local citations / NAP consistency** - build consistent Name/Address/Phone citations across major directories: Yelp, Bing Places, Apple Maps, IYBA directory, and marine-industry directories. Use the exact same NAP as the GBP (depends on GBP being set first as the source of truth).
 - [ ] **Buyer-keyword article cadence** - establish an ongoing cadence of buyer-intent articles to capture search demand: e.g. "best yachts under $X", "buying a yacht in Florida", and model/brand buyer guides. Tie into the existing article-draft workflow (Patrick writes -> Article Manager JSON draft -> Clark publishes). Complements the existing Content pipeline below.
@@ -22,15 +22,15 @@
 ### Content
 - [ ] Begin publishing articles regularly (set + hold a cadence)
 - [ ] Article CONTENT pipeline: keep feeding new pieces to the Article Manager (Terry owns the tool; Patrick owns the words)
-- [ ] QUEUED - remaining 8 approved article topics awaiting Clark's go-ahead to draft (Topics 1 + 5 drafted June 6, see Done). Source outlines: docs/drafts/article-topics.md. Still to draft:
-  - [ ] Topic 2: How to Buy a Yacht - The Step-by-Step Timeline
-  - [ ] Topic 3: Boat Loans and Marine Financing, Explained
-  - [ ] Topic 4: The True Cost of Yacht Ownership
-  - [ ] Topic 6: Diesel vs Outboard for the Florida Owner
-  - [ ] Topic 7: Trading Up - When to Move to a Bigger Yacht
-  - [ ] Topic 8: First-Time Buyer's Guide to Riviera
-  - [ ] Topic 9: Insuring a Yacht in Florida - What to Know
-  - [ ] Topic 10: Provisioning and Prepping for a Crossing to the Bahamas
+- [~] QUEUED - remaining 8 approved article topics DRAFTED June 11 as Article Manager JSON drafts in `drafts/`, awaiting Clark's review + publish via the Article Manager (Topics 1 + 5 drafted June 6, see Done). Source outlines: docs/drafts/article-topics.md. Drafted:
+  - [~] Topic 2: How to Buy a Yacht: The Step-by-Step Timeline -> `drafts/how-to-buy-a-yacht-step-by-step-timeline.json`
+  - [~] Topic 3: Boat Loans and Marine Financing, Explained -> `drafts/boat-loans-marine-financing-explained.json`
+  - [~] Topic 4: The True Cost of Yacht Ownership -> `drafts/true-cost-of-yacht-ownership.json`
+  - [~] Topic 6: Diesel vs Outboard for the Florida Owner -> `drafts/diesel-vs-outboard-florida-owner.json`
+  - [~] Topic 7: Trading Up: When to Move to a Bigger Yacht -> `drafts/trading-up-when-to-move-to-a-bigger-yacht.json`
+  - [~] Topic 8: A First-Time Buyer's Guide to Riviera -> `drafts/first-time-buyers-guide-to-riviera.json`
+  - [~] Topic 9: Insuring a Yacht in Florida: What to Know -> `drafts/insuring-a-yacht-in-florida.json`
+  - [~] Topic 10: Provisioning and Prepping for a Crossing to the Bahamas -> `drafts/provisioning-crossing-to-the-bahamas.json`
 
 ### Contact Page Social
 - [~] Social icons - DECIDED 2026-06-04: Facebook + Instagram only (the two platforms a Florida brokerage actually feeds; X and LinkedIn deferred, not worth thin presence now). Placement: footer site-wide + a "Follow Along" block on the contact page. Terry has staged the markup with placeholder hrefs. BLOCKED on Clark supplying the real FB + IG URLs/handles - then Terry pastes them in. (handoff: Clark provides URLs -> Terry activates)
@@ -49,6 +49,10 @@
 ---
 
 ## RECENTLY COMPLETED / DONE
+
+### June 11
+- [x] **Google Business Profile setup package delivered** - full setup runbook written and committed at `docs/marketing/google-business-profile-setup.md`. Covers category (Yacht Broker), service area (Jupiter, FL), phone (561-817-1547), photos, and the haleyyachts.com link, plus the claim + verify steps. Ready for Clark to claim and verify. BLOCKED ON CLARK for two inputs only: business HOURS (placeholder table in the doc) and GOOGLE ACCOUNT ACCESS (which Google login owns the profile). Tracked as in-progress under OPEN > Off-site SEO until Clark completes claim/verify.
+- [x] **8 article JSON drafts delivered** - the remaining 8 approved article topics drafted as Article Manager JSON drafts in `drafts/`, queued for Clark's review + publish via the Article Manager. Mix: 6 how-to (Topics 2, 3, 4, 6, 7, 9), 1 boat-reviews/Riviera (Topic 8), 1 travel/Bahamas (Topic 10). All mirror the Article Manager schema (savedAt, mode, type, title, excerpt, date, author, keywords, heroAlt, heroLayout, bodyHtml, category). QA: zero em dashes across all 8. Filenames listed under OPEN > Content.
 
 ### June 6
 - [x] **Drafted article Topics 1 and 5** (Clark-selected from the 10-topic pipeline). Full draft articles written, not published, saved as markdown alongside the privacy-policy draft:

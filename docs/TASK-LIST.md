@@ -6,11 +6,15 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 10, 2026 (Technical SEO tightening batch SHIPPED - authorized by Clark, run through William. Terry: sitemap.xml + robots.txt, sitewide LocalBusiness JSON-LD via the footer partial, canonical/OG/Twitter on the 7 money pages, Product JSON-LD + canonical on the 3 yacht listings, cheap CWV wins. floridayachts.ai investigated - it is a MASKED GoDaddy forward, NOT a 301; registrar redirect steps handed to Clark. Patrick: off-site SEO/visibility batch logged - GBP, listing syndication, local citations, buyer-keyword cadence, backlinks. All pushed to GitHub; needs cPanel pull to go live for the on-site changes.)*
+*Last regenerated: June 11, 2026 (Marketing deliverables batch - authorized by Clark, run through William. Patrick: full Google Business Profile setup package/runbook delivered at `docs/marketing/google-business-profile-setup.md` (ready for Clark to claim + verify, blocked only on business HOURS + Google account ACCESS); plus all 8 remaining approved article topics drafted as Article Manager JSON drafts in `drafts/`, queued for Clark's review + publish. Prior June 10 Technical SEO batch context retained below.)*
 
 ---
 
-## Just completed this session (pushed to GitHub; on-site changes need a cPanel pull to go live)
+## Just completed this session (June 11 - pushed to GitHub; drafts are htaccess-blocked from public)
+- **Google Business Profile setup package (Patrick)** - full runbook delivered at `docs/marketing/google-business-profile-setup.md`: categories (primary Yacht Broker + secondaries), verified NAP (2401 PGA Blvd Suite 164, Palm Beach Gardens, FL 33410 / 561-817-1547 / haleyyachts.com), long + short descriptions, services, service area, attributes, photo checklist, 4 paste-ready Google Posts, starter Q&A, and a numbered claim + verify walkthrough for Clark. Ready to claim; blocked only on business HOURS + Google account ACCESS.
+- **8 remaining approved articles drafted (Patrick)** - all saved as Article Manager JSON drafts in `drafts/` (6 how-to, 1 boat-reviews/Riviera, 1 travel/Bahamas), mirroring the existing draft schema, zero em dashes. Queued for Clark to review + publish via the Article Manager.
+
+## Prior session (June 10 - on-site changes still need a cPanel pull to go live)
 - **Technical SEO batch (Terry)** - 5 logical commits (`e2aac7f`, `974c896`, `c15bd4f`, `77090d1`, `704f221`) + log commit `09e6604`. sitemap.xml + robots.txt; sitewide LocalBusiness/ProfessionalService JSON-LD; canonical/OG/Twitter on index, buy, sell, services, about, contact, valuation; Product JSON-LD + canonical on the 3 yacht listings; cheap CWV wins (mobile hero-video gating + lazy headshot).
 - **Off-site SEO items (Patrick)** - logged in `tasks/patrick.md` (commit `3486963`). GBP, listing syndication, local citations, buyer-keyword article cadence, backlinks.
 
@@ -22,7 +26,7 @@
 - **Business hours for JSON-LD** - omitted (unknown). Provide if wanted.
 - **Orphan duplicate article** `articles/travel/...bahamas-cruising-permit-changes-again.html` - self-canonical dup of the `-april-2026` version, not in articles-data.js, excluded from sitemap. Delete it or 301 it to the april file. Clark's call.
 - **Heavy media re-encoding** (flagged, not cheap) - hero MP4 14MB -> ~3MB; `clark-haley-headshot.jpg` 10.5MB, `riviera545suv.jpg` 7MB, `southern-wind.jpg` 3MB -> resize/recompress. LCP + OG-image weights.
-- **Google Business Profile access + verification** - gates GBP optimization and downstream local-citation work (GBP is the NAP source of truth).
+- **Google Business Profile - 2 items to finish** - setup package is written and committed (`docs/marketing/google-business-profile-setup.md`); Clark needs to (a) provide business HOURS (placeholder table in the doc) and (b) confirm the Google account ACCESS / login that will OWN the profile, then claim + verify per the runbook. Gates downstream local-citation work (GBP is the NAP source of truth).
 - **Listing syndication: OWYG question** - does One Water Yacht Group feed YachtWorld / boats.com / YATCO centrally, or is it per-broker? Answer needed before Patrick duplicates effort.
 - **OWYS -> OWYG cleanup** - pending Clark confirm (author cards + JSON-LD in `articles/_template.html` + published articles).
 
@@ -49,10 +53,10 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 ## Open - Patrick (Marketing / Social / Content)
 Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
-- **Off-site SEO / Visibility (NEW June 10):** Google Business Profile, listing syndication (YachtWorld/boats.com/YATCO), local citations / NAP consistency, buyer-keyword article cadence, backlinks - the off-site complement to Terry's on-site technical-SEO push (several items gated on Clark - see NEEDS CLARK above)
+- **Off-site SEO / Visibility:** Google Business Profile setup package DELIVERED (`docs/marketing/google-business-profile-setup.md`) - ready for Clark to claim + verify, blocked on hours + account access (see NEEDS CLARK). Still open: listing syndication (YachtWorld/boats.com/YATCO), local citations / NAP consistency, buyer-keyword article cadence, backlinks - the off-site complement to Terry's on-site technical-SEO push
+- **Articles: 8 remaining approved topics DRAFTED June 11** as Article Manager JSON drafts in `drafts/`, queued for Clark to review + publish (Topics 2, 3, 4, 6, 7, 8, 9, 10; Topics 1 + 5 drafted June 6). Source outlines: `docs/drafts/article-topics.md`
 - Begin publishing articles regularly (set + hold cadence)
 - Article CONTENT pipeline (words; Terry owns the tool)
-- Article topics: 8 remaining approved topics queued, awaiting Clark's go-ahead to draft (Topics 1 + 5 drafted June 6). Source: `docs/drafts/article-topics.md`
 - Brand-voice copy refinements (ongoing)
 - Listing / positioning copy as new listings arrive
 - "The Logbook" newsletter: run per-issue cadence (master template already built)
