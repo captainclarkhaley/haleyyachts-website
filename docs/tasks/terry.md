@@ -3,9 +3,24 @@
 > **Owner / sole writer: Terry.** This is the only task file Terry edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 10, 2026 (Privacy Policy page built + shipped to repo: `privacy.html` at root, footer link wired single-source + synced across all 25 public pages; cookie-consent banner CLOSED BY DECISION - Clark chose the browser/provider opt-out wording in the privacy policy instead of an on-site banner)*
+*Last updated: June 10, 2026 (Technical SEO tightening batch shipped: sitemap.xml + robots.txt, sitewide LocalBusiness JSON-LD, canonical/OG/Twitter on all money + listing pages, Product JSON-LD on the 3 yachts, cheap CWV wins. floridayachts.ai forwarding investigated - it is a masked GoDaddy forward, NOT a 301; redirect steps handed to Clark via William)*
 
 ## OPEN
+
+### Technical SEO tightening batch - SHIPPED 2026-06-10 (authorized by Clark, run via William)
+Five logical commits, each pushed via `scripts/sync-push.sh` (GitHub only; Clark runs the cPanel pull). NOTE on workflow: a concurrent Patrick session had an uncommitted edit to `docs/tasks/patrick.md` sitting in the working tree the whole batch. Per the single-writer rule I never touched/committed it - I stashed it around each sync-push and popped it back after, so every one of my commits stayed isolated to my own files and Patrick's parked work was preserved. No rebase conflicts; all five pushes clean.
+- [x] **sitemap.xml + robots.txt** (root). Commit `e2aac7f`. Sitemap: 9 core pages + 3 yacht listings + 15 published articles (from `articles/articles-data.js`), absolute `https://haleyyachts.com/` URLs, lastmod dates. The orphan `articles/travel/2026-05-05-bahamas-cruising-permit-changes-again.html` (self-canonical duplicate of the `-april-2026` file, NOT in articles-data.js) was deliberately EXCLUDED from the sitemap - see flag below. robots.txt: allow crawl, `Sitemap:` line, Disallow `/admin/`, `/docs/`, `/drafts/`.
+- [x] **Sitewide LocalBusiness JSON-LD** via the footer partial. Commit `974c896`. Added `["ProfessionalService","LocalBusiness"]` block (NAP, geo for Jupiter FL 26.9342/-80.0942, sameAs the two real socials, parentOrganization "One Water Yacht Group", logo, founder Clark Haley) to `partials/footer.html` and propagated to all 29 public pages via `sync-footer.sh`. Also fixed a sync-footer coverage gap: added the 4 newer pages that were missing from the PAGES list (3 June-06 articles + the Riviera 4300 listing). `streetAddress` and `openingHours` OMITTED on purpose (not supplied) - see flags.
+- [x] **Canonical + OG + Twitter on the 7 money pages** (index, buy, sell, services, about, contact, valuation). Commit `c15bd4f`. og:type=website, per-page titles/descriptions, absolute URLs, sensible per-page og:image.
+- [x] **Product JSON-LD + canonical + OG/Twitter on the 3 yacht listings.** Commit `77090d1`. schema.org Product (brand/model/year/length/specs/image) + Offer with real asking price for Fortunato ($395k) and Fringe Benefits ($1.495M). Riviera 4300 is a new build with no public price, so its Offer block was omitted, not invented.
+- [x] **Cheap CWV wins.** Commit `704f221`. Homepage hero MP4 `<source>` now gated to `(min-width:768px)` so phones render the poster only and never fetch the 14MB file (added `preload="metadata"`). Clark headshot (10.5MB, shown at 280px in the deep inquiry section) set `loading="lazy"` on all 3 listing pages. Alt-text audit: homepage + all 3 listings already had complete non-empty alts; nothing missing.
+
+FLAGS / OPEN ITEMS from this batch (relayed to William for Clark):
+- **floridayachts.ai is a MASKED GoDaddy forward, not a 301.** HTTP serves byte-identical Haley Yachts homepage HTML under the .ai URL (duplicate content, no link equity passes); HTTPS is fully broken (no cert, dead handshake to GoDaddy's AWS forwarding IPs). Registrar GoDaddy (ns31/ns32.domaincontrol.com). Fix is in GoDaddy DNS: switch Domain Forwarding from "Forward with masking" to a permanent (301) Forward to https://haleyyachts.com, no masking, covering root + www. Full do-this-then-this steps delivered to William. No DNS changed by me.
+- **No street address** supplied for the LocalBusiness JSON-LD, so `streetAddress` is omitted (city/state/country only). NOTE: the privacy page uses "2601 PGA Blvd., West Palm Beach, FL 33410" - if that is the brokerage address Clark wants in structured data, give the word and I will add it (and reconcile Jupiter vs West Palm Beach).
+- **No business hours** supplied, so `openingHours` omitted. Provide if wanted.
+- **Heavy media re-encoding still needed (flagged, not done - not cheap):** hero MP4 is 14MB (re-encode to ~3MB H.264 + a WebM/AV1 variant); `clark-haley-headshot.jpg` 10.5MB and `riviera545suv.jpg` 7MB and `southern-wind.jpg` 3MB should be resized/recompressed to web sizes (the headshot is served at 280px from a 10MB file). These are listing-page LCP and OG-image weights.
+- **Orphan duplicate article** `...bahamas-cruising-permit-changes-again.html` exists on disk, self-canonical, not in articles-data.js, dup of the `-april-2026` version. Recommend either deleting it or 301-ing it to the april file. Excluded from sitemap for now. Needs Clark's call.
 
 ### Pages / Content (technical)
 - [ ] **Publish the Riviera 4300 Sports Express spotlight article.** Draft saved in Article Manager format at `drafts/riviera-4300-sports-express-day-boat-bahamas-weekender.json` (original US-framed boat review by Patrick, approved by Clark; promotes the new 4300 arriving July, with an urgency CTA). title / excerpt / keywords / bodyHtml all populated; type boat-reviews; category Riviera / 4300 Sports Express; heroAlt set. To publish: open it in the Article Manager (Write mode), add the hero image (Clark to provide a shot of the actual incoming boat, or stock 4300 imagery), then publish so it generates the page under `articles/boat-reviews/` and registers in `articles/articles-data.js`; then commit + push + cPanel pull. Draft is blocked from public via `drafts/.htaccess`. NOTE: bodyHtml is written to Clark's OWYG rule; the published page's author card should read "One Water Yacht Group" - see the OWYG cleanup item below.
@@ -23,7 +38,7 @@
 ### Polish
 - [ ] Final logo pass if Clark still wants to revisit
 - [ ] Review color scheme / typography on any pages that feel off
-- [ ] Add `sitemap.xml` once a few articles are published
+- [x] Add `sitemap.xml` once a few articles are published - DONE 2026-06-10 (see Technical SEO batch above; sitemap.xml + robots.txt at root, commit `e2aac7f`).
 
 ### Pre-Launch Hardening
 - [ ] Confirm Formsubmit email verification is current for the contact form
