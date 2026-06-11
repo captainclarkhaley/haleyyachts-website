@@ -6,24 +6,34 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 5, 2026 (Fortunato 360 social cards re-rendered to show $395,000 - `fortunato-360-1080x1920.png` + `-1080x1350.png` regenerated via Pillow; Fringe Benefits cards unchanged. Earlier today: Fortunato price cut to $395,000 across all live surfaces + "PRICE REDUCTION" overlay on the featured Southern Wind image. Committed + pushed, pending cPanel pull.)*
+*Last regenerated: June 11, 2026 (Privacy Policy page BUILT + shipped - `privacy.html`, footer-linked site-wide, pending only Clark's cPanel pull. Cookie-consent banner CLOSED by Clark's decision - privacy policy reworded to a browser/provider opt-out approach instead of an on-site banner. Admin Image Library browser BUILT + wired into Admin home + Article Manager + Featured Yacht editor. GitHub push auth from this machine now working - no longer a blocker. All this session's work pushed to GitHub.)*
+
+---
+
+## Just completed this session (pending only cPanel pull to go live)
+- **Privacy policy page** - `privacy.html` built from Clark-approved copy, linked site-wide in the footer. Done + pushed.
+- **Cookie-consent banner** - CLOSED by decision. Clark chose a browser/provider opt-out approach in the privacy copy instead of an on-site banner. Revised copy committed + pushed. Revisit only if he ever targets EU/UK visitors.
+- **Admin Image Library browser** - built with usage-view + orphan-flagging; wired into Admin home, Article Manager, and Featured Yacht editor. Done + pushed.
+- **GitHub push auth from this machine** - fixed (credential saved); no longer a blocker.
 
 ---
 
 ## Open - Terry (Website + Engineering)
 Source of truth: [`tasks/terry.md`](tasks/terry.md)
 
+- Publish the Riviera 4300 Sports Express spotlight article (draft saved in Article Manager format; needs hero image + publish)
+- OWYS -> OWYG cleanup site-wide (author cards + JSON-LD), pending Clark confirm
+- Social icons - X and LinkedIn: deferred (add later if Clark wants, same pattern)
 - Final logo pass (if Clark revisits)
 - Review color scheme / typography on off-feeling pages
 - Add `sitemap.xml` once a few articles are published
 - Confirm Formsubmit email verification - contact form
 - Confirm Formsubmit email verification - valuation form
-- Privacy policy: build + ship the page + cookie-consent banner (handoff: ships Patrick's approved draft)
 - Mark GA4 conversion events as "key events" in Analytics admin
 - Future: per-listing inquiry forms, brochure/spec PDF downloads, gallery component + wire 3 remaining events
 - Cross-browser test (Chrome, Safari, Firefox, Edge)
 - Mobile device test (iPhone, Android) + revisit hero `min-height: 600px` floor
-- Admin: Image Library browser
+- Featured Yacht admin: keep card and detail-page spec-sheet links in sync (LOW priority, captured only - do not build yet)
 - MLS feed integration for Worldwide Listings (revert buy.html default tab to Worldwide once live)
 - Trial Leadfeeder (reverse-IP company ID)
 
@@ -32,16 +42,15 @@ Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
 - Begin publishing articles regularly (set + hold cadence)
 - Article CONTENT pipeline (words; Terry owns the tool)
-- Article topics: 10 candidate topics + outlines delivered to Clark; awaiting his pick of which to draft first
-- Privacy policy: DRAFT written, awaiting Clark approval (in progress -> Terry ships page + cookie banner once approved)
+- Article topics: 8 remaining approved topics queued, awaiting Clark's go-ahead to draft (Topics 1 + 5 drafted June 6). Source: `docs/drafts/article-topics.md`
 - Brand-voice copy refinements (ongoing)
 - Listing / positioning copy as new listings arrive
 - "The Logbook" newsletter: run per-issue cadence (master template already built)
 
 ## Cross-owner handoffs
-- **Privacy policy**: Patrick drafts copy + Clark approves -> Terry ships page + cookie banner.
-- **Social icons (FB + IG)**: COMPLETE, now 100% sitewide and sourced from the single footer partial. Patrick decided platforms + placement, Terry implemented. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`) live in `partials/footer.html`, injected to all 24 public footers. (X/LinkedIn still deferred.)
-- **Single-source footer**: SHIPPED 2026-06-04. `partials/footer.html` is the one source of truth for the site footer; `scripts/sync-footer.sh` injects it into all 24 public pages between FOOTER:START/END markers. To change the footer: edit the partial, run the script, commit + push, run cPanel pull. Workflow doc: `docs/FOOTER-WORKFLOW.md`. Committed + pushed; needs cPanel pull to deploy.
+- **Privacy policy**: COMPLETE. Patrick drafted copy, Clark approved + chose the browser/provider opt-out approach (no on-site cookie banner), Terry shipped `privacy.html` and the site-wide footer link. Pending only Clark's cPanel pull to go live.
+- **Social icons (FB + IG)**: COMPLETE, 100% sitewide, sourced from the single footer partial. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`) live in `partials/footer.html`, injected to all 24 public footers. (X/LinkedIn still deferred.)
+- **Single-source footer**: SHIPPED 2026-06-04. `partials/footer.html` is the one source of truth; `scripts/sync-footer.sh` injects it into all public pages. Workflow doc: `docs/FOOTER-WORKFLOW.md`. Pushed; needs cPanel pull to deploy.
 
 ---
 
