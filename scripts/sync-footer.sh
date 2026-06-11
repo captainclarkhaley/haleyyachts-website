@@ -75,8 +75,11 @@ services.html
 valuation.html
 articles/_template.html
 articles/boat-reviews/2026-05-04-world-premiere-riviera-6200-sport-yacht.html
+articles/boat-reviews/2026-06-06-riviera-4300-sports-express-the-day-boat-that-knows-how-to-s.html
 articles/how-to/2026-05-05-how-to-choose-a-yacht-broker.html
 articles/how-to/2026-05-09-how-to-plan-your-first-bahamas-cruise.html
+articles/how-to/2026-06-06-how-to-sell-your-yacht.html
+articles/how-to/2026-06-06-what-a-survey-really-covers-and-why-it-protects-you.html
 articles/industry-news/2026-04-03-sunseeker-gets-a-new-permanent-ceo.html
 articles/industry-news/2026-05-05-eight-sunseeker-yachts-find-new-owners-at-fort-lauderdale-in.html
 articles/industry-news/2026-05-05-west-marine-readies-possible-bankruptcy.html
@@ -89,6 +92,7 @@ articles/travel/2026-05-05-bahamas-cruising-permit-changes-again.html
 articles/travel/2026-05-05-bahamas-cruising-permit-changes-april-2026.html
 yachts/fringe-benefits.html
 yachts/fortunato.html
+yachts/riviera-4300-sports-express.html
 "
 
 CHANGED=0
