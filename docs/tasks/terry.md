@@ -7,6 +7,13 @@
 
 ## OPEN
 
+### Business hours added to schema + contact page - SHIPPED 2026-06-11 (Clark supplied hours via William)
+Closes the long-standing "no business hours supplied" flag from the LocalBusiness JSON-LD work. `git fetch` first to clear William's just-pushed GBP commit (931cee3) before reasoning about remote state.
+- [x] **JSON-LD `openingHoursSpecification`** added to the single-source business schema in `partials/footer.html`, after `areaServed`. One `OpeningHoursSpecification` covering Mon-Fri: `dayOfWeek` = [Monday, Tuesday, Wednesday, Thursday, Friday], `opens` "09:00", `closes` "17:00".
+- [x] **Saturday/Sunday deliberately NOT in JSON-LD.** They are "by appointment" and schema.org has no clean by-appointment value. Did NOT invent fake weekend open/close times - only the Mon-Fri spec is structured.
+- [x] **Human-readable hours line** added to `contact.html`, in the centered `.contact-info` block right under the street address: "Mon-Fri 9:00am-5:00pm / Sat-Sun by appointment". This was the natural existing spot (NAP block); no awkward forcing needed.
+- [x] **Propagated** via `sync-footer.sh`: 28 of 28 public pages updated, `--check` returns CHECK OK. JSON-LD parses valid (verified Mon-Fri spec present on the footer business schema across all synced pages). Zero broken output. Admin/, email-templates/, drafts/, cta-card template excluded by design.
+
 ### Orphan / duplicate image cleanup - SHIPPED 2026-06-11 (Clark approved: "remove the duplicate or unused items, photos")
 `git fetch` first (local even with origin/main, no admin-tool divergence). Repo-wide raster audit: for every jpg/jpeg/png/gif/webp, checked whether the basename AND exact path is referenced anywhere in served files (html/css/js, articles-data.js, featured-yachts.js, manifest.json, sitemap.xml, robots.txt). One logical commit, `git rm` + sync-push to GitHub only (Clark runs the cPanel pull).
 - [x] **DELETED 5 unreferenced orphans/duplicates (20,790,369 bytes, ~19.8 MB):**
