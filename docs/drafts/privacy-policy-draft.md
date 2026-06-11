@@ -24,7 +24,7 @@ We use the following:
 - Google Analytics 4 (GA4) to measure site traffic and how visitors use our pages.
 - Microsoft Clarity to understand site behavior through aggregated session activity, including heatmaps and session recordings of how visitors interact with pages.
 
-These tools set cookies and collect usage data. You can opt out of Google Analytics with Google's browser add-on at [https://tools.google.com/dlpage/gaoptout], and you can manage or block cookies through your browser settings. Where required, our cookie-consent banner lets you accept or decline non-essential cookies.
+These tools set cookies and collect usage data. You can control cookies directly through your browser settings, which let you block, delete, or be warned about cookies, including the non-essential ones these analytics tools use. You can also opt out of Google Analytics with Google's browser add-on at [https://tools.google.com/dlpage/gaoptout], and you can opt out of Microsoft Clarity by managing cookies through your browser or by using Microsoft's privacy controls at [https://privacy.microsoft.com/privacystatement]. We do not currently use an on-site cookie-consent banner; cookie choices are managed through these browser and provider controls.
 
 ## How we share information
 We do not sell your personal information. We may share it with:
