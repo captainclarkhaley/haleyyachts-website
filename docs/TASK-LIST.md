@@ -6,36 +6,45 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 11, 2026 (Marketing deliverables batch - authorized by Clark, run through William. Patrick: full Google Business Profile setup package/runbook delivered at `docs/marketing/google-business-profile-setup.md` (ready for Clark to claim + verify, blocked only on business HOURS + Google account ACCESS); plus all 8 remaining approved article topics drafted as Article Manager JSON drafts in `drafts/`, queued for Clark's review + publish. Prior June 10 Technical SEO batch context retained below.)*
+*Last regenerated: June 11, 2026 (end-of-session rollup). This session: technical SEO batch + sitemap/robots; sitewide LocalBusiness/YachtBroker JSON-LD; canonical/OG/Twitter on money + listing pages; business hours added to schema + contact page; canonical address corrected and reconciled sitewide to 2401 PGA Blvd Suite 164, Palm Beach Gardens FL 33410; full image-optimization + orphan/duplicate cleanup (~145 MB+ lighter); Image Library admin tool built + wired in; floridayachts.ai switched to a clean 301; Google Business Profile package delivered (Clark claimed + went live with description/hours/photos); 8 article JSON drafts delivered; Riviera 545 SUV broker co-broke email finalized; Mac GitHub push auth fixed. A durable human-readable session record is at `docs/session-log.md`.)*
 
 ---
 
-## Just completed this session (June 11 - pushed to GitHub; drafts are htaccess-blocked from public)
-- **Google Business Profile setup package (Patrick)** - full runbook delivered at `docs/marketing/google-business-profile-setup.md`: categories (primary Yacht Broker + secondaries), verified NAP (2401 PGA Blvd Suite 164, Palm Beach Gardens, FL 33410 / 561-817-1547 / haleyyachts.com), long + short descriptions, services, service area, attributes, photo checklist, 4 paste-ready Google Posts, starter Q&A, and a numbered claim + verify walkthrough for Clark. Ready to claim; blocked only on business HOURS + Google account ACCESS.
-- **8 remaining approved articles drafted (Patrick)** - all saved as Article Manager JSON drafts in `drafts/` (6 how-to, 1 boat-reviews/Riviera, 1 travel/Bahamas), mirroring the existing draft schema, zero em dashes. Queued for Clark to review + publish via the Article Manager.
+## Just completed this session (June 10-11 - on GitHub; on-site changes need a cPanel pull to go live; GBP + floridayachts.ai redirect already live)
 
-## Prior session (June 10 - on-site changes still need a cPanel pull to go live)
-- **Technical SEO batch (Terry)** - 5 logical commits (`e2aac7f`, `974c896`, `c15bd4f`, `77090d1`, `704f221`) + log commit `09e6604`. sitemap.xml + robots.txt; sitewide LocalBusiness/ProfessionalService JSON-LD; canonical/OG/Twitter on index, buy, sell, services, about, contact, valuation; Product JSON-LD + canonical on the 3 yacht listings; cheap CWV wins (mobile hero-video gating + lazy headshot).
-- **Off-site SEO items (Patrick)** - logged in `tasks/patrick.md` (commit `3486963`). GBP, listing syndication, local citations, buyer-keyword article cadence, backlinks.
+### Terry (engineering)
+- **Technical SEO batch** - sitemap.xml + robots.txt; sitewide LocalBusiness/YachtBroker (ProfessionalService + LocalBusiness) JSON-LD via the footer partial; canonical/OG/Twitter on index, buy, sell, services, about, contact, valuation; Product/Boat JSON-LD + canonical on the 3 yacht listings; cheap CWV wins (mobile hero-video gating + lazy headshot).
+- **Business hours** added to the JSON-LD (`openingHoursSpecification`, Mon-Fri 09:00-17:00) and to the contact page ("Mon-Fri 9:00am-5:00pm / Sat-Sun by appointment"). Weekends deliberately left out of structured data (no clean schema.org by-appointment value). Closes the long-standing "no hours supplied" flag.
+- **Canonical business address corrected + reconciled sitewide** - final canonical NAP is **2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410** (matches OWYG corporate). Fixed an earlier wrong street number (2601) and the privacy page's wrong city (West Palm Beach). Footer JSON-LD streetAddress + geo (26.8430/-80.0738), the 6 displayed full-address strings, and meta-localities all reconciled; repo-wide grep for "2601" returns zero. Closes the "need one canonical address" flag.
+- **Image optimization + cleanup (~145 MB+ lighter)** - full repo raster pass (84 images, ~125 MB saved, same filenames so zero refs broke); removed 5 unreferenced orphan/duplicate images (~20 MB) and the byte-identical duplicate brand-art directory (`logo-haley-yachts-logo/`, ~11 MB; kept `images/brand/favicon_logo/`).
+- **Image Library admin tool** - `admin/image-library.html` (browse + copy-path tab and a usage/orphan tab), wired into the Admin home, the Article Manager, and the Featured Yacht editor.
+- **floridayachts.ai** - was a broken masked GoDaddy forward; switched to a clean Permanent 301 to haleyyachts.com, verified live with HTTPS fixed (this change is already live, not pending a cPanel pull).
+
+### Patrick (marketing)
+- **Google Business Profile setup package** - full runbook at `docs/marketing/google-business-profile-setup.md` (categories, NAP, description, services, hours, photos, 4 Google Posts, starter Q&A, claim/verify steps). Clark selected the playful "Option B" description, owner account clark@haleyyachts.com. Clark CLAIMED the profile this session and went LIVE with description, hours, and photos.
+- **8 article JSON drafts** delivered to `drafts/` (6 how-to, 1 Riviera boat-review, 1 Bahamas travel), zero em dashes, awaiting Clark's review + publish.
+- **Riviera 545 SUV "Fringe Benefits" broker co-broke email** finalized at `email-templates/issues/riviera-545-suv-broker-cobroke.html`, subject "New Listing: 2020 Riviera 545 SUV", listing links to the OWYG details page. Ready to send.
+
+### Infra
+- GitHub push auth from the Mac fixed (credentials stored); pushes work normally.
 
 ---
 
-## NEEDS CLARK (decisions / access blocking work below)
-- **floridayachts.ai redirect** - it is currently a MASKED GoDaddy forward (duplicate content, no link equity, HTTPS fully broken). Clark to switch GoDaddy Domain Forwarding to a permanent (301), no masking, root + www -> https://haleyyachts.com. Step-by-step + verify commands delivered via William.
-- **Brokerage street address for JSON-LD** - omitted from the LocalBusiness block (none supplied). Privacy page uses "2601 PGA Blvd., West Palm Beach, FL 33410" but the site uses "Jupiter, FL" everywhere. Need the one canonical address; Terry will add it + reconcile.
-- **Business hours for JSON-LD** - omitted (unknown). Provide if wanted.
-- **Orphan duplicate article** `articles/travel/...bahamas-cruising-permit-changes-again.html` - self-canonical dup of the `-april-2026` version, not in articles-data.js, excluded from sitemap. Delete it or 301 it to the april file. Clark's call.
-- **Heavy media re-encoding** (flagged, not cheap) - hero MP4 14MB -> ~3MB; `clark-haley-headshot.jpg` 10.5MB, `riviera545suv.jpg` 7MB, `southern-wind.jpg` 3MB -> resize/recompress. LCP + OG-image weights.
-- **Google Business Profile - 2 items to finish** - setup package is written and committed (`docs/marketing/google-business-profile-setup.md`); Clark needs to (a) provide business HOURS (placeholder table in the doc) and (b) confirm the Google account ACCESS / login that will OWN the profile, then claim + verify per the runbook. Gates downstream local-citation work (GBP is the NAP source of truth).
-- **Listing syndication: OWYG question** - does One Water Yacht Group feed YachtWorld / boats.com / YATCO centrally, or is it per-broker? Answer needed before Patrick duplicates effort.
+## NEEDS CLARK (decisions / access / next actions)
+- **Publish the 8 article drafts** - open each in the Article Manager (Write mode), insert images, publish.
+- **Listing syndication: OWYG question** - does One Water Yacht Group feed YachtWorld / boats.com / YATCO centrally, or is it per-broker? Answer needed before Patrick duplicates effort. Gates the syndication + citation work.
+- **Season the GBP** - use the ready-made Google Posts + starter Q&A from the setup doc.
+- **Defensive domains (optional)** - shortlist of available names to grab: haleyyacht.com, haleyyachts.net/.co/.us, haleyyachtsales.com, haleyyachtbrokers.com, palmbeachgardensyachts.com. floridayachts.com is taken (since 1998).
+- **Heavy media re-encode** (optional, not cheap) - hero MP4 14 MB -> ~3 MB H.264 + WebM/AV1 variant. The only item left from the media pass.
 - **OWYS -> OWYG cleanup** - pending Clark confirm (author cards + JSON-LD in `articles/_template.html` + published articles).
+- **GA4 key events** - mark the conversion events as "key events" in the Analytics admin so they show in Conversions reports.
 
 ---
 
 ## Open - Terry (Website + Engineering)
 Source of truth: [`tasks/terry.md`](tasks/terry.md)
 
-- Publish the Riviera 4300 Sports Express spotlight article (draft saved in Article Manager format; needs hero image + publish)
+- Publish the Riviera 4300 Sports Express spotlight article (draft in Article Manager format; needs hero image + publish)
 - OWYS -> OWYG cleanup site-wide (author cards + JSON-LD), pending Clark confirm
 - Social icons - X and LinkedIn: deferred (add later if Clark wants, same pattern)
 - Final logo pass (if Clark revisits)
@@ -43,6 +52,7 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 - Confirm Formsubmit email verification - contact form
 - Confirm Formsubmit email verification - valuation form
 - Mark GA4 conversion events as "key events" in Analytics admin
+- Heavy media re-encode: hero MP4 (14 MB) still pending (image pass is done)
 - Future: per-listing inquiry forms, brochure/spec PDF downloads, gallery component + wire 3 remaining events
 - Cross-browser test (Chrome, Safari, Firefox, Edge)
 - Mobile device test (iPhone, Android) + revisit hero `min-height: 600px` floor
@@ -53,8 +63,9 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 ## Open - Patrick (Marketing / Social / Content)
 Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
-- **Off-site SEO / Visibility:** Google Business Profile setup package DELIVERED (`docs/marketing/google-business-profile-setup.md`) - ready for Clark to claim + verify, blocked on hours + account access (see NEEDS CLARK). Still open: listing syndication (YachtWorld/boats.com/YATCO), local citations / NAP consistency, buyer-keyword article cadence, backlinks - the off-site complement to Terry's on-site technical-SEO push
-- **Articles: 8 remaining approved topics DRAFTED June 11** as Article Manager JSON drafts in `drafts/`, queued for Clark to review + publish (Topics 2, 3, 4, 6, 7, 8, 9, 10; Topics 1 + 5 drafted June 6). Source outlines: `docs/drafts/article-topics.md`
+- **Off-site SEO / Visibility:** GBP package DELIVERED and now CLAIMED + LIVE (description, hours, photos) by Clark. Still open: season GBP with the ready-made posts + Q&A; listing syndication (YachtWorld/boats.com/YATCO - needs the OWYG central-vs-per-broker answer); local citations / NAP consistency (use the GBP NAP); buyer-keyword article cadence; backlinks.
+- **Articles: 8 remaining approved topics DRAFTED** as Article Manager JSON drafts in `drafts/`, queued for Clark to review + publish (Topics 2, 3, 4, 6, 7, 8, 9, 10; Topics 1 + 5 drafted June 6). Source outlines: `docs/drafts/article-topics.md`
+- **Riviera 545 SUV broker co-broke email** finalized and ready to send (`email-templates/issues/riviera-545-suv-broker-cobroke.html`)
 - Begin publishing articles regularly (set + hold cadence)
 - Article CONTENT pipeline (words; Terry owns the tool)
 - Brand-voice copy refinements (ongoing)
@@ -62,14 +73,14 @@ Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 - "The Logbook" newsletter: run per-issue cadence (master template already built)
 
 ## Cross-owner handoffs
-- **Technical SEO (on-site + off-site)**: on-site SHIPPED by Terry (this session); off-site logged by Patrick and now in progress / partly Clark-gated. The two halves are designed to complement each other - on-page structure + structured data (Terry) and external authority + local presence + syndication (Patrick).
-- **Privacy policy**: COMPLETE. Patrick drafted copy, Clark approved + chose the browser/provider opt-out approach (no on-site cookie banner), Terry shipped `privacy.html` and the site-wide footer link. Pending only Clark's cPanel pull to go live.
-- **Social icons (FB + IG)**: COMPLETE, 100% sitewide, sourced from the single footer partial. Facebook (`https://facebook.com/clarkhaleyyachtbroker`) and Instagram (`https://instagram.com/capnclark`). (X/LinkedIn still deferred.)
-- **Single-source footer**: SHIPPED. `partials/footer.html` is the one source of truth; `scripts/sync-footer.sh` injects it into all public pages (now also carries the sitewide LocalBusiness JSON-LD). Workflow doc: `docs/FOOTER-WORKFLOW.md`.
+- **Technical SEO (on-site + off-site)**: on-site SHIPPED by Terry (sitemap/robots, structured data, canonical/OG/Twitter, address + hours). Off-site (GBP, syndication, citations, backlinks) owned by Patrick - GBP now claimed + live; the rest is in progress and partly Clark-gated on the syndication answer.
+- **Privacy policy**: COMPLETE. Patrick drafted copy, Clark approved + chose the browser/provider opt-out approach (no on-site cookie banner - CLOSED BY DECISION), Terry shipped `privacy.html` and the site-wide footer link. Pending only Clark's cPanel pull to go live.
+- **Address / NAP**: reconciled to one canonical string sitewide (2401 PGA Blvd Suite 164, Palm Beach Gardens FL 33410) - matches OWYG corporate and the GBP NAP source of truth.
+- **Single-source footer**: SHIPPED. `partials/footer.html` is the one source of truth; `scripts/sync-footer.sh` injects it into all public pages (carries the sitewide LocalBusiness JSON-LD). Workflow doc: `docs/FOOTER-WORKFLOW.md`.
 
 ---
 
 ## Status
-Site is LIVE at haleyyachts.com (and haleymarine.com - shared /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull. Article-manager-published content goes live immediately via the GitHub API (no pull needed).
+Site is LIVE at haleyyachts.com (and haleymarine.com - shared /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull. Article-manager-published content goes live immediately via the GitHub API (no pull needed). The GBP and the floridayachts.ai 301 are live independently of the site deploy.
 
-For completed-work history, see the "Recently completed / Done" sections in each owner file.
+Durable session record: `docs/session-log.md`. For completed-work history, see the "Recently completed / Done" sections in each owner file.
