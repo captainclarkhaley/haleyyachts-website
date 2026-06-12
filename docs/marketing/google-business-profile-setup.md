@@ -70,9 +70,9 @@ Notes for whoever enters this:
 
 ## 3. Business Description
 
-**LONG version (RECOMMENDED - Option A, warm lifestyle tone, ~690 chars, within the ~750 GBP limit):**
+**LONG version (SELECTED BY CLARK 2026-06-11 - Option B, playful lifestyle tone, ~650 chars, within the ~750 GBP limit):**
 
-> Captain Clark Haley helps you make memories on the water with family and friends. Haley Yachts is a Palm Beach Gardens yacht brokerage serving Jupiter, Palm Beach, and the Treasure Coast, here to turn the dream of yacht ownership into days you will never forget. Whether you are buying your first cruiser, moving up, or selling your current yacht, Clark brings real time on the water and straight answers to every step. We are a full-service brokerage and part of One Water Yacht Group, pairing local knowledge with national reach, and we represent new Riviera models for Florida buyers. Browse listings with 360 virtual tours at haleyyachts.com, or call and let's plan your next adventure.
+> There is nothing like a day on the water with the people you love, and Captain Clark Haley is here to help you make it happen. Haley Yachts is a Palm Beach Gardens yacht brokerage serving Jupiter, Palm Beach, and the Treasure Coast, making yacht ownership feel less like a transaction and more like the start of your best stories. First cruiser, big upgrade, or time to sell? Clark brings real hours behind the wheel and honest answers, start to finish. As part of One Water Yacht Group we pair local know-how with national reach, and we represent new Riviera models for Florida buyers. See every listing in 360 at haleyyachts.com, then come find your boat.
 
 *(Character count is within the GBP description limit. If your picker shows you are over, trim the final sentence first.)*
 
@@ -80,11 +80,11 @@ Notes for whoever enters this:
 
 > Captain Clark Haley helps you make memories on the water with family and friends. Haley Yachts is a Palm Beach Gardens yacht brokerage helping you buy and sell across Jupiter, Palm Beach, and the Treasure Coast, part of One Water Yacht Group.
 
-**ALTERNATE long version (Option B, a touch more playful):**
+**ALTERNATE long version (Option A, a touch more polished - not selected):**
 
-> There is nothing like a day on the water with the people you love, and Captain Clark Haley is here to help you make it happen. Haley Yachts is a Palm Beach Gardens yacht brokerage serving Jupiter, Palm Beach, and the Treasure Coast, making yacht ownership feel less like a transaction and more like the start of your best stories. First cruiser, big upgrade, or time to sell? Clark brings real hours behind the wheel and honest answers, start to finish. As part of One Water Yacht Group we pair local know-how with national reach, and we represent new Riviera models for Florida buyers. See every listing in 360 at haleyyachts.com, then come find your boat.
+> Captain Clark Haley helps you make memories on the water with family and friends. Haley Yachts is a Palm Beach Gardens yacht brokerage serving Jupiter, Palm Beach, and the Treasure Coast, here to turn the dream of yacht ownership into days you will never forget. Whether you are buying your first cruiser, moving up, or selling your current yacht, Clark brings real time on the water and straight answers to every step. We are a full-service brokerage and part of One Water Yacht Group, pairing local knowledge with national reach, and we represent new Riviera models for Florida buyers. Browse listings with 360 virtual tours at haleyyachts.com, or call and let's plan your next adventure.
 
-*(Option A is the recommended pick; Option B is the more playful alternate. Both lead with the experience, then back it with credibility. The prior dry/process-led version is preserved in git history if needed.)*
+*(Clark selected Option B as the live description. Option A retained as the polished alternate. The prior dry/process-led version is preserved in git history if needed.)*
 
 ---
 
