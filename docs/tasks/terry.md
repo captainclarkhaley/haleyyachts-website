@@ -7,6 +7,13 @@
 
 ## OPEN
 
+### Email mobile overflow fix - masthead/footer logos - SHIPPED 2026-06-11 (Clark reported co-broke email too wide on iPhone)
+`git fetch` first (pulled in Patrick's GBP commit c139699 on rebase; sync-push handled the divergence). Root cause: viewport meta WAS present and the container/hero/signature already went fluid, but the masthead dual-logo lockup (Haley 201px + 24px spacer + One Water 177px = 402px fixed-width row) had NO mobile fallback and forced horizontal overflow on iPhone portrait (375-430px), pushing the whole email wider than the screen. Footer logos (240px / 180px) were a secondary risk.
+- [x] **Added media-query rules** (`@media max-width:600px`): `.logo-cell` goes `display:block; width:100%` so the two marks stack and center; `.logo-spacer` hidden; `.logo-img` capped at `max-width:70%; height:auto`; `.footer-img` capped at `max-width:70%; height:auto`. Masthead pad trimmed 24px -> 18px.
+- [x] **Tagged the markup** with the matching `logo-lockup`/`logo-cell`/`logo-spacer`/`logo-img`/`footer-img` classes. Inline px widths kept intact for Outlook/desktop; mobile rules only override via the media query, so desktop rendering is unchanged.
+- [x] **Applied to BOTH** the source template `email-templates/general.html` (every future email inherits the fix) AND the saved issue file `email-templates/issues/riviera-545-suv-broker-cobroke.html` (Clark's current send).
+- [x] **Verified**: viewport meta present, container has `width:100%` fallback under `max-width:600px`, media query targets correct width, hero already `width:100%`, signature already stacks via `.stack`. Audited every 3+ digit width - only the masthead lockup lacked a fluid fallback (VML 600px widths are Outlook-desktop only). One commit (dd26fe8), sync-push to GitHub. Clark re-imports/previews the updated file when building the send; nothing to deploy for the email.
+
 ### Business hours added to schema + contact page - SHIPPED 2026-06-11 (Clark supplied hours via William)
 Closes the long-standing "no business hours supplied" flag from the LocalBusiness JSON-LD work. `git fetch` first to clear William's just-pushed GBP commit (931cee3) before reasoning about remote state.
 - [x] **JSON-LD `openingHoursSpecification`** added to the single-source business schema in `partials/footer.html`, after `areaServed`. One `OpeningHoursSpecification` covering Mon-Fri: `dayOfWeek` = [Monday, Tuesday, Wednesday, Thursday, Friday], `opens` "09:00", `closes` "17:00".
