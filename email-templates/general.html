@@ -88,7 +88,16 @@
     .sig-headshot { margin: 0 auto 20px auto !important; display: block !important; }
     .sig-text { padding: 0 !important; text-align: center !important; }
     .h1-site { font-size: 22px !important; line-height: 28px !important; letter-spacing: 1.5px !important; }
-    .masthead-pad { padding: 28px 24px !important; }
+    .masthead-pad { padding: 28px 18px !important; }
+    /* Masthead dual-logo lockup: stack the two brand marks so the fixed 201px + 24px
+       + 177px row (402px) never forces horizontal overflow on narrow screens. */
+    .logo-lockup { width: 100% !important; }
+    .logo-cell { display: block !important; width: 100% !important; text-align: center !important; padding: 0 0 14px 0 !important; }
+    .logo-cell:last-child { padding-bottom: 0 !important; }
+    .logo-spacer { display: none !important; height: 0 !important; line-height: 0 !important; font-size: 0 !important; }
+    .logo-img { display: inline-block !important; margin: 0 auto !important; max-width: 70% !important; height: auto !important; }
+    /* Footer co-brand marks: keep within the viewport. */
+    .footer-img { max-width: 70% !important; height: auto !important; }
   }
 </style>
 </head>
@@ -131,19 +140,19 @@
             </p>
             <!-- Dual logo lockup: centered, each linked, vertically centered together.
                  Haley 201x36, One Water 177x46 (bumped for equal visual weight). -->
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;">
+            <table role="presentation" class="logo-lockup" border="0" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;">
               <tr>
-                <td valign="middle" align="center">
+                <td class="logo-cell" valign="middle" align="center">
                   <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">
-                    <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-reverse.png"
+                    <img class="logo-img" src="https://haleyyachts.com/images/brand/haleyyachtslogo-reverse.png"
                          width="201" height="36" alt="Haley Yachts"
                          style="display:block; width:201px; max-width:201px; height:36px; border:0; outline:none;" />
                   </a>
                 </td>
-                <td width="24" style="width:24px; font-size:0; line-height:0;">&nbsp;</td>
-                <td valign="middle" align="center">
+                <td class="logo-spacer" width="24" style="width:24px; font-size:0; line-height:0;">&nbsp;</td>
+                <td class="logo-cell" valign="middle" align="center">
                   <a href="https://owyg.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block;">
-                    <img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png"
+                    <img class="logo-img" src="https://haleyyachts.com/images/email/owyg-banner-reverse.png"
                          width="177" height="46" alt="One Water Yacht Group"
                          style="display:block; width:177px; max-width:177px; height:46px; border:0; outline:none;" />
                   </a>
@@ -259,13 +268,13 @@
           <td bgcolor="#070e1a" style="background-color:#070e1a; padding:32px 32px 28px 32px;" class="stack-pad" align="center">
             <!-- One Water Yacht Group co-brand banner (reverse version for the dark footer) -->
             <a href="https://owyg.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block; margin-bottom:18px;">
-              <img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png"
+              <img class="footer-img" src="https://haleyyachts.com/images/email/owyg-banner-reverse.png"
                    width="240" height="62" alt="One Water Yacht Group"
                    style="display:block; width:240px; max-width:240px; height:62px; border:0; outline:none;" />
             </a>
             <br />
             <a href="https://haleyyachts.com" target="_blank" rel="noopener" style="text-decoration:none; display:inline-block; margin-bottom:14px;">
-              <img src="https://haleyyachts.com/images/brand/haleyyachtslogo-footer.png"
+              <img class="footer-img" src="https://haleyyachts.com/images/brand/haleyyachtslogo-footer.png"
                    width="180" height="32" alt="Haley Yachts"
                    style="display:block; width:180px; max-width:180px; height:32px; border:0; outline:none; opacity:0.85;" />
             </a>
