@@ -7,13 +7,11 @@
 
 **This Buyer's Representation Agreement** (the "Agreement") is made and entered into as of **[Effective Date]** (the "Effective Date") by and between:
 
-**Broker:** Clark Haley, a licensed Florida yacht and ship broker, doing business as **Haley Yachts**, a member of the International Yacht Brokers Association (IYBA) and part of One Water Yacht Group (OWYG), with offices at 2401 PGA Boulevard, Suite 164, Palm Beach Gardens, Florida 33410 (the "Broker" or "Haley Yachts"); and
+**Broker:** Clark Haley, an individual, doing business as **Haley Yachts**, a licensed Florida yacht and ship broker, member of the International Yacht Brokers Association (IYBA) and part of One Water Yacht Group (OWYG), with offices at 2401 PGA Boulevard, Suite 164, Palm Beach Gardens, Florida 33410 (the "Broker" or "Haley Yachts"); and
 
-**Buyer:** Barkley Knight, an individual, with a mailing address at **[Buyer Mailing Address]** (the "Buyer").
+**Buyer:** **[Buyer Full Legal Name]**, an individual, with a mailing address at **[Buyer Mailing Address]** (the "Buyer").
 
 The Broker and the Buyer are referred to in this Agreement individually as a "Party" and together as the "Parties."
-
-> `[CONTRACTING ENTITY - CONFIRM: Is "Haley Yachts" a registered LLC, a d/b/a / fictitious name of an individual or other entity, or contracting through One Water Yacht Group? Insert the correct legal entity name and form here before signing - for example "Haley Yachts LLC" or "Clark Haley d/b/a Haley Yachts." This affects who is the contracting party and how the Broker signs below.]`
 
 ---
 
@@ -65,7 +63,7 @@ The Broker and the Buyer are referred to in this Agreement individually as a "Pa
 
 3.6. **Third-party costs are separate.** The Fee does not include, and the Buyer is solely responsible for, all third-party costs of the transaction, including but not limited to the marine survey, sea-trial costs, haul-out, documentation and closing company fees, registration and titling fees, taxes, financing costs, insurance, and any repairs.
 
-> `[OPTION - EXPENSE REIMBURSEMENT: Decide whether the Broker is to be reimbursed for any out-of-pocket travel or expenses incurred in providing the Services (for example, travel to attend a survey or sea trial in another location). DEFAULT in this draft: the Broker absorbs his own expenses and the Buyer owes only the Fee. If you want the Buyer to reimburse pre-approved expenses, say so and a clause will be added.]`
+3.7. **No additional broker charges.** The Broker will not bill the Buyer for any expenses, costs, or charges of any kind in connection with the Services, including the Broker's own travel to attend the survey or sea trial. The only amount the Buyer owes the Broker under this Agreement is the Fee. The third-party transaction costs described in Section 3.6 remain the Buyer's responsibility and are not charged or marked up by the Broker.
 
 ---
 
@@ -195,8 +193,7 @@ By signing below, each Party acknowledges that it has read, understands, and agr
 
 **BROKER**
 
-Haley Yachts
-`[Haley Yachts legal entity - confirm: LLC / d/b/a / OWYG]`
+Clark Haley, an individual, doing business as Haley Yachts
 
 Signature: ______________________________
 
@@ -211,7 +208,7 @@ Date: ______________________________
 
 Signature: ______________________________
 
-Name: Barkley Knight
+Name (print full legal name): ______________________________
 
 Date: ______________________________
 
