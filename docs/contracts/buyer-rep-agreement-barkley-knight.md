@@ -71,7 +71,7 @@ The Broker and the Buyer are referred to in this Agreement individually as a "Pa
 
 4.1. **Term.** This Agreement begins on the Effective Date and continues until the earlier of (a) the closing of the Buyer's purchase of the Vessel, (b) **[Agreement Expiration Date]**, or (c) termination by either Party under Section 4.2 (the "Term"). This Agreement is limited to the transaction described in Section 1 and does not create a general or open-ended brokerage relationship.
 
-4.2. **Termination.** Either Party may terminate this Agreement at any time before closing by giving written notice to the other Party. Termination does not relieve the Buyer of the obligation to pay the Fee if a closing of the Vessel later occurs in the circumstances described in Section 5 (Exclusivity and Protection Period), if that section is adopted.
+4.2. **Termination.** Either Party may terminate this Agreement at any time before closing by giving written notice to the other Party. Termination does not relieve the Buyer of the obligation to pay the Fee if a closing of the Vessel later occurs in the circumstances described in Section 5 (Exclusivity and Protection Period).
 
 4.3. **Effect of termination.** On termination, the Broker will stop providing Services. Because the Fee is fully contingent on a successful closing, no Fee is owed on termination unless and until a qualifying closing occurs.
 
@@ -81,17 +81,11 @@ The Broker and the Buyer are referred to in this Agreement individually as a "Pa
 
 ## 5. EXCLUSIVITY AND PROTECTION PERIOD
 
-> `[OPTION - EXCLUSIVITY: Choose ONE of the two options below and delete the other before signing. RECOMMENDATION: Because the Fee is fully contingent on closing and the Broker is doing real work (negotiation, survey/sea-trial attendance, post-survey negotiation, training) at risk of being paid nothing, the Broker's interests are best protected by EXCLUSIVE representation for this purchase, plus a tail/protection period. Clark to confirm.]`
+5.1. **Exclusive representation.** During the Term, the Broker is the Buyer's sole and exclusive representative for the purchase of the Vessel. The Buyer agrees to work only through the Broker in connection with the Vessel and to refer all communications regarding the Vessel to the Broker.
 
-**OPTION A - EXCLUSIVE (recommended).**
-5.1. During the Term, the Broker is the Buyer's sole and exclusive representative for the purchase of the Vessel. The Buyer agrees to work only through the Broker in connection with the Vessel and to refer all communications regarding the Vessel to the Broker.
+5.2. **This Vessel only.** This Agreement, and the Fee, apply only to the Buyer's purchase of the specific Vessel described in Section 1. This Agreement does not cover, and no Fee is owed in connection with, the Buyer's purchase of any other vessel.
 
-5.2. **Substitute vessel.** `[OPTION - FEE ON SUBSTITUTE VESSEL: Decide whether the exclusive arrangement and the 2.5% Fee also apply if, during the Term, the Buyer instead purchases a DIFFERENT vessel that the Broker introduces to or identifies for the Buyer. RECOMMENDED default: YES - if the Buyer purchases any vessel introduced or identified by the Broker during the Term, the same 2.5% Fee applies, earned and payable on closing of that vessel, on the same terms as this Agreement. Confirm scope: limit to vessels the BROKER introduces, so the Buyer is not charged for a boat the Buyer found entirely on his own.]`
-
-5.3. **Protection period.** If, within **[number, for example 60 or 90]** days after the expiration or termination of this Agreement, the Buyer purchases the Vessel (or, if Section 5.2 is adopted, a substitute vessel introduced by the Broker), the Fee remains due to the Broker on the same terms as if the closing had occurred during the Term. This protects the Broker against a purchase that is delayed past the Term to avoid the Fee.
-
-**OPTION B - NON-EXCLUSIVE.**
-5.4. This Agreement is non-exclusive. The Buyer may engage other brokers or proceed independently. The Fee is owed only if the Buyer purchases the specific Vessel described in Section 1 with the Broker's involvement as described in this Agreement. `[NOTE: If you choose Option B, confirm whether any protection period applies at all; non-exclusive engagements offer the Broker materially less protection.]`
+5.3. **Protection period.** If, within ninety (90) days after the expiration or termination of this Agreement, the Buyer purchases the Vessel, the Fee remains due to the Broker on the same terms as if the closing had occurred during the Term. This protects the Broker against a purchase of the Vessel that is delayed past the Term to avoid the Fee.
 
 ---
 
@@ -161,9 +155,9 @@ The Broker and the Buyer are referred to in this Agreement individually as a "Pa
 
 11.2. **Venue.** The Parties agree that the exclusive venue for any dispute arising out of or relating to this Agreement is Palm Beach County, Florida.
 
-11.3. **Dispute resolution.** `[OPTION - DISPUTE RESOLUTION: Choose how disputes are resolved. The IYBA standard forms commonly call for mediation, and then arbitration or litigation. RECOMMENDED default: the Parties first attempt to resolve any dispute through good-faith mediation in Palm Beach County, Florida; if mediation does not resolve the dispute, the dispute is resolved by [binding arbitration in Palm Beach County, Florida under the rules of (specify, for example the American Arbitration Association)] OR [litigation in the state or federal courts located in Palm Beach County, Florida]. Clark to confirm whether to require arbitration or litigation, and to confirm consistency with the IYBA form being used.]`
+11.3. **Dispute resolution.** Before commencing any other proceeding, the Parties will first attempt in good faith to resolve any dispute arising out of or relating to this Agreement through mediation in Palm Beach County, Florida, before a mutually agreed mediator, with the mediator's fee shared equally by the Parties. If the dispute is not resolved through mediation within thirty (30) days after a Party first requests mediation in writing, either Party may then pursue the dispute in the state or federal courts located in Palm Beach County, Florida.
 
-11.4. **Attorneys' fees.** `[OPTION: Confirm whether the prevailing Party in any dispute is entitled to recover reasonable attorneys' fees and costs. RECOMMENDED default: yes, prevailing-party attorneys' fees and costs.]`
+11.4. **Attorneys' fees.** In any dispute arising out of or relating to this Agreement, the prevailing Party is entitled to recover its reasonable attorneys' fees and costs, including those incurred in mediation, at trial, and on any appeal.
 
 ---
 
