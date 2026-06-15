@@ -19,7 +19,7 @@
 const featuredYachts = [
     {
         image: "images/yachts/featured/riviera545suv.jpg",
-        name: "2020 Riviera 545 SUV, \"Fringe Benefits\" $1,495,000",
+        name: "2020 Riviera 545 SUV, \"Fringe Benefits\" $1,295,000",
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
         link: "contact.html",
         linkText: "Inquire",
