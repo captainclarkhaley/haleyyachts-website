@@ -6,86 +6,80 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 15, 2026 (William rollup). Reflects true current state: floridayachts.ai is a clean 301 (live); Google Business Profile is LIVE (description, hours, photos); the Riviera 545 SUV broker co-broke email is FINALIZED and ready to send; 8 article JSON drafts are queued in the Article Manager awaiting publish; and a Buyer's Representation Agreement for Barkley Knight (Manta 42 Catamaran) is DONE as a draft (saved at `docs/contracts/buyer-rep-agreement-barkley-knight.md` + a Word version on Clark's Desktop), pending Clark filling the signing blanks and attorney/IYBA review before signing. NOTE: the Barkley buyer-rep agreement is NOT yet logged in `tasks/patrick.md` - flagged to its owner for the next update; recorded here so the master reflects reality. Prior session: technical SEO batch + sitemap/robots; sitewide LocalBusiness/YachtBroker JSON-LD; canonical/OG/Twitter on money + listing pages; business hours added to schema + contact page; canonical address reconciled sitewide to 2401 PGA Blvd Suite 164, Palm Beach Gardens FL 33410; full image-optimization + orphan/duplicate cleanup (~145 MB+ lighter); Image Library admin tool built + wired in. A durable human-readable session record is at `docs/session-log.md`.)*
+*Last regenerated: June 15, 2026 (William rollup). Reflects Clark's 2026-06-15 morning pass: Riviera 545 SUV co-broke email SENT (out the door); Barkley Knight buyer-rep agreement SENT to the client (now logged in patrick.md, gap closed); Riviera 4300 spotlight article PUBLISHED via the Article Manager; June Logbook newsletter IN PROGRESS (Clark building it, target send 2026-06-16). Closed as not actionable: listing syndication / MLS feed (OWYG feeds YachtWorld/boats.com/YATCO to the portals centrally; brokers have no per-broker control) and the Leadfeeder trial (dropped, low value for a consumer brokerage). Executed this pass: Formsubmit forms verified + valuation form endpoint aligned to the AJAX endpoint, activation test fired (likely already active, awaiting Clark's inbox confirmation); OWYS -> OWYG branding cleanup site-wide (zero incorrect "One Water Yacht Sales" remain); local-citations / NAP-consistency plan delivered. Hero MP4 re-encode is BLOCKED - no ffmpeg/encoder on the box and no Homebrew to add one (needs Clark to install one). Still gated on Clark only: GA4 key-events and GBP seasoning - left untouched this pass.*
 
 ---
 
-## Just completed this session (June 10-11 - on GitHub; on-site changes need a cPanel pull to go live; GBP + floridayachts.ai redirect already live)
+## DONE this session (June 15 - Clark's morning pass + William-coordinated execution)
 
-### Terry (engineering)
-- **Technical SEO batch** - sitemap.xml + robots.txt; sitewide LocalBusiness/YachtBroker (ProfessionalService + LocalBusiness) JSON-LD via the footer partial; canonical/OG/Twitter on index, buy, sell, services, about, contact, valuation; Product/Boat JSON-LD + canonical on the 3 yacht listings; cheap CWV wins (mobile hero-video gating + lazy headshot).
-- **Business hours** added to the JSON-LD (`openingHoursSpecification`, Mon-Fri 09:00-17:00) and to the contact page ("Mon-Fri 9:00am-5:00pm / Sat-Sun by appointment"). Weekends deliberately left out of structured data (no clean schema.org by-appointment value). Closes the long-standing "no hours supplied" flag.
-- **Canonical business address corrected + reconciled sitewide** - final canonical NAP is **2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410** (matches OWYG corporate). Fixed an earlier wrong street number (2601) and the privacy page's wrong city (West Palm Beach). Footer JSON-LD streetAddress + geo (26.8430/-80.0738), the 6 displayed full-address strings, and meta-localities all reconciled; repo-wide grep for "2601" returns zero. Closes the "need one canonical address" flag.
-- **Image optimization + cleanup (~145 MB+ lighter)** - full repo raster pass (84 images, ~125 MB saved, same filenames so zero refs broke); removed 5 unreferenced orphan/duplicate images (~20 MB) and the byte-identical duplicate brand-art directory (`logo-haley-yachts-logo/`, ~11 MB; kept `images/brand/favicon_logo/`).
-- **Image Library admin tool** - `admin/image-library.html` (browse + copy-path tab and a usage/orphan tab), wired into the Admin home, the Article Manager, and the Featured Yacht editor.
-- **floridayachts.ai** - was a broken masked GoDaddy forward; switched to a clean Permanent 301 to haleyyachts.com, verified live with HTTPS fixed (this change is already live, not pending a cPanel pull).
+### Sent / shipped by Clark
+- **Riviera 545 SUV broker co-broke email - SENT 2026-06-15** via Constant Contact (`email-templates/issues/riviera-545-suv-broker-cobroke.html`). Out the door.
+- **Barkley Knight buyer-rep agreement - SENT to the client 2026-06-15** (Manta 42 Catamaran; `docs/contracts/buyer-rep-agreement-barkley-knight.md` + Word version). Was finalized per Clark's choices; now sent. Now logged in `tasks/patrick.md` (the prior unlogged gap is closed).
+- **Riviera 4300 Sports Express spotlight article - PUBLISHED 2026-06-15** via the Article Manager (generated the page under `articles/boat-reviews/` and registered in `articles/articles-data.js` automatically; live without a cPanel pull).
 
-### Patrick (marketing)
-- **Google Business Profile setup package** - full runbook at `docs/marketing/google-business-profile-setup.md` (categories, NAP, description, services, hours, photos, 4 Google Posts, starter Q&A, claim/verify steps). Clark selected the playful "Option B" description, owner account clark@haleyyachts.com. Clark CLAIMED the profile this session and went LIVE with description, hours, and photos.
-- **8 article JSON drafts** delivered to `drafts/` (6 how-to, 1 Riviera boat-review, 1 Bahamas travel), zero em dashes, awaiting Clark's review + publish.
-- **Riviera 545 SUV "Fringe Benefits" broker co-broke email** finalized at `email-templates/issues/riviera-545-suv-broker-cobroke.html`, subject "New Listing: 2020 Riviera 545 SUV", listing links to the OWYG details page. Ready to send.
+### Terry (engineering) - executed + pushed
+- **OWYS -> OWYG branding cleanup (site-wide) - DONE 2026-06-15.** Fixed 3 incorrect "One Water Yacht Sales" usages to "One Water Yacht Group" in `articles/_template.html` (author card + JSON-LD `worksFor`) and `articles/boat-reviews/2026-05-04-world-premiere-riviera-6200-sport-yacht.html` (JSON-LD). Repo-wide re-grep confirms ZERO incorrect OWYS / "One Water Yacht Sales" remain as a company name. Commit `9201f61`, pushed.
+- **Formsubmit verification - test sent, AWAITING CLARK'S ACTIVATION CLICK.** Both `contact.html` and `valuation.html` post to the Formsubmit AJAX endpoint for `clark@HaleyYachts.com`. Fixed a wiring mismatch: `valuation.html`'s no-JS form `action` was the non-AJAX endpoint while its JS posted to AJAX - aligned both to the AJAX endpoint. A benign test POST returned `success:true`, which usually means the address is already activated. Commit `41ad5c8`, pushed. SEE "NEEDS CLARK" below for the exact email he looks for.
+- **Hero MP4 re-encode - BLOCKED (needs ffmpeg installed).** Independently re-verified: no ffmpeg / ffprobe / HandBrakeCLI / avconv anywhere on the box, and no Homebrew to add one. Did NOT fake the re-encode; the 14.6 MB `images/video/home-header-video.mp4` is untouched. Logged the unblock options + target spec for Clark in `tasks/terry.md`. Commit `43b7e7a`, pushed. SEE "NEEDS CLARK" below.
 
-### Infra
-- GitHub push auth from the Mac fixed (credentials stored); pushes work normally.
+### Patrick (marketing) - delivered (William committed)
+- **Local citations / NAP-consistency plan - DELIVERED 2026-06-15** at `docs/marketing/local-citations-plan.md`. 18 prioritized listing targets (aggregators first), byte-identical NAP block, short + long descriptions in brand voice (zero em dashes, OWYG correct), and a per-target flag of REQUIRES CLARK vs PREPPED BY PATRICK. Honest call: all 18 need Clark's own account / verification to submit; Patrick has staged paste-ready content for every one. Committed `5067fc5`.
+
+### Closed as NOT ACTIONABLE (Clark confirmed)
+- **Listing syndication / MLS feed** (was open on both Terry and Patrick) - OWYG feeds YachtWorld / boats.com / YATCO to the MLS/portal services centrally; individual brokers have no per-broker feed to integrate or control. Closed on both lists; the only residual (verify NAP on those company profiles via OWYG) is folded into the citations plan.
+- **Leadfeeder trial** (Terry) - dropped; low value for a consumer brokerage.
 
 ---
 
 ## DONE - just needs Clark (ready to go, no team work left)
-- **Send the Riviera 545 SUV broker co-broke email** - finalized at `email-templates/issues/riviera-545-suv-broker-cobroke.html` (mobile overflow fixed). Clark imports/sends via Constant Contact.
-- **Fill + sign the Barkley Knight buyer-rep agreement** - draft DONE at `docs/contracts/buyer-rep-agreement-barkley-knight.md` (+ Word version on Clark's Desktop), Manta 42 Catamaran. Pending Clark filling the signing blanks and attorney/IYBA review before signing.
-- **Publish the 8 article drafts** - open each in the Article Manager (Write mode), insert images, publish.
-- **Season the live GBP** - publish the 4 ready-made Google Posts + seed the starter Q&A (Sections 8-9 of `docs/marketing/google-business-profile-setup.md`); add more photos post-verification on a monthly cadence.
+- **Publish the remaining article drafts** - 8 Article Manager JSON drafts queued in `drafts/`; open each in the Article Manager (Write mode), insert images, publish. (The Riviera 4300 spotlight from this set is now published.)
+- **Season the live GBP** - publish the 4 ready-made Google Posts + seed the starter Q&A (Sections 8-9 of `docs/marketing/google-business-profile-setup.md`); add photos on a monthly cadence. (William is handling GBP seasoning timing with Clark directly - left as an open item, not actioned this pass.)
+- **Execute the local-citations plan** - the runbook is staged at `docs/marketing/local-citations-plan.md`; every target needs Clark's own account / owner verification to submit (IYBA / MIASF / chamber rows also need active membership; the OWYG corporate-site listing needs Clark to ask OWYG's web team).
 
 ## NEEDS CLARK (decisions / access / next actions)
-- **Listing syndication: OWYG question** - does One Water Yacht Group feed YachtWorld / boats.com / YATCO centrally, or is it per-broker? Answer needed before Patrick duplicates effort. Gates the syndication + citation work.
-- **Defensive domains (optional)** - shortlist of available names to grab: haleyyacht.com, haleyyachts.net/.co/.us, haleyyachtsales.com, haleyyachtbrokers.com, palmbeachgardensyachts.com. floridayachts.com is taken (since 1998).
-- **Heavy media re-encode** (optional, not cheap) - hero MP4 14 MB -> ~3 MB H.264 + WebM/AV1 variant. The only item left from the media pass.
-- **OWYS -> OWYG cleanup** - pending Clark confirm (author cards + JSON-LD in `articles/_template.html` + published articles).
-- **GA4 key events** - mark the conversion events as "key events" in the Analytics admin so they show in Conversions reports.
+- **Formsubmit activation - confirm the click.** If activation is still pending, look in the `clark@haleyyachts.com` inbox for an email from **"FormSubmit" / no-reply@formsubmit.co**, subject **"Confirm your Email for FormSubmit"** (sometimes "Activate Your Form"), and click the **Activate Form** button. One click covers BOTH the contact and valuation forms (same destination address). If no such email is present, the address is already activated and nothing is needed.
+- **Hero MP4 re-encode - install an encoder.** The re-encode (14.6 MB -> ~3 MB H.264, optional WebM, same filename) is blocked only because no encoder is on the machine. Unblock options in `tasks/terry.md`: install Homebrew + `brew install ffmpeg`, or drop a static ffmpeg build on the PATH, or use the HandBrake GUI app. Once any one is in place, Terry does the re-encode in one pass.
+- **GA4 key events** - mark the conversion events as "key events" in the Analytics admin so they show in Conversions reports (needs Clark's login/decision - left open, not actioned this pass).
+- **Defensive domains (optional)** - shortlist still available to grab: haleyyacht.com, haleyyachts.net/.co/.us, haleyyachtsales.com, haleyyachtbrokers.com, palmbeachgardensyachts.com. floridayachts.com is taken (since 1998).
 
 ---
 
 ## Open - Terry (Website + Engineering)
 Source of truth: [`tasks/terry.md`](tasks/terry.md)
 
-- Publish the Riviera 4300 Sports Express spotlight article (draft in Article Manager format; needs hero image + publish)
-- OWYS -> OWYG cleanup site-wide (author cards + JSON-LD), pending Clark confirm
+- Hero MP4 re-encode - BLOCKED on Clark installing ffmpeg/encoder (see NEEDS CLARK)
+- Formsubmit forms - test sent, awaiting Clark's activation click (see NEEDS CLARK)
 - Social icons - X and LinkedIn: deferred (add later if Clark wants, same pattern)
 - Final logo pass (if Clark revisits)
 - Review color scheme / typography on off-feeling pages
-- Confirm Formsubmit email verification - contact form
-- Confirm Formsubmit email verification - valuation form
-- Mark GA4 conversion events as "key events" in Analytics admin
-- Heavy media re-encode: hero MP4 (14 MB) still pending (image pass is done)
+- Mark GA4 conversion events as "key events" in Analytics admin (Clark-gated)
 - Future: per-listing inquiry forms, brochure/spec PDF downloads, gallery component + wire 3 remaining events
 - Cross-browser test (Chrome, Safari, Firefox, Edge)
 - Mobile device test (iPhone, Android) + revisit hero `min-height: 600px` floor
 - Featured Yacht admin: keep card and detail-page spec-sheet links in sync (LOW priority, captured only - do not build yet)
-- MLS feed integration for Worldwide Listings (revert buy.html default tab to Worldwide once live)
-- Trial Leadfeeder (reverse-IP company ID)
 
 ## Open - Patrick (Marketing / Social / Content)
 Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
-- **Off-site SEO / Visibility:** GBP CLAIMED + LIVE (description, hours, photos). GBP seasoning (4 posts + Q&A + monthly photos) is written and queued under DONE-just-needs-Clark above. Still open for Patrick: listing syndication (YachtWorld/boats.com/YATCO - needs the OWYG central-vs-per-broker answer); local citations / NAP consistency (use the GBP NAP); buyer-keyword article cadence; backlinks.
-- **Articles: 8 approved topics DRAFTED** as Article Manager JSON drafts in `drafts/`, queued for Clark to review + publish (Topics 2, 3, 4, 6, 7, 8, 9, 10; Topics 1 + 5 drafted June 6). Source outlines: `docs/drafts/article-topics.md`
-- **Riviera 545 SUV broker co-broke email** finalized and ready to send (`email-templates/issues/riviera-545-suv-broker-cobroke.html`)
-- **Barkley Knight buyer-rep agreement** drafted + finalized per Clark's choices (`docs/contracts/buyer-rep-agreement-barkley-knight.md` + Word on Desktop), Manta 42 Catamaran. DONE as a draft; awaiting Clark's signing blanks + attorney/IYBA review. NOTE: not yet logged in `tasks/patrick.md` - flagged to Patrick for his next update.
-- Begin publishing articles regularly (set + hold cadence)
+- **Local citations / NAP consistency** - plan DELIVERED at `docs/marketing/local-citations-plan.md`; content staged, awaiting Clark to execute (account/verification gated). 18 targets.
+- **GBP seasoning** - 4 posts + starter Q&A + monthly photos written and queued (Sections 8-9 of the GBP setup doc); pending Clark (William coordinating timing with Clark directly).
+- **Articles: 8 approved JSON drafts** queued in `drafts/` for Clark to review + publish (Topics 2, 3, 4, 6, 7, 8, 9, 10). Source outlines: `docs/drafts/article-topics.md`
+- **June Logbook newsletter - IN PROGRESS** (Clark building the June issue himself; target send 2026-06-16). Per-issue cadence ongoing; master template already built.
+- **Buyer-keyword article cadence** - establish ongoing buyer-intent article cadence (ties into the Patrick-writes -> Article Manager -> Clark-publishes workflow).
+- **Backlinks** - pursue quality inbound links (IYBA, OWYG corporate site, local Palm Beach Gardens / Jupiter business + marine sites, PR).
 - Article CONTENT pipeline (words; Terry owns the tool)
 - Brand-voice copy refinements (ongoing)
 - Listing / positioning copy as new listings arrive
-- "The Logbook" newsletter: run per-issue cadence (master template already built)
 
 ## Cross-owner handoffs
-- **Technical SEO (on-site + off-site)**: on-site SHIPPED by Terry (sitemap/robots, structured data, canonical/OG/Twitter, address + hours). Off-site (GBP, syndication, citations, backlinks) owned by Patrick - GBP now claimed + live; the rest is in progress and partly Clark-gated on the syndication answer.
-- **Privacy policy**: COMPLETE. Patrick drafted copy, Clark approved + chose the browser/provider opt-out approach (no on-site cookie banner - CLOSED BY DECISION), Terry shipped `privacy.html` and the site-wide footer link. Pending only Clark's cPanel pull to go live.
-- **Address / NAP**: reconciled to one canonical string sitewide (2401 PGA Blvd Suite 164, Palm Beach Gardens FL 33410) - matches OWYG corporate and the GBP NAP source of truth.
+- **Technical SEO (on-site + off-site)**: on-site SHIPPED by Terry (sitemap/robots, structured data, canonical/OG/Twitter, address + hours, OWYG branding fix). Off-site owned by Patrick: GBP claimed + live; local citations plan delivered (Clark-gated to execute); syndication CLOSED as not actionable (OWYG central); backlinks + buyer-keyword cadence ongoing.
+- **Privacy policy**: COMPLETE. Terry shipped `privacy.html` + the site-wide footer link; cookie banner closed by decision (browser/provider opt-out). Live pending Clark's cPanel pull.
+- **Address / NAP**: reconciled to one canonical string sitewide (2401 PGA Blvd Suite 164, Palm Beach Gardens FL 33410) - matches OWYG corporate and the GBP/citations NAP source of truth.
 - **Single-source footer**: SHIPPED. `partials/footer.html` is the one source of truth; `scripts/sync-footer.sh` injects it into all public pages (carries the sitewide LocalBusiness JSON-LD). Workflow doc: `docs/FOOTER-WORKFLOW.md`.
 
 ---
 
 ## Status
-Site is LIVE at haleyyachts.com (and haleymarine.com - shared /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull. Article-manager-published content goes live immediately via the GitHub API (no pull needed). The GBP and the floridayachts.ai 301 are live independently of the site deploy.
+Site is LIVE at haleyyachts.com (and haleymarine.com - shared /public_html via alias). Deploys via GitHub -> cPanel Git Version Control Pull. Article-manager-published content goes live immediately via the GitHub API (no pull needed). The GBP and the floridayachts.ai 301 are live independently of the site deploy. June-15 on-site changes (OWYG branding fix, valuation form endpoint) are on GitHub and need a cPanel pull to go live.
 
 Durable session record: `docs/session-log.md`. For completed-work history, see the "Recently completed / Done" sections in each owner file.
