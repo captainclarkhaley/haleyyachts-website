@@ -11,14 +11,18 @@ Outputs:
 import os
 from PIL import Image, ImageDraw, ImageFont
 
-OUT_DIR = "/Users/jameschaley/Desktop/Claude/haleyyachts-website/social-media/cta-cards"
-LOGO_PATH = "/Users/jameschaley/Desktop/Claude/haleyyachts-website/images/brand/haleyyachtslogo-reverse.png"
+# Paths are derived from this script's location so the render works regardless of
+# which machine the repo is cloned to (repo root is two levels up from here).
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+OUT_DIR = os.path.join(_REPO_ROOT, "social-media", "cta-cards")
+LOGO_PATH = os.path.join(_REPO_ROOT, "images", "brand", "haleyyachtslogo-reverse.png")
 
 W, H = 1080, 1920
 NAVY = (10, 22, 40)         # #0a1628 - matches site --section-navy
 ACCENT = (33, 203, 234)     # #21cbea - brand cyan accent
 WHITE = (255, 255, 255)
 DIM = (255, 255, 255, 180)
+REDUCED = (228, 64, 64)     # #e44040 - warm red for the PRICE REDUCED badge
 
 # Generous safe-area inset so Instagram chrome doesn't clip critical lines.
 # IG typically reserves the bottom ~220px (action bar) and top ~250px (header).
@@ -86,6 +90,29 @@ def draw_accent_line(draw, y, width=90, thickness=4):
     draw.rectangle([x, y, x + width, y + thickness], fill=ACCENT)
 
 
+def draw_price_reduced_badge(draw, y, label="PRICE REDUCED", size=40,
+                             letterspacing_px=5, pad_x=40, pad_y=20):
+    """Centered red pill badge with white uppercase text. y is the top of the
+    badge. Returns the badge bottom y so callers can flow content beneath it."""
+    font = load_font("bold", size)
+    advances = [int(font.getlength(ch)) for ch in label]
+    text_w = sum(advances) + letterspacing_px * (len(label) - 1)
+    badge_w = text_w + pad_x * 2
+    badge_h = size + pad_y * 2
+    x0 = (W - badge_w) // 2
+    radius = badge_h // 2
+    draw.rounded_rectangle(
+        [x0, y, x0 + badge_w, y + badge_h], radius=radius, fill=REDUCED
+    )
+    # Center the letter-spaced label inside the pill.
+    x = x0 + pad_x
+    ty = y + pad_y - 4
+    for ch, adv in zip(label, advances):
+        draw.text((x, ty), ch, font=font, fill=WHITE)
+        x += adv + letterspacing_px
+    return y + badge_h
+
+
 def render_cta_card():
     img = Image.new("RGB", (W, H), NAVY)
     draw = ImageDraw.Draw(img)
@@ -102,20 +129,24 @@ def render_cta_card():
     # Accent line under headline
     draw_accent_line(draw, y_headline + 130, width=110, thickness=4)
 
-    # ---- Subtitle: 2020 Riviera 545 SUV  |  $1,495,000
+    # ---- Subtitle: 2020 Riviera 545 SUV  |  $1,295,000 (price reduced)
     sub_font = load_font("semibold", 52)
     y_sub = y_headline + 200
     draw_text_centered(
         draw,
-        "2020 Riviera 545 SUV  |  $1,495,000",
+        "2020 Riviera 545 SUV  |  $1,295,000",
         sub_font,
         y_sub,
         WHITE,
     )
 
+    # ---- PRICE REDUCED badge (under the price line)
+    y_badge = y_sub + 95
+    badge_bottom = draw_price_reduced_badge(draw, y_badge)
+
     # ---- Location line
     loc_font = load_font("regular", 44)
-    y_loc = y_sub + 110
+    y_loc = badge_bottom + 50
     draw_text_centered(draw, "Lying West Palm Beach, FL", loc_font, y_loc, DIM[:3])
 
     # ---- CTA URL + DM line (anchored to bottom safe area)
@@ -168,8 +199,11 @@ def render_title_card():
     # accent line
     draw_accent_line(draw, y_top + 100, width=110, thickness=4)
 
+    # PRICE REDUCED badge between the eyebrow/accent and the hull name
+    draw_price_reduced_badge(draw, y_top + 150)
+
     # Hull name - hero treatment
-    draw_text_centered(draw, "Fringe Benefits", name_font, y_top + 200, WHITE)
+    draw_text_centered(draw, "Fringe Benefits", name_font, y_top + 330, WHITE)
 
     # Subtle tagline at the bottom safe area
     tag_font = load_font("regular", 42)

@@ -16,9 +16,12 @@ Outputs:
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
-OUT_DIR = "/Users/jameschaley/Desktop/Claude/haleyyachts-website/social-media/cta-cards"
-LOGO_PATH = "/Users/jameschaley/Desktop/Claude/haleyyachts-website/images/brand/haleyyachtslogo-reverse.png"
-PHOTO_DIR = "/Users/jameschaley/Desktop/Claude/haleyyachts-website/images/yachts/featured"
+# Paths are derived from this script's location so the render works regardless of
+# which machine the repo is cloned to (repo root is two levels up from here).
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+OUT_DIR = os.path.join(_REPO_ROOT, "social-media", "cta-cards")
+LOGO_PATH = os.path.join(_REPO_ROOT, "images", "brand", "haleyyachtslogo-reverse.png")
+PHOTO_DIR = os.path.join(_REPO_ROOT, "images", "yachts", "featured")
 
 W, H = 1080, 1920
 NAVY_TOP    = (10, 22, 40)     # #0a1628
@@ -27,6 +30,7 @@ NAVY_BOTTOM = (19, 74, 110)    # #134a6e
 ACCENT      = (33, 203, 234)   # #21cbea brand cyan
 WHITE       = (255, 255, 255)
 DIM         = (255, 255, 255, 180)
+REDUCED     = (228, 64, 64)    # #e44040 warm red for the PRICE REDUCED badge
 
 # IG/FB story safe areas; LinkedIn vertical posts have lighter chrome but we
 # design to the tighter constraint so the same asset works everywhere.
@@ -162,6 +166,29 @@ def draw_accent_line(draw, y, width=60, thickness=3, color=ACCENT):
     draw.rectangle([x, y, x + width, y + thickness], fill=color)
 
 
+def draw_price_reduced_badge(draw, y_center, label="PRICE REDUCED", size=30,
+                             letterspacing_px=3, pad_x=30, pad_y=14):
+    """Centered red pill badge with white uppercase text, vertically centered on
+    y_center. Returns (top, bottom) of the badge so callers can flow layout."""
+    font = load_font("bold", size)
+    advances = [int(font.getlength(ch)) for ch in label]
+    text_w = sum(advances) + letterspacing_px * (len(label) - 1)
+    badge_w = text_w + pad_x * 2
+    badge_h = size + pad_y * 2
+    x0 = (W - badge_w) // 2
+    y0 = y_center - badge_h // 2
+    radius = badge_h // 2
+    draw.rounded_rectangle(
+        [x0, y0, x0 + badge_w, y0 + badge_h], radius=radius, fill=REDUCED
+    )
+    x = x0 + pad_x
+    ty = y0 + pad_y - 3
+    for ch, adv in zip(label, advances):
+        draw.text((x, ty), ch, font=font, fill=WHITE)
+        x += adv + letterspacing_px
+    return (y0, y0 + badge_h)
+
+
 def draw_cta_chip(draw, label, y_center, font, pad_x=46, pad_y=22):
     """Cyan pill chip with white uppercase text, centered horizontally."""
     text_w = int(font.getlength(label))
@@ -291,7 +318,7 @@ def autosize_font(weight, text, max_width, start_size, min_size=40, letterspacin
 
 
 def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
-                cta_label, cta_url, canvas_h=1920):
+                cta_label, cta_url, canvas_h=1920, price_reduced=False):
     """Render a single 1080-wide CTA card. canvas_h controls the aspect:
        - 1920 -> 9:16 portrait (default; FB/IG Reels, Stories)
        - 1350 -> 4:5 portrait (FB/IG in-feed image posts, no scroll-crop)
@@ -338,9 +365,15 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
         y_sub = accent_y + int(64 * scale)
         draw_text_centered(draw, sub_line, sub_font, y_sub, WHITE)
 
+        # ---- PRICE REDUCED badge (under the price/sub line) when applicable
+        badge_bottom = y_sub + sub_font.size
+        if price_reduced:
+            badge_center = y_sub + sub_font.size + int(48 * scale)
+            _, badge_bottom = draw_price_reduced_badge(draw, badge_center)
+
         # ---- Teaser line (skip on tighter aspects where the chip would crowd it)
         teaser_font = load_font("regular", 38)
-        y_teaser = y_sub + int(110 * scale)
+        y_teaser = badge_bottom + int(40 * scale)
         if canvas_h >= 1500:
             teaser_text = "Step aboard from anywhere."
             draw_text_centered(draw, teaser_text, teaser_font, y_teaser, DIM[:3])
@@ -394,9 +427,10 @@ if __name__ == "__main__":
         photo_filename="riviera545suv.jpg",
         eyebrow="2020 Riviera 545 SUV",
         hull_name="Fringe Benefits",
-        sub_line="West Palm Beach, FL  |  $1,495,000",
+        sub_line="West Palm Beach, FL  |  $1,295,000",
         cta_label="Take the 360 Tour",
         cta_url="360.haleyyachts.com/fringebenefit",
+        price_reduced=True,
     )
 
     # Fortunato - 1991 Southern Wind 72
@@ -422,10 +456,11 @@ if __name__ == "__main__":
         photo_filename="riviera545suv.jpg",
         eyebrow="2020 Riviera 545 SUV",
         hull_name="Fringe Benefits",
-        sub_line="West Palm Beach, FL  |  $1,495,000",
+        sub_line="West Palm Beach, FL  |  $1,295,000",
         cta_label="Take the 360 Tour",
         cta_url="360.haleyyachts.com/fringebenefit",
         canvas_h=1350,
+        price_reduced=True,
     )
 
     # Fortunato 4:5
