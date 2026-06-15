@@ -3,7 +3,7 @@
 > **Owner / sole writer: Patrick.** This is the only task file Patrick edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 11, 2026*
+*Last updated: June 15, 2026*
 
 ## OPEN
 
@@ -45,15 +45,19 @@
 - [ ] Listing / positioning copy as new listings come in
 
 ### Newsletter
-- [ ] "The Logbook" newsletter workflow: run the per-issue cadence (master template is built - see Done). Per-issue inputs: NOTE, 3 featured listings, 4 articles, 4 recent sales.
+- [~] "The Logbook" newsletter workflow: run the per-issue cadence (master template is built - see Done). Per-issue inputs: NOTE, 3 featured listings, 4 articles, 4 recent sales.
+  - [~] JUNE ISSUE - IN PROGRESS. Clark is building the June issue himself, target send tomorrow morning 2026-06-16.
 
 ---
 
 ## RECENTLY COMPLETED / DONE
 
+### June 15
+- [x] **Barkley Knight buyer-rep agreement - SENT to client 2026-06-15** - Manta 42 Catamaran buyer's representation agreement at `docs/contracts/buyer-rep-agreement-barkley-knight.md` (plus a Word version). Drafted/finalized earlier per Clark's choices; Clark has now sent it to the client. Logging it here for the master rollup (this item had not previously been logged in patrick.md). Done.
+
 ### June 11
 - [x] **Google Business Profile CLAIMED + LIVE** - Clark claimed the profile and it went live 2026-06-11 with the description (he selected the playful "Option B"), business hours (Mon-Fri 9:00am-5:00pm, Sat/Sun by appointment), and photos. Full setup runbook + all paste-ready content (categories, NAP, services, posts, Q&A) at `docs/marketing/google-business-profile-setup.md`. NAP source of truth: Haley Yachts, 2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410, 561-817-1547, haleyyachts.com (Jupiter / Palm Beach / Treasure Coast = service area). Remaining follow-ups (seasoning: 4 Google Posts + starter Q&A + post-verification photos) tracked under OPEN > Off-site SEO.
-- [x] **Riviera 545 SUV broker co-broke email finalized** - co-broke / dealer-to-broker announcement email built and ready to send at `email-templates/issues/riviera-545-suv-broker-cobroke.html`. Final copy locked. No em dashes.
+- [x] **Riviera 545 SUV broker co-broke email - SENT 2026-06-15** - co-broke / dealer-to-broker announcement email at `email-templates/issues/riviera-545-suv-broker-cobroke.html`. Final copy locked; Clark sent it via Constant Contact 2026-06-15. Done, out the door. No em dashes.
 - [x] **8 article JSON drafts delivered** - the remaining 8 approved article topics drafted as Article Manager JSON drafts in `drafts/`, queued for Clark's review + publish via the Article Manager. Mix: 6 how-to (Topics 2, 3, 4, 6, 7, 9), 1 boat-reviews/Riviera (Topic 8), 1 travel/Bahamas (Topic 10). All mirror the Article Manager schema (savedAt, mode, type, title, excerpt, date, author, keywords, heroAlt, heroLayout, bodyHtml, category). QA: zero em dashes across all 8. Filenames listed under OPEN > Content.
 
 ### June 6
