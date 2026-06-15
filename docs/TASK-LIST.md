@@ -6,7 +6,7 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 11, 2026 (end-of-session rollup). This session: technical SEO batch + sitemap/robots; sitewide LocalBusiness/YachtBroker JSON-LD; canonical/OG/Twitter on money + listing pages; business hours added to schema + contact page; canonical address corrected and reconciled sitewide to 2401 PGA Blvd Suite 164, Palm Beach Gardens FL 33410; full image-optimization + orphan/duplicate cleanup (~145 MB+ lighter); Image Library admin tool built + wired in; floridayachts.ai switched to a clean 301; Google Business Profile package delivered (Clark claimed + went live with description/hours/photos); 8 article JSON drafts delivered; Riviera 545 SUV broker co-broke email finalized; Mac GitHub push auth fixed. A durable human-readable session record is at `docs/session-log.md`.)*
+*Last regenerated: June 15, 2026 (William rollup). Reflects true current state: floridayachts.ai is a clean 301 (live); Google Business Profile is LIVE (description, hours, photos); the Riviera 545 SUV broker co-broke email is FINALIZED and ready to send; 8 article JSON drafts are queued in the Article Manager awaiting publish; and a Buyer's Representation Agreement for Barkley Knight (Manta 42 Catamaran) is DONE as a draft (saved at `docs/contracts/buyer-rep-agreement-barkley-knight.md` + a Word version on Clark's Desktop), pending Clark filling the signing blanks and attorney/IYBA review before signing. NOTE: the Barkley buyer-rep agreement is NOT yet logged in `tasks/patrick.md` - flagged to its owner for the next update; recorded here so the master reflects reality. Prior session: technical SEO batch + sitemap/robots; sitewide LocalBusiness/YachtBroker JSON-LD; canonical/OG/Twitter on money + listing pages; business hours added to schema + contact page; canonical address reconciled sitewide to 2401 PGA Blvd Suite 164, Palm Beach Gardens FL 33410; full image-optimization + orphan/duplicate cleanup (~145 MB+ lighter); Image Library admin tool built + wired in. A durable human-readable session record is at `docs/session-log.md`.)*
 
 ---
 
@@ -30,10 +30,14 @@
 
 ---
 
-## NEEDS CLARK (decisions / access / next actions)
+## DONE - just needs Clark (ready to go, no team work left)
+- **Send the Riviera 545 SUV broker co-broke email** - finalized at `email-templates/issues/riviera-545-suv-broker-cobroke.html` (mobile overflow fixed). Clark imports/sends via Constant Contact.
+- **Fill + sign the Barkley Knight buyer-rep agreement** - draft DONE at `docs/contracts/buyer-rep-agreement-barkley-knight.md` (+ Word version on Clark's Desktop), Manta 42 Catamaran. Pending Clark filling the signing blanks and attorney/IYBA review before signing.
 - **Publish the 8 article drafts** - open each in the Article Manager (Write mode), insert images, publish.
+- **Season the live GBP** - publish the 4 ready-made Google Posts + seed the starter Q&A (Sections 8-9 of `docs/marketing/google-business-profile-setup.md`); add more photos post-verification on a monthly cadence.
+
+## NEEDS CLARK (decisions / access / next actions)
 - **Listing syndication: OWYG question** - does One Water Yacht Group feed YachtWorld / boats.com / YATCO centrally, or is it per-broker? Answer needed before Patrick duplicates effort. Gates the syndication + citation work.
-- **Season the GBP** - use the ready-made Google Posts + starter Q&A from the setup doc.
 - **Defensive domains (optional)** - shortlist of available names to grab: haleyyacht.com, haleyyachts.net/.co/.us, haleyyachtsales.com, haleyyachtbrokers.com, palmbeachgardensyachts.com. floridayachts.com is taken (since 1998).
 - **Heavy media re-encode** (optional, not cheap) - hero MP4 14 MB -> ~3 MB H.264 + WebM/AV1 variant. The only item left from the media pass.
 - **OWYS -> OWYG cleanup** - pending Clark confirm (author cards + JSON-LD in `articles/_template.html` + published articles).
@@ -63,9 +67,10 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 ## Open - Patrick (Marketing / Social / Content)
 Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
-- **Off-site SEO / Visibility:** GBP package DELIVERED and now CLAIMED + LIVE (description, hours, photos) by Clark. Still open: season GBP with the ready-made posts + Q&A; listing syndication (YachtWorld/boats.com/YATCO - needs the OWYG central-vs-per-broker answer); local citations / NAP consistency (use the GBP NAP); buyer-keyword article cadence; backlinks.
-- **Articles: 8 remaining approved topics DRAFTED** as Article Manager JSON drafts in `drafts/`, queued for Clark to review + publish (Topics 2, 3, 4, 6, 7, 8, 9, 10; Topics 1 + 5 drafted June 6). Source outlines: `docs/drafts/article-topics.md`
+- **Off-site SEO / Visibility:** GBP CLAIMED + LIVE (description, hours, photos). GBP seasoning (4 posts + Q&A + monthly photos) is written and queued under DONE-just-needs-Clark above. Still open for Patrick: listing syndication (YachtWorld/boats.com/YATCO - needs the OWYG central-vs-per-broker answer); local citations / NAP consistency (use the GBP NAP); buyer-keyword article cadence; backlinks.
+- **Articles: 8 approved topics DRAFTED** as Article Manager JSON drafts in `drafts/`, queued for Clark to review + publish (Topics 2, 3, 4, 6, 7, 8, 9, 10; Topics 1 + 5 drafted June 6). Source outlines: `docs/drafts/article-topics.md`
 - **Riviera 545 SUV broker co-broke email** finalized and ready to send (`email-templates/issues/riviera-545-suv-broker-cobroke.html`)
+- **Barkley Knight buyer-rep agreement** drafted + finalized per Clark's choices (`docs/contracts/buyer-rep-agreement-barkley-knight.md` + Word on Desktop), Manta 42 Catamaran. DONE as a draft; awaiting Clark's signing blanks + attorney/IYBA review. NOTE: not yet logged in `tasks/patrick.md` - flagged to Patrick for his next update.
 - Begin publishing articles regularly (set + hold cadence)
 - Article CONTENT pipeline (words; Terry owns the tool)
 - Brand-voice copy refinements (ongoing)
