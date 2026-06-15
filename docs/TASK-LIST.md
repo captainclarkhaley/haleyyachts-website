@@ -6,7 +6,7 @@
 >
 > This is a concise digest of OPEN items only. For full detail, history, and completed-work logs, see the two source files.
 
-*Last regenerated: June 15, 2026 (William rollup). Reflects Clark's 2026-06-15 morning pass: Riviera 545 SUV co-broke email SENT (out the door); Barkley Knight buyer-rep agreement SENT to the client (now logged in patrick.md, gap closed); Riviera 4300 spotlight article PUBLISHED via the Article Manager; June Logbook newsletter IN PROGRESS (Clark building it, target send 2026-06-16). Closed as not actionable: listing syndication / MLS feed (OWYG feeds YachtWorld/boats.com/YATCO to the portals centrally; brokers have no per-broker control) and the Leadfeeder trial (dropped, low value for a consumer brokerage). Executed this pass: Formsubmit forms verified + valuation form endpoint aligned to the AJAX endpoint, activation test fired (likely already active, awaiting Clark's inbox confirmation); OWYS -> OWYG branding cleanup site-wide (zero incorrect "One Water Yacht Sales" remain); local-citations / NAP-consistency plan delivered. Hero MP4 re-encode is BLOCKED - no ffmpeg/encoder on the box and no Homebrew to add one (needs Clark to install one). Still gated on Clark only: GA4 key-events and GBP seasoning - left untouched this pass.*
+*Last regenerated: June 15, 2026 (William rollup, afternoon pass). UPDATE this pass: (1) MLS feed item REOPENED - important correction from Clark. Listing SYNDICATION OUT (pushing Haley listings to YachtWorld/boats.com/YATCO) stays CLOSED (OWYG feeds those portals centrally), BUT Clark now wants an MLS feed PULLED IN to haleyyachts.com to DISPLAY listings, and is working with OWYG to get feed access. So "MLS feed (pull-in)" is now IN PROGRESS, blocked on Clark obtaining feed access/credentials from OWYG. (2) Leadfeeder stays CLOSED/dropped (Clark agreed). (3) Two relay-ready instruction packages produced for Clark and handed off: Patrick's GBP seasoning pack (4 Posts + 8 Q&A as copy-paste blocks PLUS plain how-to-post steps) and Terry's GA4 key-events click-by-click steps (mark contact_form_submit + valuation_request_submit as key events; phone_click/email_click optional; do NOT mark buy_engaged_view). Earlier 2026-06-15 morning pass still stands: Riviera 545 SUV co-broke email SENT; Barkley Knight buyer-rep agreement SENT; Riviera 4300 spotlight article PUBLISHED via the Article Manager; June Logbook newsletter IN PROGRESS (target send 2026-06-16); Formsubmit forms verified + valuation endpoint aligned (awaiting Clark's inbox activation confirmation); OWYS -> OWYG branding cleanup site-wide; local-citations / NAP-consistency plan delivered. Hero MP4 re-encode still BLOCKED - no ffmpeg/encoder on the box and no Homebrew to add one (needs Clark to install one).*
 
 ---
 
@@ -25,21 +25,24 @@
 ### Patrick (marketing) - delivered (William committed)
 - **Local citations / NAP-consistency plan - DELIVERED 2026-06-15** at `docs/marketing/local-citations-plan.md`. 18 prioritized listing targets (aggregators first), byte-identical NAP block, short + long descriptions in brand voice (zero em dashes, OWYG correct), and a per-target flag of REQUIRES CLARK vs PREPPED BY PATRICK. Honest call: all 18 need Clark's own account / verification to submit; Patrick has staged paste-ready content for every one. Committed `5067fc5`.
 
+### REOPENED this pass (Clark correction 2026-06-15)
+- **MLS feed PULLED IN to display listings - IN PROGRESS, BLOCKED on OWYG feed access** (Terry, see `tasks/terry.md`). Correction to the morning pass: listing SYNDICATION OUT (pushing Haley listings to YachtWorld / boats.com / YATCO) stays CLOSED because OWYG feeds those portals centrally. But Clark now wants an MLS feed PULLED INTO haleyyachts.com so the site can DISPLAY listings, and he is working with OWYG to get feed access. Blocked on Clark obtaining feed access/credentials from OWYG. To build it once he has access, Terry needs: the feed TYPE (IDX / XML / API), the feed URL/endpoint, and credentials (API key / login, kept out of the repo). Open build questions: data schema, refresh cadence, all-Haley vs broader OWYG set, and render location (most likely the Buy page Worldwide tab, currently a coming-soon panel).
+
 ### Closed as NOT ACTIONABLE (Clark confirmed)
-- **Listing syndication / MLS feed** (was open on both Terry and Patrick) - OWYG feeds YachtWorld / boats.com / YATCO to the MLS/portal services centrally; individual brokers have no per-broker feed to integrate or control. Closed on both lists; the only residual (verify NAP on those company profiles via OWYG) is folded into the citations plan.
-- **Leadfeeder trial** (Terry) - dropped; low value for a consumer brokerage.
+- **Listing syndication OUT** (was open on both Terry and Patrick) - OWYG feeds YachtWorld / boats.com / YATCO to the MLS/portal services centrally; individual brokers have no per-broker push feed to control. Stays CLOSED. (The feed-IN pull is now a separate REOPENED item above.) The only residual (verify NAP on those company profiles via OWYG) is folded into the citations plan.
+- **Leadfeeder trial** (Terry) - CLOSED / dropped (Clark agreed); low value for a consumer brokerage.
 
 ---
 
 ## DONE - just needs Clark (ready to go, no team work left)
 - **Publish the remaining article drafts** - 8 Article Manager JSON drafts queued in `drafts/`; open each in the Article Manager (Write mode), insert images, publish. (The Riviera 4300 spotlight from this set is now published.)
-- **Season the live GBP** - publish the 4 ready-made Google Posts + seed the starter Q&A (Sections 8-9 of `docs/marketing/google-business-profile-setup.md`); add photos on a monthly cadence. (William is handling GBP seasoning timing with Clark directly - left as an open item, not actioned this pass.)
+- **Season the live GBP - copy-paste pack + how-to-post steps PRODUCED 2026-06-15 (Patrick), relayed to Clark.** The 4 Google Posts and 8 starter Q&A are packaged as clean copy-paste blocks plus plain numbered instructions for posting them in the live profile (where to click for Add update / Promote / Posts, and how to self-post then answer each Q&A). Source content remains in Sections 8-9 of `docs/marketing/google-business-profile-setup.md`. Remaining: Clark pastes/publishes them, and adds photos on a monthly cadence (Section 7).
 - **Execute the local-citations plan** - the runbook is staged at `docs/marketing/local-citations-plan.md`; every target needs Clark's own account / owner verification to submit (IYBA / MIASF / chamber rows also need active membership; the OWYG corporate-site listing needs Clark to ask OWYG's web team).
 
 ## NEEDS CLARK (decisions / access / next actions)
 - **Formsubmit activation - confirm the click.** If activation is still pending, look in the `clark@haleyyachts.com` inbox for an email from **"FormSubmit" / no-reply@formsubmit.co**, subject **"Confirm your Email for FormSubmit"** (sometimes "Activate Your Form"), and click the **Activate Form** button. One click covers BOTH the contact and valuation forms (same destination address). If no such email is present, the address is already activated and nothing is needed.
 - **Hero MP4 re-encode - install an encoder.** The re-encode (14.6 MB -> ~3 MB H.264, optional WebM, same filename) is blocked only because no encoder is on the machine. Unblock options in `tasks/terry.md`: install Homebrew + `brew install ffmpeg`, or drop a static ffmpeg build on the PATH, or use the HandBrake GUI app. Once any one is in place, Terry does the re-encode in one pass.
-- **GA4 key events** - mark the conversion events as "key events" in the Analytics admin so they show in Conversions reports (needs Clark's login/decision - left open, not actioned this pass).
+- **GA4 key events - click-by-click steps PRODUCED 2026-06-15 (Terry), relayed to Clark.** In GA4 (property `G-6CVE0DG8Z3`): Admin > Data display > Key events (formerly Conversions), or via Admin > Events and the "Mark as key event" toggle. Mark `contact_form_submit` and `valuation_request_submit` (the two real lead conversions); `phone_click` and `email_click` optional secondary; do NOT mark `buy_engaged_view` (a 90s engagement proxy, not a conversion). Requires Clark's GA4 Editor/Admin login. Remaining: Clark performs the toggles.
 - **Defensive domains (optional)** - shortlist still available to grab: haleyyacht.com, haleyyachts.net/.co/.us, haleyyachtsales.com, haleyyachtbrokers.com, palmbeachgardensyachts.com. floridayachts.com is taken (since 1998).
 
 ---
@@ -52,7 +55,8 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 - Social icons - X and LinkedIn: deferred (add later if Clark wants, same pattern)
 - Final logo pass (if Clark revisits)
 - Review color scheme / typography on off-feeling pages
-- Mark GA4 conversion events as "key events" in Analytics admin (Clark-gated)
+- **MLS feed PULLED IN (display listings on site) - IN PROGRESS, blocked on Clark getting feed access/credentials from OWYG** (reopened 2026-06-15; syndication OUT stays closed). Once Clark has access Terry needs feed type (IDX/XML/API), URL/endpoint, credentials; build questions: schema, refresh cadence, all-Haley vs OWYG set, render on Buy > Worldwide tab.
+- Mark GA4 conversion events as "key events" in Analytics admin (Clark-gated; click-by-click steps delivered to Clark 2026-06-15)
 - Future: per-listing inquiry forms, brochure/spec PDF downloads, gallery component + wire 3 remaining events
 - Cross-browser test (Chrome, Safari, Firefox, Edge)
 - Mobile device test (iPhone, Android) + revisit hero `min-height: 600px` floor
@@ -62,7 +66,7 @@ Source of truth: [`tasks/terry.md`](tasks/terry.md)
 Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 
 - **Local citations / NAP consistency** - plan DELIVERED at `docs/marketing/local-citations-plan.md`; content staged, awaiting Clark to execute (account/verification gated). 18 targets.
-- **GBP seasoning** - 4 posts + starter Q&A + monthly photos written and queued (Sections 8-9 of the GBP setup doc); pending Clark (William coordinating timing with Clark directly).
+- **GBP seasoning** - 4 posts + 8 starter Q&A now PACKAGED as copy-paste blocks + plain how-to-post steps and relayed to Clark 2026-06-15 (source: Sections 8-9 of the GBP setup doc); pending Clark to publish + add monthly photos.
 - **Articles: 8 approved JSON drafts** queued in `drafts/` for Clark to review + publish (Topics 2, 3, 4, 6, 7, 8, 9, 10). Source outlines: `docs/drafts/article-topics.md`
 - **June Logbook newsletter - IN PROGRESS** (Clark building the June issue himself; target send 2026-06-16). Per-issue cadence ongoing; master template already built.
 - **Buyer-keyword article cadence** - establish ongoing buyer-intent article cadence (ties into the Patrick-writes -> Article Manager -> Clark-publishes workflow).
@@ -72,7 +76,7 @@ Source of truth: [`tasks/patrick.md`](tasks/patrick.md)
 - Listing / positioning copy as new listings arrive
 
 ## Cross-owner handoffs
-- **Technical SEO (on-site + off-site)**: on-site SHIPPED by Terry (sitemap/robots, structured data, canonical/OG/Twitter, address + hours, OWYG branding fix). Off-site owned by Patrick: GBP claimed + live; local citations plan delivered (Clark-gated to execute); syndication CLOSED as not actionable (OWYG central); backlinks + buyer-keyword cadence ongoing.
+- **Technical SEO (on-site + off-site)**: on-site SHIPPED by Terry (sitemap/robots, structured data, canonical/OG/Twitter, address + hours, OWYG branding fix). Off-site owned by Patrick: GBP claimed + live; local citations plan delivered (Clark-gated to execute); syndication CLOSED as not actionable (OWYG central); backlinks + buyer-keyword cadence ongoing. Listing syndication OUT stays closed (OWYG central); separately, an MLS feed PULLED IN to display listings on the site is REOPENED on Terry (blocked on OWYG feed access).
 - **Privacy policy**: COMPLETE. Terry shipped `privacy.html` + the site-wide footer link; cookie banner closed by decision (browser/provider opt-out). Live pending Clark's cPanel pull.
 - **Address / NAP**: reconciled to one canonical string sitewide (2401 PGA Blvd Suite 164, Palm Beach Gardens FL 33410) - matches OWYG corporate and the GBP/citations NAP source of truth.
 - **Single-source footer**: SHIPPED. `partials/footer.html` is the one source of truth; `scripts/sync-footer.sh` injects it into all public pages (carries the sitewide LocalBusiness JSON-LD). Workflow doc: `docs/FOOTER-WORKFLOW.md`.
