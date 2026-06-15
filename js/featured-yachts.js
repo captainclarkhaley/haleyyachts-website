@@ -155,7 +155,9 @@ function _fyInjectKuulaStyles() {
     border: 1px solid rgba(33, 203, 234, 0.55);
     cursor: pointer;
     position: absolute;
-    top: 12px;
+    /* Anchored to the BOTTOM-right so it never collides with a PRICE
+       REDUCTION bar that's baked across the TOP of a featured image. */
+    bottom: 12px;
     right: 12px;
     z-index: 2;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
