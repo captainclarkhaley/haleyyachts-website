@@ -1369,25 +1369,6 @@ a:hover { color: #1aa8c4; }
     background: #21cbea;
     border-radius: 3px;
 }
-.price-reduction-ribbon {
-    position: absolute;
-    top: 24px;
-    left: -52px;
-    transform: rotate(-45deg);
-    width: 200px;
-    padding: 9px 0;
-    text-align: center;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: #fff;
-    background: #c0392b;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-    z-index: 2;
-    pointer-events: none;
-}
-.listing-hero { overflow: hidden; }
 .listing-body {
     display: grid;
     grid-template-columns: 1.4fr 1fr;
