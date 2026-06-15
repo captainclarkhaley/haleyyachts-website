@@ -7,6 +7,13 @@
 
 ## OPEN
 
+### 360 Tour badge overlapping baked-in PRICE REDUCTION banner - SHIPPED 2026-06-15 (Clark spotted on Southern Wind via William)
+`git fetch` first (tree clean, up to date with origin). Root cause: the featured-card 360 badge (`.fy-kuula-badge`, injected by `js/featured-yachts.js`) was anchored `top: 12px; right: 12px` - the exact spot where the PRICE REDUCTION bar is baked across the TOP of the featured image, so the badge sat on top of the banner text. Collision is featured-cards-only (homepage + buy.html); the LISTING pages (`fortunato.html`, `fringe-benefits.html`) use a plain `listing-hero-img` with no image overlay and a separate 360 section lower down, so no collision there.
+- [x] **Fix:** moved `.fy-kuula-badge` from `top: 12px` to `bottom: 12px` (kept `right: 12px`) in the injected CSS in `js/featured-yachts.js`. Bottom-right keeps it clear of the top banner. General fix - applies to ANY featured card that has a 360 tour, not a per-boat hack.
+- [x] **Affected boats:** both currently-badged price-reduction cards - Southern Wind 72 "Fortunato" (`southern-wind.jpg`, `yachts/fortunato.html`, kuula 7MFLp) and Riviera 545 SUV "Fringe Benefits" (`riviera545suv.jpg`, `yachts/fringe-benefits.html`, kuula 7MBqZ). Confirmed Southern Wind 72 = Fortunato = `yachts/fortunato.html`.
+- [x] **Verification:** code-verified, not visually rendered in a browser this session. `.card-img-wrap` is `position: relative` and wraps the fixed 220px cover-image box, so a `bottom: 12px` badge lands inside the image away from the top banner. No competing badge rule in `styles.css`.
+- [x] Commit 0354f57 (badge CSS), plus 2f42351 (untracked 3 stray tracked `.DS_Store` files - already gitignored). sync-push clean (c53b311..2f42351).
+
 ### Fringe Benefits price reduction + Price Reduction badge - SHIPPED 2026-06-15 (William handed task; $200K reduction, verified current $1,495,000 -> new $1,295,000)
 William pre-fetched/rebased the working tree; did not re-rebase before editing.
 - [x] **Price updated everywhere on the listing page** `yachts/fringe-benefits.html`: title, meta description, og:title, product:price:amount (1295000), twitter:title, JSON-LD offer price (1295000), on-page `.listing-price`, and the Asking spec `<dd>`. All 8 spots now read $1,295,000.
