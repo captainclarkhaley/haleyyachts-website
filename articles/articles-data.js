@@ -37,6 +37,17 @@ const publishedArticles = [
         "keywords": "Riviera 4300 Sports Express, Riviera Sports Express for sale Florida, Volvo Penta IPS, joystick docking, Bahamas weekender, Florida day boat, luxury express cruiser, Haley Yachts, new Riviera for sale"
     },
     {
+        "type": "travel",
+        "title": "Provisioning and Prepping for a Crossing to the Bahamas",
+        "excerpt": "The Bahamas are close enough to see on a clear day and far enough to demand real preparation. Here is how to plan fuel and reserves, handle documents and customs, and pick the weather window for a safe crossing from Florida.",
+        "date": "2026-06-06",
+        "author": "Clark Haley",
+        "slug": "provisioning-and-prepping-for-a-crossing-to-the-bahamas",
+        "fileName": "2026-06-06-provisioning-and-prepping-for-a-crossing-to-the-bahamas.html",
+        "heroImage": "bahamascrossing.jpg",
+        "keywords": "crossing to the Bahamas by boat, Florida to Bahamas crossing, Gulf Stream crossing, Bahamas customs and immigration, Bahamas cruising permit, fuel range planning Bahamas, provisioning for a Bahamas trip, weather window Gulf Stream, Haley Yachts"
+    },
+    {
         "type": "industry-news",
         "title": "One Water Announces \"OWYG Bahamas Rendezvous\" July 16-19, 2026",
         "excerpt": "The annual Summer Rendezvous will bring together owners and guests aboard Sunseeker, Riviera, Absolute, and HCB yachts for four unforgettable days of cruising, dockside hospitality, beach club experiences, island excursions, and curated social events",
