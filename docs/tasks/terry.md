@@ -7,6 +7,16 @@
 
 ## OPEN
 
+### Hero video re-encode - BLOCKED - needs ffmpeg installed (Clark approved task 2026-06-15)
+Goal: re-encode the homepage hero `images/video/home-header-video.mp4` (currently 14,634,665 bytes / ~14.6 MB) down to a web-appropriate ~3 MB, H.264/MP4, KEEPING the exact same filename + path so nothing breaks (index.html line 68 `<source src="images/video/home-header-video.mp4" type="video/mp4" media="(min-width: 768px)">`), keeping the existing poster. Add a WebM secondary source only if cheap to produce.
+- **BLOCKED: no video encoder of any kind is installed on this machine, and there is no Homebrew to add one.** Verified directly this session: `which ffmpeg ffprobe HandBrakeCLI avconv` all not found; nothing in `/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin`; no `/Applications/HandBrake.app` or VLC; no gstreamer; no python `imageio_ffmpeg`/`moviepy`; `mdfind` finds no ffmpeg binary anywhere. The only media tools present are `/usr/bin/sips` (images only) and `/usr/bin/afconvert` (audio only) - neither can transcode an MP4. `which brew` = not found, no brew at either prefix.
+- **Did NOT fake it.** No smaller-but-fake file was produced. The 14.6 MB file is untouched.
+- **What Clark needs to run to unblock** (one of):
+  - Install Homebrew, then ffmpeg: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` then `brew install ffmpeg`.
+  - OR drop a static ffmpeg build on PATH (e.g. from https://evermeet.cx/ffmpeg/ for Apple Silicon/Intel macOS), unzip and `chmod +x`, place in `/usr/local/bin`.
+  - OR install the HandBrake desktop app and re-encode in the GUI to the target below.
+- **Target spec** once an encoder exists: H.264 MP4, ~3 MB, same path `images/video/home-header-video.mp4`. Suggested ffmpeg: `ffmpeg -i in.mp4 -c:v libx264 -crf 28 -preset slow -vf "scale=1280:-2" -movflags +faststart -an out.mp4` (drop audio with `-an` since it is a background hero; tune `-crf` 26-30 to land near 3 MB). Optional WebM: `ffmpeg -i in.mp4 -c:v libvpx-vp9 -crf 34 -b:v 0 -vf "scale=1280:-2" -an out.webm`, add as a second `<source type="video/webm">` ABOVE the mp4 source. Poster stays as-is. Re-confirm index.html reference + poster after, then commit + sync-push.
+
 ### Email mobile overflow fix - masthead/footer logos - SHIPPED 2026-06-11 (Clark reported co-broke email too wide on iPhone)
 `git fetch` first (pulled in Patrick's GBP commit c139699 on rebase; sync-push handled the divergence). Root cause: viewport meta WAS present and the container/hero/signature already went fluid, but the masthead dual-logo lockup (Haley 201px + 24px spacer + One Water 177px = 402px fixed-width row) had NO mobile fallback and forced horizontal overflow on iPhone portrait (375-430px), pushing the whole email wider than the screen. Footer logos (240px / 180px) were a secondary risk.
 - [x] **Added media-query rules** (`@media max-width:600px`): `.logo-cell` goes `display:block; width:100%` so the two marks stack and center; `.logo-spacer` hidden; `.logo-img` capped at `max-width:70%; height:auto`; `.footer-img` capped at `max-width:70%; height:auto`. Masthead pad trimmed 24px -> 18px.
