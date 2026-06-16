@@ -3,7 +3,7 @@
 > **Owner / sole writer: Patrick.** This is the only task file Patrick edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 
-*Last updated: June 15, 2026*
+*Last updated: June 16, 2026*
 
 ## OPEN
 
@@ -51,6 +51,9 @@
 ---
 
 ## RECENTLY COMPLETED / DONE
+
+### June 16
+- [x] **Island Girl listing copy DELIVERED 2026-06-16** - full listing-page copy for the 1997 Offshore 48 "Island Girl" (third June Logbook featured listing, no live page yet) at `docs/drafts/offshore-48-island-girl-listing-copy.md`. Written to every copy slot in the Fortunato/Fringe Benefits template: page title, meta description, OG/Twitter title+description, JSON-LD Product description, positioning line, H1 split treatment (`Island <strong>Girl</strong>`), 2-paragraph "About" narrative, and Key Specs list. Sells the Offshore Yachts of California bluewater-pedigree angle; narrative reads clean WITHOUT inventing hard numbers. Topped with a "NEED FROM CLARK" list (asking price / Price-on-request, exact model variant Pilothouse vs Sedan vs Sport, engines + hours, staterooms/heads, location, standout/refit) using bracketed placeholders ([ASKING], [ENGINES], etc.) for Terry to drop in. Price-on-request fallback variants included. QA: zero em dashes, OWYG correct. Handed to Terry (builds the HTML page) + Clark (specs + sign-off).
 
 ### June 15
 - [x] **Barkley Knight buyer-rep agreement - SENT to client 2026-06-15** - Manta 42 Catamaran buyer's representation agreement at `docs/contracts/buyer-rep-agreement-barkley-knight.md` (plus a Word version). Drafted/finalized earlier per Clark's choices; Clark has now sent it to the client. Logging it here for the master rollup (this item had not previously been logged in patrick.md). Done.
