@@ -12,7 +12,7 @@ const publishedArticles = [
         "slug": "cruising-the-exuma-cays-land-and-sea-park-what-we-get-for-ou",
         "fileName": "2026-06-16-cruising-the-exuma-cays-land-and-sea-park-what-we-get-for-ou.html",
         "heroImage": "dsc02299.jpg",
-        "keywords": "Exuma Cays Land and Sea Park, cruising the Exumas, Warderick Wells anchorage, Shroud Cay, Pipe Creek Bahamas, Bahamas cruising with kids, Exumas by boat, no-take marine reserve Bahamas, Bahamas anchorages, Haley Yachts"
+        "keywords": "Exuma Cays Land and Sea Park, cruising the Exumas, Warderick Wells anchorage, Shroud Cay, Pipe Creek Bahamas, Bahamas cruising with dogs, Exumas by boat, no-take marine reserve Bahamas, Bahamas anchorages, Haley Yachts"
     },
     {
         "type": "how-to",
