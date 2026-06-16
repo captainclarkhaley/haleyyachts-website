@@ -15,6 +15,28 @@ const publishedArticles = [
         "keywords": "Exuma Cays Land and Sea Park, cruising the Exumas, Warderick Wells anchorage, Shroud Cay, Pipe Creek Bahamas, Bahamas cruising with dogs, Exumas by boat, no-take marine reserve Bahamas, Bahamas anchorages, Haley Yachts"
     },
     {
+        "type": "newsletters",
+        "title": "The Logbook | June 2026",
+        "excerpt": "The June issue of The Logbook: a note from Clark on the OWYG Bahamas Rendezvous (July 16-19, Freeport), featured listings (Riviera 545 Fringe Benefits, Southern Wind 72 Fortunato, Offshore 48 Island Girl), Bahamas-bound reading, and recent sales.",
+        "date": "2026-06-16",
+        "author": "Clark Haley",
+        "slug": "the-logbook-june-2026",
+        "fileName": "2026-06-16-the-logbook-june-2026.html",
+        "heroImage": "logbook-2026-06-hero.jpg",
+        "keywords": "Haley Yachts newsletter, The Logbook, June 2026, yacht broker newsletter, Clark Haley, Florida yacht broker, OWYG Bahamas Rendezvous, Riviera 545 SUV Fringe Benefits, Southern Wind 72 Fortunato, Offshore 48 Island Girl, Riviera 4300 Sports Express, Exuma Cays Land and Sea Park, Bahamas crossing, recent yacht sales"
+    },
+    {
+        "type": "how-to",
+        "title": "test Trading Up: When to Move to a Bigger Yacht",
+        "excerpt": "If you keep wishing your boat were a few feet longer, you probably already know it. Here is how to tell when it is time to trade up, and how to time the sell-and-buy so you are not carrying two boats at once.",
+        "date": "2026-06-11",
+        "author": "Clark Haley",
+        "slug": "test-trading-up-when-to-move-to-a-bigger-yacht",
+        "fileName": "2026-06-11-test-trading-up-when-to-move-to-a-bigger-yacht.html",
+        "heroImage": "big-person-small-boat.jpg",
+        "keywords": "trading up to a bigger yacht, when to upgrade my boat, sell and buy a yacht, yacht trade-in Florida, yacht valuation, upgrading from a 40 to a 50 foot yacht, Haley Yachts, One Water Yacht Group"
+    },
+    {
         "type": "how-to",
         "title": "What a Survey Really Covers (and Why it Protects You)",
         "excerpt": "A marine survey is the single best money you spend before buying a yacht. Here is what a pre-purchase survey actually covers, how the sea trial and haul-out fit in, and how the findings turn into real negotiating leverage.",
@@ -68,17 +90,6 @@ const publishedArticles = [
         "fileName": "2026-06-04-one-water-announces-owyg-bahamas-rendezvous-july-16-19-2026.html",
         "heroImage": "hero1.png",
         "keywords": "Riviera Yachts, HCB CenterConsoles, Sunseeker Yachts, OneWater Yacht Group, HaleyYachts, Bahamas, Grand Bahama Yacht Club"
-    },
-    {
-        "type": "newsletters",
-        "title": "The Logbook | June 2026",
-        "excerpt": "The June issue of The Logbook: a note from Clark on the OWYG Bahamas Rendezvous (July 16-19, Freeport), featured listings (Riviera 545 Fringe Benefits, Southern Wind 72 Fortunato, Offshore 48 Island Girl), Bahamas-bound reading, and recent sales.",
-        "date": "2026-06-16",
-        "author": "Clark Haley",
-        "slug": "the-logbook-june-2026",
-        "fileName": "2026-06-16-the-logbook-june-2026.html",
-        "heroImage": "logbook-2026-06-hero.jpg",
-        "keywords": "Haley Yachts newsletter, The Logbook, June 2026, yacht broker newsletter, Clark Haley, Florida yacht broker, OWYG Bahamas Rendezvous, Riviera 545 SUV Fringe Benefits, Southern Wind 72 Fortunato, Offshore 48 Island Girl, Riviera 4300 Sports Express, Exuma Cays Land and Sea Park, Bahamas crossing, recent yacht sales"
     },
     {
         "type": "newsletters",
