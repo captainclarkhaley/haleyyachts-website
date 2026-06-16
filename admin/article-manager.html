@@ -872,6 +872,10 @@ let inlineUploads = [];      // Images inserted via the write-mode editor:
                              // { filename, blob (resized), blobUrl } - filed on publish
 let savedSelectionRange = null; // Caret range captured before toolbar clicks steal focus
 let draftsCache = [];        // Last-loaded draft list from drafts/
+let currentDraftSlug = null; // Slug (filename minus .json) of the draft currently loaded
+                             // in the form. Set on recall so Save Draft overwrites the
+                             // SAME file in place and Publish deletes the RIGHT draft,
+                             // even when the file name does not match buildSlug(title).
 
 // GitHub repo + API config
 const GH_OWNER = 'captainclarkhaley';
@@ -2368,8 +2372,19 @@ async function publishViaGitHub(meta) {
         await updateManifestViaGitHub({ type, title, excerpt, date, author, slug, fileName: articleFileName, heroImage: heroFileName, keywords });
         showProgress(90);
 
-        // Optionally remove the matching draft
-        try { await ghDeleteFile('drafts/' + slug + '.json', 'Remove draft after publishing ' + title); } catch (e) { /* no draft */ }
+        // Remove the draft(s) this article came from. Delete both the title-derived
+        // slug AND the actual recalled file name (currentDraftSlug), because a
+        // hand-committed draft's file name often does not equal buildSlug(title).
+        // Without the second delete the published article lingers in the drafts list.
+        const draftSlugsToRemove = new Set([slug]);
+        if (currentDraftSlug) draftSlugsToRemove.add(currentDraftSlug);
+        for (const ds of draftSlugsToRemove) {
+            try { await ghDeleteFile('drafts/' + ds + '.json', 'Remove draft after publishing ' + title); } catch (e) { /* no draft at this slug */ }
+        }
+        // This form session is no longer tied to a draft file.
+        currentDraftSlug = null;
+        // Refresh the drafts list so the just-published item drops off immediately.
+        try { await loadDrafts(); } catch (e) { /* list refresh is best-effort */ }
         showProgress(100);
 
         showStatus('Published. "' + title + '" committed to ' + GH_OWNER + '/' + GH_REPO + ' at ' + artPath + '. Deploy via cPanel Git pull when ready.', 'success');
@@ -2442,7 +2457,10 @@ async function saveDraft() {
     if (!hasGhToken()) { showStatus('Set a GitHub token above to save drafts to the repo.', 'error'); return; }
     const payload = collectDraftPayload();
     if (!payload) return;
-    const slug = buildSlug(payload.title);
+    // If this draft was recalled from an existing file, overwrite THAT file in place
+    // (its name may not match buildSlug(title), e.g. a hand-committed draft). Only fall
+    // back to a title-derived slug when starting a brand-new draft.
+    const slug = currentDraftSlug || buildSlug(payload.title);
     const btn = document.getElementById('saveDraftBtn');
     btn.disabled = true;
     try {
@@ -2450,7 +2468,11 @@ async function saveDraft() {
         const path = 'drafts/' + slug + '.json';
         const existing = await ghGetFile(path, false);
         await ghPutFile(path, strToBase64(JSON.stringify(payload, null, 2)), 'Save draft: ' + payload.title, existing ? existing.sha : null);
+        // Remember the file we just wrote so subsequent saves overwrite it too.
+        currentDraftSlug = slug;
         showStatus('Draft saved to ' + path + '. Note: inserted images are not stored in the draft and need re-inserting on recall.', 'success');
+        // Keep the visible draft list in sync with what is actually in the repo.
+        try { await loadDrafts(); } catch (e) { /* list refresh is best-effort */ }
     } catch (err) {
         showGhError(err, 'Could not save draft: ' + err.message);
     } finally {
@@ -2520,6 +2542,9 @@ async function recallDraft(path) {
         const f = await ghGetFile(path, true);
         if (!f || !f.text) { showStatus('Could not read draft.', 'error'); return; }
         const d = JSON.parse(f.text);
+        // Bind this form session to the file it came from, by its actual on-disk name,
+        // not buildSlug(title). Save Draft overwrites this; Publish deletes this.
+        currentDraftSlug = path.replace(/^drafts\//, '').replace(/\.json$/, '');
         setMode(d.mode === 'upload' ? 'upload' : 'write');
         document.getElementById('articleType').value = d.type || '';
         toggleCategoryFields();
@@ -2551,6 +2576,10 @@ async function deleteDraft(path, name) {
     try {
         await ghDeleteFile(path, 'Delete draft ' + name);
         draftsCache = draftsCache.filter(d => d.path !== path);
+        // If the form was tied to this draft, unbind it so a later Save Draft does not
+        // resurrect the deleted file.
+        const deletedSlug = path.replace(/^drafts\//, '').replace(/\.json$/, '');
+        if (currentDraftSlug === deletedSlug) currentDraftSlug = null;
         renderDraftList();
         showStatus('Draft deleted.', 'success');
     } catch (err) {
@@ -2948,6 +2977,7 @@ function clearForm() {
     inlineUploads.forEach(u => { try { URL.revokeObjectURL(u.blobUrl); } catch (e) {} });
     inlineUploads = [];
     savedSelectionRange = null;
+    currentDraftSlug = null; // No longer editing a recalled draft.
     const ed = document.getElementById('bodyEditor');
     if (ed) ed.innerHTML = '<p>Start writing your article here. Use the toolbar above for headings, lists, links, and to insert images.</p>';
     document.getElementById('docFileName').textContent = '';
