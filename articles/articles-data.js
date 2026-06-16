@@ -127,7 +127,7 @@ const publishedArticles = [
     {
         "type": "travel",
         "title": "Bahamas Cruising Permit Changes - April 2026",
-        "excerpt": "Bahamas cruising permit fees changed again — effective April 1, 2026. If you're yacht shopping with the Bahamas on your radar, these new costs are part of the ownership conversation. Here's what you need to know.",
+        "excerpt": "Bahamas cruising permit fees changed again - effective April 1, 2026. If you're yacht shopping with the Bahamas on your radar, these new costs are part of the ownership conversation. Here's what you need to know.",
         "date": "2026-05-05",
         "author": "Clark Haley",
         "slug": "bahamas-cruising-permit-changes-april-2026",
@@ -138,7 +138,7 @@ const publishedArticles = [
     {
         "type": "industry-news",
         "title": "Eight Sunseeker Yachts Find New Owners at Fort Lauderdale International Boat Show 2025",
-        "excerpt": "Eight Sunseeker yachts sold at FLIBS — including a Predator 75, 95 Yacht, and three Manhattan 55s. Strong demand, great energy at the show. If Sunseeker is on your radar, let's talk.",
+        "excerpt": "Eight Sunseeker yachts sold at FLIBS - including a Predator 75, 95 Yacht, and three Manhattan 55s. Strong demand, great energy at the show. If Sunseeker is on your radar, let's talk.",
         "date": "2026-05-05",
         "author": "Clark Haley",
         "slug": "eight-sunseeker-yachts-find-new-owners-at-fort-lauderdale-in",
@@ -171,7 +171,7 @@ const publishedArticles = [
     {
         "type": "boat-reviews",
         "title": "World Premiere - Riviera 6200 Sport Yacht",
-        "excerpt": "Riviera's new 6200 Sport Yacht delivers big-boat living in 62 feet — full-beam master, alfresco aft deck, gourmet galley, and twin Volvo Penta 900hp IPS drives. This one is built to cruise in serious style.",
+        "excerpt": "Riviera's new 6200 Sport Yacht delivers big-boat living in 62 feet - full-beam master, alfresco aft deck, gourmet galley, and twin Volvo Penta 900hp IPS drives. This one is built to cruise in serious style.",
         "date": "2026-05-04",
         "author": "Clark Haley",
         "slug": "world-premiere-riviera-6200-sport-yacht",

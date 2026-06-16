@@ -60,7 +60,7 @@ document.querySelectorAll('.sub-tab').forEach(tab => {
         }
         tab.classList.add('active');
 
-        // Show target content — search the parent container
+        // Show target content - search the parent container
         const parent = tab.closest('.section') || tab.closest('section') || document;
         parent.querySelectorAll('.sub-content').forEach(c => c.classList.remove('active'));
         const content = parent.querySelector('#' + target);
@@ -192,7 +192,7 @@ function setupPhoneValidation(phoneInput) {
 
     function updatePlaceholder() {
         const country = getSelectedCountry();
-        // Show format WITHOUT country code (user can't type it — it's in the dropdown)
+        // Show format WITHOUT country code (user can't type it - it's in the dropdown)
         phoneInput.placeholder = country.format.replace(/#/g, 'X');
     }
 
