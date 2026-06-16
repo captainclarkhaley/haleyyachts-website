@@ -51,9 +51,23 @@
 <section class="section" id="articles-content">
     <div class="container">
         <!-- Search bar -->
-        <div class="article-search-bar" style="margin-bottom:24px;">
-            <input type="text" id="articleSearch" placeholder="Search articles by title, topic, or keyword..."
-                   style="width:100%;padding:12px 16px;font-family:'Open Sans',Arial,sans-serif;font-size:0.95rem;border:1px solid #d0d0d0;border-radius:3px;background:#fff;color:#333;">
+        <div class="article-search-bar">
+            <label for="articleSearch" class="article-search-label">Search articles</label>
+            <div class="article-search-field">
+                <svg class="article-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="articleSearch" autocomplete="off"
+                       placeholder="Search articles by title, topic, or keyword..."
+                       aria-label="Search articles by title, topic, or keyword">
+                <button type="button" id="articleSearchClear" class="article-search-clear" aria-label="Clear search" hidden>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
         </div>
         <div class="filter-chips" id="categoryFilters" role="group" aria-label="Filter articles by category">
             <span class="filter-chips-label">Showing:</span>

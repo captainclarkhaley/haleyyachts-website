@@ -542,6 +542,78 @@ a:hover { color: #1aa8c4; }
 .listings-coming-soon p + p { margin-top: 8px; }
 .listings-coming-soon a { color: #1c75bc; text-decoration: underline; }
 
+/* ===== ARTICLES SEARCH ===== */
+.article-search-bar {
+    margin-bottom: 20px;
+}
+.article-search-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 8px;
+}
+.article-search-field {
+    position: relative;
+    max-width: 520px;
+}
+.article-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: #21cbea;
+    pointer-events: none;
+}
+.article-search-field input {
+    width: 100%;
+    padding: 12px 42px 12px 42px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: #0a1628;
+    border: 2px solid #e2e2e2;
+    border-radius: 999px;
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.article-search-field input::placeholder { color: #aaa; }
+.article-search-field input:focus {
+    outline: none;
+    border-color: #21cbea;
+    box-shadow: 0 0 0 3px rgba(33, 203, 234, 0.15);
+}
+.article-search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #888;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.article-search-clear svg { width: 16px; height: 16px; }
+.article-search-clear:hover { background: #f0f2f4; color: #0a1628; }
+.article-search-clear:focus-visible {
+    outline: 2px solid #21cbea;
+    outline-offset: 2px;
+}
+@media (max-width: 600px) {
+    .article-search-field { max-width: 100%; }
+}
+
 /* ===== ARTICLES GRID ===== */
 .filter-chips {
     display: flex;

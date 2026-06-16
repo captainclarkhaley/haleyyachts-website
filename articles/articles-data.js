@@ -227,11 +227,40 @@ function getActiveCategories() {
     return [selected];
 }
 
+// Escape a string for safe insertion into HTML text (used for the search query
+// echoed back in the empty-state message).
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Build the searchable haystack for one article: title + excerpt + keywords +
+// author + the category tag/label (so "boat review" or "travel" matches too).
+function articleHaystack(a) {
+    var meta = CATEGORY_META[a.type] || {};
+    return [
+        a.title, a.excerpt, a.keywords, a.author,
+        a.type, meta.tag, meta.label
+    ].join(' ').toLowerCase();
+}
+
+// Multi-word AND match: every whitespace-separated term must appear somewhere
+// in the haystack. Empty query matches everything.
+function matchesQuery(haystack, terms) {
+    for (var i = 0; i < terms.length; i++) {
+        if (haystack.indexOf(terms[i]) === -1) return false;
+    }
+    return true;
+}
+
 function renderArticles(searchTerm) {
     var EMPTY_MESSAGE = '<p style="color:#999;font-style:italic;font-size:0.9rem;">No articles published yet. Check back soon.</p>';
-    var NO_RESULTS_SEARCH = '<p style="color:#999;font-style:italic;font-size:0.9rem;">No articles match your search.</p>';
     var NO_CATEGORIES = '<p style="color:#999;font-style:italic;font-size:0.9rem;">No categories selected. Click a category chip above to include it.</p>';
-    var query = (searchTerm || '').toLowerCase().trim();
+    var rawQuery = (searchTerm || '').replace(/\s+/g, ' ').trim();
+    var query = rawQuery.toLowerCase();
+    var terms = query ? query.split(' ') : [];
+    var NO_RESULTS_SEARCH = '<p style="color:#999;font-style:italic;font-size:0.9rem;">No articles match "' + escapeHtml(rawQuery) + '".</p>';
     var activeCats = getActiveCategories();
 
     function buildCardHtml(article) {
@@ -264,11 +293,8 @@ function renderArticles(searchTerm) {
 
         var matched = publishedArticles.filter(function(a) {
             if (activeCats.indexOf(a.type) === -1) return false;
-            if (!query) return true;
-            return (a.title || '').toLowerCase().indexOf(query) !== -1 ||
-                   (a.excerpt || '').toLowerCase().indexOf(query) !== -1 ||
-                   (a.keywords || '').toLowerCase().indexOf(query) !== -1 ||
-                   (a.author || '').toLowerCase().indexOf(query) !== -1;
+            if (!terms.length) return true;
+            return matchesQuery(articleHaystack(a), terms);
         });
 
         // Sort newest first
@@ -286,12 +312,9 @@ function renderArticles(searchTerm) {
     document.querySelectorAll('.articles-grid[data-category]').forEach(function(grid) {
         var category = grid.dataset.category;
         var catArticles = publishedArticles.filter(function(a) { return a.type === category; });
-        if (query) {
+        if (terms.length) {
             catArticles = catArticles.filter(function(a) {
-                return (a.title || '').toLowerCase().indexOf(query) !== -1 ||
-                       (a.excerpt || '').toLowerCase().indexOf(query) !== -1 ||
-                       (a.keywords || '').toLowerCase().indexOf(query) !== -1 ||
-                       (a.author || '').toLowerCase().indexOf(query) !== -1;
+                return matchesQuery(articleHaystack(a), terms);
             });
         }
         if (!catArticles.length) {
@@ -325,10 +348,24 @@ document.addEventListener('DOMContentLoaded', function() {
     renderArticles();
 
     if (searchInput) {
+        var clearBtn = document.getElementById('articleSearchClear');
+        function syncClearBtn() {
+            if (clearBtn) clearBtn.hidden = !searchInput.value.length;
+        }
         var debounceTimer;
         searchInput.addEventListener('input', function() {
+            syncClearBtn();
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(function() { renderArticles(searchInput.value); }, 200);
         });
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function() {
+                searchInput.value = '';
+                syncClearBtn();
+                renderArticles('');
+                searchInput.focus();
+            });
+        }
+        syncClearBtn();
     }
 });
