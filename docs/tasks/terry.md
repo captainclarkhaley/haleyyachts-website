@@ -7,6 +7,13 @@
 
 ## OPEN
 
+### PRICE REDUCTION band -> solid opaque black (Riv 545 + Southern Wind) - SHIPPED 2026-06-16 (Clark via William)
+`git fetch` first (origin had moved: admin-tool commits + featured-card Island Girl PDF fix, all already in local main 6bdda64; clean rebase, nothing behind). Clark liked the lighter lettering + the match but wanted ONE change: the band behind PRICE REDUCTION should be SOLID 100% black, identical on both boats - not the dark-navy semi-transparent look.
+- [x] **Only the band fill changed:** `BAND_RGBA` in `bake-price-banner.py` went from `(10,14,22,158)` (dark navy-black ~62% opacity, see-through) to **`(0,0,0,255)`** (pure black, full opacity, no photo through). Everything else kept exactly as approved: red Open Sans SemiBold all-caps, same 11.5% band height/position/proportion, matched between the two boats. Re-baked from the CLEAN recovered masters (`c0c2ca2^` for Riv, `ece0dbc:southern-wind.original.jpg` for SW) - NOT stacked over the current banners.
+- [x] **4 files re-baked:** `images/yachts/featured/riviera545suv.jpg`, `articles/newsletters/images/riviera545suv.jpg`, `images/yachts/featured/southern-wind.jpg`, `articles/newsletters/images/southern-wind.jpg`. Each boat's two copies `cmp`-verified byte-identical.
+- [x] **Verified visually** - opened both re-baked featured images: band is now solid opaque black (zero photo showing through), red text reads cleanly on pure black, and the two still match as a set (band height/position/proportion + font + red + centering).
+- [x] **Script header/comment updated** to describe the solid-black band so the bake stays repeatable. Commit `481bb05`, sync-push clean (`6bdda64..481bb05`).
+
 ### PRICE REDUCTION banners re-baked (Riv 545 + Southern Wind) - less bold + matched - SHIPPED 2026-06-16 (Clark via William)
 `git fetch` first (clean, in sync w/ origin/main 7ed2696). Clark: the baked PRICE REDUCTION banners on the Riv 545 and Southern Wind 72 were too heavy (Impact + thick black stroke). Wanted lighter lettering and the two banners to MATCH, using the Riv 545 band as the reference.
 - [x] **Clean masters recovered from git history (NOT painted over old banners):** Riv 545 = blob at `c0c2ca2^` (`git show c0c2ca2^:images/yachts/featured/riviera545suv.jpg`, 1600x1176). Southern Wind = the deleted pre-overlay master `southern-wind.original.jpg` recovered from `ece0dbc` (`git show ece0dbc:images/yachts/featured/southern-wind.original.jpg`, 4800x3200). Both verified clean (no banner) by viewing before bake.
