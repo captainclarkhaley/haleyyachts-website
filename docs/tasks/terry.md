@@ -7,6 +7,16 @@
 
 ## OPEN
 
+### Articles page SEARCH upgraded - SHIPPED 2026-06-16 (Clark via William)
+`git fetch` first (origin in sync w/ 2e71947; clean rebase, nothing behind). Clark wanted a SEARCH option on the Articles page so visitors can find articles. Found a basic search already wired in `articles/articles-data.js` (live filter on title/excerpt/keywords/author, debounced, plus the single-select category chips). Rather than rebuild, I extended it to meet the spec.
+- [x] **Search box (articles.html):** replaced the plain inline-styled `#articleSearch` input with a styled field - magnifier SVG icon, accessible `<label>` + aria-label, and a clear (x) button (`#articleSearchClear`) that appears only while there is text. Sits directly above the category chips, above `#articlesGrid`. New CSS in `css/styles.css` (`.article-search-*`): cyan #21cbea icon + focus ring, navy #0a1628 text, pill border to match the chips, full-width on mobile (<=600px).
+- [x] **Match logic (articles-data.js):** now searches title + excerpt + keywords + author + the category tag/label (so "travel", "boat review", "newsletter" match). Multi-word queries are AND (every whitespace-separated term must appear). Whitespace normalized/trimmed. Sort unchanged (newest first).
+- [x] **Combines with the existing category chips** (AND), does not override - chip=travel + "Riviera" correctly returns 0 since Riviera reviews live in boat-reviews.
+- [x] **Empty state** echoes the query: `No articles match "<query>".`, HTML-escaped (verified a `<script>` query is neutralized). Clearing the box (typing or the x) restores all.
+- [x] **Did not touch the Article Manager schema** - search reads `publishedArticles` as-is; new entries flow in automatically.
+- [x] **Verified (headless Chrome against the real files):** unfiltered 18/18; "Bahamas" 9, "Riviera" 6, "survey" 1; "Bahamas survey" -> 0 + quoted empty state; "travel" 4 (category match); author "Reshmi" 1; clear button toggles + restores 18. Commit `24b4dd0`, sync-push clean (`2e71947..24b4dd0`).
+- FLAG (not built): the category chips already cover faceted browsing. A natural follow-on if Clark wants it: highlight the matched terms in the cards, or a result count ("12 articles"). Both trivial; left out pending a request.
+
 ### June Logbook newsletter published as a web article - SHIPPED 2026-06-16 (Clark via William)
 `git fetch` first (origin had moved a lot today incl admin-tool publishes + the dock-card swap e93df0c; local was already in sync, clean). Clark: turn the June Logbook into a web ARTICLE (he handles the Constant Contact send himself), modeled on the May Logbook article precedent.
 - [x] **Studied the May precedent** (`articles/newsletters/2026-05-09-the-logbook-may-2026.html` + its articles-data.js entry) and mirrored its structure, header/footer, meta/OG/Twitter/JSON-LD, and prose-reformatting of the email's table layout.
