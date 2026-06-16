@@ -329,8 +329,13 @@ function renderFeaturedYachts(containerId) {
     _fyInjectKuulaStyles();
 
     container.innerHTML = featuredYachts.filter(isFilledYacht).map(y => {
+        // Vertically top-anchor the cover-crop. Several featured photos have a
+        // "PRICE REDUCTION" banner baked across the TOP of the image; a centered
+        // crop in the fixed-height card box (220px) clips that banner in half.
+        // Anchoring to the top shows the full banner and trims only bottom water
+        // foreground, which keeps every boat fully in frame.
         const imgStyle = y.image
-            ? `background-image: url('${y.image}'); background-size: cover; background-position: center;`
+            ? `background-image: url('${y.image}'); background-size: cover; background-position: center top;`
             : '';
         const imgLabel = y.image ? '' : 'Featured Yacht Image';
         const pdfLink = (y.pdf && y.pdf.trim())
