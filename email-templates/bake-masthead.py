@@ -76,6 +76,19 @@ def main() -> int:
     lw, lh = logo.size
     new_lw = int(lw * LOGO_HEIGHT / lh)
     logo = logo.resize((new_lw, LOGO_HEIGHT), Image.LANCZOS)
+
+    # Semi-transparent dark rounded panel behind the Haley logo so the white
+    # wordmark pops regardless of how bright the photo behind it is. ~50% opacity.
+    pad_x, pad_y = 24, 18
+    panel = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    pd = ImageDraw.Draw(panel)
+    pd.rounded_rectangle(
+        [margin - pad_x, margin - pad_y,
+         margin + new_lw + pad_x, margin + LOGO_HEIGHT + pad_y],
+        radius=14, fill=(8, 22, 40, 128),  # brand navy at ~50% opacity
+    )
+    canvas = Image.alpha_composite(canvas, panel)
+
     canvas.paste(logo, (margin, margin), logo)
 
     cobrand = Image.open(args.cobrand).convert("RGBA")
