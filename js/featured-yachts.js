@@ -43,7 +43,7 @@ const featuredYachts = [
         description: "ISLAND GIRL is a classic 48' Offshore Sedan offering the comfortable ride, practical layout, and quality construction that have made Offshore Yachts so well respected. Her semi-displacement hull and wide 15'6\" beam provide a comfortable living space.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan (1).pdf",
+        pdf: "documents/yachts/featured/1997-Offshore-48-Island-Girl-Spec-Sheet.pdf",
         kuula: "",
         page: "yachts/offshore-48-island-girl.html"
     },
