@@ -23,7 +23,7 @@ const featuredYachts = [
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2020-riviera-545-suv.pdf",
+        pdf: "documents/yachts/featured/2020-Riviera-545_SUV.pdf",
         kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         page: "yachts/fringe-benefits.html"
     },
