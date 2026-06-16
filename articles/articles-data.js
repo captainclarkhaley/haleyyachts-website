@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "travel",
+        "title": "Cruising the Exuma Cays Land and Sea Park: What We Get for Our Trouble",
+        "excerpt": "Years ago my family sailed our boat through the Exuma Cays Land and Sea Park, the Bahamas, and the place never let go of me. Here is what makes Shroud Cay, Warderick Wells, and Pipe Creek worth every mile it takes to get there, from a captain who has actually run these waters.",
+        "date": "2026-06-16",
+        "author": "Clark Haley",
+        "slug": "cruising-the-exuma-cays-land-and-sea-park-what-we-get-for-ou",
+        "fileName": "2026-06-16-cruising-the-exuma-cays-land-and-sea-park-what-we-get-for-ou.html",
+        "heroImage": "dsc02299.jpg",
+        "keywords": "Exuma Cays Land and Sea Park, cruising the Exumas, Warderick Wells anchorage, Shroud Cay, Pipe Creek Bahamas, Bahamas cruising with kids, Exumas by boat, no-take marine reserve Bahamas, Bahamas anchorages, Haley Yachts"
+    },
+    {
         "type": "how-to",
         "title": "What a Survey Really Covers (and Why it Protects You)",
         "excerpt": "A marine survey is the single best money you spend before buying a yacht. Here is what a pre-purchase survey actually covers, how the sea trial and haul-out fit in, and how the findings turn into real negotiating leverage.",
