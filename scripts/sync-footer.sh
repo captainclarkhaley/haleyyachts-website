@@ -91,6 +91,7 @@ articles/travel/2026-05-02-a-simple-trip-to-the-abacos.html
 articles/travel/2026-05-05-bahamas-cruising-permit-changes-april-2026.html
 yachts/fringe-benefits.html
 yachts/fortunato.html
+yachts/offshore-48-island-girl.html
 yachts/riviera-4300-sports-express.html
 "
 

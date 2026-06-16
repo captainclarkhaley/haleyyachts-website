@@ -39,13 +39,13 @@ const featuredYachts = [
     },
     {
         image: "images/yachts/featured/islandgirl-2.jpg",
-        name: "1997 Offshore 48 - ISLAND GIRL",
+        name: "1997 Offshore 48 - ISLAND GIRL $330,000",
         description: "ISLAND GIRL is a classic 48' Offshore Sedan offering the comfortable ride, practical layout, and quality construction that have made Offshore Yachts so well respected. Her semi-displacement hull and wide 15'6\" beam provide a comfortable living space.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan (1).pdf",
+        pdf: "",
         kuula: "",
-        page: ""
+        page: "yachts/offshore-48-island-girl.html"
     },
     {
         image: "images/yachts/featured/riviera-465suv.jpg",
