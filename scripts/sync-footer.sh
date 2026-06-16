@@ -87,6 +87,7 @@ articles/industry-news/2026-05-08-riviera-unveils-integrated-solar-breakthrough.
 articles/industry-news/2026-05-09-we-lost-a-yachting-giant.html
 articles/industry-news/2026-06-04-one-water-announces-owyg-bahamas-rendezvous-july-16-19-2026.html
 articles/newsletters/2026-05-09-the-logbook-may-2026.html
+articles/newsletters/2026-06-16-the-logbook-june-2026.html
 articles/travel/2026-05-02-a-simple-trip-to-the-abacos.html
 articles/travel/2026-05-05-bahamas-cruising-permit-changes-april-2026.html
 yachts/fringe-benefits.html

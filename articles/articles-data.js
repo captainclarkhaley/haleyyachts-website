@@ -71,6 +71,17 @@ const publishedArticles = [
     },
     {
         "type": "newsletters",
+        "title": "The Logbook | June 2026",
+        "excerpt": "The June issue of The Logbook: a note from Clark on the OWYG Bahamas Rendezvous (July 16-19, Freeport), featured listings (Riviera 545 Fringe Benefits, Southern Wind 72 Fortunato, Offshore 48 Island Girl), Bahamas-bound reading, and recent sales.",
+        "date": "2026-06-16",
+        "author": "Clark Haley",
+        "slug": "the-logbook-june-2026",
+        "fileName": "2026-06-16-the-logbook-june-2026.html",
+        "heroImage": "logbook-2026-06-hero.jpg",
+        "keywords": "Haley Yachts newsletter, The Logbook, June 2026, yacht broker newsletter, Clark Haley, Florida yacht broker, OWYG Bahamas Rendezvous, Riviera 545 SUV Fringe Benefits, Southern Wind 72 Fortunato, Offshore 48 Island Girl, Riviera 4300 Sports Express, Exuma Cays Land and Sea Park, Bahamas crossing, recent yacht sales"
+    },
+    {
+        "type": "newsletters",
         "title": "The Logbook | May 2026",
         "excerpt": "The first issue of The Logbook: featured listings (Riviera 545, Manta 42 Sangaris, Southern Wind 72), industry news, recent sales, and a note from Clark on his first fast-cruiser run to the Abacos.",
         "date": "2026-05-09",
