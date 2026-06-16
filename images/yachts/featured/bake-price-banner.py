@@ -2,11 +2,12 @@
 """
 Bake a matched "PRICE REDUCTION" banner onto featured-yacht photos.
 
-Reference style is the Riviera 545 SUV banner: a thin dark semi-transparent
+Reference style is the Riviera 545 SUV banner: a thin SOLID 100%-opaque black
 band across the very top (~11.5% of image height), with RED, all-caps,
 centered text. Per Clark (2026-06-16) the lettering was dropped from heavy
 Impact to a lighter, cleaner Open Sans SemiBold (the brand face) with only a
-thin subtle stroke, so it reads clearly without being a heavy black slab.
+thin subtle stroke, so it reads clearly. The band itself is pure black
+(0,0,0) at full opacity - no photo shows through - identical on both boats.
 Both the Riviera 545 and the Southern Wind 72 banners are produced from this
 one script so they match as a set.
 
@@ -31,7 +32,7 @@ import os
 # --- Matched banner spec (Riviera 545 is the reference) ---
 TEXT          = "PRICE REDUCTION"
 BAND_FRAC     = 0.115          # band height as a fraction of image height (~11.5%)
-BAND_RGBA     = (10, 14, 22, 158)  # dark navy-black, ~62% opacity (semi-transparent)
+BAND_RGBA     = (0, 0, 0, 255)     # pure black, full opacity (solid, no see-through)
 TEXT_FILL     = (214, 30, 30)  # brand-ish red, all-caps
 STROKE_FILL   = (40, 0, 0)     # near-black, thin + subtle
 STROKE_FRAC   = 0.018          # stroke width as fraction of font size (very thin)
