@@ -37,15 +37,12 @@ a:hover { color: #1aa8c4; }
     gap: 12px;
     text-decoration: none;
 }
+/* HYS mark sits slightly smaller than the OWYG co-brand so the two read as
+   equal weight. Applies site-wide (co-brand header is on every page). */
 .logo-img {
-    height: 48px;
+    height: 42px;
     width: auto;
     flex-shrink: 0;
-}
-/* Home page only: HYS mark sits slightly smaller so the OWYG co-brand reads
-   as the larger of the two. Scoped via body.home so other pages keep 48px. */
-body.home .logo-img {
-    height: 42px;
 }
 
 /* OWYG co-brand (right side). Slightly taller than the HYS mark so the two
@@ -1285,12 +1282,10 @@ body.home .logo-img {
     filter: brightness(0) invert(1);
     opacity: 0.7;
 }
-/* HOME-ONLY OWYG footer co-brand. Hidden by default so the propagated footer
-   stays unchanged on every other page; shown only under body.home. Mirrors the
-   email footer treatment: "Yacht Broker with" label above the One Water reverse
-   banner, sized a touch larger than the Haley footer mark for equal visual weight. */
-.footer-cobrand { display: none; }
-body.home .footer-cobrand {
+/* OWYG footer co-brand (site-wide). Mirrors the email footer treatment:
+   "Yacht Broker with" label above the One Water reverse banner, sized a touch
+   larger than the Haley footer mark for equal visual weight. */
+.footer-cobrand {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1299,7 +1294,7 @@ body.home .footer-cobrand {
     margin: 0 auto 18px;
     max-width: 100%;
 }
-body.home .footer-cobrand-label {
+.footer-cobrand-label {
     font-family: 'Open Sans', Arial, sans-serif;
     font-size: 0.62rem;
     font-weight: 600;
@@ -1308,13 +1303,13 @@ body.home .footer-cobrand-label {
     color: rgba(255,255,255,0.5);
     line-height: 1;
 }
-body.home .footer-cobrand-img {
+.footer-cobrand-img {
     height: 48px;
     width: auto;
     max-width: 100%;
     display: block;
 }
-body.home .footer-cobrand:hover .footer-cobrand-label { color: #21cbea; }
+.footer-cobrand:hover .footer-cobrand-label { color: #21cbea; }
 
 .footer-social {
     display: flex;
@@ -1373,11 +1368,11 @@ body.home .footer-cobrand:hover .footer-cobrand-label { color: #21cbea; }
     .two-col, .contact-grid { grid-template-columns: 1fr; }
     .hero-content h1 { font-size: 2.2rem; }
     .nav-container { height: 60px; }
-    /* Home page co-brand on mobile: show the "Yacht Broker with" label stacked
-       directly above the OWYG mark (the cluster is already flex-direction column).
-       Both marks shrink so the stacked label + OWYG + HYS + hamburger all fit a
+    /* Co-brand on mobile: show the "Yacht Broker with" label stacked directly
+       above the OWYG mark (the cluster is already flex-direction column). Both
+       marks shrink so the stacked label + OWYG + HYS + hamburger all fit a
        375px phone without overflow, and OWYG stays the larger of the two. */
-    body.home .owyg-cobrand-label {
+    .owyg-cobrand-label {
         display: block;
         font-size: 0.46rem;
         letter-spacing: 0.5px;
@@ -1385,14 +1380,14 @@ body.home .footer-cobrand:hover .footer-cobrand-label { color: #21cbea; }
     /* Both marks run small on phones because the two logos are wide (HYS ~5.6:1,
        OWYG ~3.85:1). These heights keep HYS + OWYG + hamburger inside a 375px
        bar with the label stacked above OWYG, and OWYG stays the larger mark. */
-    body.home .owyg-cobrand-img { height: 32px; }
-    body.home .owyg-cobrand { margin-right: 8px; gap: 2px; }
-    body.home .logo-img { height: 26px; }
+    .owyg-cobrand-img { height: 32px; }
+    .owyg-cobrand { margin-right: 8px; gap: 2px; }
+    .logo-img { height: 26px; }
 }
 @media (max-width: 768px) {
     /* Footer co-brand: the One Water banner is wide, so trim its height on phones
        and let the image cap at the band width to prevent any horizontal overflow. */
-    body.home .footer-cobrand-img { height: 40px; }
+    .footer-cobrand-img { height: 40px; }
     .main-nav { padding-top: 84px; }
     .main-nav > li > a { font-size: 1.1rem; padding: 14px 24px; letter-spacing: 2px; }
     .header-contact { font-size: 0.72rem; padding: 0 8px; letter-spacing: 0; }

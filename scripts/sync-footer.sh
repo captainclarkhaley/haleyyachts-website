@@ -80,6 +80,7 @@ articles/how-to/2026-05-05-how-to-choose-a-yacht-broker.html
 articles/how-to/2026-05-09-how-to-plan-your-first-bahamas-cruise.html
 articles/how-to/2026-06-06-how-to-sell-your-yacht.html
 articles/how-to/2026-06-06-what-a-survey-really-covers-and-why-it-protects-you.html
+articles/how-to/2026-06-11-test-trading-up-when-to-move-to-a-bigger-yacht.html
 articles/industry-news/2026-04-03-sunseeker-gets-a-new-permanent-ceo.html
 articles/industry-news/2026-05-05-eight-sunseeker-yachts-find-new-owners-at-fort-lauderdale-in.html
 articles/industry-news/2026-05-05-west-marine-readies-possible-bankruptcy.html
@@ -90,6 +91,8 @@ articles/newsletters/2026-05-09-the-logbook-may-2026.html
 articles/newsletters/2026-06-16-the-logbook-june-2026.html
 articles/travel/2026-05-02-a-simple-trip-to-the-abacos.html
 articles/travel/2026-05-05-bahamas-cruising-permit-changes-april-2026.html
+articles/travel/2026-06-06-provisioning-and-prepping-for-a-crossing-to-the-bahamas.html
+articles/travel/2026-06-16-cruising-the-exuma-cays-land-and-sea-park-what-we-get-for-ou.html
 yachts/fringe-benefits.html
 yachts/fortunato.html
 yachts/offshore-48-island-girl.html
