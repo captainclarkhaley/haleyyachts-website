@@ -1285,6 +1285,37 @@ body.home .logo-img {
     filter: brightness(0) invert(1);
     opacity: 0.7;
 }
+/* HOME-ONLY OWYG footer co-brand. Hidden by default so the propagated footer
+   stays unchanged on every other page; shown only under body.home. Mirrors the
+   email footer treatment: "Yacht Broker with" label above the One Water reverse
+   banner, sized a touch larger than the Haley footer mark for equal visual weight. */
+.footer-cobrand { display: none; }
+body.home .footer-cobrand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    margin: 0 auto 18px;
+    max-width: 100%;
+}
+body.home .footer-cobrand-label {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    line-height: 1;
+}
+body.home .footer-cobrand-img {
+    height: 48px;
+    width: auto;
+    max-width: 100%;
+    display: block;
+}
+body.home .footer-cobrand:hover .footer-cobrand-label { color: #21cbea; }
+
 .footer-social {
     display: flex;
     align-items: center;
@@ -1359,6 +1390,9 @@ body.home .logo-img {
     body.home .logo-img { height: 26px; }
 }
 @media (max-width: 768px) {
+    /* Footer co-brand: the One Water banner is wide, so trim its height on phones
+       and let the image cap at the band width to prevent any horizontal overflow. */
+    body.home .footer-cobrand-img { height: 40px; }
     .main-nav { padding-top: 84px; }
     .main-nav > li > a { font-size: 1.1rem; padding: 14px 24px; letter-spacing: 2px; }
     .header-contact { font-size: 0.72rem; padding: 0 8px; letter-spacing: 0; }
