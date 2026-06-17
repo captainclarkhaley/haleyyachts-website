@@ -43,6 +43,33 @@ a:hover { color: #1aa8c4; }
     flex-shrink: 0;
 }
 
+/* OWYG co-brand (right side). Slightly taller than the HYS mark so the two
+   read as equal weight, mirroring the email templates. */
+.owyg-cobrand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-decoration: none;
+    flex-shrink: 0;
+    margin-left: auto;
+    margin-right: 18px;
+}
+.owyg-cobrand-label {
+    font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #555;
+    line-height: 1;
+}
+.owyg-cobrand-img {
+    height: 54px;
+    width: auto;
+    flex-shrink: 0;
+}
+
 /* Header contact strip */
 .header-contact {
     flex: 1;
@@ -1310,12 +1337,19 @@ a:hover { color: #1aa8c4; }
     .two-col, .contact-grid { grid-template-columns: 1fr; }
     .hero-content h1 { font-size: 2.2rem; }
     .nav-container { height: 60px; }
+    /* Co-brand: drop the label and shrink the mark to fit the 60px bar */
+    .owyg-cobrand-label { display: none; }
+    .owyg-cobrand-img { height: 42px; }
+    .owyg-cobrand { margin-right: 12px; }
 }
 @media (max-width: 768px) {
     .main-nav { padding-top: 84px; }
     .main-nav > li > a { font-size: 1.1rem; padding: 14px 24px; letter-spacing: 2px; }
     .header-contact { font-size: 0.72rem; padding: 0 8px; letter-spacing: 0; }
     .header-contact-sep { margin: 0 4px; }
+    /* Contact strip would cramp the logos here, hide it and keep both marks */
+    .header-contact { display: none; }
+    .owyg-cobrand { margin-right: 10px; }
     .hero-content h1 { font-size: 1.8rem; }
     .page-header h1 { font-size: 1.8rem; }
     .page-header { padding: 120px 24px 48px; }
