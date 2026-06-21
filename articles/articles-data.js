@@ -27,6 +27,17 @@ const publishedArticles = [
     },
     {
         "type": "how-to",
+        "title": "Boat Loans and Marine Financing, Explained",
+        "excerpt": "Down payments, terms, rate ranges, and the paperwork lenders want, plus a straight look at cash versus finance at the yacht price point. Here is how marine financing actually works.",
+        "date": "2026-06-11",
+        "author": "Clark Haley",
+        "slug": "boat-loans-and-marine-financing-explained",
+        "fileName": "2026-06-11-boat-loans-and-marine-financing-explained.html",
+        "heroImage": "dollar-signs.jpg",
+        "keywords": "marine financing, boat loans, yacht financing, how to finance a yacht, boat loan down payment, yacht loan rates, marine lender requirements, financing a boat in Florida, Haley Yachts, One Water Yacht Group, OWYG"
+    },
+    {
+        "type": "how-to",
         "title": "What a Survey Really Covers (and Why it Protects You)",
         "excerpt": "A marine survey is the single best money you spend before buying a yacht. Here is what a pre-purchase survey actually covers, how the sea trial and haul-out fit in, and how the findings turn into real negotiating leverage.",
         "date": "2026-06-06",
