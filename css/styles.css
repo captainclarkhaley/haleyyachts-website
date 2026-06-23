@@ -1468,7 +1468,7 @@ a:hover { color: #1aa8c4; }
 .listing-hero-img {
     width: 100%;
     height: auto;
-    max-height: 70vh;
+    max-height: 80vh;
     object-fit: cover;
     object-position: top;
     display: block;
