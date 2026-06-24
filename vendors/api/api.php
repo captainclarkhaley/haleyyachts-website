@@ -337,11 +337,11 @@ function vendors_save(PDO $pdo)
     $pdo->beginTransaction();
     try {
         if ($id > 0) {
-            $stmt = $pdo->prepare('
+            $stmt = $pdo->prepare("
                 UPDATE vendors
-                SET name = ?, address = ?, phone = ?, email = ?, notes = ?, updated_at = datetime("now")
+                SET name = ?, address = ?, phone = ?, email = ?, notes = ?, updated_at = datetime('now')
                 WHERE id = ?
-            ');
+            ");
             $stmt->execute(array($name, $address, $phone, $email, $notes, $id));
             if ($stmt->rowCount() === 0) {
                 // Confirm it actually exists (rowCount can be 0 on a no-op too).
