@@ -1,0 +1,31 @@
+# ============================================================
+# Haley Yachts Vendor Database - Staff password realm
+# ============================================================
+# Everything under /vendors/ is staff-only. Access is gated by a
+# cPanel Directory Privacy password realm SEPARATE from /admin/.
+# That separation is intentional: staff users added here can use the
+# vendor directory but can NEVER reach the admin lists endpoint in
+# /admin/, which is a different realm with its own users.
+#
+# SETUP (do this once, on the GoDaddy server - see vendors/README-SETUP.md):
+#   1. In cPanel, open "Directory Privacy" (a.k.a. "Password Protect
+#      Directories").
+#   2. Browse to the /vendors/ folder under public_html.
+#   3. Check "Password protect this directory" and name it something
+#      like "Haley Yachts Vendors".
+#   4. Add one user per staff member with a strong password. cPanel
+#      writes the .htpasswd file and appends the cp:ppd block below.
+#
+# The cp:ppd block (if present below) is managed by cPanel's Directory
+# Privacy tool. Do NOT hand-edit it. Re-running Directory Privacy
+# regenerates it. Until that step is done, this area is UNPROTECTED if
+# uploaded to the web.
+# ============================================================
+
+# ----- Deny direct access to sensitive files -----
+<FilesMatch "^\.(htaccess|htpasswd)$">
+    Require all denied
+</FilesMatch>
+
+# ----- No directory listing -----
+Options -Indexes

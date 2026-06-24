@@ -30,3 +30,11 @@ ziuSKY1z
 .env.local
 *.key
 credentials.json
+
+# Vendor Database live data - the SQLite file is server-side state, NOT code.
+# Keep it out of git so the cPanel deploy pull never clobbers real records.
+# Only vendors/api/data/.htaccess is tracked. Back the .sqlite up separately.
+vendors/api/data/*.sqlite
+vendors/api/data/*.sqlite-journal
+vendors/api/data/*.sqlite-wal
+vendors/api/data/*.sqlite-shm
