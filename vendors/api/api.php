@@ -263,15 +263,22 @@ function enrich_vendor(PDO $pdo, array $row)
     }
     unset($c);
 
-    // Derived primary contact phone/email: the primary contact wins, else the
-    // vendor's own phone/email, else the first contact that has one.
+    // Derived primary phone/email for the list and detail "Primary Phone/Email".
+    // The vendor's OWN field wins when set. Only when it is blank do we fall back
+    // to a contact: the primary contact first, then the first contact that has a
+    // value. This keeps what the broker typed in the vendor record authoritative.
     $primaryPhone = $row['phone'];
     $primaryEmail = $row['email'];
-    foreach ($contacts as $c) {
-        if ($c['is_primary']) {
-            if ($c['phone'] !== '') { $primaryPhone = $c['phone']; }
-            if ($c['email'] !== '') { $primaryEmail = $c['email']; }
-            break;
+    if ($primaryPhone === '' || $primaryEmail === '') {
+        foreach ($contacts as $c) {
+            if ($c['is_primary']) {
+                if ($primaryPhone === '' && $c['phone'] !== '') { $primaryPhone = $c['phone']; }
+                if ($primaryEmail === '' && $c['email'] !== '') { $primaryEmail = $c['email']; }
+            }
+        }
+        foreach ($contacts as $c) {
+            if ($primaryPhone === '' && $c['phone'] !== '') { $primaryPhone = $c['phone']; }
+            if ($primaryEmail === '' && $c['email'] !== '') { $primaryEmail = $c['email']; }
         }
     }
 
