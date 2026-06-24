@@ -231,6 +231,16 @@ table.vdb-table {
 }
 .vdb-table tbody tr:hover { background: #fafcfd; }
 .vdb-table .vdb-vname { font-weight: 600; color: var(--navy); }
+.vdb-table .vdb-vname-link {
+    color: var(--cyan);
+    cursor: pointer;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(33,203,234,0.4);
+}
+.vdb-table .vdb-vname-link:hover {
+    color: var(--cyan-d);
+    border-bottom-color: var(--cyan-d);
+}
 .vdb-table a { color: var(--cyan); }
 .vdb-empty {
     padding: 36px 20px;
@@ -382,6 +392,73 @@ table.vdb-table {
     border-radius: 3px;
     padding: 2px 7px;
     margin-left: 6px;
+}
+
+/* ----- Detail view (read-only) ----- */
+dl.vdb-detail {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 6px 16px;
+    margin: 0;
+}
+dl.vdb-detail dt {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    padding-top: 2px;
+}
+dl.vdb-detail dd {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink);
+    word-break: break-word;
+}
+.vdb-detail-contacts {
+    margin-top: 22px;
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+}
+.vdb-detail-contacts h3 {
+    margin: 0 0 12px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+}
+.vdb-detail-empty {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-style: italic;
+}
+.vdb-detail-contact {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+.vdb-detail-contact .dc-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.vdb-detail-contact .dc-name {
+    font-weight: 600;
+    color: var(--navy);
+    font-size: 0.92rem;
+}
+.vdb-detail-contact dl.dc-grid {
+    grid-template-columns: 80px 1fr;
+    gap: 4px 12px;
+}
+
+@media (max-width: 560px) {
+    dl.vdb-detail { grid-template-columns: 1fr; gap: 2px 0; }
+    dl.vdb-detail dt { padding-top: 8px; }
+    .vdb-detail-contact dl.dc-grid { grid-template-columns: 1fr; }
 }
 
 /* ----- Inline notices ----- */

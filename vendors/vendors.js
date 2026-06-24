@@ -30,6 +30,24 @@
             .replace(/'/g, '&#39;');
     }
 
+    // Format a US phone for DISPLAY only. 10 digits -> (305) 555-1212,
+    // 11 digits starting with 1 -> 1 (305) 555-1212. Anything else (partial,
+    // international, with extensions) is returned exactly as entered so we
+    // never mangle what we cannot cleanly parse. Storage is untouched; this is
+    // a presentation helper.
+    function formatPhone(raw) {
+        var s = String(raw == null ? '' : raw).trim();
+        if (!s) { return s; }
+        var digits = s.replace(/\D/g, '');
+        if (digits.length === 10) {
+            return '(' + digits.slice(0, 3) + ') ' + digits.slice(3, 6) + '-' + digits.slice(6);
+        }
+        if (digits.length === 11 && digits.charAt(0) === '1') {
+            return '1 (' + digits.slice(1, 4) + ') ' + digits.slice(4, 7) + '-' + digits.slice(7);
+        }
+        return s;
+    }
+
     function debounce(fn, ms) {
         var t;
         return function () {
@@ -149,13 +167,15 @@
         for (var i = 0; i < vendors.length; i++) {
             var v = vendors[i];
             var phone = v.primary_phone
-                ? '<a href="tel:' + esc(v.primary_phone) + '">' + esc(v.primary_phone) + '</a>'
+                ? '<a href="tel:' + esc(v.primary_phone) + '">' + esc(formatPhone(v.primary_phone)) + '</a>'
                 : '<span style="color:#bbb">-</span>';
             var email = v.primary_email
                 ? '<a href="mailto:' + esc(v.primary_email) + '">' + esc(v.primary_email) + '</a>'
                 : '<span style="color:#bbb">-</span>';
             rows += '<tr>' +
-                '<td class="vdb-vname">' + esc(v.name) + '</td>' +
+                '<td class="vdb-vname">' +
+                    '<a href="#" class="vdb-vname-link" data-view="' + v.id + '">' + esc(v.name) + '</a>' +
+                '</td>' +
                 '<td>' + tagListHtml(v.types) + '</td>' +
                 '<td>' + tagListHtml(v.areas, 'area') + '</td>' +
                 '<td>' + phone + '</td>' +
@@ -253,6 +273,82 @@
             renderContacts();
             openModal('Edit Vendor');
         });
+    }
+
+    // ---- detail view (read-only) ------------------------------------------
+
+    var detailVendorId = 0; // vendor currently shown in the detail view
+
+    function openDetail(id) {
+        apiGet('r=vendors&action=get&id=' + id).then(function (data) {
+            if (!data.ok) { alert(data.error || 'Could not load vendor.'); return; }
+            detailVendorId = data.vendor.id;
+            renderDetail(data.vendor);
+            var ov = $('detailOverlay');
+            ov.classList.add('open');
+            ov.setAttribute('aria-hidden', 'false');
+        });
+    }
+
+    function closeDetail() {
+        var ov = $('detailOverlay');
+        ov.classList.remove('open');
+        ov.setAttribute('aria-hidden', 'true');
+        detailVendorId = 0;
+    }
+
+    function detailValue(v) {
+        return (v == null || v === '') ? '<span style="color:#bbb">-</span>' : esc(v);
+    }
+
+    function renderDetail(v) {
+        $('detailTitle').textContent = v.name;
+
+        var phone = v.primary_phone
+            ? '<a href="tel:' + esc(v.primary_phone) + '">' + esc(formatPhone(v.primary_phone)) + '</a>'
+            : '<span style="color:#bbb">-</span>';
+        var email = v.primary_email
+            ? '<a href="mailto:' + esc(v.primary_email) + '">' + esc(v.primary_email) + '</a>'
+            : '<span style="color:#bbb">-</span>';
+
+        var h = '<dl class="vdb-detail">' +
+            '<dt>Name</dt><dd>' + detailValue(v.name) + '</dd>' +
+            '<dt>Address</dt><dd>' + detailValue(v.address) + '</dd>' +
+            '<dt>Primary Phone</dt><dd>' + phone + '</dd>' +
+            '<dt>Primary Email</dt><dd>' + email + '</dd>' +
+            '<dt>Vendor Types</dt><dd>' + tagListHtml(v.types) + '</dd>' +
+            '<dt>Coverage Areas</dt><dd>' + tagListHtml(v.areas, 'area') + '</dd>' +
+            '<dt>Vendor Notes</dt><dd>' + detailValue(v.notes) + '</dd>' +
+        '</dl>';
+
+        h += '<div class="vdb-detail-contacts"><h3>Contacts</h3>';
+        if (!v.contacts || !v.contacts.length) {
+            h += '<div class="vdb-detail-empty">No contacts on file.</div>';
+        } else {
+            for (var i = 0; i < v.contacts.length; i++) {
+                var c = v.contacts[i];
+                var cPhone = c.phone
+                    ? '<a href="tel:' + esc(c.phone) + '">' + esc(formatPhone(c.phone)) + '</a>'
+                    : '<span style="color:#bbb">-</span>';
+                var cEmail = c.email
+                    ? '<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + '</a>'
+                    : '<span style="color:#bbb">-</span>';
+                h += '<div class="vdb-detail-contact">' +
+                    '<div class="dc-head">' +
+                        '<span class="dc-name">' + detailValue(c.name) + '</span>' +
+                        (c.is_primary ? '<span class="primary-badge">Primary</span>' : '') +
+                    '</div>' +
+                    '<dl class="vdb-detail dc-grid">' +
+                        '<dt>Email</dt><dd>' + cEmail + '</dd>' +
+                        '<dt>Phone</dt><dd>' + cPhone + '</dd>' +
+                        '<dt>Notes</dt><dd>' + detailValue(c.notes) + '</dd>' +
+                    '</dl>' +
+                '</div>';
+            }
+        }
+        h += '</div>';
+
+        $('detailBody').innerHTML = h;
     }
 
     function updateNotesCounter() {
@@ -506,7 +602,9 @@
             if (e.target === this) { closeModal(); }
         });
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && $('vendorOverlay').classList.contains('open')) { closeModal(); }
+            if (e.key !== 'Escape') { return; }
+            if ($('vendorOverlay').classList.contains('open')) { closeModal(); }
+            else if ($('detailOverlay').classList.contains('open')) { closeDetail(); }
         });
 
         $('vNotes').addEventListener('input', updateNotesCounter);
@@ -515,10 +613,30 @@
 
         // Delegated handlers on the results table.
         $('resultsBody').addEventListener('click', function (e) {
+            var vw = e.target.getAttribute('data-view');
             var ed = e.target.getAttribute('data-edit');
             var dl = e.target.getAttribute('data-del');
-            if (ed) { openEdit(parseInt(ed, 10)); }
+            if (vw) { e.preventDefault(); openDetail(parseInt(vw, 10)); }
+            else if (ed) { openEdit(parseInt(ed, 10)); }
             else if (dl) { deleteVendor(parseInt(dl, 10), e.target.getAttribute('data-name')); }
+        });
+
+        // Detail view: close, and hand off to the existing edit form.
+        $('detailClose').addEventListener('click', closeDetail);
+        $('btnDetailClose').addEventListener('click', closeDetail);
+        $('detailOverlay').addEventListener('click', function (e) {
+            if (e.target === this) { closeDetail(); }
+        });
+        $('btnDetailEdit').addEventListener('click', function () {
+            var id = detailVendorId;
+            closeDetail();
+            openEdit(id);
+        });
+
+        // Format the primary phone field on blur, but only when it is a clean
+        // 10/11-digit value. Partial or international input is left untouched.
+        $('vPhone').addEventListener('blur', function () {
+            this.value = formatPhone(this.value);
         });
 
         // Delegated handlers inside the contact list.
@@ -540,6 +658,13 @@
                 counter.classList.toggle('over', n > CONTACT_NOTES_MAX);
             }
         });
+        // Format a contact phone field on blur when it is a clean 10/11-digit
+        // value. Capture phase, because blur does not bubble.
+        host.addEventListener('blur', function (e) {
+            if (e.target.getAttribute('data-f') === 'phone') {
+                e.target.value = formatPhone(e.target.value);
+            }
+        }, true);
         host.addEventListener('change', function (e) {
             if (e.target.getAttribute('data-f') === 'primary') {
                 // Exclusive radio already enforces single selection; re-render for the badge.
