@@ -70,12 +70,12 @@ if (!function_exists('vdb_connect')) {
             CREATE TABLE IF NOT EXISTS vendors (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 name       TEXT NOT NULL,
-                address    TEXT NOT NULL DEFAULT "",
-                phone      TEXT NOT NULL DEFAULT "",
-                email      TEXT NOT NULL DEFAULT "",
-                notes      TEXT NOT NULL DEFAULT "",
-                created_at TEXT NOT NULL DEFAULT (datetime("now")),
-                updated_at TEXT NOT NULL DEFAULT (datetime("now"))
+                address    TEXT NOT NULL DEFAULT '',
+                phone      TEXT NOT NULL DEFAULT '',
+                email      TEXT NOT NULL DEFAULT '',
+                notes      TEXT NOT NULL DEFAULT '',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
             )
         ');
 
@@ -83,11 +83,11 @@ if (!function_exists('vdb_connect')) {
             CREATE TABLE IF NOT EXISTS contacts (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 vendor_id  INTEGER NOT NULL,
-                name       TEXT NOT NULL DEFAULT "",
-                email      TEXT NOT NULL DEFAULT "",
-                phone      TEXT NOT NULL DEFAULT "",
+                name       TEXT NOT NULL DEFAULT '',
+                email      TEXT NOT NULL DEFAULT '',
+                phone      TEXT NOT NULL DEFAULT '',
                 is_primary INTEGER NOT NULL DEFAULT 0,
-                notes      TEXT NOT NULL DEFAULT "",
+                notes      TEXT NOT NULL DEFAULT '',
                 FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
             )
         ');

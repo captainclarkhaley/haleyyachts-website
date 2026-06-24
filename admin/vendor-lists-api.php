@@ -150,7 +150,9 @@ try {
     }
 } catch (Throwable $e) {
     error_log('vendor-lists-api error: ' . $e->getMessage());
-    fail('Server error.', 500);
+    // This endpoint is behind the admin password, so it is safe to return the
+    // real message to help diagnose setup problems on the live server.
+    respond(array('ok' => false, 'error' => 'Server error: ' . $e->getMessage()), 500);
 }
 
 /** All items in a list, in display order, each with its current usage count. */
