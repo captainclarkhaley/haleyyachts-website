@@ -125,7 +125,7 @@
             if (!data.ok) {
                 currentVendors = [];
                 updateExportState();
-                $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">' +
+                $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">' +
                     esc(data.error || 'Could not load vendors.') + '</td></tr>';
                 $('resultCount').textContent = '';
                 return;
@@ -139,7 +139,7 @@
         }).catch(function () {
             currentVendors = [];
             updateExportState();
-            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Network error loading vendors.</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">Network error loading vendors.</td></tr>';
         });
     }, 180);
 
@@ -160,7 +160,7 @@
 
     function renderResults(vendors) {
         if (!vendors.length) {
-            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">No vendors match. Adjust filters or add one.</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">No vendors match. Adjust filters or add one.</td></tr>';
             return;
         }
         var rows = '';
@@ -181,10 +181,6 @@
                 '<td>' + phone + '</td>' +
                 '<td>' + email + '</td>' +
                 '<td>' + v.contact_count + '</td>' +
-                '<td><div class="row-actions">' +
-                    '<button class="btn btn-ghost btn-sm" data-edit="' + v.id + '">Edit</button>' +
-                    '<button class="btn btn-danger btn-sm" data-del="' + v.id + '" data-name="' + esc(v.name) + '">Delete</button>' +
-                '</div></td>' +
             '</tr>';
         }
         $('resultsBody').innerHTML = rows;
@@ -372,9 +368,9 @@
             var notesLen = (c.notes || '').length;
             html += '<div class="contact-row" data-key="' + c.key + '">' +
                 '<div class="cr-grid">' +
-                    '<div><label>Contact Name</label><input type="text" data-f="name" value="' + esc(c.name) + '"></div>' +
-                    '<div><label>Email</label><input type="email" data-f="email" value="' + esc(c.email) + '"></div>' +
-                    '<div><label>Phone</label><input type="text" data-f="phone" value="' + esc(c.phone) + '"></div>' +
+                    '<div><label>Contact Name</label><input type="text" data-f="name" autocomplete="off" value="' + esc(c.name) + '"></div>' +
+                    '<div><label>Email</label><input type="email" data-f="email" autocomplete="off" value="' + esc(c.email) + '"></div>' +
+                    '<div><label>Phone</label><input type="text" data-f="phone" autocomplete="off" value="' + esc(c.phone) + '"></div>' +
                 '</div>' +
                 '<div class="row" style="margin:10px 0 0">' +
                     '<label>Notes</label>' +
@@ -479,12 +475,13 @@
         });
     }
 
-    function deleteVendor(id, name) {
+    function deleteVendor(id, name, onDone) {
         if (!confirm('Delete vendor "' + name + '"? This also removes its contacts. This cannot be undone.')) {
             return;
         }
         apiGet('r=vendors&action=delete&id=' + id).then(function (data) {
             if (!data.ok) { alert(data.error || 'Delete failed.'); return; }
+            if (typeof onDone === 'function') { onDone(); }
             refresh();
         });
     }
@@ -611,17 +608,13 @@
         $('btnSave').addEventListener('click', saveVendor);
         $('btnAddContact').addEventListener('click', addContact);
 
-        // Delegated handlers on the results table.
+        // Results table is view-only: clicking a vendor name opens the detail view.
         $('resultsBody').addEventListener('click', function (e) {
             var vw = e.target.getAttribute('data-view');
-            var ed = e.target.getAttribute('data-edit');
-            var dl = e.target.getAttribute('data-del');
             if (vw) { e.preventDefault(); openDetail(parseInt(vw, 10)); }
-            else if (ed) { openEdit(parseInt(ed, 10)); }
-            else if (dl) { deleteVendor(parseInt(dl, 10), e.target.getAttribute('data-name')); }
         });
 
-        // Detail view: close, and hand off to the existing edit form.
+        // Detail view: close, edit, and delete all act on the open vendor.
         $('detailClose').addEventListener('click', closeDetail);
         $('btnDetailClose').addEventListener('click', closeDetail);
         $('detailOverlay').addEventListener('click', function (e) {
@@ -631,6 +624,11 @@
             var id = detailVendorId;
             closeDetail();
             openEdit(id);
+        });
+        $('btnDetailDelete').addEventListener('click', function () {
+            var id = detailVendorId;
+            var name = $('detailTitle').textContent;
+            deleteVendor(id, name, closeDetail);
         });
 
         // Format the primary phone field on blur, but only when it is a clean
@@ -686,7 +684,7 @@
         wire();
         apiGet('r=lists&action=get').then(function (data) {
             if (!data.ok) {
-                $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Could not load lists: ' +
+                $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">Could not load lists: ' +
                     esc(data.error || 'unknown error') + '</td></tr>';
                 return;
             }
@@ -696,7 +694,7 @@
             renderMultiSelect('fAreas', lists.coverage_areas);
             refresh();
         }).catch(function () {
-            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Network error. Is the PHP API reachable?</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">Network error. Is the PHP API reachable?</td></tr>';
         });
     }
 

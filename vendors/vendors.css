@@ -262,8 +262,6 @@ table.vdb-table {
 }
 .tag.area { background: #eef1f5; color: #4a5568; }
 
-.row-actions { display: flex; gap: 6px; white-space: nowrap; }
-
 /* ----- Modal / drawer ----- */
 .vdb-overlay {
     position: fixed;
@@ -314,6 +312,10 @@ table.vdb-table {
     background: var(--canvas);
     border-radius: 0 0 8px 8px;
 }
+/* Detail footer: Delete on the left, Close/Edit grouped on the right so the
+   destructive action is separated and not fat-fingered. */
+.vdb-modal-foot-split { justify-content: space-between; }
+.vdb-modal-foot-split .vdb-foot-right { display: flex; gap: 10px; }
 
 /* ----- Form layout ----- */
 .vdb-form .row { margin-bottom: 18px; }

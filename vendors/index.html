@@ -67,11 +67,10 @@
                     <th>Primary Phone</th>
                     <th>Primary Email</th>
                     <th>Contacts</th>
-                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="resultsBody">
-                <tr><td colspan="7" class="vdb-empty">Loading vendors...</td></tr>
+                <tr><td colspan="6" class="vdb-empty">Loading vendors...</td></tr>
             </tbody>
         </table>
     </div>
@@ -89,9 +88,12 @@
             <button type="button" class="vdb-modal-close" id="detailClose" aria-label="Close">&times;</button>
         </div>
         <div class="vdb-modal-body" id="detailBody"></div>
-        <div class="vdb-modal-foot">
-            <button type="button" class="btn btn-ghost" id="btnDetailClose">Close</button>
-            <button type="button" class="btn btn-primary" id="btnDetailEdit">Edit</button>
+        <div class="vdb-modal-foot vdb-modal-foot-split">
+            <button type="button" class="btn btn-danger" id="btnDetailDelete">Delete</button>
+            <div class="vdb-foot-right">
+                <button type="button" class="btn btn-ghost" id="btnDetailClose">Close</button>
+                <button type="button" class="btn btn-primary" id="btnDetailEdit">Edit</button>
+            </div>
         </div>
     </div>
 </div>
@@ -122,11 +124,11 @@
                 <div class="row row-2">
                     <div>
                         <label for="vPhone">Primary Phone</label>
-                        <input type="text" id="vPhone">
+                        <input type="text" id="vPhone" autocomplete="off">
                     </div>
                     <div>
                         <label for="vEmail">Primary Email</label>
-                        <input type="email" id="vEmail">
+                        <input type="email" id="vEmail" autocomplete="off">
                     </div>
                 </div>
 
