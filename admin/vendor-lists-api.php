@@ -21,8 +21,16 @@ header('Cache-Control: no-store');
 
 function respond($payload, $status = 200)
 {
+    // JSON_INVALID_UTF8_SUBSTITUTE keeps a single bad byte from blanking the
+    // whole response. If encoding still fails, say why instead of going silent.
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    if ($json === false) {
+        http_response_code(500);
+        echo json_encode(array('ok' => false, 'error' => 'JSON encode failed: ' . json_last_error_msg()));
+        exit;
+    }
     http_response_code($status);
-    echo json_encode($payload);
+    echo $json;
     exit;
 }
 
