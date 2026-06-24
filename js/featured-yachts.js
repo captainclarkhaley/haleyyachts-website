@@ -12,6 +12,9 @@
 //                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
 //   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
 //                 kuula.co. Empty/missing = no 360 section, no badge.
+//   youtube     - optional. A YouTube video ID (e.g. "8Sfu5DoYrBw"). Stored as the bare 11-char ID;
+//                 rendered as a responsive 16:9 player in the shared lightbox via a "Watch Video"
+//                 badge + link. Empty/missing = no video badge, no video link.
 //   page        - optional. Relative path to a dedicated listing page (e.g. yachts/fringe-benefits.html).
 //                 When present, the card image + title + primary action link to this page.
 //                 Empty/missing = primary action is the standard mailto Inquire.
@@ -25,6 +28,7 @@ const featuredYachts = [
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2020-Riviera-545_SUV.pdf",
         kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
+        youtube: "8Sfu5DoYrBw",
         page: "yachts/fringe-benefits.html"
     },
     {
@@ -132,6 +136,32 @@ function _fySanitizeKuula(raw) {
     return parts.join(' ');
 }
 
+// Extract a clean YouTube video ID from whatever is stored. Admin already
+// normalizes to a bare ID on save; this also handles a hand-edited full URL
+// (watch?v=, youtu.be/, /shorts/, /embed/) and rejects anything that isn't a
+// plausible 11-char YouTube ID. Returns the ID or '' .
+function _fyYouTubeId(raw) {
+    if (!raw || !raw.trim()) return '';
+    const s = raw.trim();
+    // Bare ID already.
+    if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+    let m =
+        s.match(/[?&]v=([A-Za-z0-9_-]{11})/) ||
+        s.match(/youtu\.be\/([A-Za-z0-9_-]{11})/) ||
+        s.match(/\/(?:shorts|embed)\/([A-Za-z0-9_-]{11})/);
+    if (m) return m[1];
+    console.warn('[YouTube] Could not extract a video ID from ->', raw);
+    return '';
+}
+
+// Build a privacy-friendly, responsive embed iframe for the lightbox.
+function _fyYouTubeIframe(id) {
+    const src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&autoplay=1`;
+    return `<iframe src="${src}" width="100%" height="100%" frameborder="0" ` +
+        `allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ` +
+        `allowfullscreen></iframe>`;
+}
+
 // Inject the 360 CSS + modal scaffold once. Card grid renders many times;
 // styles + modal markup inject once and are reused for every card.
 function _fyInjectKuulaStyles() {
@@ -190,6 +220,61 @@ function _fyInjectKuulaStyles() {
 .fy-kuula-link:hover { color: #1aa8c4; }
 .fy-kuula-link::after { content: ' \\2192'; transition: margin-left 0.2s; }
 .fy-kuula-link:hover::after { margin-left: 4px; }
+
+/* YouTube video badge - reuses the lightbox. Anchored BOTTOM-LEFT so it never
+   collides with the 360 badge (bottom-right) when a yacht has both. */
+.fy-video-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(10, 22, 40, 0.88);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 7px 12px;
+    border-radius: 3px;
+    border: 1px solid rgba(220, 60, 60, 0.7);
+    cursor: pointer;
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: background 0.2s, transform 0.2s, border-color 0.2s;
+}
+.fy-video-badge:hover,
+.fy-video-badge:focus-visible {
+    background: #cc1f1f;
+    border-color: #cc1f1f;
+    transform: translateY(-1px);
+    outline: none;
+}
+.fy-video-badge::before {
+    content: '\\25B6';
+    font-size: 0.8rem;
+    line-height: 1;
+}
+.fy-video-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #cc1f1f;
+}
+.fy-video-link:hover { color: #a01818; }
+.fy-video-link::after { content: ' \\2192'; transition: margin-left 0.2s; }
+.fy-video-link:hover::after { margin-left: 4px; }
+
+@media (max-width: 600px) {
+    .fy-video-badge { font-size: 0.66rem; padding: 6px 10px; }
+}
 
 .fy-kuula-modal {
     position: fixed;
@@ -303,12 +388,29 @@ function _fyOpenKuula(trigger) {
     if (closeBtn) closeBtn.focus();
 }
 
+// Open the shared lightbox with a YouTube video. The trigger carries a bare
+// video ID; the responsive iframe is built fresh each time (and is wiped on
+// close, which stops playback).
+function _fyOpenVideo(trigger) {
+    const modal = document.getElementById('fy-kuula-modal');
+    if (!modal) return;
+    const id = _fyYouTubeId(trigger.getAttribute('data-video') || '');
+    if (!id) return;
+    modal.setAttribute('aria-label', 'Yacht video');
+    modal.querySelector('.fy-kuula-modal-frame').innerHTML = _fyYouTubeIframe(id);
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    const closeBtn = modal.querySelector('.fy-kuula-modal-close');
+    if (closeBtn) closeBtn.focus();
+}
+
 function _fyCloseKuula() {
     const modal = document.getElementById('fy-kuula-modal');
     if (!modal) return;
     modal.classList.remove('is-open');
     // Wipe the iframe to stop audio/loading.
     modal.querySelector('.fy-kuula-modal-frame').innerHTML = '';
+    modal.setAttribute('aria-label', '360 walkthrough');
     document.body.style.overflow = '';
 }
 
@@ -356,6 +458,16 @@ function renderFeaturedYachts(containerId) {
             ? `<button type="button" class="fy-kuula-link" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="_fyOpenKuula(this)">View 360&deg; Tour</button>`
             : '';
 
+        // YouTube video: stored as a bare ID, opens in the same lightbox.
+        const videoId = _fyYouTubeId(y.youtube);
+        const videoDataAttr = videoId ? ` data-video="${_fyEscapeAttr(videoId)}"` : '';
+        const videoBadge = videoId
+            ? `<button type="button" class="fy-video-badge" aria-label="Play yacht video"${videoDataAttr} onclick="_fyOpenVideo(this)">Video</button>`
+            : '';
+        const videoLink = videoId
+            ? `<button type="button" class="fy-video-link" aria-label="Play yacht video"${videoDataAttr} onclick="_fyOpenVideo(this)">Watch Video</button>`
+            : '';
+
         // If a dedicated listing page exists, image + title + primary action
         // all point at it. Otherwise the image and title are plain (no anchor)
         // and the primary action falls back to the standard mailto Inquire.
@@ -365,7 +477,7 @@ function renderFeaturedYachts(containerId) {
         const imgAnchored = hasPage
             ? `<a href="${pageHref}" class="card-img-link">${imgEl}</a>`
             : imgEl;
-        const imgBlock = `<div class="card-img-wrap">${imgAnchored}${kuulaBadge}</div>`;
+        const imgBlock = `<div class="card-img-wrap">${imgAnchored}${kuulaBadge}${videoBadge}</div>`;
         const titleBlock = hasPage
             ? `<h3><a href="${pageHref}" class="card-title-link">${y.name}</a></h3>`
             : `<h3>${y.name}</h3>`;
@@ -381,6 +493,7 @@ function renderFeaturedYachts(containerId) {
                         <a href="${primaryHref}" class="card-link">${hasPage ? 'View Listing' : 'Inquire'}</a>
                         ${pdfLink}
                         ${kuulaLink}
+                        ${videoLink}
                     </div>
                     <a href="tel:5618171547" class="card-call">Call Clark: 561-817-1547</a>
                 </div>

@@ -322,6 +322,12 @@
         <button type="button" id="kuulaPreviewBtn" style="background:none; border:1px solid #d0d0d0; color:#888; padding:4px 12px; font-size:0.75rem; border-radius:3px; cursor:pointer; margin-top:8px;" onclick="toggleKuulaPreview()">Preview tour</button>
         <div id="kuulaPreviewBox" style="display:none; margin-top:12px; width:400px; max-width:100%; height:225px; background:#0a1628; border-radius:4px; overflow:hidden;"></div>
 
+        <label for="youtubeUrl">YouTube Video: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(optional)</span></label>
+        <input type="text" id="youtubeUrl" placeholder="e.g., https://www.youtube.com/watch?v=8Sfu5DoYrBw">
+        <div style="font-size:0.78rem; color:#666; margin-top:4px; line-height:1.5;">Paste the YouTube link (watch, youtu.be, or shorts URL) or the bare video ID. Only youtube.com / youtu.be links are accepted. Leave blank for no video. The video opens in a pop-up player from a "Video" badge on the card.</div>
+        <button type="button" id="youtubePreviewBtn" style="background:none; border:1px solid #d0d0d0; color:#888; padding:4px 12px; font-size:0.75rem; border-radius:3px; cursor:pointer; margin-top:8px;" onclick="toggleYouTubePreview()">Preview video</button>
+        <div id="youtubePreviewBox" style="display:none; margin-top:12px; width:400px; max-width:100%; height:225px; background:#0a1628; border-radius:4px; overflow:hidden;"></div>
+
         <button type="button" class="btn btn-secondary" onclick="loadCurrent()">Load Current Values</button>
         <button type="button" id="saveBtn" class="btn" onclick="saveFile()">SAVE</button>
 
@@ -358,7 +364,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-06-08 16:01 EDT</div>
+    <div class="admin-version" data-version>v: 2026-06-23 - added YouTube video field
 </div>
 
 <!-- Shared GitHub Contents API layer (token, gh* helpers, 401 handling) -->
@@ -378,7 +384,8 @@
             link: 'contact.html',
             linkText: 'Inquire',
             pdf: '',
-            kuula: ''
+            kuula: '',
+            youtube: ''
         });
     }
     // If there are more than 6 slots (leftover from older saves), trim down to 6
@@ -387,6 +394,7 @@
     workingData.forEach(y => {
         if (typeof y.pdf === 'undefined') y.pdf = '';
         if (typeof y.kuula === 'undefined') y.kuula = '';
+        if (typeof y.youtube === 'undefined') y.youtube = '';
         if (typeof y.page === 'undefined') y.page = '';
     });
 
@@ -408,6 +416,8 @@
     const clearPdfBtn = document.getElementById('clearPdfBtn');
     const kuulaInput = document.getElementById('kuulaEmbed');
     const kuulaPreviewBox = document.getElementById('kuulaPreviewBox');
+    const youtubeInput = document.getElementById('youtubeUrl');
+    const youtubePreviewBox = document.getElementById('youtubePreviewBox');
     const saveBtn = document.getElementById('saveBtn');
 
     // ===== Save-state visual feedback =====
@@ -420,7 +430,7 @@
         saveBtn.textContent = 'SAVE';
     }
     // Any edit reverts the button. Position change / Load also resets (form contents change).
-    [imgInput, titleInput, descInput, pdfPathInput, kuulaInput].forEach(el => {
+    [imgInput, titleInput, descInput, pdfPathInput, kuulaInput, youtubeInput].forEach(el => {
         el.addEventListener('input', markUnsaved);
     });
     posSel.addEventListener('change', markUnsaved);
@@ -560,6 +570,49 @@
         kuulaPreviewBox.style.display = 'block';
     }
 
+    // ===== YouTube URL -> video ID =====
+    // Accept a full YouTube URL (watch?v=, youtu.be/, /shorts/, /embed/) or a
+    // bare 11-char ID. Returns the clean ID, or '' if it isn't a YouTube link.
+    // Arbitrary pasted HTML is NOT accepted - only YouTube IDs are stored.
+    function normalizeYouTube(raw) {
+        if (!raw || !raw.trim()) return '';
+        const s = raw.trim();
+        if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+        // Only proceed if this is actually a youtube.com / youtu.be link.
+        if (!/(^|\/\/|\.)(youtube\.com|youtu\.be)(\/|$)/i.test(s)) {
+            console.warn('[YouTube] Rejected: not a youtube.com / youtu.be link ->', s);
+            return '';
+        }
+        const m =
+            s.match(/[?&]v=([A-Za-z0-9_-]{11})/) ||
+            s.match(/youtu\.be\/([A-Za-z0-9_-]{11})/) ||
+            s.match(/\/(?:shorts|embed)\/([A-Za-z0-9_-]{11})/);
+        return m ? m[1] : '';
+    }
+
+    function toggleYouTubePreview() {
+        const id = normalizeYouTube(youtubeInput.value.trim());
+        if (!id) {
+            youtubePreviewBox.style.display = 'none';
+            youtubePreviewBox.innerHTML = '';
+            if (youtubeInput.value.trim()) {
+                showStatus('Preview rejected. Paste a YouTube link (youtube.com / youtu.be) or a bare video ID.', 'error');
+            } else {
+                showStatus('Nothing to preview. Paste a YouTube link first.', 'error');
+            }
+            return;
+        }
+        if (youtubePreviewBox.style.display === 'block') {
+            youtubePreviewBox.style.display = 'none';
+            youtubePreviewBox.innerHTML = '';
+            return;
+        }
+        youtubePreviewBox.innerHTML = '<iframe style="width:100%;height:100%;border:0;" ' +
+            'src="https://www.youtube-nocookie.com/embed/' + id + '?rel=0" ' +
+            'frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+        youtubePreviewBox.style.display = 'block';
+    }
+
     // Live character counters
     titleInput.addEventListener('input', () => {
         titleCount.textContent = `${titleInput.value.length} / 60`;
@@ -597,6 +650,11 @@
         kuulaInput.value = y.kuula || '';
         kuulaPreviewBox.style.display = 'none';
         kuulaPreviewBox.innerHTML = '';
+        // YouTube video: show the stored bare ID as a full watch URL so it reads clearly.
+        const ytId = y.youtube || '';
+        youtubeInput.value = ytId ? ('https://www.youtube.com/watch?v=' + ytId) : '';
+        youtubePreviewBox.style.display = 'none';
+        youtubePreviewBox.innerHTML = '';
         titleInput.dispatchEvent(new Event('input'));
         descInput.dispatchEvent(new Event('input'));
         showStatus(`Loaded current values for position ${pos}.`, 'success');
@@ -884,8 +942,9 @@
         const desc = descInput.value.trim();
         const pdfRaw = pdfPathInput.value.trim();
         const kuulaRaw = kuulaInput.value.trim();
+        const youtubeRaw = youtubeInput.value.trim();
 
-        if (!filename && !title && !desc && !pendingImageFile && !pendingPdfFile && !pdfRaw && !kuulaRaw) {
+        if (!filename && !title && !desc && !pendingImageFile && !pendingPdfFile && !pdfRaw && !kuulaRaw && !youtubeRaw) {
             showStatus('Please fill in at least one field.', 'error');
             return;
         }
@@ -896,6 +955,16 @@
             kuulaClean = sanitizeKuulaIframe(kuulaRaw);
             if (!kuulaClean) {
                 showStatus('Kuula embed rejected. Paste must be a single <iframe> with src on kuula.co.', 'error');
+                return;
+            }
+        }
+
+        // Validate YouTube up front: if non-empty but not a YouTube link/ID, fail before writing.
+        let youtubeId = '';
+        if (youtubeRaw) {
+            youtubeId = normalizeYouTube(youtubeRaw);
+            if (!youtubeId) {
+                showStatus('YouTube link rejected. Paste a youtube.com / youtu.be link or a bare video ID.', 'error');
                 return;
             }
         }
@@ -985,6 +1054,10 @@
         updates.kuula = kuulaClean;
         entry.kuula = kuulaClean;
 
+        // YouTube: bare video ID, or '' if cleared. Always written.
+        updates.youtube = youtubeId;
+        entry.youtube = youtubeId;
+
         // Preview
         renderPreview(pos, entry);
         document.getElementById('outputSection').style.display = 'block';
@@ -1068,6 +1141,7 @@
         const title = titleInput.value.trim();
         const desc = descInput.value.trim();
         const kuulaRawMove = kuulaInput.value.trim();
+        const youtubeRawMove = youtubeInput.value.trim();
         const src = workingData[fromIdx];
         if (filename) src.image = 'images/yachts/featured/' + filename;
         if (title) src.name = title;
@@ -1075,6 +1149,10 @@
         if (kuulaRawMove) {
             const c = sanitizeKuulaIframe(kuulaRawMove);
             if (c) src.kuula = c;
+        }
+        if (youtubeRawMove) {
+            const yt = normalizeYouTube(youtubeRawMove);
+            if (yt) src.youtube = yt;
         }
 
         // Insert-shift: pull source out, splice into destination index.
@@ -1086,13 +1164,14 @@
             workingData.push({
                 image: '', name: 'Featured Listing',
                 description: 'Details about this featured yacht will appear here.',
-                link: 'contact.html', linkText: 'Inquire', pdf: '', kuula: ''
+                link: 'contact.html', linkText: 'Inquire', pdf: '', kuula: '', youtube: ''
             });
         }
         workingData = workingData.slice(0, 6);
         workingData.forEach(y => {
             if (typeof y.pdf === 'undefined') y.pdf = '';
             if (typeof y.kuula === 'undefined') y.kuula = '';
+            if (typeof y.youtube === 'undefined') y.youtube = '';
         });
 
         // Targeted reorder of the data file: only the data array is rewritten;
@@ -1378,7 +1457,7 @@
                 workingData.push({
                     image: '', name: 'Featured Listing',
                     description: 'Details about this featured yacht will appear here.',
-                    link: 'contact.html', linkText: 'Inquire', pdf: '', kuula: '', page: ''
+                    link: 'contact.html', linkText: 'Inquire', pdf: '', kuula: '', youtube: '', page: ''
                 });
             }
             workingData = workingData.slice(0, 6);
@@ -1413,6 +1492,9 @@
         const kuulaStatus = entry.kuula
             ? '<span style="color:#2a7a2a">attached</span>'
             : '<em style="color:#999">(none - no 360 section)</em>';
+        const youtubeStatus = entry.youtube
+            ? '<span style="color:#2a7a2a">' + entry.youtube + '</span>'
+            : '<em style="color:#999">(none - no video badge)</em>';
         box.innerHTML = `
             <h4>Position ${pos}</h4>
             <div class="preview-row"><strong>Image:</strong> ${entry.image || '<em style="color:#999">(none)</em>'}</div>
@@ -1421,6 +1503,7 @@
             <div class="preview-row"><strong>Link:</strong> ${entry.link}</div>
             <div class="preview-row"><strong>Full Details PDF:</strong> ${entry.pdf || '<em style="color:#999">(none - button hidden)</em>'}</div>
             <div class="preview-row"><strong>Kuula 360 Tour:</strong> ${kuulaStatus}</div>
+            <div class="preview-row"><strong>YouTube Video:</strong> ${youtubeStatus}</div>
         `;
     }
 
@@ -1569,7 +1652,7 @@
     }
 
     // Apply a set of field updates to entry at index `idx` in the on-disk file text.
-    // updates: { image, name, description, link, linkText, pdf, kuula, page }
+    // updates: { image, name, description, link, linkText, pdf, kuula, youtube, page }
     // Only keys with defined values are written; undefined keys are left untouched.
     function patchFeaturedYachtsEntry(fileText, idx, updates) {
         const arrRange = findFeaturedYachtsArrayRange(fileText);
@@ -1626,6 +1709,7 @@
         linkText: "Inquire",
         pdf: "",
         kuula: "",
+        youtube: "",
         page: ""
     }`;
         while (entryTexts.length < 6) entryTexts.push(blank);
@@ -1643,6 +1727,7 @@
         linkText: ${JSON.stringify(y.linkText)},
         pdf: ${JSON.stringify(y.pdf || '')},
         kuula: ${JSON.stringify(y.kuula || '')},
+        youtube: ${JSON.stringify(y.youtube || '')},
         page: ${JSON.stringify(y.page || '')}
     }`;
         }).join(',\n');
@@ -1661,6 +1746,7 @@
 //                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
 //   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
 //                 kuula.co. Empty/missing = no 360 section, no badge.
+//   youtube     - optional. A YouTube video ID (e.g. "8Sfu5DoYrBw"). Empty/missing = no video badge.
 //   page        - optional. Relative path to a dedicated listing page (e.g. yachts/fringe-benefits.html).
 //                 When present, the card image + title + primary action link to this page.
 //                 Empty/missing = primary action is the standard mailto Inquire.
