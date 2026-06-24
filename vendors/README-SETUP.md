@@ -19,15 +19,33 @@ separate realm with its own users.
 
 ### 1. Create a password realm on `/vendors/` and add staff users
 
-This is the staff login, separate from the admin login.
+This is the staff login, separate from the admin login. The thing that trips
+people up: in cPanel the "turn protection on" control and the "create the
+password" control are **two separate boxes on the same page**, and the password
+box is lower down. You have to do both.
+
+**Do this AFTER the cPanel Git pull** that brings the new files down. The
+`vendors` folder has to exist on the server before it shows up in Directory
+Privacy. If you do not see it in the folder browser, you have not pulled yet.
 
 1. In cPanel, open **Directory Privacy** (sometimes called "Password Protect
-   Directories").
-2. Browse to the `vendors` folder under `public_html`.
-3. Check **Password protect this directory**, name it something like
-   `Haley Yachts Vendors`, and Save.
-4. Under **Create User**, add one login per staff member with a strong password.
-   Repeat for each person who should have access.
+   Directories"). You get a file browser.
+2. Click into `public_html`, then click the **`vendors`** folder *name* (click
+   the name to open the folder, not just the checkbox next to it).
+3. **Turn protection on** (first box, near the top): check
+   **Password protect this directory**, type a label in the
+   "Name the protected directory" field (e.g. `Haley Yachts Vendors`), and click
+   **Save**. This only switches protection ON. It does not create a login yet.
+4. **Create the username + password** (second box - scroll DOWN on the same page
+   to **Create User**, sometimes titled "Create a User who can access this
+   directory"). Type a **Username**, type a **Password** twice (or use the
+   generator), and click **Save** / **Add User**. That username + password is
+   what staff type into the browser pop-up at `haleyyachts.com/vendors/`.
+5. To add more staff, repeat step 4 with another username and password. Each
+   person can have their own login, all pointing at the same `/vendors/` folder.
+
+Use a **different** password from the `/admin/` login. The whole point of the
+split is that staff get into `/vendors/` but not `/admin/`.
 
 cPanel writes the `.htpasswd` file and appends its managed `cp:ppd` block to
 `vendors/.htaccess`. Do not hand-edit that block. Until this step is done, the
