@@ -15,6 +15,7 @@
     var typeMode = 'all';
     var formContacts = []; // working copy of contacts inside the open form
     var contactSeq = 0;    // local id generator for unmounted contact rows
+    var currentVendors = []; // last result set rendered, for CSV export
 
     // ---- tiny helpers ------------------------------------------------------
 
@@ -104,16 +105,22 @@
     var refresh = debounce(function () {
         apiGet(buildListQuery()).then(function (data) {
             if (!data.ok) {
+                currentVendors = [];
+                updateExportState();
                 $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">' +
                     esc(data.error || 'Could not load vendors.') + '</td></tr>';
                 $('resultCount').textContent = '';
                 return;
             }
+            currentVendors = data.vendors || [];
+            updateExportState();
             renderResults(data.vendors);
             var n = data.count;
             $('resultCount').innerHTML = '<strong>' + n + '</strong> vendor' + (n === 1 ? '' : 's') +
                 (filtersActive() ? ' matching filters' : ' total');
         }).catch(function () {
+            currentVendors = [];
+            updateExportState();
             $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Network error loading vendors.</td></tr>';
         });
     }, 180);
@@ -386,6 +393,94 @@
         });
     }
 
+    // ---- CSV export --------------------------------------------------------
+
+    // Quote a single CSV field per RFC 4180: wrap in quotes if it contains a
+    // comma, quote, or newline, and double up any internal quotes.
+    function csvCell(value) {
+        var s = String(value == null ? '' : value);
+        if (/[",\r\n]/.test(s)) {
+            s = '"' + s.replace(/"/g, '""') + '"';
+        }
+        return s;
+    }
+
+    function namesJoined(arr) {
+        if (!arr || !arr.length) { return ''; }
+        var out = [];
+        for (var i = 0; i < arr.length; i++) { out.push(arr[i].name); }
+        return out.join('; ');
+    }
+
+    // Flatten contacts into one cell: each contact as
+    // "Name | email | phone | Primary?(Y/N) | notes", separated by " || ".
+    function contactsJoined(contacts) {
+        if (!contacts || !contacts.length) { return ''; }
+        var out = [];
+        for (var i = 0; i < contacts.length; i++) {
+            var c = contacts[i];
+            out.push([
+                c.name || '',
+                c.email || '',
+                c.phone || '',
+                c.is_primary ? 'Y' : 'N',
+                c.notes || ''
+            ].join(' | '));
+        }
+        return out.join(' || ');
+    }
+
+    function buildCsv(vendors) {
+        var headers = [
+            'Vendor Name', 'Address', 'Primary Phone', 'Primary Email',
+            'Vendor Types', 'Coverage Areas', 'Vendor Notes', 'Contacts'
+        ];
+        var lines = [headers.map(csvCell).join(',')];
+        for (var i = 0; i < vendors.length; i++) {
+            var v = vendors[i];
+            lines.push([
+                csvCell(v.name),
+                csvCell(v.address),
+                csvCell(v.primary_phone),
+                csvCell(v.primary_email),
+                csvCell(namesJoined(v.types)),
+                csvCell(namesJoined(v.areas)),
+                csvCell(v.notes),
+                csvCell(contactsJoined(v.contacts))
+            ].join(','));
+        }
+        return lines.join('\r\n');
+    }
+
+    function todayStamp() {
+        var d = new Date();
+        var mm = String(d.getMonth() + 1);
+        var dd = String(d.getDate());
+        if (mm.length < 2) { mm = '0' + mm; }
+        if (dd.length < 2) { dd = '0' + dd; }
+        return d.getFullYear() + '-' + mm + '-' + dd;
+    }
+
+    function exportCsv() {
+        if (!currentVendors.length) { return; }
+        // Prepend a UTF-8 BOM so Excel reads accented characters correctly.
+        var csv = '﻿' + buildCsv(currentVendors);
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'haley-vendors-' + todayStamp() + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function updateExportState() {
+        var btn = $('btnExport');
+        if (btn) { btn.disabled = currentVendors.length === 0; }
+    }
+
     // ---- wiring ------------------------------------------------------------
 
     function wire() {
@@ -403,6 +498,7 @@
         $('modeAll').addEventListener('click', function () { setMode('all'); refresh(); });
         $('modeAny').addEventListener('click', function () { setMode('any'); refresh(); });
 
+        $('btnExport').addEventListener('click', exportCsv);
         $('btnAdd').addEventListener('click', openAdd);
         $('modalClose').addEventListener('click', closeModal);
         $('btnCancel').addEventListener('click', closeModal);

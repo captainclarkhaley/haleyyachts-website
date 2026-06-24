@@ -193,6 +193,9 @@ body {
 .btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
 .btn-danger { background: #fff; color: var(--danger); border-color: #e3b4ae; }
 .btn-danger:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-export { background: var(--navy); color: #fff; border-color: var(--navy); }
+.btn-export:hover { background: #112545; }
+.btn-export:disabled { background: #c4ccd6; border-color: #c4ccd6; cursor: not-allowed; }
 .btn-sm { padding: 5px 11px; font-size: 0.72rem; }
 
 /* ----- Results table ----- */
