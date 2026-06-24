@@ -319,11 +319,20 @@
 
 <!-- WATCH VIDEO LIGHTBOX (Fringe Benefits only) -->
 <style>
-    /* The Watch Video button drops to its own row, directly below the
-       Download Spec Sheet button. */
-    .listing-actions .fb-watch-video { display: block; width: fit-content; margin: 12px 0 0; }
+    /* Three action buttons as one aligned group: a centered-left row that
+       wraps gracefully on desktop, stacked full-width on mobile. */
+    .listing-narrative .listing-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: stretch;
+    }
+    /* Flex gap handles spacing; cancel the global .btn + .btn margin. */
+    .listing-narrative .listing-actions .btn + .btn { margin-left: 0; margin-top: 0; }
+    .listing-narrative .listing-actions .btn { text-align: center; }
     @media (max-width: 600px) {
-        .listing-actions .fb-watch-video { width: 100%; text-align: center; }
+        .listing-narrative .listing-actions { flex-direction: column; }
+        .listing-narrative .listing-actions .btn { width: 100%; }
     }
     .fb-video-modal {
         position: fixed;
