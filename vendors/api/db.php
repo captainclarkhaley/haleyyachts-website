@@ -66,7 +66,7 @@ if (!function_exists('vdb_connect')) {
             )
         ');
 
-        $pdo->exec('
+        $pdo->exec("
             CREATE TABLE IF NOT EXISTS vendors (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 name       TEXT NOT NULL,
@@ -77,9 +77,9 @@ if (!function_exists('vdb_connect')) {
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
                 updated_at TEXT NOT NULL DEFAULT (datetime('now'))
             )
-        ');
+        ");
 
-        $pdo->exec('
+        $pdo->exec("
             CREATE TABLE IF NOT EXISTS contacts (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
                 vendor_id  INTEGER NOT NULL,
@@ -90,7 +90,7 @@ if (!function_exists('vdb_connect')) {
                 notes      TEXT NOT NULL DEFAULT '',
                 FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
             )
-        ');
+        ");
 
         $pdo->exec('
             CREATE TABLE IF NOT EXISTS vendor_type_map (
