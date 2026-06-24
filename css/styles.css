@@ -832,6 +832,8 @@ a:hover { color: #1aa8c4; }
     color: #333;
 }
 .article-body p { margin-bottom: 1.3em; }
+.article-body p.subhead { margin-top: 1.6em; }
+.article-body p.subhead:first-child { margin-top: 0; }
 .article-body .article-lead {
     font-size: 1.25rem;
     line-height: 1.65;
