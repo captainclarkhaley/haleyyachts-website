@@ -117,6 +117,7 @@
                 <p>Twin Volvo Penta D-11 diesels with approximately 1,000 hours give her real cruising range with the efficiency Riviera SUVs are known for. She lies in West Palm Beach, ready to show.</p>
                 <div class="listing-actions">
                     <a href="../documents/yachts/featured/2020-Riviera-545_SUV.pdf" class="btn" target="_blank" rel="noopener">Download Spec Sheet (PDF)</a>
+                    <button type="button" class="btn fb-watch-video" onclick="fbOpenVideo()">Watch Video</button>
                     <a href="#inquire" class="btn btn-outline" style="color:#0a1628; border-color:#0a1628;">Schedule a Showing</a>
                 </div>
             </div>
@@ -315,6 +316,93 @@
     }
     </script>
     <!-- FOOTER:END -->
+
+<!-- WATCH VIDEO LIGHTBOX (Fringe Benefits only) -->
+<style>
+    /* The Watch Video button drops to its own row, directly below the
+       Download Spec Sheet button. */
+    .listing-actions .fb-watch-video { display: block; width: fit-content; margin: 12px 0 0; }
+    @media (max-width: 600px) {
+        .listing-actions .fb-watch-video { width: 100%; text-align: center; }
+    }
+    .fb-video-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(5, 12, 24, 0.92);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        padding: 24px;
+    }
+    .fb-video-modal.is-open { display: flex; }
+    .fb-video-modal-inner {
+        position: relative;
+        width: 100%;
+        max-width: 1000px;
+        aspect-ratio: 16 / 9;
+        background: #000;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .fb-video-modal-inner iframe {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+    .fb-video-modal-close {
+        position: absolute;
+        top: -44px;
+        right: 0;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 2rem;
+        line-height: 1;
+        cursor: pointer;
+        padding: 4px 10px;
+    }
+    .fb-video-modal-close:hover { color: #21cbea; }
+    @media (max-width: 600px) {
+        .fb-video-modal-close { top: -40px; font-size: 1.7rem; }
+    }
+</style>
+<div class="fb-video-modal" id="fbVideoModal" role="dialog" aria-modal="true" aria-label="Fringe Benefits video" onclick="if(event.target===this)fbCloseVideo()">
+    <div class="fb-video-modal-inner">
+        <button type="button" class="fb-video-modal-close" aria-label="Close video" onclick="fbCloseVideo()">&times;</button>
+        <div class="fb-video-modal-frame"></div>
+    </div>
+</div>
+<script>
+    // Self-contained lazy YouTube popup for Fringe Benefits. The iframe is not
+    // built until the button is clicked, and is wiped on close to stop playback.
+    var FB_VIDEO_ID = '8Sfu5DoYrBw';
+    function fbOpenVideo() {
+        var modal = document.getElementById('fbVideoModal');
+        if (!modal) return;
+        var src = 'https://www.youtube-nocookie.com/embed/' + FB_VIDEO_ID + '?rel=0&autoplay=1';
+        modal.querySelector('.fb-video-modal-frame').innerHTML =
+            '<iframe src="' + src + '" frameborder="0" ' +
+            'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+            'allowfullscreen></iframe>';
+        modal.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+        var closeBtn = modal.querySelector('.fb-video-modal-close');
+        if (closeBtn) closeBtn.focus();
+    }
+    function fbCloseVideo() {
+        var modal = document.getElementById('fbVideoModal');
+        if (!modal) return;
+        modal.classList.remove('is-open');
+        modal.querySelector('.fb-video-modal-frame').innerHTML = '';
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') fbCloseVideo();
+    });
+</script>
 
 <script src="../js/main.js"></script>
 <script>

@@ -13,9 +13,8 @@
 //   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
 //                 kuula.co. Empty/missing = no 360 section, no badge.
 //   youtube     - optional. A YouTube video ID (e.g. "8Sfu5DoYrBw"). Stored as the bare 11-char ID;
-//                 rendered as an INLINE responsive 16:9 player in the card body. A lightweight
-//                 click-to-load facade (thumbnail + play button) swaps to a privacy-friendly
-//                 youtube-nocookie iframe on click. Empty/missing = no video player.
+//                 rendered as a responsive 16:9 player in the shared lightbox via a "Watch Video"
+//                 badge + link. Empty/missing = no video badge, no video link.
 //   page        - optional. Relative path to a dedicated listing page (e.g. yachts/fringe-benefits.html).
 //                 When present, the card image + title + primary action link to this page.
 //                 Empty/missing = primary action is the standard mailto Inquire.
@@ -155,27 +154,12 @@ function _fyYouTubeId(raw) {
     return '';
 }
 
-// Build a privacy-friendly, responsive embed iframe for the inline player.
+// Build a privacy-friendly, responsive embed iframe for the lightbox.
 function _fyYouTubeIframe(id) {
     const src = `https://www.youtube-nocookie.com/embed/${id}?rel=0&autoplay=1`;
     return `<iframe src="${src}" width="100%" height="100%" frameborder="0" ` +
         `allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ` +
         `allowfullscreen></iframe>`;
-}
-
-// Click-to-load facade: swap the lightweight thumbnail+play-button for the real
-// iframe in place. Keeps the grid fast (no iframe until the user clicks) while
-// the player still lives INLINE in the card, not in a popup overlay.
-function _fyLoadVideo(facade) {
-    const id = _fyYouTubeId(facade.getAttribute('data-video') || '');
-    if (!id) return;
-    facade.innerHTML = _fyYouTubeIframe(id);
-    facade.classList.add('is-playing');
-    facade.removeAttribute('role');
-    facade.removeAttribute('tabindex');
-    facade.removeAttribute('aria-label');
-    facade.onclick = null;
-    facade.onkeydown = null;
 }
 
 // Inject the 360 CSS + modal scaffold once. Card grid renders many times;
@@ -237,81 +221,60 @@ function _fyInjectKuulaStyles() {
 .fy-kuula-link::after { content: ' \\2192'; transition: margin-left 0.2s; }
 .fy-kuula-link:hover::after { margin-left: 4px; }
 
-/* Inline YouTube player - lives in the card body, not a popup. Click-to-load
-   facade (thumbnail + play button) swaps to the real iframe on click. The
-   16:9 ratio is held with aspect-ratio so there's no fixed pixel height that
-   breaks on mobile. */
-.fy-video-inline {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    margin: 0 0 16px;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #000;
-    cursor: pointer;
-}
-.fy-video-inline.is-playing { cursor: default; }
-.fy-video-inline iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    display: block;
-}
-.fy-video-thumb {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-.fy-video-play {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 68px;
-    height: 48px;
-    border-radius: 12px;
-    background: rgba(20, 20, 20, 0.75);
-    display: flex;
+/* YouTube video badge - reuses the lightbox. Anchored BOTTOM-LEFT so it never
+   collides with the 360 badge (bottom-right) when a yacht has both. */
+.fy-video-badge {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-    pointer-events: none;
-}
-.fy-video-play::before {
-    content: '';
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 11px 0 11px 19px;
-    border-color: transparent transparent transparent #fff;
-    margin-left: 3px;
-}
-.fy-video-inline:hover .fy-video-play,
-.fy-video-inline:focus-visible .fy-video-play {
-    background: #cc1f1f;
-}
-.fy-video-inline:focus-visible { outline: 2px solid #21cbea; outline-offset: 2px; }
-.fy-video-label {
-    position: absolute;
-    bottom: 10px;
-    left: 12px;
+    gap: 6px;
+    background: rgba(10, 22, 40, 0.88);
     color: #fff;
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.2px;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-    pointer-events: none;
+    padding: 7px 12px;
+    border-radius: 3px;
+    border: 1px solid rgba(220, 60, 60, 0.7);
+    cursor: pointer;
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: background 0.2s, transform 0.2s, border-color 0.2s;
 }
-.fy-video-inline.is-playing .fy-video-play,
-.fy-video-inline.is-playing .fy-video-label,
-.fy-video-inline.is-playing .fy-video-thumb { display: none; }
+.fy-video-badge:hover,
+.fy-video-badge:focus-visible {
+    background: #cc1f1f;
+    border-color: #cc1f1f;
+    transform: translateY(-1px);
+    outline: none;
+}
+.fy-video-badge::before {
+    content: '\\25B6';
+    font-size: 0.8rem;
+    line-height: 1;
+}
+.fy-video-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #cc1f1f;
+}
+.fy-video-link:hover { color: #a01818; }
+.fy-video-link::after { content: ' \\2192'; transition: margin-left 0.2s; }
+.fy-video-link:hover::after { margin-left: 4px; }
+
+@media (max-width: 600px) {
+    .fy-video-badge { font-size: 0.66rem; padding: 6px 10px; }
+}
 
 .fy-kuula-modal {
     position: fixed;
@@ -425,6 +388,22 @@ function _fyOpenKuula(trigger) {
     if (closeBtn) closeBtn.focus();
 }
 
+// Open the shared lightbox with a YouTube video. The trigger carries a bare
+// video ID; the responsive iframe is built fresh each time (and is wiped on
+// close, which stops playback).
+function _fyOpenVideo(trigger) {
+    const modal = document.getElementById('fy-kuula-modal');
+    if (!modal) return;
+    const id = _fyYouTubeId(trigger.getAttribute('data-video') || '');
+    if (!id) return;
+    modal.setAttribute('aria-label', 'Yacht video');
+    modal.querySelector('.fy-kuula-modal-frame').innerHTML = _fyYouTubeIframe(id);
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    const closeBtn = modal.querySelector('.fy-kuula-modal-close');
+    if (closeBtn) closeBtn.focus();
+}
+
 function _fyCloseKuula() {
     const modal = document.getElementById('fy-kuula-modal');
     if (!modal) return;
@@ -479,15 +458,14 @@ function renderFeaturedYachts(containerId) {
             ? `<button type="button" class="fy-kuula-link" aria-label="Open 360 walkthrough"${kuulaDataAttr} onclick="_fyOpenKuula(this)">View 360&deg; Tour</button>`
             : '';
 
-        // YouTube video: stored as a bare ID, rendered as an INLINE responsive
-        // 16:9 player in the card body. Click-to-load facade keeps the grid fast.
+        // YouTube video: stored as a bare ID, opens in the same lightbox.
         const videoId = _fyYouTubeId(y.youtube);
-        const videoBlock = videoId
-            ? `<div class="fy-video-inline" data-video="${_fyEscapeAttr(videoId)}" role="button" tabindex="0" aria-label="Play yacht video" onclick="_fyLoadVideo(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();_fyLoadVideo(this);}">`
-                + `<img class="fy-video-thumb" src="https://i.ytimg.com/vi/${_fyEscapeAttr(videoId)}/hqdefault.jpg" alt="" loading="lazy">`
-                + `<span class="fy-video-play" aria-hidden="true"></span>`
-                + `<span class="fy-video-label">Watch Video</span>`
-                + `</div>`
+        const videoDataAttr = videoId ? ` data-video="${_fyEscapeAttr(videoId)}"` : '';
+        const videoBadge = videoId
+            ? `<button type="button" class="fy-video-badge" aria-label="Play yacht video"${videoDataAttr} onclick="_fyOpenVideo(this)">Video</button>`
+            : '';
+        const videoLink = videoId
+            ? `<button type="button" class="fy-video-link" aria-label="Play yacht video"${videoDataAttr} onclick="_fyOpenVideo(this)">Watch Video</button>`
             : '';
 
         // If a dedicated listing page exists, image + title + primary action
@@ -499,7 +477,7 @@ function renderFeaturedYachts(containerId) {
         const imgAnchored = hasPage
             ? `<a href="${pageHref}" class="card-img-link">${imgEl}</a>`
             : imgEl;
-        const imgBlock = `<div class="card-img-wrap">${imgAnchored}${kuulaBadge}</div>`;
+        const imgBlock = `<div class="card-img-wrap">${imgAnchored}${kuulaBadge}${videoBadge}</div>`;
         const titleBlock = hasPage
             ? `<h3><a href="${pageHref}" class="card-title-link">${y.name}</a></h3>`
             : `<h3>${y.name}</h3>`;
@@ -511,11 +489,11 @@ function renderFeaturedYachts(containerId) {
                 <div class="card-body">
                     ${titleBlock}
                     <p>${y.description}</p>
-                    ${videoBlock}
                     <div class="card-actions">
                         <a href="${primaryHref}" class="card-link">${hasPage ? 'View Listing' : 'Inquire'}</a>
                         ${pdfLink}
                         ${kuulaLink}
+                        ${videoLink}
                     </div>
                     <a href="tel:5618171547" class="card-call">Call Clark: 561-817-1547</a>
                 </div>
