@@ -35,7 +35,8 @@ if (current_user(vdb_connect()) === null) {
         <button type="button" class="vdb-logout" id="btnProfile">My Profile</button>
         <button type="button" class="vdb-logout" id="btnLogout">Log out</button>
     </div>
-    <h1>HALEY <strong>YACHTS</strong> VENDOR DATABASE</h1>
+    <img class="vdb-brand-logo" src="../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+    <h1>Vendor Database</h1>
     <div class="accent-line"></div>
     <p>Staff directory of surveyors, mechanics, and trade vendors</p>
 </header>

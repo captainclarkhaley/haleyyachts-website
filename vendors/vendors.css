@@ -50,6 +50,13 @@ body {
     margin: 0;
 }
 .vdb-header h1 strong { font-weight: 700; color: var(--cyan); }
+.vdb-brand-logo {
+    display: block;
+    height: 48px;
+    width: auto;
+    max-width: 78%;
+    margin: 0 auto 14px;
+}
 .vdb-header .accent-line {
     width: 60px; height: 3px; background: var(--cyan); margin: 12px auto 14px;
 }
@@ -729,4 +736,5 @@ dl.vdb-detail dd {
     .vdb-form .multi-pair,
     .contact-row .cr-grid { grid-template-columns: 1fr; }
     .vdb-header { padding: 24px 20px; }
+    .vdb-brand-logo { height: 38px; }
 }
