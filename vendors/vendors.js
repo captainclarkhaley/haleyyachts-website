@@ -1051,7 +1051,7 @@
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'haley-vendors-' + todayStamp() + '.csv';
+        a.download = 'OWYG-vendors-' + todayStamp() + '.csv';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
