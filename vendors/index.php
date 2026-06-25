@@ -59,8 +59,8 @@ if (current_user(vdb_connect()) === null) {
                 <div class="vdb-modetoggle">
                     <span>Type match:</span>
                     <span class="seg" role="group" aria-label="Type match mode">
-                        <button type="button" id="modeAll" class="active" data-mode="all">All</button>
-                        <button type="button" id="modeAny" data-mode="any">Any</button>
+                        <button type="button" id="modeAll" data-mode="all">All</button>
+                        <button type="button" id="modeAny" class="active" data-mode="any">Any</button>
                     </span>
                 </div>
             </div>

@@ -13,7 +13,7 @@
 
     // App state.
     var lists = { vendor_types: [], coverage_areas: [] };
-    var typeMode = 'all';
+    var typeMode = 'any';
     var formContacts = []; // working copy of contacts inside the open form
     var contactSeq = 0;    // local id generator for unmounted contact rows
     var currentVendors = []; // last result set rendered (before client filter/sort), for CSV export
@@ -1086,7 +1086,7 @@
             setChecked('fTypes', []);
             setChecked('fAreas', []);
             setChecked('fRating', []);
-            setMode('all');
+            setMode('any');
             $('fTypeSearch').value = '';
             $('fAreaSearch').value = '';
             applyMultiFilter('fTypes', '');
