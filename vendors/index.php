@@ -30,10 +30,14 @@ if (current_user(vdb_connect()) === null) {
 <body>
 
 <header class="vdb-header">
-    <div class="vdb-userbar" id="userBar" hidden>
-        <span class="vdb-user-info" id="userInfo"></span>
-        <button type="button" class="vdb-logout" id="btnProfile">My Profile</button>
-        <button type="button" class="vdb-logout" id="btnLogout">Log out</button>
+    <div class="vdb-topright">
+        <div class="vdb-userbar" id="userBar" hidden>
+            <span class="vdb-user-info" id="userInfo"></span>
+            <button type="button" class="vdb-logout" id="btnProfile">My Profile</button>
+            <button type="button" class="vdb-logout" id="btnLogout">Log out</button>
+        </div>
+        <button type="button" class="vdb-logout vdb-export-csv" id="btnExport"
+            title="Exports the vendors currently shown. With no filters active that is the full database, so it doubles as a backup.">Export CSV</button>
     </div>
     <img class="vdb-brand-logo" src="../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
     <h1>Vendor Database</h1>
@@ -88,8 +92,6 @@ if (current_user(vdb_connect()) === null) {
         <div class="vdb-filter-actions">
             <div class="vdb-result-count" id="resultCount">Loading...</div>
             <div>
-                <button type="button" class="btn btn-export" id="btnExport"
-                    title="Exports the vendors currently shown. With no filters active that is the full database, so it doubles as a backup.">Export CSV</button>
                 <button type="button" class="btn btn-ghost" id="btnClear">Clear</button>
                 <button type="button" class="btn btn-primary" id="btnAdd">+ Add Vendor</button>
             </div>

@@ -69,14 +69,25 @@ body {
 
 /* Logged-in user bar, top-right of the navy header. */
 .vdb-header { position: relative; }
-.vdb-userbar {
+.vdb-topright {
     position: absolute;
     top: 16px;
     right: 20px;
     display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+.vdb-userbar {
+    display: flex;
     align-items: center;
     gap: 12px;
     font-size: 0.82rem;
+}
+.vdb-export-csv:disabled {
+    border-color: rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.35);
+    cursor: not-allowed;
 }
 .vdb-user-info { color: rgba(255,255,255,0.85); }
 .vdb-logout {
@@ -94,11 +105,12 @@ body {
 }
 .vdb-logout:hover { border-color: var(--cyan); color: var(--cyan); }
 @media (max-width: 620px) {
-    .vdb-userbar {
+    .vdb-topright {
         position: static;
-        justify-content: center;
+        align-items: center;
         margin-bottom: 14px;
     }
+    .vdb-userbar { justify-content: center; }
 }
 
 /* ----- Filter bar ----- */
