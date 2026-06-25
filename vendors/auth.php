@@ -3,11 +3,18 @@
  * auth.php - JSON authentication endpoint for the staff Vendor app login flow.
  *
  * Actions (?action=...):
- *   login   POST {account_id, password}  -> sets session, returns the user
- *   logout  POST                         -> clears the session
- *   me      GET                          -> the current user, or {ok:false}
- *   forgot  POST {email}                 -> emails a reset link; ALWAYS generic OK
- *   reset   POST {token, password}       -> consumes a token, sets a new password
+ *   login            POST {account_id, password}        -> sets session, returns user
+ *   logout           POST                               -> clears the session
+ *   me               GET                                -> current user + home offices
+ *   forgot           POST {email}                       -> emails a reset link; generic OK
+ *   reset            POST {token, password}             -> consumes a token, sets password
+ *   update_profile   POST {name,email,cell,home_office} -> edits the SESSION user only
+ *   change_password  POST {current_password,new_password} -> SESSION user; verifies current
+ *
+ * Self-service note: update_profile and change_password operate STRICTLY on
+ * $_SESSION['uid'] via current_user($pdo). They never accept a user id from the
+ * request, so a logged-in user can only ever edit their own account. Account ID
+ * is read-only (admin-assigned) and cannot be changed through this endpoint.
  *
  * Security model (see auth-lib.php for the session/cookie hardening):
  *   - Passwords stored ONLY as password_hash() bcrypt; verified with
@@ -62,13 +69,18 @@ function a_body()
     return is_array($data) ? $data : array();
 }
 
-/** Public-safe view of a user row (never the hash). */
+/**
+ * Public-safe view of a user row (never the hash). Includes cell because this is
+ * only ever returned to the logged-in user about THEIR OWN account (me /
+ * update_profile / login), so it is the user's own data behind their session.
+ */
 function a_public_user(array $u)
 {
     return array(
         'account_id'  => $u['account_id'],
         'name'        => $u['name'],
         'email'       => $u['email'],
+        'cell'        => isset($u['cell']) ? $u['cell'] : '',
         'home_office' => $u['home_office'],
     );
 }
@@ -128,12 +140,129 @@ try {
             break;
 
         // ---- me -----------------------------------------------------------
+        // Returns the current user's own public profile AND the canonical
+        // home-office list, so the profile form prefills + populates its dropdown
+        // from a single server source (vdb_home_offices()).
         case 'me':
             $user = current_user($pdo);
             if ($user === null) {
                 a_respond(array('ok' => false, 'auth' => false), 200);
             }
-            a_respond(array('ok' => true, 'user' => a_public_user($user)));
+            a_respond(array(
+                'ok'           => true,
+                'user'         => a_public_user($user),
+                'home_offices' => vdb_home_offices(),
+            ));
+            break;
+
+        // ---- update_profile (self-service; SESSION user ONLY) -------------
+        // Edits ONLY the logged-in user's row. The target id comes from
+        // current_user($pdo) / $_SESSION['uid'] - never from the request body -
+        // so a user cannot edit another account by passing an id. Account ID is
+        // intentionally NOT editable here (admin-assigned login handle).
+        case 'update_profile':
+            $user = current_user($pdo);
+            if ($user === null) {
+                a_fail('Not authenticated.', 401);
+            }
+
+            $b           = a_body();
+            $name        = isset($b['name']) ? trim($b['name']) : '';
+            $email       = isset($b['email']) ? trim($b['email']) : '';
+            $cell        = isset($b['cell']) ? trim($b['cell']) : '';
+            $homeOffice  = isset($b['home_office']) ? trim($b['home_office']) : '';
+
+            if ($name === '') {
+                a_fail('Name is required.');
+            }
+            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                a_fail('A valid email address is required.');
+            }
+            // Home office must be empty or one of the canonical offices.
+            $offices = vdb_home_offices();
+            if ($homeOffice !== '' && !in_array($homeOffice, $offices, true)) {
+                a_fail('Invalid home office.');
+            }
+
+            // Email uniqueness, case-insensitive, EXCLUDING this user's own row.
+            $dup = $pdo->prepare(
+                'SELECT id FROM users WHERE email = ? COLLATE NOCASE AND id <> ?'
+            );
+            $dup->execute(array($email, (int) $user['id']));
+            if ($dup->fetch()) {
+                a_fail('That email address is already in use.', 409);
+            }
+
+            // Update ONLY the session user's row. Double-quoted PHP string
+            // because the SQL carries the single-quote literal datetime('now').
+            $up = $pdo->prepare(
+                "UPDATE users
+                 SET name = ?, email = ?, cell = ?, home_office = ?, updated_at = datetime('now')
+                 WHERE id = ?"
+            );
+            $up->execute(array($name, $email, $cell, $homeOffice, (int) $user['id']));
+
+            $fresh = current_user($pdo);
+            a_respond(array('ok' => true, 'user' => a_public_user($fresh)));
+            break;
+
+        // ---- change_password (self-service; SESSION user ONLY) -----------
+        // Verifies the CURRENT password, then stores a new bcrypt hash on the
+        // logged-in user's row only. The id comes from the session, never the
+        // request. Neither password is ever logged or echoed.
+        case 'change_password':
+            $user = current_user($pdo);
+            if ($user === null) {
+                a_fail('Not authenticated.', 401);
+            }
+
+            $b       = a_body();
+            $current = isset($b['current_password']) ? (string) $b['current_password'] : '';
+            $new     = isset($b['new_password']) ? (string) $b['new_password'] : '';
+
+            if ($current === '' || $new === '') {
+                a_fail('Both the current and new password are required.');
+            }
+            if (strlen($new) < AUTH_MIN_PASSWORD) {
+                a_fail('New password must be at least ' . AUTH_MIN_PASSWORD . ' characters.');
+            }
+
+            // Load this user's hash to verify the current password.
+            $stmt = $pdo->prepare('SELECT password_hash FROM users WHERE id = ?');
+            $stmt->execute(array((int) $user['id']));
+            $row = $stmt->fetch();
+            if (!$row || !password_verify($current, $row['password_hash'])) {
+                // Generic on purpose - do not reveal more than "it is wrong".
+                a_fail('Current password is incorrect.', 403);
+            }
+
+            $hash = password_hash($new, PASSWORD_DEFAULT);
+
+            $pdo->beginTransaction();
+            try {
+                // Update ONLY the session user's row. Double-quoted PHP string
+                // for the datetime('now') single-quote literal.
+                $upd = $pdo->prepare(
+                    "UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?"
+                );
+                $upd->execute(array($hash, (int) $user['id']));
+
+                // Invalidate any outstanding self-service reset tokens.
+                $clear = $pdo->prepare(
+                    'UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0'
+                );
+                $clear->execute(array((int) $user['id']));
+
+                $pdo->commit();
+            } catch (Throwable $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
+
+            // Keep the user logged in; rotate the session id as a precaution.
+            session_regenerate_id(true);
+
+            a_respond(array('ok' => true, 'message' => 'Your password has been changed.'));
             break;
 
         // ---- forgot (anti-enumeration) ------------------------------------

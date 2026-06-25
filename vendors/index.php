@@ -32,6 +32,7 @@ if (current_user(vdb_connect()) === null) {
 <header class="vdb-header">
     <div class="vdb-userbar" id="userBar" hidden>
         <span class="vdb-user-info" id="userInfo"></span>
+        <button type="button" class="vdb-logout" id="btnProfile">My Profile</button>
         <button type="button" class="vdb-logout" id="btnLogout">Log out</button>
     </div>
     <h1>HALEY <strong>YACHTS</strong> VENDOR DATABASE</h1>
@@ -195,6 +196,86 @@ if (current_user(vdb_connect()) === null) {
         <div class="vdb-modal-foot">
             <button type="button" class="btn btn-ghost" id="btnCancel">Cancel</button>
             <button type="button" class="btn btn-primary" id="btnSave">Save Vendor</button>
+        </div>
+    </div>
+</div>
+
+<!-- My Profile modal (self-service: edit own profile + change own password) -->
+<div class="vdb-overlay" id="profileOverlay" aria-hidden="true">
+    <div class="vdb-modal" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+        <div class="vdb-modal-head">
+            <h2 id="profileTitle">My Profile</h2>
+            <button type="button" class="vdb-modal-close" id="profileClose" aria-label="Close">&times;</button>
+        </div>
+        <div class="vdb-modal-body">
+
+            <!-- Profile details -->
+            <form class="vdb-form" id="profileForm" autocomplete="off">
+                <div class="vdb-notice error" id="profileError"></div>
+                <div class="vdb-notice info" id="profileSuccess"></div>
+
+                <div class="row">
+                    <label for="pAccountId">Account ID</label>
+                    <input type="text" id="pAccountId" readonly disabled
+                        title="Your login handle is assigned by an administrator and cannot be changed here.">
+                </div>
+
+                <div class="row">
+                    <label for="pName">Name *</label>
+                    <input type="text" id="pName" autocomplete="off" required>
+                </div>
+
+                <div class="row row-2">
+                    <div>
+                        <label for="pEmail">Email *</label>
+                        <input type="email" id="pEmail" autocomplete="off" required>
+                    </div>
+                    <div>
+                        <label for="pCell">Cell</label>
+                        <input type="text" id="pCell" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="pHomeOffice">Home Office</label>
+                    <select id="pHomeOffice"></select>
+                </div>
+
+                <div class="vdb-profile-actions">
+                    <button type="button" class="btn btn-primary" id="btnSaveProfile">Save Profile</button>
+                </div>
+            </form>
+
+            <!-- Change password -->
+            <div class="vdb-pw-section">
+                <h3>Change Password</h3>
+                <form class="vdb-form" id="passwordForm" autocomplete="off">
+                    <div class="vdb-notice error" id="pwError"></div>
+                    <div class="vdb-notice info" id="pwSuccess"></div>
+
+                    <div class="row">
+                        <label for="pwCurrent">Current Password</label>
+                        <input type="password" id="pwCurrent" autocomplete="current-password">
+                    </div>
+                    <div class="row row-2">
+                        <div>
+                            <label for="pwNew">New Password</label>
+                            <input type="password" id="pwNew" autocomplete="new-password">
+                        </div>
+                        <div>
+                            <label for="pwConfirm">Confirm New Password</label>
+                            <input type="password" id="pwConfirm" autocomplete="new-password">
+                        </div>
+                    </div>
+                    <div class="vdb-profile-actions">
+                        <button type="button" class="btn btn-primary" id="btnSavePassword">Change Password</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+        <div class="vdb-modal-foot">
+            <button type="button" class="btn btn-ghost" id="btnProfileClose">Close</button>
         </div>
     </div>
 </div>

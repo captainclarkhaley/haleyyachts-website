@@ -136,15 +136,26 @@
 
     // ---- session header (who is logged in + logout) -----------------------
 
+    var currentUser = null;     // last-known public user from auth.php?action=me
+    var homeOffices = [];       // canonical home-office list from the server
+
+    function setUserBarLabel(u) {
+        var label = u.name || u.account_id || '';
+        if (u.home_office) { label += ' - ' + u.home_office; }
+        $('userInfo').textContent = label;
+    }
+
     function loadUserBar() {
         fetch('auth.php?action=me', { headers: { 'Accept': 'application/json' } })
-            .then(function (res) { return res.json(); })
+            .then(function (res) {
+                if (res.status === 401) { window.location.href = 'login.html'; return null; }
+                return res.json();
+            })
             .then(function (data) {
                 if (!data || !data.ok || !data.user) { return; }
-                var u = data.user;
-                var label = u.name || u.account_id || '';
-                if (u.home_office) { label += ' - ' + u.home_office; }
-                $('userInfo').textContent = label;
+                currentUser = data.user;
+                homeOffices = data.home_offices || [];
+                setUserBarLabel(currentUser);
                 $('userBar').hidden = false;
             })
             .catch(function () { /* leave the bar hidden on error */ });
@@ -158,6 +169,153 @@
             window.location.href = 'login.html';
         }).catch(function () {
             window.location.href = 'login.html';
+        });
+    }
+
+    // ---- My Profile (self-service: own profile + own password) -------------
+
+    // Post to the auth endpoint. Mirrors apiPost but targets auth.php and bounces
+    // to the login page on a 401 (expired/absent session).
+    function authPost(action, body) {
+        return fetch('auth.php?action=' + action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(body || {})
+        }).then(function (res) {
+            return res.text().then(function (t) {
+                var data;
+                try { data = t ? JSON.parse(t) : {}; } catch (e) { data = { ok: false, error: 'Bad server response.' }; }
+                if (!res.ok && data.ok !== false) { data.ok = false; }
+                data._status = res.status;
+                if (res.status === 401) { window.location.href = 'login.html'; }
+                return data;
+            });
+        });
+    }
+
+    function showNotice(id, msg) {
+        var e = $(id);
+        e.textContent = msg;
+        e.classList.add('show');
+    }
+    function clearNotice(id) {
+        var e = $(id);
+        e.textContent = '';
+        e.classList.remove('show');
+    }
+
+    function fillHomeOfficeOptions(selected) {
+        var sel = $('pHomeOffice');
+        var html = '<option value="">(none)</option>';
+        for (var i = 0; i < homeOffices.length; i++) {
+            var v = esc(homeOffices[i]);
+            html += '<option value="' + v + '"' +
+                (homeOffices[i] === selected ? ' selected' : '') + '>' + v + '</option>';
+        }
+        sel.innerHTML = html;
+    }
+
+    function openProfile() {
+        clearNotice('profileError'); clearNotice('profileSuccess');
+        clearNotice('pwError'); clearNotice('pwSuccess');
+        $('pwCurrent').value = '';
+        $('pwNew').value = '';
+        $('pwConfirm').value = '';
+
+        // Always pull fresh from the server so the form reflects the saved state.
+        fetch('auth.php?action=me', { headers: { 'Accept': 'application/json' } })
+            .then(function (res) {
+                if (res.status === 401) { window.location.href = 'login.html'; return null; }
+                return res.json();
+            })
+            .then(function (data) {
+                if (!data || !data.ok || !data.user) {
+                    showNotice('profileError', 'Could not load your profile.');
+                    return;
+                }
+                currentUser = data.user;
+                homeOffices = data.home_offices || homeOffices;
+                $('pAccountId').value = currentUser.account_id || '';
+                $('pName').value = currentUser.name || '';
+                $('pEmail').value = currentUser.email || '';
+                $('pCell').value = currentUser.cell || '';
+                fillHomeOfficeOptions(currentUser.home_office || '');
+
+                var ov = $('profileOverlay');
+                ov.classList.add('open');
+                ov.setAttribute('aria-hidden', 'false');
+                $('pName').focus();
+            })
+            .catch(function () {
+                showNotice('profileError', 'Network error loading your profile.');
+            });
+    }
+
+    function closeProfile() {
+        var ov = $('profileOverlay');
+        ov.classList.remove('open');
+        ov.setAttribute('aria-hidden', 'true');
+    }
+
+    function saveProfile() {
+        clearNotice('profileError'); clearNotice('profileSuccess');
+
+        var name = $('pName').value.trim();
+        var email = $('pEmail').value.trim();
+        if (!name) { showNotice('profileError', 'Name is required.'); $('pName').focus(); return; }
+        if (!email) { showNotice('profileError', 'Email is required.'); $('pEmail').focus(); return; }
+
+        var payload = {
+            name: name,
+            email: email,
+            cell: $('pCell').value.trim(),
+            home_office: $('pHomeOffice').value
+        };
+
+        $('btnSaveProfile').disabled = true;
+        authPost('update_profile', payload).then(function (data) {
+            $('btnSaveProfile').disabled = false;
+            if (!data.ok) {
+                showNotice('profileError', data.error || 'Could not save your profile.');
+                return;
+            }
+            currentUser = data.user;
+            setUserBarLabel(currentUser);
+            showNotice('profileSuccess', 'Profile saved.');
+        }).catch(function () {
+            $('btnSaveProfile').disabled = false;
+            showNotice('profileError', 'Network error saving your profile.');
+        });
+    }
+
+    function savePassword() {
+        clearNotice('pwError'); clearNotice('pwSuccess');
+
+        var cur = $('pwCurrent').value;
+        var nw = $('pwNew').value;
+        var cf = $('pwConfirm').value;
+
+        if (!cur) { showNotice('pwError', 'Enter your current password.'); $('pwCurrent').focus(); return; }
+        if (nw.length < 8) { showNotice('pwError', 'New password must be at least 8 characters.'); $('pwNew').focus(); return; }
+        if (nw !== cf) { showNotice('pwError', 'New passwords do not match.'); $('pwConfirm').focus(); return; }
+
+        $('btnSavePassword').disabled = true;
+        authPost('change_password', {
+            current_password: cur,
+            new_password: nw
+        }).then(function (data) {
+            $('btnSavePassword').disabled = false;
+            if (!data.ok) {
+                showNotice('pwError', data.error || 'Could not change your password.');
+                return;
+            }
+            $('pwCurrent').value = '';
+            $('pwNew').value = '';
+            $('pwConfirm').value = '';
+            showNotice('pwSuccess', data.message || 'Your password has been changed.');
+        }).catch(function () {
+            $('btnSavePassword').disabled = false;
+            showNotice('pwError', 'Network error changing your password.');
         });
     }
 
@@ -846,6 +1004,17 @@
         var logoutBtn = $('btnLogout');
         if (logoutBtn) { logoutBtn.addEventListener('click', logout); }
 
+        // My Profile modal.
+        var profileBtn = $('btnProfile');
+        if (profileBtn) { profileBtn.addEventListener('click', openProfile); }
+        $('profileClose').addEventListener('click', closeProfile);
+        $('btnProfileClose').addEventListener('click', closeProfile);
+        $('profileOverlay').addEventListener('click', function (e) {
+            if (e.target === this) { closeProfile(); }
+        });
+        $('btnSaveProfile').addEventListener('click', saveProfile);
+        $('btnSavePassword').addEventListener('click', savePassword);
+
         $('fName').addEventListener('input', refresh);
         $('btnClear').addEventListener('click', function () {
             $('fName').value = '';
@@ -884,7 +1053,8 @@
         });
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Escape') { return; }
-            if ($('vendorOverlay').classList.contains('open')) { closeModal(); }
+            if ($('profileOverlay').classList.contains('open')) { closeProfile(); }
+            else if ($('vendorOverlay').classList.contains('open')) { closeModal(); }
             else if ($('detailOverlay').classList.contains('open')) { closeDetail(); }
         });
 
