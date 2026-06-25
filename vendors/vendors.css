@@ -733,6 +733,64 @@ dl.vdb-detail dd {
 .vdb-notice.error { background: #fdecea; border-left: 4px solid var(--danger); color: #7a241c; }
 .vdb-notice.info  { background: var(--warn-bg); border-left: 4px solid var(--warn-br); color: #5a4a20; }
 
+/* ----- Duplicate-on-create panel ----- */
+/* Lives at the top of the add/edit modal body; shown only when the create-time
+   duplicate guard fires. Warm warning surface, navy/cyan controls. */
+.vdb-dup-panel {
+    display: none;
+    border: 1px solid var(--warn-br);
+    border-left: 4px solid var(--warn-br);
+    background: var(--warn-bg);
+    border-radius: 4px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+}
+.vdb-dup-panel.show { display: block; }
+.vdb-dup-head strong {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--navy);
+    margin-bottom: 4px;
+}
+.vdb-dup-head p {
+    margin: 0 0 14px;
+    font-size: 0.85rem;
+    color: #5a4a20;
+}
+.vdb-dup-list { margin-bottom: 12px; }
+.vdb-dup-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+}
+.vdb-dup-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.vdb-dup-name { font-weight: 600; color: var(--navy); font-size: 0.9rem; }
+.vdb-dup-phone { font-size: 0.82rem; color: var(--ink); }
+.vdb-dup-reason {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--cyan-d);
+}
+.vdb-dup-item .btn { flex-shrink: 0; }
+.vdb-dup-note {
+    margin: 0 0 14px;
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--muted);
+}
+.vdb-dup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 .vdb-foot-link {
     text-align: center;
     margin-top: 28px;

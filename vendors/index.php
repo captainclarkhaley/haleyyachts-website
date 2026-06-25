@@ -165,6 +165,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
         </div>
         <div class="vdb-modal-body">
             <div class="vdb-notice error" id="formError"></div>
+            <div class="vdb-dup-panel" id="dupPanel"></div>
 
             <form class="vdb-form" id="vendorForm" autocomplete="off">
                 <input type="hidden" id="vId">

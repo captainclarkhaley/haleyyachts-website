@@ -544,6 +544,7 @@
         ov.classList.remove('open');
         ov.setAttribute('aria-hidden', 'true');
         clearFormError();
+        hideDuplicatePanel();
     }
 
     function clearFormError() {
@@ -571,6 +572,7 @@
         formContacts = [];
         renderContacts();
         clearFormError();
+        hideDuplicatePanel();
     }
 
     function setChecked(containerId, ids) {
@@ -918,6 +920,7 @@
 
     function saveVendor() {
         clearFormError();
+        hideDuplicatePanel();
         syncContactsFromDom();
 
         var name = $('vName').value.trim();
@@ -955,9 +958,22 @@
         };
         if (idVal) { payload.id = parseInt(idVal, 10); }
 
+        submitVendor(payload);
+    }
+
+    // POST a vendor save. allowDuplicate=true re-submits past the create-time
+    // duplicate guard (Create anyway). On a duplicate response (only ever on a
+    // new vendor, never an edit) we keep the form open and show the panel.
+    function submitVendor(payload, allowDuplicate) {
+        if (allowDuplicate) { payload.allow_duplicate = true; }
+
         $('btnSave').disabled = true;
         apiPost('r=vendors&action=save', payload).then(function (data) {
             $('btnSave').disabled = false;
+            if (data && data.duplicate) {
+                showDuplicatePanel(data.duplicates || [], payload);
+                return;
+            }
             if (!data.ok) { showFormError(data.error || 'Save failed.'); return; }
             closeModal();
             refresh();
@@ -965,6 +981,58 @@
             $('btnSave').disabled = false;
             showFormError('Network error during save.');
         });
+    }
+
+    // ---- duplicate panel (create only) ------------------------------------
+
+    var dupPayload = null; // the pending create payload, for Create anyway
+
+    function reasonText(reason) {
+        if (reason === 'name + phone') { return 'matches an existing name and the same phone number'; }
+        if (reason === 'phone') { return 'same phone number'; }
+        return 'matches an existing name';
+    }
+
+    function showDuplicatePanel(dupes, payload) {
+        dupPayload = payload;
+
+        var h = '<div class="vdb-dup-head">' +
+            '<strong>Possible duplicate</strong>' +
+            '<p>This looks like a vendor already in the database. Open the existing record to add your info there, or create a new one anyway.</p>' +
+        '</div>';
+
+        h += '<div class="vdb-dup-list">';
+        for (var i = 0; i < dupes.length; i++) {
+            var d = dupes[i];
+            var phone = d.phone
+                ? esc(formatPhone(d.phone))
+                : '<span style="color:#bbb">no phone</span>';
+            h += '<div class="vdb-dup-item">' +
+                '<div class="vdb-dup-info">' +
+                    '<span class="vdb-dup-name">' + esc(d.name) + '</span>' +
+                    '<span class="vdb-dup-phone">' + phone + '</span>' +
+                    '<span class="vdb-dup-reason">' + esc(reasonText(d.reason)) + '</span>' +
+                '</div>' +
+                '<button type="button" class="btn btn-ghost btn-sm" data-dup-open="' + d.id + '">Open</button>' +
+            '</div>';
+        }
+        h += '</div>';
+
+        h += '<p class="vdb-dup-note">Opening an existing vendor discards what you just typed here - it is not carried over.</p>';
+
+        h += '<div class="vdb-dup-actions">' +
+            '<button type="button" class="btn btn-ghost" id="btnDupKeep">Keep editing</button>' +
+            '<button type="button" class="btn btn-primary" id="btnDupCreate">Create anyway</button>' +
+        '</div>';
+
+        $('dupPanel').innerHTML = h;
+        $('dupPanel').classList.add('show');
+    }
+
+    function hideDuplicatePanel() {
+        var p = $('dupPanel');
+        if (p) { p.classList.remove('show'); p.innerHTML = ''; }
+        dupPayload = null;
     }
 
     function deleteVendor(id, name, onDone) {
@@ -1159,6 +1227,26 @@
         $('vNotes').addEventListener('input', updateNotesCounter);
         $('btnSave').addEventListener('click', saveVendor);
         $('btnAddContact').addEventListener('click', addContact);
+
+        // Duplicate panel actions (delegated off the stable #dupPanel host):
+        // Open an existing match, Create anyway (override), or Keep editing.
+        $('dupPanel').addEventListener('click', function (e) {
+            var openId = e.target.getAttribute('data-dup-open');
+            if (openId) {
+                var id = parseInt(openId, 10);
+                closeModal();      // discards the in-progress entry + hides the panel
+                openDetail(id);    // existing detail/openDetail flow by vendor id
+                return;
+            }
+            if (e.target.id === 'btnDupCreate') {
+                if (dupPayload) { submitVendor(dupPayload, true); }
+                return;
+            }
+            if (e.target.id === 'btnDupKeep') {
+                hideDuplicatePanel(); // back to the add form, entry intact
+                return;
+            }
+        });
 
         // Results table is view-only: clicking a vendor name opens the detail view.
         $('resultsBody').addEventListener('click', function (e) {
