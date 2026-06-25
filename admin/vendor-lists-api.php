@@ -169,7 +169,7 @@ function list_items(PDO $pdo, $table)
     $meta  = ($table === 'vendor_types')
         ? array('map' => 'vendor_type_map', 'col' => 'type_id')
         : array('map' => 'vendor_area_map', 'col' => 'area_id');
-    $rows = $pdo->query('SELECT id, name, sort FROM ' . $table . ' ORDER BY sort, name')->fetchAll();
+    $rows = $pdo->query('SELECT id, name, sort FROM ' . $table . ' ORDER BY name COLLATE NOCASE')->fetchAll();
     foreach ($rows as &$row) {
         $row['usageCount'] = usage_count($pdo, $meta['map'], $meta['col'], (int) $row['id']);
     }

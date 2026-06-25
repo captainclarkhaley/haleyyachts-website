@@ -62,7 +62,6 @@
             font-size: 0.68rem; color: #888; background: #f0f2f5;
             border-radius: 3px; padding: 1px 7px; white-space: nowrap;
         }
-        .reorder { display: flex; flex-direction: column; gap: 2px; }
         .icon-btn {
             border: 1px solid #e5e5e5; background: #fff; color: #666;
             border-radius: 3px; cursor: pointer; font-size: 0.72rem;
@@ -209,10 +208,6 @@
             var usage = it.usageCount > 0
                 ? '<span class="usage">' + it.usageCount + ' in use</span>' : '';
             html += '<li data-id="' + it.id + '">' +
-                '<span class="reorder">' +
-                    '<button class="icon-btn" data-up="' + it.id + '"' + (i === 0 ? ' disabled' : '') + '>&uarr;</button>' +
-                    '<button class="icon-btn" data-down="' + it.id + '"' + (i === cfg.items.length - 1 ? ' disabled' : '') + '>&darr;</button>' +
-                '</span>' +
                 '<span class="name" data-name="' + it.id + '">' + esc(it.name) + '</span>' +
                 usage +
                 '<button class="icon-btn" data-rename="' + it.id + '">Rename</button>' +
@@ -282,23 +277,6 @@
         });
     }
 
-    function move(list, id, dir) {
-        var arr = LISTS[list].items;
-        var idx = -1;
-        for (var i = 0; i < arr.length; i++) { if (arr[i].id == id) { idx = i; } }
-        if (idx < 0) { return; }
-        var swap = idx + dir;
-        if (swap < 0 || swap >= arr.length) { return; }
-        var tmp = arr[idx]; arr[idx] = arr[swap]; arr[swap] = tmp;
-        render(list);
-        var order = arr.map(function (x) { return x.id; });
-        call(list, 'reorder', { body: { order: order } }).then(function (d) {
-            if (!d.ok) { notice(d.error || 'Reorder failed.'); load(list); return; }
-            LISTS[list].items = d.items;
-            render(list);
-        });
-    }
-
     function listForEl(el) {
         return el.closest('.list-panel').querySelector('h2').textContent.indexOf('Type') >= 0
             ? 'vendor_type' : 'coverage_area';
@@ -310,8 +288,6 @@
             var t = e.target;
             if (t.dataset.rename) { rename(list, t.dataset.rename); }
             else if (t.dataset.del) { del(list, t.dataset.del, t.dataset.usage); }
-            else if (t.dataset.up) { move(list, t.dataset.up, -1); }
-            else if (t.dataset.down) { move(list, t.dataset.down, 1); }
         });
         var addInput = document.getElementById(LISTS[list].addId);
         addInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') { add(list); } });

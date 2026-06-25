@@ -51,7 +51,9 @@ if (current_user(vdb_connect()) === null) {
             </div>
 
             <div class="vdb-field">
-                <label for="fTypes">Vendor Type</label>
+                <label for="fTypeSearch">Vendor Type</label>
+                <input type="text" id="fTypeSearch" class="vdb-multi-search" placeholder="Search types..."
+                    aria-label="Filter the vendor type options">
                 <div class="vdb-multi" id="fTypes" role="group" aria-label="Vendor type filter"></div>
                 <div class="vdb-modetoggle">
                     <span>Type match:</span>
@@ -63,20 +65,22 @@ if (current_user(vdb_connect()) === null) {
             </div>
 
             <div class="vdb-field">
-                <label for="fAreas">Coverage Area</label>
+                <label for="fAreaSearch">Coverage Area</label>
+                <input type="text" id="fAreaSearch" class="vdb-multi-search" placeholder="Search areas..."
+                    aria-label="Filter the coverage area options">
                 <div class="vdb-multi" id="fAreas" role="group" aria-label="Coverage area filter"></div>
             </div>
 
             <div class="vdb-field vdb-field-rating">
-                <label for="fMinRating">Minimum Rating</label>
-                <select id="fMinRating">
-                    <option value="0">Any</option>
-                    <option value="1">1+</option>
-                    <option value="2">2+</option>
-                    <option value="3">3+</option>
-                    <option value="4">4+</option>
-                    <option value="5">5</option>
-                </select>
+                <label>Rating</label>
+                <div class="vdb-multi" id="fRating" role="group" aria-label="Rating filter">
+                    <label><input type="checkbox" value="5"> 5 stars</label>
+                    <label><input type="checkbox" value="4"> 4 stars</label>
+                    <label><input type="checkbox" value="3"> 3 stars</label>
+                    <label><input type="checkbox" value="2"> 2 stars</label>
+                    <label><input type="checkbox" value="1"> 1 star</label>
+                    <label><input type="checkbox" value="0"> Not rated</label>
+                </div>
             </div>
         </div>
 
@@ -96,14 +100,20 @@ if (current_user(vdb_connect()) === null) {
         <table class="vdb-table">
             <thead>
                 <tr>
-                    <th>Vendor Name</th>
-                    <th>Type(s)</th>
-                    <th>Coverage Area(s)</th>
-                    <th>Primary Phone</th>
-                    <th>Primary Email</th>
-                    <th>Contacts</th>
-                    <th class="vdb-th-rating" id="thRating" role="button" tabindex="0"
-                        aria-label="Average rating, click to sort">Avg Rating <span class="sort-ind" id="ratingSortInd"></span></th>
+                    <th class="vdb-th-sort" data-sort="name" role="button" tabindex="0"
+                        aria-label="Vendor Name, click to sort">Vendor Name <span class="sort-ind"></span></th>
+                    <th class="vdb-th-sort" data-sort="types" role="button" tabindex="0"
+                        aria-label="Types, click to sort">Type(s) <span class="sort-ind"></span></th>
+                    <th class="vdb-th-sort" data-sort="areas" role="button" tabindex="0"
+                        aria-label="Coverage Areas, click to sort">Coverage Area(s) <span class="sort-ind"></span></th>
+                    <th class="vdb-th-sort" data-sort="phone" role="button" tabindex="0"
+                        aria-label="Primary Phone, click to sort">Primary Phone <span class="sort-ind"></span></th>
+                    <th class="vdb-th-sort" data-sort="email" role="button" tabindex="0"
+                        aria-label="Primary Email, click to sort">Primary Email <span class="sort-ind"></span></th>
+                    <th class="vdb-th-sort" data-sort="contacts" role="button" tabindex="0"
+                        aria-label="Contacts, click to sort">Contacts <span class="sort-ind"></span></th>
+                    <th class="vdb-th-sort" data-sort="rating" role="button" tabindex="0"
+                        aria-label="Average rating, click to sort">Avg Rating <span class="sort-ind"></span></th>
                 </tr>
             </thead>
             <tbody id="resultsBody">

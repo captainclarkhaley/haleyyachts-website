@@ -17,7 +17,8 @@
     var formContacts = []; // working copy of contacts inside the open form
     var contactSeq = 0;    // local id generator for unmounted contact rows
     var currentVendors = []; // last result set rendered (before client filter/sort), for CSV export
-    var ratingSort = '';   // '', 'desc', or 'asc' - click cycles the Avg Rating column
+    var sortKey = '';      // active sort column key ('' = none), e.g. 'name', 'rating'
+    var sortDir = 'asc';   // 'asc' or 'desc' for the active sort column
     var pendingStars = 0;  // star value picked in the detail rating control
 
     // ---- tiny helpers ------------------------------------------------------
@@ -328,9 +329,27 @@
         }
         for (var i = 0; i < items.length; i++) {
             var it = items[i];
-            html += '<label><input type="checkbox" value="' + it.id + '"> ' + esc(it.name) + '</label>';
+            html += '<label data-name="' + esc(String(it.name).toLowerCase()) + '">' +
+                '<input type="checkbox" value="' + it.id + '"> ' + esc(it.name) + '</label>';
         }
         $(containerId).innerHTML = html;
+    }
+
+    // Substring filter the visible options of a filter multi-select. Options that
+    // do NOT contain the query are hidden, EXCEPT any option that is currently
+    // checked: a checked option always stays visible so a selection can never be
+    // silently dropped just because it scrolled out of the filtered view. The
+    // checkbox is never unchecked here; this only toggles visibility.
+    function applyMultiFilter(containerId, query) {
+        var q = String(query || '').trim().toLowerCase();
+        var labels = $(containerId).querySelectorAll('label[data-name]');
+        for (var i = 0; i < labels.length; i++) {
+            var name = labels[i].getAttribute('data-name') || '';
+            var box = labels[i].querySelector('input[type="checkbox"]');
+            var checked = box && box.checked;
+            var match = q === '' || name.indexOf(q) !== -1;
+            labels[i].classList.toggle('vdb-multi-hidden', !(match || checked));
+        }
     }
 
     // ---- listing -----------------------------------------------------------
@@ -370,35 +389,72 @@
         });
     }, 180);
 
-    // Apply the client-side minimum-rating filter and the rating sort to the
-    // server result set, then render. The name/type/area filters are already
+    // The bucket a vendor falls in for the rating filter: a rated vendor's
+    // average rounded to the nearest whole star (5..1), or 0 for "Not rated".
+    function ratingBucket(v) {
+        if (!v.rating_count) { return 0; }
+        return Math.round(Number(v.rating_avg) || 0);
+    }
+
+    // Sort value for a given column key. Strings are lowercased; rating is
+    // numeric with unrated treated as the lowest value so it clusters at one end.
+    function sortValue(v, key) {
+        switch (key) {
+            case 'name':  return String(v.name || '').toLowerCase();
+            case 'types': return namesJoined(v.types).toLowerCase();
+            case 'areas': return namesJoined(v.areas).toLowerCase();
+            case 'phone': return String(v.primary_phone || '').toLowerCase();
+            case 'email': return String(v.primary_email || '').toLowerCase();
+            case 'contacts': return Number(v.contact_count) || 0;
+            case 'rating': return v.rating_count > 0 ? Number(v.rating_avg) : -1;
+            default: return '';
+        }
+    }
+
+    // Compare two values consistently. Numbers compare numerically; everything
+    // else compares as strings. Blank strings sort to the bottom on ascending.
+    function compareValues(a, b) {
+        if (typeof a === 'number' && typeof b === 'number') {
+            return a - b;
+        }
+        var as = String(a), bs = String(b);
+        if (as === '' && bs !== '') { return 1; }
+        if (bs === '' && as !== '') { return -1; }
+        return as.localeCompare(bs);
+    }
+
+    // Apply the client-side rating-bucket filter and the active column sort to
+    // the server result set, then render. The name/type/area filters are already
     // applied server-side; this only narrows and reorders what came back.
     function renderFiltered() {
-        var min = parseInt($('fMinRating').value, 10) || 0;
+        var buckets = checkedIds('fRating'); // e.g. [5,4,0]
         var rows = currentVendors.slice();
 
-        if (min > 0) {
-            rows = rows.filter(function (v) {
-                // No ratings are excluded once a minimum above Any is set.
-                return v.rating_count > 0 && Number(v.rating_avg) >= min;
-            });
+        if (buckets.length) {
+            var set = {};
+            for (var b = 0; b < buckets.length; b++) { set[buckets[b]] = true; }
+            rows = rows.filter(function (v) { return !!set[ratingBucket(v)]; });
         }
 
-        if (ratingSort) {
-            rows.sort(function (a, b) {
-                // Unrated vendors sort to the bottom regardless of direction.
-                var av = a.rating_count > 0 ? Number(a.rating_avg) : -1;
-                var bv = b.rating_count > 0 ? Number(b.rating_avg) : -1;
-                if (av === bv) { return a.name.localeCompare(b.name); }
-                return ratingSort === 'desc' ? bv - av : av - bv;
+        if (sortKey) {
+            // Decorate-sort-undecorate keeps it stable across browsers and avoids
+            // recomputing the (occasionally expensive) sort value each compare.
+            var decorated = rows.map(function (v, i) {
+                return { v: v, k: sortValue(v, sortKey), i: i };
             });
+            decorated.sort(function (x, y) {
+                var c = compareValues(x.k, y.k);
+                if (c === 0) { c = x.i - y.i; } // stable: preserve original order
+                return sortDir === 'desc' ? -c : c;
+            });
+            rows = decorated.map(function (d) { return d.v; });
         }
 
         renderResults(rows);
-        updateSortIndicator();
+        updateSortIndicators();
 
         var n = rows.length;
-        var ratingActive = min > 0;
+        var ratingActive = buckets.length > 0;
         var label;
         if (filtersActive() || ratingActive) {
             label = '<strong>' + n + '</strong> vendor' + (n === 1 ? '' : 's') + ' matching filters';
@@ -408,10 +464,19 @@
         $('resultCount').innerHTML = label;
     }
 
-    function updateSortIndicator() {
-        var ind = $('ratingSortInd');
-        if (!ind) { return; }
-        ind.textContent = ratingSort === 'desc' ? '▼' : (ratingSort === 'asc' ? '▲' : '');
+    // Paint the arrow indicator on the active sortable header, clear the rest.
+    function updateSortIndicators() {
+        var ths = document.querySelectorAll('.vdb-table thead th.vdb-th-sort');
+        for (var i = 0; i < ths.length; i++) {
+            var th = ths[i];
+            var ind = th.querySelector('.sort-ind');
+            var active = th.getAttribute('data-sort') === sortKey;
+            th.classList.toggle('sorted', active && sortKey !== '');
+            if (ind) {
+                ind.textContent = (active && sortKey !== '')
+                    ? (sortDir === 'desc' ? '▼' : '▲') : '';
+            }
+        }
     }
 
     function filtersActive() {
@@ -1020,26 +1085,53 @@
             $('fName').value = '';
             setChecked('fTypes', []);
             setChecked('fAreas', []);
+            setChecked('fRating', []);
             setMode('all');
-            $('fMinRating').value = '0';
-            ratingSort = '';
+            $('fTypeSearch').value = '';
+            $('fAreaSearch').value = '';
+            applyMultiFilter('fTypes', '');
+            applyMultiFilter('fAreas', '');
+            sortKey = '';
+            sortDir = 'asc';
             refresh();
         });
         $('fTypes').addEventListener('change', refresh);
         $('fAreas').addEventListener('change', refresh);
 
-        // Minimum-rating filter is client-side: re-filter the loaded rows only.
-        $('fMinRating').addEventListener('change', renderFiltered);
+        // Option search boxes filter which type/area options are visible. Purely
+        // client-side over the already-rendered options, so no server round trip.
+        $('fTypeSearch').addEventListener('input', function () {
+            applyMultiFilter('fTypes', this.value);
+        });
+        $('fAreaSearch').addEventListener('input', function () {
+            applyMultiFilter('fAreas', this.value);
+        });
 
-        // Avg Rating header cycles sort: none -> desc -> asc -> none.
-        function cycleRatingSort() {
-            ratingSort = ratingSort === '' ? 'desc' : (ratingSort === 'desc' ? 'asc' : '');
+        // Rating-bucket filter is client-side: re-filter the loaded rows only.
+        $('fRating').addEventListener('change', renderFiltered);
+
+        // Any column header sorts the current rows; clicking the active column
+        // toggles asc <-> desc, a new column starts ascending.
+        function sortByColumn(key) {
+            if (!key) { return; }
+            if (sortKey === key) {
+                sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortKey = key;
+                sortDir = 'asc';
+            }
             renderFiltered();
         }
-        $('thRating').addEventListener('click', cycleRatingSort);
-        $('thRating').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cycleRatingSort(); }
-        });
+        var sortHeaders = document.querySelectorAll('.vdb-table thead th.vdb-th-sort');
+        for (var s = 0; s < sortHeaders.length; s++) {
+            (function (th) {
+                var key = th.getAttribute('data-sort');
+                th.addEventListener('click', function () { sortByColumn(key); });
+                th.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sortByColumn(key); }
+                });
+            })(sortHeaders[s]);
+        }
 
         $('modeAll').addEventListener('click', function () { setMode('all'); refresh(); });
         $('modeAny').addEventListener('click', function () { setMode('any'); refresh(); });

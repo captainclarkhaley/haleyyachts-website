@@ -110,6 +110,8 @@ body {
     align-items: start;
 }
 .vdb-field-rating select { min-width: 120px; }
+/* Rating bucket multi-select: compact, no scroll needed (only 6 fixed rows). */
+.vdb-field-rating .vdb-multi { max-height: none; min-width: 130px; }
 .vdb-field label,
 .vdb-form label {
     display: block;
@@ -178,6 +180,26 @@ body {
 }
 .vdb-multi label:hover { background: var(--canvas); }
 .vdb-multi input { accent-color: var(--cyan); }
+/* Option hidden by its filter search box (still in the DOM, still counted). */
+.vdb-multi label.vdb-multi-hidden { display: none; }
+
+/* Small search box that sits above a filter multi-select. */
+.vdb-multi-search {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.82rem;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 6px 9px;
+    background: #fff;
+    margin-bottom: 6px;
+}
+.vdb-multi-search:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 2px rgba(33,203,234,0.18);
+}
 
 .vdb-modetoggle {
     display: inline-flex;
@@ -523,10 +545,12 @@ dl.vdb-detail dd {
 .vdb-norating { color: #bbb; font-style: italic; font-size: 0.85rem; }
 .vdb-rating-cell { white-space: nowrap; }
 
-/* Sortable Avg Rating header */
-.vdb-th-rating { cursor: pointer; user-select: none; }
-.vdb-th-rating:hover { background: #112545; }
-.vdb-th-rating .sort-ind { font-size: 0.7rem; color: var(--cyan); }
+/* Sortable column headers */
+.vdb-th-sort { cursor: pointer; user-select: none; }
+.vdb-th-sort:hover { background: #112545; }
+.vdb-th-sort.sorted { background: #112545; }
+.vdb-th-sort .sort-ind { font-size: 0.7rem; color: var(--cyan); }
+.vdb-th-sort:focus { outline: 2px solid var(--cyan); outline-offset: -2px; }
 
 /* Detail header summary line */
 .vdb-rating-summary {

@@ -117,8 +117,8 @@ function handle_lists(PDO $pdo, $action)
     if ($action !== 'get') {
         fail('Lists are read-only here. Use the admin tool to edit them.', 403);
     }
-    $types = $pdo->query('SELECT id, name FROM vendor_types ORDER BY sort, name')->fetchAll();
-    $areas = $pdo->query('SELECT id, name FROM coverage_areas ORDER BY sort, name')->fetchAll();
+    $types = $pdo->query('SELECT id, name FROM vendor_types ORDER BY name COLLATE NOCASE')->fetchAll();
+    $areas = $pdo->query('SELECT id, name FROM coverage_areas ORDER BY name COLLATE NOCASE')->fetchAll();
     respond(array(
         'ok'             => true,
         'vendor_types'   => $types,
