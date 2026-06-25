@@ -354,8 +354,108 @@ function rating_summary(PDO $pdo, $vendorId)
 }
 
 /**
+ * Reduce a phone to its last 10 digits, or '' if fewer than 10 digits remain
+ * after stripping non-digits. Used to compare phones across vendors + contacts
+ * regardless of formatting or a leading country code.
+ */
+function phone_key($raw)
+{
+    $digits = preg_replace('/\D/', '', (string) $raw);
+    if (strlen($digits) < 10) {
+        return '';
+    }
+    return substr($digits, -10);
+}
+
+/**
+ * Find likely duplicates of a NEW vendor by name and by phone. Returns a list of
+ * { id, name, phone, reason } summaries (reason = 'name' | 'phone' | 'name + phone'),
+ * or an empty array when nothing matches. CREATE path only - the caller gates this.
+ *
+ * Name: case-insensitive exact match of the trimmed entered name.
+ * Phone: collect every entered phone (the vendor phone + each contact phone),
+ *   normalize each to its last 10 digits, then match against ALL existing phones
+ *   on both sides - every vendor's phone AND every contact's phone.
+ */
+function find_duplicate_vendors(PDO $pdo, $name, $vendorPhone, array $contacts)
+{
+    // ---- name matches ----
+    $nameIds = array();
+    if ($name !== '') {
+        $stmt = $pdo->prepare('SELECT id FROM vendors WHERE name = ? COLLATE NOCASE');
+        $stmt->execute(array($name));
+        foreach ($stmt->fetchAll() as $row) {
+            $nameIds[(int) $row['id']] = true;
+        }
+    }
+
+    // ---- entered phone keys (vendor phone + each contact phone) ----
+    $enteredKeys = array();
+    $vk = phone_key($vendorPhone);
+    if ($vk !== '') {
+        $enteredKeys[$vk] = true;
+    }
+    foreach ($contacts as $c) {
+        $ck = phone_key(isset($c['phone']) ? $c['phone'] : '');
+        if ($ck !== '') {
+            $enteredKeys[$ck] = true;
+        }
+    }
+
+    // ---- phone matches: normalize every existing phone on both sides ----
+    $phoneIds = array();
+    if (!empty($enteredKeys)) {
+        $vStmt = $pdo->query('SELECT id, phone FROM vendors');
+        foreach ($vStmt->fetchAll() as $row) {
+            $k = phone_key($row['phone']);
+            if ($k !== '' && isset($enteredKeys[$k])) {
+                $phoneIds[(int) $row['id']] = true;
+            }
+        }
+        $cStmt = $pdo->query('SELECT vendor_id, phone FROM contacts');
+        foreach ($cStmt->fetchAll() as $row) {
+            $k = phone_key($row['phone']);
+            if ($k !== '' && isset($enteredKeys[$k])) {
+                $phoneIds[(int) $row['vendor_id']] = true;
+            }
+        }
+    }
+
+    // ---- union + build summaries ----
+    $allIds = array_keys($nameIds + $phoneIds);
+    if (empty($allIds)) {
+        return array();
+    }
+
+    $place = implode(',', array_fill(0, count($allIds), '?'));
+    $stmt  = $pdo->prepare('SELECT id, name, phone FROM vendors WHERE id IN (' . $place . ')');
+    $stmt->execute($allIds);
+
+    $out = array();
+    foreach ($stmt->fetchAll() as $row) {
+        $vid     = (int) $row['id'];
+        $byName  = isset($nameIds[$vid]);
+        $byPhone = isset($phoneIds[$vid]);
+        if ($byName && $byPhone) {
+            $reason = 'name + phone';
+        } elseif ($byName) {
+            $reason = 'name';
+        } else {
+            $reason = 'phone';
+        }
+        $out[] = array(
+            'id'     => $vid,
+            'name'   => $row['name'],
+            'phone'  => $row['phone'],
+            'reason' => $reason,
+        );
+    }
+    return $out;
+}
+
+/**
  * Create or update a vendor, with its type/area maps and inline contacts.
- * Body: { id?, name, address, phone, email, notes, types[], areas[], contacts[] }
+ * Body: { id?, name, address, phone, email, notes, types[], areas[], contacts[], allow_duplicate? }
  * contacts[] = { id?, name, email, phone, is_primary, notes }
  */
 function vendors_save(PDO $pdo)
@@ -380,6 +480,23 @@ function vendors_save(PDO $pdo)
     $typeIds  = int_id_list(isset($b['types']) ? $b['types'] : array());
     $areaIds  = int_id_list(isset($b['areas']) ? $b['areas'] : array());
     $contacts = isset($b['contacts']) && is_array($b['contacts']) ? $b['contacts'] : array();
+
+    // Duplicate guard - CREATE ONLY. On a brand-new vendor (id <= 0) where the
+    // caller has NOT opted out via allow_duplicate, look for likely duplicates by
+    // name and by phone before inserting. If any match, do NOT insert: return 409
+    // with the matches so the front end can offer Open / Create anyway. Edits
+    // (id > 0) skip this entirely; an explicit allow_duplicate skips it too.
+    $allowDuplicate = !empty($b['allow_duplicate']);
+    if ($id <= 0 && !$allowDuplicate) {
+        $dupes = find_duplicate_vendors($pdo, $name, $phone, $contacts);
+        if (!empty($dupes)) {
+            respond(array(
+                'ok'         => false,
+                'duplicate'  => true,
+                'duplicates' => $dupes,
+            ), 409);
+        }
+    }
 
     // Validate contacts up front (enforce limits + single primary).
     $primarySeen = false;
