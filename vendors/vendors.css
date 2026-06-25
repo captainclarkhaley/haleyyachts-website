@@ -60,6 +60,40 @@ body {
     font-style: italic;
 }
 
+/* Logged-in user bar, top-right of the navy header. */
+.vdb-header { position: relative; }
+.vdb-userbar {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.82rem;
+}
+.vdb-user-info { color: rgba(255,255,255,0.85); }
+.vdb-logout {
+    font-family: inherit;
+    font-size: 0.74rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 4px;
+    padding: 5px 12px;
+    cursor: pointer;
+}
+.vdb-logout:hover { border-color: var(--cyan); color: var(--cyan); }
+@media (max-width: 620px) {
+    .vdb-userbar {
+        position: static;
+        justify-content: center;
+        margin-bottom: 14px;
+    }
+}
+
 /* ----- Filter bar ----- */
 .vdb-filters {
     background: #fff;

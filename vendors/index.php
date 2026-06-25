@@ -1,3 +1,21 @@
+<?php
+/**
+ * index.php - staff Vendor app entry page WITH a server-side auth gate.
+ *
+ * This file was index.html. It is now PHP so an unauthenticated visitor is
+ * redirected to the login page BEFORE any markup is sent - the gate cannot be
+ * bypassed by disabling JavaScript. The data API (api/api.php) enforces the same
+ * check independently, so this redirect is convenience + defense in depth.
+ */
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+
+start_secure_session();
+if (current_user(vdb_connect()) === null) {
+    header('Location: login.html');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,6 +30,10 @@
 <body>
 
 <header class="vdb-header">
+    <div class="vdb-userbar" id="userBar" hidden>
+        <span class="vdb-user-info" id="userInfo"></span>
+        <button type="button" class="vdb-logout" id="btnLogout">Log out</button>
+    </div>
     <h1>HALEY <strong>YACHTS</strong> VENDOR DATABASE</h1>
     <div class="accent-line"></div>
     <p>Staff directory of surveyors, mechanics, and trade vendors</p>

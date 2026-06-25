@@ -127,10 +127,72 @@ if (!function_exists('vdb_connect')) {
             )
         ");
 
+        // Staff login accounts for the in-app auth that replaces cPanel Directory
+        // Privacy on /vendors/. Passwords are stored ONLY as a bcrypt hash
+        // (password_hash). Double-quoted PHP string because the SQL carries
+        // single-quote literals (DEFAULT '' and datetime('now')).
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS users (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id    TEXT NOT NULL UNIQUE,
+                name          TEXT NOT NULL DEFAULT '',
+                email         TEXT NOT NULL UNIQUE,
+                cell          TEXT NOT NULL DEFAULT '',
+                home_office   TEXT NOT NULL DEFAULT '',
+                password_hash TEXT NOT NULL,
+                active        INTEGER NOT NULL DEFAULT 1,
+                created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+            )
+        ");
+
+        // Self-service password reset tokens. We store ONLY a SHA-256 hash of the
+        // raw token (the raw token lives only in the emailed link), with a 1-hour
+        // expiry and a used flag. Double-quoted PHP string for the same reason.
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id    INTEGER NOT NULL,
+                token_hash TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                used       INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        ");
+
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_contacts_vendor ON contacts(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_typemap_vendor  ON vendor_type_map(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_areamap_vendor  ON vendor_area_map(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_ratings_vendor  ON vendor_ratings(vendor_id)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_account   ON users(account_id)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_email     ON users(email)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_resets_token    ON password_resets(token_hash)');
+    }
+
+    /**
+     * Canonical HOME OFFICE list - the single source of truth used by BOTH the
+     * admin account form (to render the dropdown) and the server-side validation
+     * (to reject anything not in this set). Keep these two uses pointed here so
+     * they never drift apart.
+     */
+    function vdb_home_offices()
+    {
+        return array(
+            'Lindenhurst, NY',
+            'Stevensville, MD',
+            'Wilmington, NC',
+            'Charleston, SC',
+            'St. Augustine, FL',
+            'Jupiter, FL',
+            'Palm Beach Gardens, FL',
+            'Dania Beach, FL',
+            'Miami, FL',
+            'Naples, FL',
+            'Bradenton, FL',
+            'Dunedin, FL',
+            'Fort Lauderdale, FL',
+        );
     }
 
     /**

@@ -125,7 +125,39 @@
             try { data = t ? JSON.parse(t) : {}; } catch (e) { data = { ok: false, error: 'Bad server response.' }; }
             if (!res.ok && data.ok !== false) { data.ok = false; }
             data._status = res.status;
+            // Session expired or never authenticated: the API returns 401. Bounce
+            // to the login page rather than showing a broken, empty app.
+            if (res.status === 401) {
+                window.location.href = 'login.html';
+            }
             return data;
+        });
+    }
+
+    // ---- session header (who is logged in + logout) -----------------------
+
+    function loadUserBar() {
+        fetch('auth.php?action=me', { headers: { 'Accept': 'application/json' } })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (!data || !data.ok || !data.user) { return; }
+                var u = data.user;
+                var label = u.name || u.account_id || '';
+                if (u.home_office) { label += ' - ' + u.home_office; }
+                $('userInfo').textContent = label;
+                $('userBar').hidden = false;
+            })
+            .catch(function () { /* leave the bar hidden on error */ });
+    }
+
+    function logout() {
+        fetch('auth.php?action=logout', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' }
+        }).then(function () {
+            window.location.href = 'login.html';
+        }).catch(function () {
+            window.location.href = 'login.html';
         });
     }
 
@@ -811,6 +843,9 @@
     // ---- wiring ------------------------------------------------------------
 
     function wire() {
+        var logoutBtn = $('btnLogout');
+        if (logoutBtn) { logoutBtn.addEventListener('click', logout); }
+
         $('fName').addEventListener('input', refresh);
         $('btnClear').addEventListener('click', function () {
             $('fName').value = '';
@@ -949,6 +984,7 @@
 
     function boot() {
         wire();
+        loadUserBar();
         apiGet('r=lists&action=get').then(function (data) {
             if (!data.ok) {
                 $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Could not load lists: ' +

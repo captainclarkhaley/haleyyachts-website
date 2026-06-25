@@ -3,15 +3,22 @@
  * api.php - JSON front controller for the staff Vendor Database.
  *
  * Routed by ?r=vendors|contacts|lists & action=...
- * Sits inside the /vendors/ password realm (cPanel Directory Privacy), so every
- * request here is already authenticated as a staff user.
+ *
+ * ACCESS CONTROL: this endpoint is the real security boundary now. It requires
+ * an authenticated in-app session (require_auth below); an unauthenticated
+ * request gets a 401 JSON response and NONE of the handlers run. This replaces
+ * the old assumption that cPanel Directory Privacy on /vendors/ guarded it.
  *
  * The two predefined lists (vendor_types, coverage_areas) are READ ONLY from
  * here. They are managed by Clark only, via admin/vendor-lists-api.php, which
  * lives in the separate /admin/ realm.
  */
 
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+
+// Start the hardened session BEFORE any output so the auth cookie is honored.
+start_secure_session();
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -70,7 +77,12 @@ function int_id_list($value)
 }
 
 try {
-    $pdo    = vdb_connect();
+    $pdo = vdb_connect();
+
+    // Hard gate: every data request must carry a valid session. On failure this
+    // emits 401 JSON and exits, so no handler below runs for an anonymous caller.
+    require_auth($pdo);
+
     $r      = isset($_GET['r']) ? $_GET['r'] : '';
     $action = isset($_GET['action']) ? $_GET['action'] : '';
 
