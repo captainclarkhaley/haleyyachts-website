@@ -43,6 +43,18 @@
                 <label for="fAreas">Coverage Area</label>
                 <div class="vdb-multi" id="fAreas" role="group" aria-label="Coverage area filter"></div>
             </div>
+
+            <div class="vdb-field vdb-field-rating">
+                <label for="fMinRating">Minimum Rating</label>
+                <select id="fMinRating">
+                    <option value="0">Any</option>
+                    <option value="1">1+</option>
+                    <option value="2">2+</option>
+                    <option value="3">3+</option>
+                    <option value="4">4+</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
         </div>
 
         <div class="vdb-filter-actions">
@@ -67,10 +79,12 @@
                     <th>Primary Phone</th>
                     <th>Primary Email</th>
                     <th>Contacts</th>
+                    <th class="vdb-th-rating" id="thRating" role="button" tabindex="0"
+                        aria-label="Average rating, click to sort">Avg Rating <span class="sort-ind" id="ratingSortInd"></span></th>
                 </tr>
             </thead>
             <tbody id="resultsBody">
-                <tr><td colspan="6" class="vdb-empty">Loading vendors...</td></tr>
+                <tr><td colspan="7" class="vdb-empty">Loading vendors...</td></tr>
             </tbody>
         </table>
     </div>

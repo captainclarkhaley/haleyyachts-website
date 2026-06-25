@@ -19,6 +19,7 @@ header('Cache-Control: no-store');
 // Server-side limits (mirrored in the front end, enforced here as the source of truth).
 define('VENDOR_NOTES_MAX', 150);
 define('CONTACT_NOTES_MAX', 100);
+define('RATING_NOTE_MAX', 150);
 
 /** Emit a JSON response with an HTTP status and stop. */
 function respond($payload, $status = 200)
@@ -82,6 +83,9 @@ try {
             break;
         case 'contacts':
             handle_contacts($pdo, $action);
+            break;
+        case 'ratings':
+            handle_ratings($pdo, $action);
             break;
         default:
             fail('Unknown resource.', 404);
@@ -282,6 +286,8 @@ function enrich_vendor(PDO $pdo, array $row)
         }
     }
 
+    $rating = rating_summary($pdo, $id);
+
     return array(
         'id'            => $id,
         'name'          => $row['name'],
@@ -295,6 +301,24 @@ function enrich_vendor(PDO $pdo, array $row)
         'contact_count' => count($contacts),
         'primary_phone' => $primaryPhone,
         'primary_email' => $primaryEmail,
+        'rating_avg'    => $rating['rating_avg'],
+        'rating_count'  => $rating['rating_count'],
+    );
+}
+
+/**
+ * Average (mean of all rows, rounded to 1 decimal, or null when none) and the
+ * count of ratings for a vendor. Surfaced on both list and single get.
+ */
+function rating_summary(PDO $pdo, $vendorId)
+{
+    $stmt = $pdo->prepare('SELECT AVG(stars) AS avg, COUNT(*) AS cnt FROM vendor_ratings WHERE vendor_id = ?');
+    $stmt->execute(array((int) $vendorId));
+    $row   = $stmt->fetch();
+    $count = (int) $row['cnt'];
+    return array(
+        'rating_avg'   => $count > 0 ? round((float) $row['avg'], 1) : null,
+        'rating_count' => $count,
     );
 }
 
@@ -507,5 +531,103 @@ function handle_contacts(PDO $pdo, $action)
 
         default:
             fail('Unknown contacts action.', 404);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// ratings (anonymous; one dated row per rating, average is the mean of rows)
+// ---------------------------------------------------------------------------
+
+function handle_ratings(PDO $pdo, $action)
+{
+    switch ($action) {
+        case 'list':
+            $vendorId = isset($_GET['vendor_id']) ? (int) $_GET['vendor_id'] : 0;
+            if ($vendorId <= 0) {
+                fail('Missing vendor_id.');
+            }
+            $stmt = $pdo->prepare('
+                SELECT id, stars, note, created_at
+                FROM vendor_ratings WHERE vendor_id = ?
+                ORDER BY created_at DESC, id DESC
+            ');
+            $stmt->execute(array($vendorId));
+            $ratings = $stmt->fetchAll();
+            foreach ($ratings as &$row) {
+                $row['stars'] = (int) $row['stars'];
+            }
+            unset($row);
+            $summary = rating_summary($pdo, $vendorId);
+            respond(array(
+                'ok'           => true,
+                'ratings'      => $ratings,
+                'rating_avg'   => $summary['rating_avg'],
+                'rating_count' => $summary['rating_count'],
+            ));
+            break;
+
+        case 'add':
+            $b        = body_json();
+            $vendorId = isset($b['vendor_id']) ? (int) $b['vendor_id'] : 0;
+            if ($vendorId <= 0) {
+                fail('Missing vendor_id.');
+            }
+            $check = $pdo->prepare('SELECT 1 FROM vendors WHERE id = ?');
+            $check->execute(array($vendorId));
+            if (!$check->fetchColumn()) {
+                fail('Vendor not found.', 404);
+            }
+
+            // Stars must be an integer 1-5. Reject non-integers and out-of-range.
+            $starsRaw = isset($b['stars']) ? $b['stars'] : null;
+            if (!is_int($starsRaw) && !(is_string($starsRaw) && ctype_digit($starsRaw))) {
+                fail('Stars must be a whole number from 1 to 5.');
+            }
+            $stars = (int) $starsRaw;
+            if ($stars < 1 || $stars > 5) {
+                fail('Stars must be from 1 to 5.');
+            }
+
+            $note = isset($b['note']) ? trim($b['note']) : '';
+            if (mb_strlen($note) > RATING_NOTE_MAX) {
+                fail('Rating note exceeds ' . RATING_NOTE_MAX . ' characters.');
+            }
+
+            $ins = $pdo->prepare('INSERT INTO vendor_ratings (vendor_id, stars, note) VALUES (?, ?, ?)');
+            $ins->execute(array($vendorId, $stars, $note));
+            $newId = (int) $pdo->lastInsertId();
+
+            $summary = rating_summary($pdo, $vendorId);
+            respond(array(
+                'ok'           => true,
+                'id'           => $newId,
+                'rating_avg'   => $summary['rating_avg'],
+                'rating_count' => $summary['rating_count'],
+            ));
+            break;
+
+        case 'delete':
+            $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+            if ($id <= 0) {
+                fail('Missing rating id.');
+            }
+            $row = $pdo->prepare('SELECT vendor_id FROM vendor_ratings WHERE id = ?');
+            $row->execute(array($id));
+            $vendorId = (int) $row->fetchColumn();
+            $pdo->prepare('DELETE FROM vendor_ratings WHERE id = ?')->execute(array($id));
+            $summary = $vendorId > 0
+                ? rating_summary($pdo, $vendorId)
+                : array('rating_avg' => null, 'rating_count' => 0);
+            respond(array(
+                'ok'           => true,
+                'deleted'      => $id,
+                'vendor_id'    => $vendorId,
+                'rating_avg'   => $summary['rating_avg'],
+                'rating_count' => $summary['rating_count'],
+            ));
+            break;
+
+        default:
+            fail('Unknown ratings action.', 404);
     }
 }

@@ -9,13 +9,16 @@
     var API = 'api/api.php';
     var NOTES_MAX = 150;
     var CONTACT_NOTES_MAX = 100;
+    var RATING_NOTE_MAX = 150;
 
     // App state.
     var lists = { vendor_types: [], coverage_areas: [] };
     var typeMode = 'all';
     var formContacts = []; // working copy of contacts inside the open form
     var contactSeq = 0;    // local id generator for unmounted contact rows
-    var currentVendors = []; // last result set rendered, for CSV export
+    var currentVendors = []; // last result set rendered (before client filter/sort), for CSV export
+    var ratingSort = '';   // '', 'desc', or 'asc' - click cycles the Avg Rating column
+    var pendingStars = 0;  // star value picked in the detail rating control
 
     // ---- tiny helpers ------------------------------------------------------
 
@@ -46,6 +49,43 @@
             return '1 (' + digits.slice(1, 4) + ') ' + digits.slice(4, 7) + '-' + digits.slice(7);
         }
         return s;
+    }
+
+    // Star glyphs for an average. Rounds to the nearest whole star for the
+    // visual; the numeric value carries the precise average alongside it.
+    function starGlyphs(avg) {
+        var filled = Math.round(Number(avg) || 0);
+        if (filled < 0) { filled = 0; }
+        if (filled > 5) { filled = 5; }
+        var s = '';
+        for (var i = 1; i <= 5; i++) {
+            s += i <= filled ? '★' : '☆';
+        }
+        return '<span class="stars" aria-hidden="true">' + s + '</span>';
+    }
+
+    // Average + count cell/line for the list and detail header.
+    function ratingDisplay(v) {
+        if (!v.rating_count) {
+            return '<span class="vdb-norating">Not rated</span>';
+        }
+        return starGlyphs(v.rating_avg) +
+            ' <span class="rating-num">' + esc(String(v.rating_avg)) + '</span>' +
+            ' <span class="rating-count">(' + v.rating_count + ')</span>';
+    }
+
+    // Render the stored UTC "YYYY-MM-DD HH:MM:SS" as a readable date.
+    function formatDate(raw) {
+        var s = String(raw == null ? '' : raw).trim();
+        if (!s) { return ''; }
+        var datePart = s.split(' ')[0];
+        var p = datePart.split('-');
+        if (p.length !== 3) { return esc(datePart); }
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var mi = parseInt(p[1], 10) - 1;
+        if (mi < 0 || mi > 11) { return esc(datePart); }
+        return months[mi] + ' ' + parseInt(p[2], 10) + ', ' + p[0];
     }
 
     function debounce(fn, ms) {
@@ -125,23 +165,64 @@
             if (!data.ok) {
                 currentVendors = [];
                 updateExportState();
-                $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">' +
+                $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">' +
                     esc(data.error || 'Could not load vendors.') + '</td></tr>';
                 $('resultCount').textContent = '';
                 return;
             }
             currentVendors = data.vendors || [];
             updateExportState();
-            renderResults(data.vendors);
-            var n = data.count;
-            $('resultCount').innerHTML = '<strong>' + n + '</strong> vendor' + (n === 1 ? '' : 's') +
-                (filtersActive() ? ' matching filters' : ' total');
+            renderFiltered();
         }).catch(function () {
             currentVendors = [];
             updateExportState();
-            $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">Network error loading vendors.</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Network error loading vendors.</td></tr>';
         });
     }, 180);
+
+    // Apply the client-side minimum-rating filter and the rating sort to the
+    // server result set, then render. The name/type/area filters are already
+    // applied server-side; this only narrows and reorders what came back.
+    function renderFiltered() {
+        var min = parseInt($('fMinRating').value, 10) || 0;
+        var rows = currentVendors.slice();
+
+        if (min > 0) {
+            rows = rows.filter(function (v) {
+                // No ratings are excluded once a minimum above Any is set.
+                return v.rating_count > 0 && Number(v.rating_avg) >= min;
+            });
+        }
+
+        if (ratingSort) {
+            rows.sort(function (a, b) {
+                // Unrated vendors sort to the bottom regardless of direction.
+                var av = a.rating_count > 0 ? Number(a.rating_avg) : -1;
+                var bv = b.rating_count > 0 ? Number(b.rating_avg) : -1;
+                if (av === bv) { return a.name.localeCompare(b.name); }
+                return ratingSort === 'desc' ? bv - av : av - bv;
+            });
+        }
+
+        renderResults(rows);
+        updateSortIndicator();
+
+        var n = rows.length;
+        var ratingActive = min > 0;
+        var label;
+        if (filtersActive() || ratingActive) {
+            label = '<strong>' + n + '</strong> vendor' + (n === 1 ? '' : 's') + ' matching filters';
+        } else {
+            label = '<strong>' + n + '</strong> vendor' + (n === 1 ? '' : 's') + ' total';
+        }
+        $('resultCount').innerHTML = label;
+    }
+
+    function updateSortIndicator() {
+        var ind = $('ratingSortInd');
+        if (!ind) { return; }
+        ind.textContent = ratingSort === 'desc' ? '▼' : (ratingSort === 'asc' ? '▲' : '');
+    }
 
     function filtersActive() {
         return $('fName').value.trim() !== '' ||
@@ -160,7 +241,7 @@
 
     function renderResults(vendors) {
         if (!vendors.length) {
-            $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">No vendors match. Adjust filters or add one.</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">No vendors match. Adjust filters or add one.</td></tr>';
             return;
         }
         var rows = '';
@@ -181,6 +262,7 @@
                 '<td>' + phone + '</td>' +
                 '<td>' + email + '</td>' +
                 '<td>' + v.contact_count + '</td>' +
+                '<td class="vdb-rating-cell">' + ratingDisplay(v) + '</td>' +
             '</tr>';
         }
         $('resultsBody').innerHTML = rows;
@@ -297,6 +379,18 @@
         return (v == null || v === '') ? '<span style="color:#bbb">-</span>' : esc(v);
     }
 
+    function ratingHeaderLine(v) {
+        if (!v.rating_count) {
+            return '<div class="vdb-rating-summary">' +
+                starGlyphs(0) + ' <span class="vdb-norating">No ratings yet</span></div>';
+        }
+        return '<div class="vdb-rating-summary">' +
+            starGlyphs(v.rating_avg) +
+            ' <span class="rating-num">' + esc(String(v.rating_avg)) + '</span> average from ' +
+            v.rating_count + ' rating' + (v.rating_count === 1 ? '' : 's') +
+        '</div>';
+    }
+
     function renderDetail(v) {
         $('detailTitle').textContent = v.name;
 
@@ -307,7 +401,9 @@
             ? '<a href="mailto:' + esc(v.primary_email) + '">' + esc(v.primary_email) + '</a>'
             : '<span style="color:#bbb">-</span>';
 
-        var h = '<dl class="vdb-detail">' +
+        var h = ratingHeaderLine(v);
+
+        h += '<dl class="vdb-detail">' +
             '<dt>Name</dt><dd>' + detailValue(v.name) + '</dd>' +
             '<dt>Address</dt><dd>' + detailValue(v.address) + '</dd>' +
             '<dt>Primary Phone</dt><dd>' + phone + '</dd>' +
@@ -344,7 +440,142 @@
         }
         h += '</div>';
 
+        // Rate this vendor + ratings history. The history list is filled by
+        // loadRatings() so add/delete can refresh just this section.
+        h += '<div class="vdb-ratings">' +
+            '<h3>Ratings</h3>' +
+            '<div class="vdb-rate-control">' +
+                '<div class="vdb-star-picker" id="starPicker" role="radiogroup" aria-label="Your rating">' +
+                    '<button type="button" class="star-btn" data-star="1" aria-label="1 star">☆</button>' +
+                    '<button type="button" class="star-btn" data-star="2" aria-label="2 stars">☆</button>' +
+                    '<button type="button" class="star-btn" data-star="3" aria-label="3 stars">☆</button>' +
+                    '<button type="button" class="star-btn" data-star="4" aria-label="4 stars">☆</button>' +
+                    '<button type="button" class="star-btn" data-star="5" aria-label="5 stars">☆</button>' +
+                '</div>' +
+                '<input type="text" id="ratingNote" class="vdb-rating-note" maxlength="' + RATING_NOTE_MAX +
+                    '" placeholder="Optional note (max ' + RATING_NOTE_MAX + ')">' +
+                '<div class="char-counter" id="ratingNoteCount">0 / ' + RATING_NOTE_MAX + '</div>' +
+                '<div class="vdb-notice error" id="ratingError"></div>' +
+                '<button type="button" class="btn btn-primary btn-sm" id="btnSubmitRating">Submit rating</button>' +
+            '</div>' +
+            '<div class="vdb-rating-history" id="ratingHistory">' +
+                '<div class="vdb-detail-empty">Loading ratings...</div>' +
+            '</div>' +
+        '</div>';
+
         $('detailBody').innerHTML = h;
+
+        pendingStars = 0;
+        loadRatings(v.id);
+    }
+
+    // ---- ratings (anonymous) ----------------------------------------------
+
+    function setPendingStars(n) {
+        pendingStars = n;
+        var btns = document.querySelectorAll('#starPicker .star-btn');
+        for (var i = 0; i < btns.length; i++) {
+            var s = parseInt(btns[i].getAttribute('data-star'), 10);
+            btns[i].textContent = s <= n ? '★' : '☆';
+            btns[i].classList.toggle('on', s <= n);
+        }
+    }
+
+    function loadRatings(vendorId) {
+        apiGet('r=ratings&action=list&vendor_id=' + vendorId).then(function (data) {
+            var host = $('ratingHistory');
+            if (!host) { return; }
+            if (!data.ok) {
+                host.innerHTML = '<div class="vdb-detail-empty">Could not load ratings.</div>';
+                return;
+            }
+            renderRatingHistory(data.ratings || []);
+        });
+    }
+
+    function renderRatingHistory(ratings) {
+        var host = $('ratingHistory');
+        if (!host) { return; }
+        if (!ratings.length) {
+            host.innerHTML = '<div class="vdb-detail-empty">No ratings yet.</div>';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < ratings.length; i++) {
+            var r = ratings[i];
+            html += '<div class="vdb-rating-entry">' +
+                '<div class="re-head">' +
+                    starGlyphs(r.stars) +
+                    '<span class="re-date">' + formatDate(r.created_at) + '</span>' +
+                    '<button type="button" class="re-delete" data-rmrating="' + r.id +
+                        '" aria-label="Delete rating">Delete</button>' +
+                '</div>' +
+                (r.note ? '<div class="re-note">' + esc(r.note) + '</div>' : '') +
+            '</div>';
+        }
+        host.innerHTML = html;
+    }
+
+    function submitRating() {
+        var err = $('ratingError');
+        err.classList.remove('show');
+        err.textContent = '';
+
+        if (pendingStars < 1 || pendingStars > 5) {
+            err.textContent = 'Pick a star rating from 1 to 5.';
+            err.classList.add('show');
+            return;
+        }
+        var note = $('ratingNote').value;
+        if (note.length > RATING_NOTE_MAX) {
+            err.textContent = 'Note exceeds ' + RATING_NOTE_MAX + ' characters.';
+            err.classList.add('show');
+            return;
+        }
+
+        $('btnSubmitRating').disabled = true;
+        apiPost('r=ratings&action=add', {
+            vendor_id: detailVendorId,
+            stars: pendingStars,
+            note: note.trim()
+        }).then(function (data) {
+            $('btnSubmitRating').disabled = false;
+            if (!data.ok) {
+                err.textContent = data.error || 'Could not save rating.';
+                err.classList.add('show');
+                return;
+            }
+            // Clear the input, refresh the detail header average + history + list.
+            $('ratingNote').value = '';
+            $('ratingNoteCount').textContent = '0 / ' + RATING_NOTE_MAX;
+            $('ratingNoteCount').classList.remove('over');
+            setPendingStars(0);
+            applyRatingSummary(data);
+            loadRatings(detailVendorId);
+            refresh();
+        }).catch(function () {
+            $('btnSubmitRating').disabled = false;
+            err.textContent = 'Network error saving rating.';
+            err.classList.add('show');
+        });
+    }
+
+    function deleteRating(id) {
+        if (!confirm('Delete this rating? This cannot be undone.')) { return; }
+        apiGet('r=ratings&action=delete&id=' + id).then(function (data) {
+            if (!data.ok) { alert(data.error || 'Delete failed.'); return; }
+            applyRatingSummary(data);
+            loadRatings(detailVendorId);
+            refresh();
+        });
+    }
+
+    // Update the detail header summary line in place from an add/delete response.
+    function applyRatingSummary(data) {
+        var el = document.querySelector('#detailBody .vdb-rating-summary');
+        if (!el) { return; }
+        var v = { rating_avg: data.rating_avg, rating_count: data.rating_count };
+        el.outerHTML = ratingHeaderLine(v);
     }
 
     function updateNotesCounter() {
@@ -526,7 +757,8 @@
     function buildCsv(vendors) {
         var headers = [
             'Vendor Name', 'Address', 'Primary Phone', 'Primary Email',
-            'Vendor Types', 'Coverage Areas', 'Vendor Notes', 'Contacts'
+            'Vendor Types', 'Coverage Areas', 'Vendor Notes', 'Contacts',
+            'Avg Rating', 'Rating Count'
         ];
         var lines = [headers.map(csvCell).join(',')];
         for (var i = 0; i < vendors.length; i++) {
@@ -539,7 +771,9 @@
                 csvCell(namesJoined(v.types)),
                 csvCell(namesJoined(v.areas)),
                 csvCell(v.notes),
-                csvCell(contactsJoined(v.contacts))
+                csvCell(contactsJoined(v.contacts)),
+                csvCell(v.rating_count ? v.rating_avg : ''),
+                csvCell(v.rating_count || 0)
             ].join(','));
         }
         return lines.join('\r\n');
@@ -583,10 +817,25 @@
             setChecked('fTypes', []);
             setChecked('fAreas', []);
             setMode('all');
+            $('fMinRating').value = '0';
+            ratingSort = '';
             refresh();
         });
         $('fTypes').addEventListener('change', refresh);
         $('fAreas').addEventListener('change', refresh);
+
+        // Minimum-rating filter is client-side: re-filter the loaded rows only.
+        $('fMinRating').addEventListener('change', renderFiltered);
+
+        // Avg Rating header cycles sort: none -> desc -> asc -> none.
+        function cycleRatingSort() {
+            ratingSort = ratingSort === '' ? 'desc' : (ratingSort === 'desc' ? 'asc' : '');
+            renderFiltered();
+        }
+        $('thRating').addEventListener('click', cycleRatingSort);
+        $('thRating').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); cycleRatingSort(); }
+        });
 
         $('modeAll').addEventListener('click', function () { setMode('all'); refresh(); });
         $('modeAny').addEventListener('click', function () { setMode('any'); refresh(); });
@@ -629,6 +878,24 @@
             var id = detailVendorId;
             var name = $('detailTitle').textContent;
             deleteVendor(id, name, closeDetail);
+        });
+
+        // Detail body holds the rating control + history (rebuilt per open), so
+        // its handlers are delegated off the stable #detailBody container.
+        var detailBody = $('detailBody');
+        detailBody.addEventListener('click', function (e) {
+            var star = e.target.getAttribute('data-star');
+            if (star) { setPendingStars(parseInt(star, 10)); return; }
+            if (e.target.id === 'btnSubmitRating') { submitRating(); return; }
+            var rm = e.target.getAttribute('data-rmrating');
+            if (rm) { deleteRating(parseInt(rm, 10)); return; }
+        });
+        detailBody.addEventListener('input', function (e) {
+            if (e.target.id !== 'ratingNote') { return; }
+            var counter = $('ratingNoteCount');
+            var n = e.target.value.length;
+            counter.textContent = n + ' / ' + RATING_NOTE_MAX;
+            counter.classList.toggle('over', n > RATING_NOTE_MAX);
         });
 
         // Format the primary phone field on blur, but only when it is a clean
@@ -684,7 +951,7 @@
         wire();
         apiGet('r=lists&action=get').then(function (data) {
             if (!data.ok) {
-                $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">Could not load lists: ' +
+                $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Could not load lists: ' +
                     esc(data.error || 'unknown error') + '</td></tr>';
                 return;
             }
@@ -694,7 +961,7 @@
             renderMultiSelect('fAreas', lists.coverage_areas);
             refresh();
         }).catch(function () {
-            $('resultsBody').innerHTML = '<tr><td colspan="6" class="vdb-empty">Network error. Is the PHP API reachable?</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Network error. Is the PHP API reachable?</td></tr>';
         });
     }
 

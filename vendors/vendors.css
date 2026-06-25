@@ -15,6 +15,7 @@
     --warn-bg: #fff7e6;
     --warn-br: #e89c20;
     --danger:  #c0392b;
+    --gold:    #e0a82e;
 }
 
 * { box-sizing: border-box; }
@@ -70,10 +71,11 @@ body {
 }
 .vdb-filter-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-columns: 1.4fr 1fr 1fr auto;
     gap: 20px;
     align-items: start;
 }
+.vdb-field-rating select { min-width: 120px; }
 .vdb-field label,
 .vdb-form label {
     display: block;
@@ -97,7 +99,19 @@ body {
     padding: 9px 11px;
     background: #fff;
 }
+.vdb-field select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 9px 11px;
+    background: #fff;
+    cursor: pointer;
+}
 .vdb-field input[type="text"]:focus,
+.vdb-field select:focus,
 .vdb-form input:focus,
 .vdb-form textarea:focus {
     outline: none;
@@ -463,6 +477,114 @@ dl.vdb-detail dd {
     .vdb-detail-contact dl.dc-grid { grid-template-columns: 1fr; }
 }
 
+/* ----- Ratings ----- */
+/* Star glyphs in a warm gold that still reads against the navy/cyan palette. */
+.stars {
+    color: var(--gold);
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+.rating-num { font-weight: 700; color: var(--navy); }
+.rating-count { color: var(--muted); font-size: 0.82rem; }
+.vdb-norating { color: #bbb; font-style: italic; font-size: 0.85rem; }
+.vdb-rating-cell { white-space: nowrap; }
+
+/* Sortable Avg Rating header */
+.vdb-th-rating { cursor: pointer; user-select: none; }
+.vdb-th-rating:hover { background: #112545; }
+.vdb-th-rating .sort-ind { font-size: 0.7rem; color: var(--cyan); }
+
+/* Detail header summary line */
+.vdb-rating-summary {
+    font-size: 0.95rem;
+    color: var(--ink);
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+}
+.vdb-rating-summary .stars { font-size: 1.15rem; }
+
+/* Rate-this-vendor control + history */
+.vdb-ratings {
+    margin-top: 22px;
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+}
+.vdb-ratings h3 {
+    margin: 0 0 12px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+}
+.vdb-rate-control {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+.vdb-star-picker { display: inline-flex; gap: 2px; margin-bottom: 10px; }
+.vdb-star-picker .star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: #ccc;
+    padding: 0 1px;
+    transition: color 0.1s;
+}
+.vdb-star-picker .star-btn:hover,
+.vdb-star-picker .star-btn.on { color: var(--gold); }
+.vdb-rating-note {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 9px 11px;
+    background: #fff;
+}
+.vdb-rating-note:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 2px rgba(33,203,234,0.18);
+}
+.vdb-rate-control .btn { margin-top: 10px; }
+
+.vdb-rating-entry {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #fff;
+}
+.vdb-rating-entry .re-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.vdb-rating-entry .re-date { font-size: 0.8rem; color: var(--muted); }
+.vdb-rating-entry .re-delete {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.78rem;
+    color: var(--danger);
+    padding: 0;
+}
+.vdb-rating-entry .re-delete:hover { text-decoration: underline; }
+.vdb-rating-entry .re-note {
+    margin-top: 6px;
+    font-size: 0.88rem;
+    color: var(--ink);
+    word-break: break-word;
+}
+
 /* ----- Inline notices ----- */
 .vdb-notice {
     padding: 12px 16px;
@@ -485,6 +607,7 @@ dl.vdb-detail dd {
 /* ----- Responsive ----- */
 @media (max-width: 820px) {
     .vdb-filter-grid { grid-template-columns: 1fr; }
+    .vdb-field-rating select { min-width: 0; }
     .vdb-form .row-2,
     .vdb-form .multi-pair,
     .contact-row .cr-grid { grid-template-columns: 1fr; }

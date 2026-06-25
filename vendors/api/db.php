@@ -112,9 +112,25 @@ if (!function_exists('vdb_connect')) {
             )
         ');
 
+        // Anonymous vendor ratings. One dated row per rating; the average is the
+        // mean of all rows. No rater column by design (ratings are anonymous).
+        // Double-quoted PHP string because the SQL carries single-quote literals
+        // (DEFAULT '' and datetime('now')) - keeps the quote layers from colliding.
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS vendor_ratings (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                vendor_id  INTEGER NOT NULL,
+                stars      INTEGER NOT NULL,
+                note       TEXT NOT NULL DEFAULT '',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+            )
+        ");
+
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_contacts_vendor ON contacts(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_typemap_vendor  ON vendor_type_map(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_areamap_vendor  ON vendor_area_map(vendor_id)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_ratings_vendor  ON vendor_ratings(vendor_id)');
     }
 
     /**
