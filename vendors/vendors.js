@@ -131,6 +131,12 @@
             if (res.status === 401) {
                 window.location.href = 'login.html';
             }
+            // Forced first-login password change: the API returns 403 with
+            // must_change. Send them to the forced-change screen (the server-side
+            // index.php redirect is the primary gate; this is defense in depth).
+            if (res.status === 403 && data && data.must_change) {
+                window.location.href = 'change-password.html';
+            }
             return data;
         });
     }

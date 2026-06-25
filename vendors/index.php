@@ -11,8 +11,16 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
 
 start_secure_session();
-if (current_user(vdb_connect()) === null) {
+$gateUser = current_user(vdb_connect());
+if ($gateUser === null) {
     header('Location: login.html');
+    exit;
+}
+// Forced first-login password change: an account flagged must_change_password
+// (new account or admin reset) cannot reach the app until it sets its own
+// password. Redirect BEFORE any markup. The API enforces the same independently.
+if ((int) $gateUser['must_change_password'] === 1) {
+    header('Location: change-password.html');
     exit;
 }
 ?>

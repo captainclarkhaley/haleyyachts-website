@@ -40,6 +40,7 @@ if (!function_exists('vdb_connect')) {
         $pdo->exec('PRAGMA foreign_keys = ON');
 
         vdb_init_schema($pdo);
+        vdb_migrate($pdo);
         vdb_seed_lists($pdo);
 
         return $pdo;
@@ -133,16 +134,17 @@ if (!function_exists('vdb_connect')) {
         // single-quote literals (DEFAULT '' and datetime('now')).
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS users (
-                id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                account_id    TEXT NOT NULL UNIQUE,
-                name          TEXT NOT NULL DEFAULT '',
-                email         TEXT NOT NULL UNIQUE,
-                cell          TEXT NOT NULL DEFAULT '',
-                home_office   TEXT NOT NULL DEFAULT '',
-                password_hash TEXT NOT NULL,
-                active        INTEGER NOT NULL DEFAULT 1,
-                created_at    TEXT NOT NULL DEFAULT (datetime('now')),
-                updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
+                id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id           TEXT NOT NULL UNIQUE,
+                name                 TEXT NOT NULL DEFAULT '',
+                email                TEXT NOT NULL UNIQUE,
+                cell                 TEXT NOT NULL DEFAULT '',
+                home_office          TEXT NOT NULL DEFAULT '',
+                password_hash        TEXT NOT NULL,
+                active               INTEGER NOT NULL DEFAULT 1,
+                must_change_password INTEGER NOT NULL DEFAULT 0,
+                created_at           TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at           TEXT NOT NULL DEFAULT (datetime('now'))
             )
         ");
 
@@ -168,6 +170,43 @@ if (!function_exists('vdb_connect')) {
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_account   ON users(account_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_email     ON users(email)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_resets_token    ON password_resets(token_hash)');
+    }
+
+    /**
+     * Idempotent column migrations for tables that already exist on the live
+     * server. CREATE TABLE IF NOT EXISTS will NOT add a new column to an existing
+     * table, so each added column is checked via PRAGMA table_info and only
+     * ALTERed in when missing. This never drops or rewrites data: existing rows
+     * keep their values and pick up the column's DEFAULT.
+     */
+    function vdb_migrate(PDO $pdo)
+    {
+        // users.must_change_password: forces a password change on next login for
+        // new accounts and admin-reset accounts. Existing rows default to 0 (not
+        // forced), so nobody already in the system is locked out by the upgrade.
+        if (!vdb_column_exists($pdo, 'users', 'must_change_password')) {
+            $pdo->exec('ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
+        }
+    }
+
+    /**
+     * True if $column exists on $table, read from PRAGMA table_info. Used by
+     * vdb_migrate to decide whether an ALTER TABLE is needed.
+     */
+    function vdb_column_exists(PDO $pdo, $table, $column)
+    {
+        // PRAGMA does not accept a bound parameter for the table name; the table
+        // names here are hard-coded literals (never user input), so this is safe.
+        $stmt = $pdo->query('PRAGMA table_info(' . $table . ')');
+        if ($stmt === false) {
+            return false;
+        }
+        foreach ($stmt->fetchAll() as $col) {
+            if (isset($col['name']) && $col['name'] === $column) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

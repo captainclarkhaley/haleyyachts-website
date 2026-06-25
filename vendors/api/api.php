@@ -49,6 +49,17 @@ function fail($message, $status = 400)
     respond(array('ok' => false, 'error' => $message), $status);
 }
 
+/** Block a user who still owes a forced password change. Carries must_change so
+ *  the front end can redirect to change-password.html. */
+function fail_must_change()
+{
+    respond(array(
+        'ok'          => false,
+        'must_change' => true,
+        'error'       => 'You must set a new password before using the app.',
+    ), 403);
+}
+
 /** Read the JSON request body into an associative array (empty array if none). */
 function body_json()
 {
@@ -81,7 +92,15 @@ try {
 
     // Hard gate: every data request must carry a valid session. On failure this
     // emits 401 JSON and exits, so no handler below runs for an anonymous caller.
-    require_auth($pdo);
+    $authUser = require_auth($pdo);
+
+    // Forced-change gate (defense in depth alongside the index.php redirect): a
+    // user flagged must_change_password must not pull data through the API until
+    // they set their own password. The 403 carries must_change so the front end
+    // can route them to change-password.html.
+    if ((int) $authUser['must_change_password'] === 1) {
+        fail_must_change();
+    }
 
     $r      = isset($_GET['r']) ? $_GET['r'] : '';
     $action = isset($_GET['action']) ? $_GET['action'] : '';

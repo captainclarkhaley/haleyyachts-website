@@ -16,6 +16,7 @@
  */
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/mail-lib.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -125,11 +126,19 @@ try {
             if (u_email_taken($pdo, $email, 0))       { u_fail('That email is already in use.', 409); }
 
             $hash = password_hash($password, PASSWORD_DEFAULT);
+            // must_change_password = 1: the staff member must replace this
+            // admin-typed temp password the first time they sign in.
             $stmt = $pdo->prepare(
-                'INSERT INTO users (account_id, name, email, cell, home_office, password_hash, active)
-                 VALUES (?, ?, ?, ?, ?, ?, 1)'
+                'INSERT INTO users (account_id, name, email, cell, home_office, password_hash, active, must_change_password)
+                 VALUES (?, ?, ?, ?, ?, ?, 1, 1)'
             );
             $stmt->execute(array($accountId, $name, $email, $cell, $office, $hash));
+
+            // Best-effort onboarding email with the temp password in the body.
+            // A mail failure must NOT fail account creation, so the bool is
+            // ignored beyond mail-lib's own generic (passwordless) log line.
+            send_onboarding_email($email, $accountId, $password);
+
             u_respond(array('ok' => true, 'users' => u_list($pdo)));
             break;
 
@@ -188,15 +197,25 @@ try {
             if (strlen($password) < USERS_MIN_PASSWORD) {
                 u_fail('Password must be at least ' . USERS_MIN_PASSWORD . ' characters.');
             }
-            $check = $pdo->prepare('SELECT 1 FROM users WHERE id = ?');
+            $check = $pdo->prepare('SELECT account_id, email FROM users WHERE id = ?');
             $check->execute(array($id));
-            if (!$check->fetchColumn()) { u_fail('User not found.', 404); }
+            $target = $check->fetch();
+            if (!$target) { u_fail('User not found.', 404); }
 
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?");
+            // must_change_password = 1: the user is forced to replace this
+            // admin-set temp password on their next sign-in.
+            $stmt = $pdo->prepare(
+                "UPDATE users SET password_hash = ?, must_change_password = 1, updated_at = datetime('now') WHERE id = ?"
+            );
             $stmt->execute(array($hash, $id));
             // Invalidate any outstanding self-service reset tokens for this user.
             $pdo->prepare('UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0')->execute(array($id));
+
+            // Best-effort notice with the new temp password in the body. A mail
+            // failure must NOT fail the reset, so the bool is ignored.
+            send_admin_reset_email($target['email'], $target['account_id'], $password);
+
             u_respond(array('ok' => true, 'users' => u_list($pdo)));
             break;
 

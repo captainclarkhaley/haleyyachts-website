@@ -70,7 +70,7 @@ if (!function_exists('start_secure_session')) {
             return null;
         }
         $stmt = $pdo->prepare(
-            'SELECT id, account_id, name, email, cell, home_office, active
+            'SELECT id, account_id, name, email, cell, home_office, active, must_change_password
              FROM users WHERE id = ? AND active = 1'
         );
         $stmt->execute(array((int) $_SESSION['uid']));

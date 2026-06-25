@@ -10,6 +10,7 @@
  *   reset            POST {token, password}             -> consumes a token, sets password
  *   update_profile   POST {name,email,cell,home_office} -> edits the SESSION user only
  *   change_password  POST {current_password,new_password} -> SESSION user; verifies current
+ *   force_change_password POST {new_password}            -> SESSION user; first-login forced change
  *
  * Self-service note: update_profile and change_password operate STRICTLY on
  * $_SESSION['uid'] via current_user($pdo). They never accept a user id from the
@@ -29,10 +30,11 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/mail-lib.php';
 
-// From-address for password-reset emails. Override here if the domain mailbox
-// changes. Must be on the site domain for SPF/DKIM to pass.
-define('AUTH_MAIL_FROM', 'no-reply@haleyyachts.com');
+// All Vendor app system mail (onboarding, admin reset, password-changed, reset
+// link) is built and sent from vendors/api/mail-lib.php, which owns the
+// from-address (VMAIL_FROM). Minimum password length is enforced here.
 define('AUTH_MIN_PASSWORD', 8);
 
 // Start the hardened session BEFORE any output (no whitespace precedes <?php).
@@ -102,7 +104,7 @@ try {
             }
 
             $stmt = $pdo->prepare(
-                'SELECT id, account_id, name, email, cell, home_office, password_hash, active
+                'SELECT id, account_id, name, email, cell, home_office, password_hash, active, must_change_password
                  FROM users WHERE account_id = ? COLLATE NOCASE'
             );
             $stmt->execute(array($accountId));
@@ -122,7 +124,12 @@ try {
             session_regenerate_id(true);
             $_SESSION['uid'] = (int) $user['id'];
 
-            a_respond(array('ok' => true, 'user' => a_public_user($user)));
+            // must_change_password tells the front end to route to the forced
+            // change-password screen instead of the app. Returned as a bool.
+            $out = a_public_user($user);
+            $out['must_change_password'] = ((int) $user['must_change_password'] === 1);
+
+            a_respond(array('ok' => true, 'user' => $out));
             break;
 
         // ---- logout -------------------------------------------------------
@@ -262,7 +269,72 @@ try {
             // Keep the user logged in; rotate the session id as a precaution.
             session_regenerate_id(true);
 
+            // Best-effort security confirmation (no password in it). A mail
+            // failure must not fail the change, so the bool is ignored.
+            send_password_changed_email($user['email']);
+
             a_respond(array('ok' => true, 'message' => 'Your password has been changed.'));
+            break;
+
+        // ---- force_change_password (first-login forced change; SESSION user) --
+        // For accounts flagged must_change_password = 1 (new accounts and
+        // admin-reset accounts). The session was JUST established with the temp
+        // password, so no current-password is required here. Operates STRICTLY on
+        // the SESSION user via current_user($pdo) - never an id from the request.
+        case 'force_change_password':
+            $user = current_user($pdo);
+            if ($user === null) {
+                a_fail('Not authenticated.', 401);
+            }
+
+            // Nothing to do if they are not actually flagged - send them to the app
+            // rather than silently changing a password no one asked to change.
+            if ((int) $user['must_change_password'] !== 1) {
+                a_fail('No password change is required.', 409);
+            }
+
+            $b   = a_body();
+            $new = isset($b['new_password']) ? (string) $b['new_password'] : '';
+
+            if ($new === '') {
+                a_fail('A new password is required.');
+            }
+            if (strlen($new) < AUTH_MIN_PASSWORD) {
+                a_fail('New password must be at least ' . AUTH_MIN_PASSWORD . ' characters.');
+            }
+
+            $hash = password_hash($new, PASSWORD_DEFAULT);
+
+            $pdo->beginTransaction();
+            try {
+                // Update ONLY the session user's row, clearing the forced flag.
+                // Double-quoted PHP string for the datetime('now') literal.
+                $upd = $pdo->prepare(
+                    "UPDATE users
+                     SET password_hash = ?, must_change_password = 0, updated_at = datetime('now')
+                     WHERE id = ?"
+                );
+                $upd->execute(array($hash, (int) $user['id']));
+
+                // Invalidate any outstanding self-service reset tokens.
+                $clear = $pdo->prepare(
+                    'UPDATE password_resets SET used = 1 WHERE user_id = ? AND used = 0'
+                );
+                $clear->execute(array((int) $user['id']));
+
+                $pdo->commit();
+            } catch (Throwable $e) {
+                $pdo->rollBack();
+                throw $e;
+            }
+
+            // Keep the user logged in; rotate the session id as a precaution.
+            session_regenerate_id(true);
+
+            // Best-effort security confirmation (no password in it).
+            send_password_changed_email($user['email']);
+
+            a_respond(array('ok' => true, 'message' => 'Your password has been set.'));
             break;
 
         // ---- forgot (anti-enumeration) ------------------------------------
@@ -295,7 +367,7 @@ try {
                     );
                     $ins->execute(array((int) $u['id'], $tokenHash, $expires));
 
-                    a_send_reset_email($u['email'], $rawToken);
+                    send_reset_link_email($u['email'], $rawToken);
                 }
             }
 
@@ -356,6 +428,15 @@ try {
                 throw $e;
             }
 
+            // Best-effort security confirmation to the account's email (no
+            // password in it). A mail failure must not fail the reset.
+            $em = $pdo->prepare('SELECT email FROM users WHERE id = ?');
+            $em->execute(array((int) $row['user_id']));
+            $emRow = $em->fetch();
+            if ($emRow && !empty($emRow['email'])) {
+                send_password_changed_email($emRow['email']);
+            }
+
             a_respond(array('ok' => true, 'message' => 'Your password has been reset. You can now log in.'));
             break;
 
@@ -365,33 +446,4 @@ try {
 } catch (Throwable $e) {
     error_log('vendor-auth error: ' . $e->getMessage());
     a_fail('Server error.', 500);
-}
-
-/**
- * Send the password-reset email with the raw token link. Best-effort: mail()
- * returning false is logged but never changes the generic "forgot" response.
- */
-function a_send_reset_email($toEmail, $rawToken)
-{
-    $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'haleyyachts.com';
-    // Strip anything but a sane host to keep it out of the link/headers.
-    $host = preg_replace('/[^A-Za-z0-9.\-:]/', '', $host);
-
-    $link = 'https://' . $host . '/vendors/reset.html?token=' . $rawToken;
-
-    $subject = 'Haley Yachts Vendor App - password reset';
-    $body =
-        "A password reset was requested for your Haley Yachts Vendor App account.\r\n\r\n" .
-        "Open this link to set a new password (it expires in 1 hour):\r\n\r\n" .
-        $link . "\r\n\r\n" .
-        "If you did not request this, you can ignore this email; your password will not change.\r\n";
-
-    $headers = 'From: Haley Yachts <' . AUTH_MAIL_FROM . ">\r\n" .
-               'Reply-To: ' . AUTH_MAIL_FROM . "\r\n" .
-               "Content-Type: text/plain; charset=UTF-8\r\n";
-
-    $sent = @mail($toEmail, $subject, $body, $headers);
-    if (!$sent) {
-        error_log('vendor-auth: reset email send failed for a user (mail() returned false).');
-    }
 }
