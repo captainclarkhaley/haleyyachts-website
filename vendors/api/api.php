@@ -199,7 +199,10 @@ function vendors_list(PDO $pdo)
     $params = array();
 
     if ($name !== '') {
-        $where[]  = 'v.name LIKE ?';
+        // Match the vendor name OR any of its contacts' names, so staff can find
+        // a vendor by the person they know as easily as by the company name.
+        $where[]  = '(v.name LIKE ? OR v.id IN (SELECT vendor_id FROM contacts WHERE name LIKE ?))';
+        $params[] = '%' . $name . '%';
         $params[] = '%' . $name . '%';
     }
 

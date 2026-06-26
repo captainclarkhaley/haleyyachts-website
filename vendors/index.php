@@ -59,8 +59,8 @@ if ((int) $gateUser['must_change_password'] === 1) {
     <section class="vdb-filters" aria-label="Filters">
         <div class="vdb-filter-grid">
             <div class="vdb-field">
-                <label for="fName">Vendor Name</label>
-                <input type="text" id="fName" placeholder="Search by name...">
+                <label for="fName">Vendor or Contact Name</label>
+                <input type="text" id="fName" placeholder="Search vendor or contact name...">
             </div>
 
             <div class="vdb-field">
