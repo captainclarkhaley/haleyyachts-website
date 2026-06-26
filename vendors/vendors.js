@@ -341,6 +341,61 @@
         $(containerId).innerHTML = html;
     }
 
+    // Coverage areas are a tiered tree (nationwide / state / region / county).
+    // Render an INDENTED multi-select: each node's depth (walked via parent_id)
+    // drives a vdb-depth-N class, and rows are ordered parent-then-children. The
+    // existing applyMultiFilter / checkedIds / setChecked all work unchanged
+    // because each option is still a <label data-name><input value=id></label>.
+    function renderAreaTree(containerId, items) {
+        if (!items.length) {
+            $(containerId).innerHTML = '<div style="font-size:.8rem;color:#999;padding:6px">None defined.</div>';
+            return;
+        }
+        var byId = {};
+        for (var i = 0; i < items.length; i++) { byId[items[i].id] = items[i]; }
+
+        function depthOf(it) {
+            var d = 0, cur = it, hops = 0;
+            while (cur && cur.parent_id != null && byId[cur.parent_id] && hops < 64) {
+                cur = byId[cur.parent_id]; d++; hops++;
+            }
+            return d;
+        }
+
+        // Order parent-then-children so the indentation reads as a tree.
+        var byParent = {};
+        for (var j = 0; j < items.length; j++) {
+            var p = items[j].parent_id == null ? 0 : items[j].parent_id;
+            (byParent[p] = byParent[p] || []).push(items[j]);
+        }
+        var kindRank = { nationwide: 0, state: 1, region: 2, county: 3 };
+        function sortGroup(arr) {
+            arr.sort(function (a, b) {
+                var ka = kindRank[a.kind] == null ? 4 : kindRank[a.kind];
+                var kb = kindRank[b.kind] == null ? 4 : kindRank[b.kind];
+                if (ka !== kb) { return ka - kb; }
+                return String(a.name).toLowerCase().localeCompare(String(b.name).toLowerCase());
+            });
+            return arr;
+        }
+        var ordered = [];
+        (function walk(parentId) {
+            var kids = sortGroup(byParent[parentId] || []);
+            for (var k = 0; k < kids.length; k++) { ordered.push(kids[k]); walk(kids[k].id); }
+        })(0);
+
+        var html = '';
+        for (var m = 0; m < ordered.length; m++) {
+            var it = ordered[m];
+            var depth = depthOf(it);
+            if (depth > 3) { depth = 3; }
+            html += '<label class="vdb-depth-' + depth + '" data-name="' +
+                esc(String(it.name).toLowerCase()) + '">' +
+                '<input type="checkbox" value="' + it.id + '"> ' + esc(it.name) + '</label>';
+        }
+        $(containerId).innerHTML = html;
+    }
+
     // Substring filter the visible options of a filter multi-select. Options that
     // do NOT contain the query are hidden, EXCEPT any option that is currently
     // checked: a checked option always stays visible so a selection can never be
@@ -568,7 +623,7 @@
         $('vNotes').value = '';
         updateNotesCounter();
         renderMultiSelect('formTypes', lists.vendor_types);
-        renderMultiSelect('formAreas', lists.coverage_areas);
+        renderAreaTree('formAreas', lists.coverage_areas);
         formContacts = [];
         renderContacts();
         clearFormError();
@@ -1350,7 +1405,7 @@
             lists.vendor_types = data.vendor_types || [];
             lists.coverage_areas = data.coverage_areas || [];
             renderMultiSelect('fTypes', lists.vendor_types);
-            renderMultiSelect('fAreas', lists.coverage_areas);
+            renderAreaTree('fAreas', lists.coverage_areas);
             refresh();
         }).catch(function () {
             $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Network error. Is the PHP API reachable?</td></tr>';

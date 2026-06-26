@@ -202,6 +202,12 @@ body {
 /* Option hidden by its filter search box (still in the DOM, still counted). */
 .vdb-multi label.vdb-multi-hidden { display: none; }
 
+/* Coverage-area tier indentation (nationwide/state = depth 0, region = 1,
+   county = 2). A subtle guide line keeps the nesting scannable. */
+.vdb-multi label.vdb-depth-1 { padding-left: 18px; border-left: 2px solid #eef1f5; }
+.vdb-multi label.vdb-depth-2 { padding-left: 32px; border-left: 2px solid #eef1f5; }
+.vdb-multi label.vdb-depth-3 { padding-left: 46px; border-left: 2px solid #eef1f5; }
+
 /* Small search box that sits above a filter multi-select. */
 .vdb-multi-search {
     width: 100%;
