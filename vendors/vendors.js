@@ -1339,9 +1339,22 @@
         if (profileBtn) { profileBtn.addEventListener('click', openProfile); }
         $('profileClose').addEventListener('click', closeProfile);
         $('btnProfileClose').addEventListener('click', closeProfile);
-        $('profileOverlay').addEventListener('click', function (e) {
-            if (e.target === this) { closeProfile(); }
-        });
+        // Backdrop dismiss that survives a drag-select. A click only counts as a
+        // backdrop click if the mouse press STARTED on the backdrop. Without this,
+        // a text drag that begins inside a field and is released over the backdrop
+        // fires a click on the overlay and closes the modal, losing in-progress entry.
+        function bindBackdropDismiss(overlay, closeFn) {
+            if (!overlay) { return; }
+            var downOnSelf = false;
+            overlay.addEventListener('mousedown', function (e) {
+                downOnSelf = (e.target === overlay);
+            });
+            overlay.addEventListener('click', function (e) {
+                if (downOnSelf && e.target === overlay) { closeFn(); }
+                downOnSelf = false;
+            });
+        }
+        bindBackdropDismiss($('profileOverlay'), closeProfile);
         $('btnSaveProfile').addEventListener('click', saveProfile);
         $('btnSavePassword').addEventListener('click', savePassword);
 
@@ -1405,9 +1418,7 @@
         $('btnAdd').addEventListener('click', openAdd);
         $('modalClose').addEventListener('click', closeModal);
         $('btnCancel').addEventListener('click', closeModal);
-        $('vendorOverlay').addEventListener('click', function (e) {
-            if (e.target === this) { closeModal(); }
-        });
+        bindBackdropDismiss($('vendorOverlay'), closeModal);
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Escape') { return; }
             if ($('profileOverlay').classList.contains('open')) { closeProfile(); }
@@ -1448,9 +1459,7 @@
         // Detail view: close, edit, and delete all act on the open vendor.
         $('detailClose').addEventListener('click', closeDetail);
         $('btnDetailClose').addEventListener('click', closeDetail);
-        $('detailOverlay').addEventListener('click', function (e) {
-            if (e.target === this) { closeDetail(); }
-        });
+        bindBackdropDismiss($('detailOverlay'), closeDetail);
         $('btnDetailEdit').addEventListener('click', function () {
             var id = detailVendorId;
             closeDetail();
