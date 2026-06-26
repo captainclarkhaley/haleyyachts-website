@@ -178,7 +178,9 @@ if (!function_exists('vdb_connect')) {
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_contacts_vendor ON contacts(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_typemap_vendor  ON vendor_type_map(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_areamap_vendor  ON vendor_area_map(vendor_id)');
-        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_areas_parent    ON coverage_areas(parent_id)');
+        // NOTE: the index on coverage_areas(parent_id) is created in vdb_migrate,
+        // AFTER the parent_id column is added. Creating it here would run before the
+        // migration and fail on the live pre-hierarchy table ("no such column").
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_ratings_vendor  ON vendor_ratings(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_account   ON users(account_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_email     ON users(email)');
@@ -217,6 +219,12 @@ if (!function_exists('vdb_connect')) {
             // and Clark re-tiers structural rows below + in the admin tool.
             $pdo->exec("ALTER TABLE coverage_areas ADD COLUMN kind TEXT NOT NULL DEFAULT 'county'");
         }
+
+        // Index parent_id only now that the column is guaranteed to exist (added
+        // by the ALTER above on the live DB, or present from CREATE TABLE on a
+        // fresh install). Doing this in vdb_init_schema would run before this
+        // migration and fail on the pre-hierarchy table.
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_areas_parent ON coverage_areas(parent_id)');
     }
 
     // -----------------------------------------------------------------------
