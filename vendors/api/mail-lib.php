@@ -49,7 +49,7 @@ if (!function_exists('vmail_login_url')) {
     /** Standard plain-text headers for all Vendor app system mail. */
     function vmail_headers()
     {
-        return 'From: Haley Yachts <' . VMAIL_FROM . ">\r\n" .
+        return 'From: OneWater <' . VMAIL_FROM . ">\r\n" .
                'Reply-To: ' . VMAIL_FROM . "\r\n" .
                "Content-Type: text/plain; charset=UTF-8\r\n";
     }
@@ -76,9 +76,9 @@ if (!function_exists('vmail_login_url')) {
     function send_onboarding_email($toEmail, $accountId, $tempPassword)
     {
         $url     = vmail_login_url();
-        $subject = 'Your Haley Yachts Vendor App account';
+        $subject = 'Your OneWater Vendor App account';
         $body =
-            "An account has been created for you in the Haley Yachts Vendor App.\r\n\r\n" .
+            "An account has been created for you in the OneWater Vendor App.\r\n\r\n" .
             "Sign in here:\r\n" . $url . "\r\n\r\n" .
             "Account ID: " . $accountId . "\r\n" .
             "Temporary password: " . $tempPassword . "\r\n\r\n" .
@@ -97,9 +97,9 @@ if (!function_exists('vmail_login_url')) {
     function send_admin_reset_email($toEmail, $accountId, $tempPassword)
     {
         $url     = vmail_login_url();
-        $subject = 'Haley Yachts Vendor App - your password was reset';
+        $subject = 'OneWater Vendor App - your password was reset';
         $body =
-            "An administrator has reset the password on your Haley Yachts Vendor App account.\r\n\r\n" .
+            "An administrator has reset the password on your OneWater Vendor App account.\r\n\r\n" .
             "Sign in here:\r\n" . $url . "\r\n\r\n" .
             "Account ID: " . $accountId . "\r\n" .
             "Temporary password: " . $tempPassword . "\r\n\r\n" .
@@ -117,9 +117,9 @@ if (!function_exists('vmail_login_url')) {
      */
     function send_password_changed_email($toEmail)
     {
-        $subject = 'Haley Yachts Vendor App - your password was changed';
+        $subject = 'OneWater Vendor App - your password was changed';
         $body =
-            "This is a confirmation that the password on your Haley Yachts Vendor App " .
+            "This is a confirmation that the password on your OneWater Vendor App " .
             "account was just changed.\r\n\r\n" .
             "If this was you, no action is needed.\r\n\r\n" .
             "If this was NOT you, contact your administrator right away.\r\n";
@@ -137,7 +137,7 @@ if (!function_exists('vmail_login_url')) {
      */
     function send_delete_request_email($requesterName, $requesterAccount, $vendorName)
     {
-        $subject = 'Haley Yachts Vendor App - vendor delete request';
+        $subject = 'OneWater Vendor App - vendor delete request';
         $body =
             "A staff member has requested that a vendor be deleted from the Vendor App.\r\n\r\n" .
             "Requested by: " . $requesterName . " (account: " . $requesterAccount . ")\r\n" .
@@ -159,9 +159,9 @@ if (!function_exists('vmail_login_url')) {
         $host = preg_replace('/[^A-Za-z0-9.\-:]/', '', $host);
         $link = 'https://' . $host . '/vendors/reset.html?token=' . $rawToken;
 
-        $subject = 'Haley Yachts Vendor App - password reset';
+        $subject = 'OneWater Vendor App - password reset';
         $body =
-            "A password reset was requested for your Haley Yachts Vendor App account.\r\n\r\n" .
+            "A password reset was requested for your OneWater Vendor App account.\r\n\r\n" .
             "Open this link to set a new password (it expires in 1 hour):\r\n\r\n" .
             $link . "\r\n\r\n" .
             "If you did not request this, you can ignore this email; your password will not change.\r\n";
