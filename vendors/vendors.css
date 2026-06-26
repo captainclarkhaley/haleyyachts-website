@@ -452,9 +452,12 @@ table.vdb-table {
 }
 .contact-row .cr-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
 }
+/* Name and Phone share the top row; Email spans full width below so a long
+   address is fully visible. */
+.contact-row .cr-grid > div:last-child { grid-column: 1 / -1; }
 .contact-row .cr-foot {
     display: flex;
     align-items: center;
