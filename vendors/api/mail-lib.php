@@ -25,6 +25,13 @@ if (!defined('VMAIL_FROM')) {
     define('VMAIL_FROM', 'no-reply@haleyyachts.com');
 }
 
+if (!defined('ADMIN_NOTIFY_EMAIL')) {
+    // ADMIN NOTIFICATION ADDRESS. When a NON-admin staff member requests a vendor
+    // delete, the request is forwarded here instead of deleting. Change this one
+    // line to redirect those notifications.
+    define('ADMIN_NOTIFY_EMAIL', 'annika@owyg.com');
+}
+
 if (!function_exists('vmail_login_url')) {
 
     /**
@@ -118,6 +125,27 @@ if (!function_exists('vmail_login_url')) {
             "If this was NOT you, contact your administrator right away.\r\n";
 
         return vmail_send($toEmail, $subject, $body, 'password-changed');
+    }
+
+    /**
+     * Vendor delete-request notice. Sent to ADMIN_NOTIFY_EMAIL when a NON-admin
+     * staff member asks to delete a vendor (the delete itself is blocked server
+     * side; this email is the only side effect). Names WHO requested it (name +
+     * account id) and WHICH vendor. Best-effort, same pattern as the other senders.
+     * NOTE: actual delivery depends on the domain's SPF/DKIM being configured for
+     * VMAIL_FROM - until then this may spam-folder or silently drop.
+     */
+    function send_delete_request_email($requesterName, $requesterAccount, $vendorName)
+    {
+        $subject = 'Haley Yachts Vendor App - vendor delete request';
+        $body =
+            "A staff member has requested that a vendor be deleted from the Vendor App.\r\n\r\n" .
+            "Requested by: " . $requesterName . " (account: " . $requesterAccount . ")\r\n" .
+            "Vendor to delete: " . $vendorName . "\r\n\r\n" .
+            "Non-admin staff cannot delete vendors themselves, so this request was " .
+            "forwarded for an administrator to review and action in the Vendor App.\r\n";
+
+        return vmail_send(ADMIN_NOTIFY_EMAIL, $subject, $body, 'delete-request');
     }
 
     /**

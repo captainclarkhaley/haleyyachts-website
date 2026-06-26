@@ -55,11 +55,12 @@ function u_body()
 function u_list(PDO $pdo)
 {
     $rows = $pdo->query(
-        'SELECT id, account_id, name, email, cell, home_office, active, created_at, updated_at
+        'SELECT id, account_id, name, email, cell, home_office, active, is_admin, created_at, updated_at
          FROM users ORDER BY name COLLATE NOCASE, account_id COLLATE NOCASE'
     )->fetchAll();
     foreach ($rows as &$r) {
-        $r['active'] = (int) $r['active'] === 1;
+        $r['active']   = (int) $r['active'] === 1;
+        $r['is_admin'] = (int) $r['is_admin'] === 1;
     }
     unset($r);
     return $rows;
@@ -115,6 +116,7 @@ try {
             $cell       = isset($b['cell']) ? trim($b['cell']) : '';
             $office     = isset($b['home_office']) ? trim($b['home_office']) : '';
             $password   = isset($b['password']) ? (string) $b['password'] : '';
+            $isAdmin    = !empty($b['is_admin']) ? 1 : 0;
 
             if ($accountId === '') { u_fail('Account ID is required.'); }
             if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) { u_fail('A valid email is required.'); }
@@ -129,10 +131,10 @@ try {
             // must_change_password = 1: the staff member must replace this
             // admin-typed temp password the first time they sign in.
             $stmt = $pdo->prepare(
-                'INSERT INTO users (account_id, name, email, cell, home_office, password_hash, active, must_change_password)
-                 VALUES (?, ?, ?, ?, ?, ?, 1, 1)'
+                'INSERT INTO users (account_id, name, email, cell, home_office, password_hash, active, is_admin, must_change_password)
+                 VALUES (?, ?, ?, ?, ?, ?, 1, ?, 1)'
             );
-            $stmt->execute(array($accountId, $name, $email, $cell, $office, $hash));
+            $stmt->execute(array($accountId, $name, $email, $cell, $office, $hash, $isAdmin));
 
             // Best-effort onboarding email with the temp password in the body.
             // A mail failure must NOT fail account creation, so the bool is
@@ -151,6 +153,7 @@ try {
             $email     = isset($b['email']) ? trim($b['email']) : '';
             $cell      = isset($b['cell']) ? trim($b['cell']) : '';
             $office    = isset($b['home_office']) ? trim($b['home_office']) : '';
+            $isAdmin   = !empty($b['is_admin']) ? 1 : 0;
 
             if ($id <= 0) { u_fail('Missing user id.'); }
             if ($accountId === '') { u_fail('Account ID is required.'); }
@@ -161,10 +164,10 @@ try {
 
             $stmt = $pdo->prepare(
                 "UPDATE users
-                 SET account_id = ?, name = ?, email = ?, cell = ?, home_office = ?, updated_at = datetime('now')
+                 SET account_id = ?, name = ?, email = ?, cell = ?, home_office = ?, is_admin = ?, updated_at = datetime('now')
                  WHERE id = ?"
             );
-            $stmt->execute(array($accountId, $name, $email, $cell, $office, $id));
+            $stmt->execute(array($accountId, $name, $email, $cell, $office, $isAdmin, $id));
             u_respond(array('ok' => true, 'users' => u_list($pdo)));
             break;
 

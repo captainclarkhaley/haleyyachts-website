@@ -961,9 +961,14 @@
         var html = '';
         for (var i = 0; i < ratings.length; i++) {
             var r = ratings[i];
+            // Attribution byline. Rows predating attribution have a blank
+            // rater_name and read "Anonymous".
+            var who = (r.rater_name && String(r.rater_name).trim() !== '')
+                ? r.rater_name : 'Anonymous';
             html += '<div class="vdb-rating-entry">' +
                 '<div class="re-head">' +
                     starGlyphs(r.stars) +
+                    '<span class="re-by">by ' + esc(who) + '</span>' +
                     '<span class="re-date">' + formatDate(r.created_at) + '</span>' +
                     '<button type="button" class="re-delete" data-rmrating="' + r.id +
                         '" aria-label="Delete rating">Delete</button>' +
@@ -1230,12 +1235,33 @@
         dupPayload = null;
     }
 
+    // Delete is role-aware (role comes from auth.php?action=me -> currentUser):
+    //  - ADMIN: confirm + delete (the server deletes and cascades).
+    //  - NON-ADMIN: the server WILL NOT delete; it emails the admin instead. So we
+    //    confirm with a "request" message, call the same endpoint (which returns
+    //    forwarded:true), then show a brief "Admin has been notified." and close.
+    // The button stays visible to everyone; the SERVER is the real boundary.
     function deleteVendor(id, name, onDone) {
-        if (!confirm('Delete vendor "' + name + '"? This also removes its contacts. This cannot be undone.')) {
-            return;
+        var isAdmin = !!(currentUser && currentUser.is_admin);
+
+        if (isAdmin) {
+            if (!confirm('Delete vendor "' + name + '"? This also removes its contacts. This cannot be undone.')) {
+                return;
+            }
+        } else {
+            if (!confirm('Admin is being notified regarding your request to delete this vendor. Press OK to continue.')) {
+                return;
+            }
         }
+
         apiGet('r=vendors&action=delete&id=' + id).then(function (data) {
             if (!data.ok) { alert(data.error || 'Delete failed.'); return; }
+            if (data.forwarded) {
+                // Non-admin path: nothing was deleted; the admin was emailed.
+                if (typeof onDone === 'function') { onDone(); }
+                alert(data.message || 'Admin has been notified.');
+                return;
+            }
             if (typeof onDone === 'function') { onDone(); }
             refresh();
         });

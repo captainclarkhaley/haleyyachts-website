@@ -85,6 +85,9 @@ function a_public_user(array $u)
         'email'       => $u['email'],
         'cell'        => isset($u['cell']) ? $u['cell'] : '',
         'home_office' => $u['home_office'],
+        // Surface the role so the front end can branch the delete behavior. The
+        // delete is STILL enforced server-side from the session, never from this.
+        'is_admin'    => isset($u['is_admin']) && (int) $u['is_admin'] === 1,
     );
 }
 

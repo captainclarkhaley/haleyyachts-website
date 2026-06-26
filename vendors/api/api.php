@@ -16,6 +16,8 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+// mail-lib provides send_delete_request_email() for the non-admin delete path.
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/mail-lib.php';
 
 // Start the hardened session BEFORE any output so the auth cookie is honored.
 start_secure_session();
@@ -110,13 +112,13 @@ try {
             handle_lists($pdo, $action);
             break;
         case 'vendors':
-            handle_vendors($pdo, $action);
+            handle_vendors($pdo, $action, $authUser);
             break;
         case 'contacts':
             handle_contacts($pdo, $action);
             break;
         case 'ratings':
-            handle_ratings($pdo, $action);
+            handle_ratings($pdo, $action, $authUser);
             break;
         default:
             fail('Unknown resource.', 404);
@@ -151,7 +153,7 @@ function handle_lists(PDO $pdo, $action)
 // vendors
 // ---------------------------------------------------------------------------
 
-function handle_vendors(PDO $pdo, $action)
+function handle_vendors(PDO $pdo, $action, array $authUser)
 {
     switch ($action) {
         case 'list':
@@ -169,18 +171,64 @@ function handle_vendors(PDO $pdo, $action)
             vendors_save($pdo);
             break;
         case 'delete':
-            $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-            if ($id <= 0) {
-                fail('Missing vendor id.');
-            }
-            $stmt = $pdo->prepare('DELETE FROM vendors WHERE id = ?');
-            $stmt->execute(array($id));
-            // Maps + contacts cascade via FK (foreign_keys is ON).
-            respond(array('ok' => true, 'deleted' => $id));
+            vendors_delete($pdo, $authUser);
             break;
         default:
             fail('Unknown vendors action.', 404);
     }
+}
+
+/**
+ * Delete a vendor - ADMIN ONLY. This is the security boundary for delete.
+ *
+ * The decision is made from the SESSION user's is_admin (the $authUser that
+ * require_auth already resolved from $_SESSION), NEVER from anything in the
+ * request. A non-admin can therefore not delete even by calling this endpoint
+ * directly with a crafted body or query string:
+ *   - ADMIN: delete as before; contacts + maps cascade via FK.
+ *   - NON-ADMIN: do NOT delete. Look up the vendor name, email the admin
+ *     notification address with who asked + which vendor, and return
+ *     {ok:true, forwarded:true} so the UI can confirm the request was sent.
+ */
+function vendors_delete(PDO $pdo, array $authUser)
+{
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+    if ($id <= 0) {
+        fail('Missing vendor id.');
+    }
+
+    $isAdmin = isset($authUser['is_admin']) && (int) $authUser['is_admin'] === 1;
+
+    if ($isAdmin) {
+        $stmt = $pdo->prepare('DELETE FROM vendors WHERE id = ?');
+        $stmt->execute(array($id));
+        // Maps + contacts cascade via FK (foreign_keys is ON).
+        respond(array('ok' => true, 'deleted' => $id));
+        return;
+    }
+
+    // Non-admin: never delete. Forward a request email to the admin instead.
+    $vStmt = $pdo->prepare('SELECT name FROM vendors WHERE id = ?');
+    $vStmt->execute(array($id));
+    $vendorName = $vStmt->fetchColumn();
+    if ($vendorName === false) {
+        fail('Vendor not found.', 404);
+    }
+
+    $requesterName = isset($authUser['name']) && $authUser['name'] !== ''
+        ? $authUser['name']
+        : (isset($authUser['account_id']) ? $authUser['account_id'] : '');
+    $requesterAccount = isset($authUser['account_id']) ? $authUser['account_id'] : '';
+
+    // Best-effort (mail-lib logs a generic line on failure); the request is
+    // considered "forwarded" regardless so the UI gives consistent feedback.
+    send_delete_request_email($requesterName, $requesterAccount, $vendorName);
+
+    respond(array(
+        'ok'        => true,
+        'forwarded' => true,
+        'message'   => 'Admin has been notified of your delete request.',
+    ));
 }
 
 /**
@@ -774,7 +822,7 @@ function handle_contacts(PDO $pdo, $action)
 // ratings (anonymous; one dated row per rating, average is the mean of rows)
 // ---------------------------------------------------------------------------
 
-function handle_ratings(PDO $pdo, $action)
+function handle_ratings(PDO $pdo, $action, array $authUser)
 {
     switch ($action) {
         case 'list':
@@ -782,8 +830,10 @@ function handle_ratings(PDO $pdo, $action)
             if ($vendorId <= 0) {
                 fail('Missing vendor_id.');
             }
+            // rater_account / rater_name attribute each rating to its author. Old
+            // rows predating attribution carry '' and the UI shows "Anonymous".
             $stmt = $pdo->prepare('
-                SELECT id, stars, note, created_at
+                SELECT id, stars, note, rater_account, rater_name, created_at
                 FROM vendor_ratings WHERE vendor_id = ?
                 ORDER BY created_at DESC, id DESC
             ');
@@ -829,8 +879,19 @@ function handle_ratings(PDO $pdo, $action)
                 fail('Rating note exceeds ' . RATING_NOTE_MAX . ' characters.');
             }
 
-            $ins = $pdo->prepare('INSERT INTO vendor_ratings (vendor_id, stars, note) VALUES (?, ?, ?)');
-            $ins->execute(array($vendorId, $stars, $note));
+            // Attribute the rating to the SESSION user, never anything in the
+            // request body. account_id is the stable identity; rater_name falls
+            // back to account_id when the profile name is blank.
+            $raterAccount = isset($authUser['account_id']) ? $authUser['account_id'] : '';
+            $raterName    = (isset($authUser['name']) && trim($authUser['name']) !== '')
+                ? $authUser['name']
+                : $raterAccount;
+
+            $ins = $pdo->prepare(
+                'INSERT INTO vendor_ratings (vendor_id, stars, note, rater_account, rater_name)
+                 VALUES (?, ?, ?, ?, ?)'
+            );
+            $ins->execute(array($vendorId, $stars, $note, $raterAccount, $raterName));
             $newId = (int) $pdo->lastInsertId();
 
             $summary = rating_summary($pdo, $vendorId);

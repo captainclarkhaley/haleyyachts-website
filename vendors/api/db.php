@@ -125,17 +125,22 @@ if (!function_exists('vdb_connect')) {
             )
         ');
 
-        // Anonymous vendor ratings. One dated row per rating; the average is the
-        // mean of all rows. No rater column by design (ratings are anonymous).
+        // Vendor ratings. One dated row per rating; the average is the mean of all
+        // rows. Ratings are now ATTRIBUTED to the staff member who left them via
+        // rater_account / rater_name (captured server-side from the session). Old
+        // rows predating attribution carry '' and display as "Anonymous"; the
+        // anonymous capability is intentionally kept at the DB level (DEFAULT '').
         // Double-quoted PHP string because the SQL carries single-quote literals
         // (DEFAULT '' and datetime('now')) - keeps the quote layers from colliding.
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS vendor_ratings (
-                id         INTEGER PRIMARY KEY AUTOINCREMENT,
-                vendor_id  INTEGER NOT NULL,
-                stars      INTEGER NOT NULL,
-                note       TEXT NOT NULL DEFAULT '',
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                vendor_id     INTEGER NOT NULL,
+                stars         INTEGER NOT NULL,
+                note          TEXT NOT NULL DEFAULT '',
+                rater_account TEXT NOT NULL DEFAULT '',
+                rater_name    TEXT NOT NULL DEFAULT '',
+                created_at    TEXT NOT NULL DEFAULT (datetime('now')),
                 FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
             )
         ");
@@ -154,6 +159,7 @@ if (!function_exists('vdb_connect')) {
                 home_office          TEXT NOT NULL DEFAULT '',
                 password_hash        TEXT NOT NULL,
                 active               INTEGER NOT NULL DEFAULT 1,
+                is_admin             INTEGER NOT NULL DEFAULT 0,
                 must_change_password INTEGER NOT NULL DEFAULT 0,
                 created_at           TEXT NOT NULL DEFAULT (datetime('now')),
                 updated_at           TEXT NOT NULL DEFAULT (datetime('now'))
@@ -201,6 +207,26 @@ if (!function_exists('vdb_connect')) {
         // forced), so nobody already in the system is locked out by the upgrade.
         if (!vdb_column_exists($pdo, 'users', 'must_change_password')) {
             $pdo->exec('ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
+        }
+
+        // users.is_admin: gates the admin-only vendor delete. Existing rows
+        // default to 0 (NOT admin), so nobody is silently granted delete rights by
+        // the upgrade - Clark flags the right accounts as admin in admin/users.html
+        // after deploy. Additive ALTER only; no data dropped or rewritten.
+        if (!vdb_column_exists($pdo, 'users', 'is_admin')) {
+            $pdo->exec('ALTER TABLE users ADD COLUMN is_admin INTEGER NOT NULL DEFAULT 0');
+        }
+
+        // vendor_ratings rater attribution: capture WHO left each rating going
+        // forward. Both ADDITIVE - existing rating rows keep their values and
+        // back-fill to '' (shown as "Anonymous" in the UI). The anonymous
+        // capability is intentionally retained at the DB level. Double-quoted PHP
+        // strings because the SQL carries the single-quote literal DEFAULT ''.
+        if (!vdb_column_exists($pdo, 'vendor_ratings', 'rater_account')) {
+            $pdo->exec("ALTER TABLE vendor_ratings ADD COLUMN rater_account TEXT NOT NULL DEFAULT ''");
+        }
+        if (!vdb_column_exists($pdo, 'vendor_ratings', 'rater_name')) {
+            $pdo->exec("ALTER TABLE vendor_ratings ADD COLUMN rater_name TEXT NOT NULL DEFAULT ''");
         }
 
         // coverage_areas hierarchy columns. The live table predates the tiered
