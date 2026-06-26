@@ -5,6 +5,7 @@
  * Actions (?action=...):
  *   login            POST {account_id, password}        -> sets session, returns user
  *   logout           POST                               -> clears the session
+ *   ping             GET/POST                           -> keep-alive; refreshes idle window
  *   me               GET                                -> current user + home offices
  *   forgot           POST {email}                       -> emails a reset link; generic OK
  *   reset            POST {token, password}             -> consumes a token, sets password
@@ -123,6 +124,9 @@ try {
             // Prevent session fixation: new id on privilege change.
             session_regenerate_id(true);
             $_SESSION['uid'] = (int) $user['id'];
+            // Seed the idle window so the very first authenticated request after
+            // login has a baseline to measure against (current_user refreshes it).
+            $_SESSION['last_activity'] = time();
 
             // must_change_password tells the front end to route to the forced
             // change-password screen instead of the app. Returned as a bool.
@@ -134,15 +138,23 @@ try {
 
         // ---- logout -------------------------------------------------------
         case 'logout':
-            $_SESSION = array();
-            if (ini_get('session.use_cookies')) {
-                $p = session_get_cookie_params();
-                setcookie(
-                    session_name(), '', time() - 42000,
-                    $p['path'], $p['domain'], $p['secure'], $p['httponly']
-                );
+            // clear_session() (auth-lib) wipes session data and expires the
+            // cookie - the same teardown the idle-expiry path uses.
+            clear_session();
+            a_respond(array('ok' => true));
+            break;
+
+        // ---- ping (keep-alive) --------------------------------------------
+        // Lightweight endpoint the front end calls on real user activity to keep
+        // an actively-working session from idling out server-side. current_user()
+        // both enforces the idle window AND refreshes last_activity, so a valid
+        // session is renewed and an already-expired one returns 401 (auth=false),
+        // which the client treats as a signal to drop to login.
+        case 'ping':
+            $user = current_user($pdo);
+            if ($user === null) {
+                a_respond(array('ok' => false, 'auth' => false), 401);
             }
-            session_destroy();
             a_respond(array('ok' => true));
             break;
 

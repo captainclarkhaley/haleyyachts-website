@@ -807,6 +807,27 @@ dl.vdb-detail dd {
 }
 .vdb-foot-link a { color: var(--cyan); }
 
+/* ----- Idle-timeout warning modal ----- */
+/* Sits ABOVE every other overlay (z 1100 vs 1000) so it is never hidden behind
+   an open add/edit/detail/profile modal. Centered vertically, narrow, and styled
+   to match the navy/cyan modal look. Not dismissible by backdrop/Esc - the JS
+   does not wire a backdrop click here. */
+.vdb-idle-overlay {
+    z-index: 1100;
+    align-items: center;
+}
+.vdb-idle-modal { max-width: 420px; }
+.vdb-idle-modal .vdb-modal-head { border-bottom: 1px solid var(--line); }
+.vdb-idle-modal .vdb-modal-body p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--ink);
+}
+.vdb-idle-modal #idleCountdown {
+    color: var(--danger);
+    font-variant-numeric: tabular-nums;
+}
+
 /* ----- Responsive ----- */
 @media (max-width: 820px) {
     .vdb-filter-grid { grid-template-columns: 1fr; }

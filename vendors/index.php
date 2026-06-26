@@ -302,6 +302,25 @@ if ((int) $gateUser['must_change_password'] === 1) {
     </div>
 </div>
 
+<!-- Idle-timeout warning. Shown 1 minute before the 10-minute idle logout. Not
+     dismissible by backdrop or Esc: the only ways out are "Stay signed in" (resets
+     the timer + sends a keep-alive ping) or the automatic logout at 0. -->
+<div class="vdb-overlay vdb-idle-overlay" id="idleOverlay" aria-hidden="true">
+    <div class="vdb-modal vdb-idle-modal" role="alertdialog" aria-modal="true"
+        aria-labelledby="idleTitle" aria-describedby="idleMsg">
+        <div class="vdb-modal-head">
+            <h2 id="idleTitle">Still there?</h2>
+        </div>
+        <div class="vdb-modal-body">
+            <p id="idleMsg">You'll be signed out for inactivity in
+                <strong id="idleCountdown">60</strong> seconds.</p>
+        </div>
+        <div class="vdb-modal-foot">
+            <button type="button" class="btn btn-primary" id="btnStaySignedIn">Stay signed in</button>
+        </div>
+    </div>
+</div>
+
 <script src="vendors.js"></script>
 </body>
 </html>

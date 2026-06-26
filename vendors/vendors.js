@@ -11,6 +11,13 @@
     var CONTACT_NOTES_MAX = 100;
     var RATING_NOTE_MAX = 150;
 
+    // ---- idle / session keep-alive thresholds (ms) -------------------------
+    var IDLE_LIMIT_MS    = 10 * 60 * 1000; // total idle before logout: 10 min
+    var IDLE_WARN_MS     = 9 * 60 * 1000;  // show warning at 9 min (60s before)
+    var IDLE_COUNTDOWN_S = 60;             // warning countdown, seconds
+    var ACTIVITY_THROTTLE_MS = 1000;       // coalesce activity events
+    var KEEPALIVE_MIN_MS = 4 * 60 * 1000;  // min gap between keep-alive pings
+
     // App state.
     var lists = { vendor_types: [], coverage_areas: [] };
     var typeMode = 'any';
@@ -177,6 +184,114 @@
         }).catch(function () {
             window.location.href = 'login.html';
         });
+    }
+
+    // ---- idle timeout + session keep-alive --------------------------------
+    // Goal: a predictable 10-minute idle logout, with a 60-second warning at 9
+    // minutes, AND keep an ACTIVELY-working user's server session alive so a Save
+    // never surprises them with a 401. Activity (mouse/key/scroll/touch) resets
+    // the idle clock; while active we ping the server at most once every ~4 min to
+    // refresh its last_activity, comfortably inside the server's 15-min window.
+    // We do NOT ping on a fixed interval, so a walked-away browser truly times out.
+    var idleTimer = null;      // fires at IDLE_WARN_MS -> shows the warning
+    var countdownTimer = null; // 1s ticks while the warning is shown
+    var countdownLeft = 0;     // seconds remaining in the warning
+    var lastActivityHandled = 0; // throttle for activity handler (ms epoch)
+    var lastKeepAlive = 0;       // last keep-alive ping time (ms epoch)
+    var warningShown = false;
+
+    function sendKeepAlive() {
+        lastKeepAlive = Date.now();
+        // Fire-and-forget. A 401 here means the session is already gone; the next
+        // real API call's parseJson 401 handler will bounce to login, so we do not
+        // need to act on the result. Errors are ignored on purpose.
+        fetch('auth.php?action=ping', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' }
+        }).catch(function () { /* ignore: backstop handles a dead session */ });
+    }
+
+    function maybeKeepAlive() {
+        if (Date.now() - lastKeepAlive >= KEEPALIVE_MIN_MS) {
+            sendKeepAlive();
+        }
+    }
+
+    function clearIdleTimers() {
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    }
+
+    function hideIdleWarning() {
+        warningShown = false;
+        var ov = $('idleOverlay');
+        if (ov) {
+            ov.classList.remove('open');
+            ov.setAttribute('aria-hidden', 'true');
+        }
+        if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    }
+
+    // (Re)arm the idle clock. Called on real activity and on "Stay signed in".
+    function resetIdleTimer() {
+        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        idleTimer = setTimeout(showIdleWarning, IDLE_WARN_MS);
+    }
+
+    function showIdleWarning() {
+        warningShown = true;
+        countdownLeft = IDLE_COUNTDOWN_S;
+        var cd = $('idleCountdown');
+        if (cd) { cd.textContent = String(countdownLeft); }
+        var ov = $('idleOverlay');
+        if (ov) {
+            ov.classList.add('open');
+            ov.setAttribute('aria-hidden', 'false');
+        }
+        var stay = $('btnStaySignedIn');
+        if (stay) { stay.focus(); }
+
+        if (countdownTimer) { clearInterval(countdownTimer); }
+        countdownTimer = setInterval(function () {
+            countdownLeft--;
+            if (cd) { cd.textContent = String(countdownLeft < 0 ? 0 : countdownLeft); }
+            if (countdownLeft <= 0) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+                logout();
+            }
+        }, 1000);
+    }
+
+    // "Stay signed in": dismiss the warning, restart the idle clock, and ping the
+    // server immediately so the session is refreshed regardless of throttle.
+    function staySignedIn() {
+        hideIdleWarning();
+        resetIdleTimer();
+        sendKeepAlive();
+    }
+
+    // Throttled activity handler. Any real user activity resets the idle clock and
+    // opportunistically keeps the server session alive. Ignored while the warning
+    // is up: from there only "Stay signed in" or the countdown decides the outcome,
+    // so background mousemoves cannot silently cancel the warning.
+    function onActivity() {
+        if (warningShown) { return; }
+        var now = Date.now();
+        if (now - lastActivityHandled < ACTIVITY_THROTTLE_MS) { return; }
+        lastActivityHandled = now;
+        resetIdleTimer();
+        maybeKeepAlive();
+    }
+
+    function initIdleWatch() {
+        var events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+        for (var i = 0; i < events.length; i++) {
+            document.addEventListener(events[i], onActivity, { passive: true });
+        }
+        var stay = $('btnStaySignedIn');
+        if (stay) { stay.addEventListener('click', staySignedIn); }
+        resetIdleTimer();
     }
 
     // ---- My Profile (self-service: own profile + own password) -------------
@@ -1395,6 +1510,7 @@
 
     function boot() {
         wire();
+        initIdleWatch();
         loadUserBar();
         apiGet('r=lists&action=get').then(function (data) {
             if (!data.ok) {
