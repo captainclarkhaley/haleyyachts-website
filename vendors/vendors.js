@@ -863,8 +863,8 @@
             html += '<div class="contact-row" data-key="' + c.key + '">' +
                 '<div class="cr-grid">' +
                     '<div><label>Contact Name</label><input type="text" data-f="name" autocomplete="off" value="' + esc(c.name) + '"></div>' +
-                    '<div><label>Email</label><input type="email" data-f="email" autocomplete="off" value="' + esc(c.email) + '"></div>' +
                     '<div><label>Phone</label><input type="text" data-f="phone" autocomplete="off" value="' + esc(c.phone) + '"></div>' +
+                    '<div><label>Email</label><input type="email" data-f="email" autocomplete="off" value="' + esc(c.email) + '"></div>' +
                 '</div>' +
                 '<div class="row" style="margin:10px 0 0">' +
                     '<label>Notes</label>' +
