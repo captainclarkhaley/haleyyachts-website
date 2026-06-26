@@ -33,7 +33,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="../favicon.ico" sizes="any">
-    <link rel="stylesheet" href="vendors.css">
+    <link rel="stylesheet" href="vendors.css?v=<?php echo @filemtime(__DIR__ . '/vendors.css'); ?>">
 </head>
 <body>
 
@@ -321,6 +321,6 @@ if ((int) $gateUser['must_change_password'] === 1) {
     </div>
 </div>
 
-<script src="vendors.js"></script>
+<script src="vendors.js?v=<?php echo @filemtime(__DIR__ . '/vendors.js'); ?>"></script>
 </body>
 </html>
