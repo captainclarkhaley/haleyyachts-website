@@ -338,8 +338,13 @@ if (!function_exists('vdb_connect')) {
 
         $pdo->beginTransaction();
         try {
-            // --- top-level: Nationwide node ---
-            vdb_ensure_area($pdo, 'Nationwide / Not location-dependent', 'nationwide', null);
+            // --- top-level: nationwide node (labeled "USA") ---
+            // One-time rename of the original label to "USA". Idempotent: once
+            // renamed no row matches, so it is a no-op. Preserves the row id, kind,
+            // and all vendor_area_map links, and must run BEFORE the ensure below so
+            // the ensure reuses this row instead of creating a duplicate "USA".
+            $pdo->exec("UPDATE coverage_areas SET name = 'USA' WHERE name = 'Nationwide / Not location-dependent'");
+            vdb_ensure_area($pdo, 'USA', 'nationwide', null);
 
             // --- top-level: Florida state node ---
             // Reuse a legacy "Statewide" or "Florida Statewide" row if present so
