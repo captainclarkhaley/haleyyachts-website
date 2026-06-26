@@ -12,6 +12,12 @@
  * shared db.php from the vendors tree.
  *
  * Routed by:  ?list=vendor_type|coverage_area & action=add|rename|delete|reorder
+ *
+ * Coverage areas are a 3-level HIERARCHY (nationwide / state / region / county)
+ * via a self-referential parent_id + a kind column on coverage_areas. The admin
+ * add/edit actions accept and return parent_id + kind, and validate that the
+ * parent/kind pairing is legal. Vendor Types stays a FLAT list - its endpoints
+ * are unchanged.
  */
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
@@ -73,9 +79,20 @@ try {
     $col    = $meta['col'];
     $action = isset($_GET['action']) ? $_GET['action'] : 'get';
 
+    $isAreas = ($table === 'coverage_areas');
+
     switch ($action) {
         case 'get':
             respond(array('ok' => true, 'items' => list_items($pdo, $table)));
+            break;
+
+        case 'audit':
+            // Read-only: vendors with NO coverage area at all, so Clark can decide
+            // which should be "Nationwide" vs a real area. Areas list only.
+            if (!$isAreas) {
+                fail('Audit is only available for coverage areas.', 404);
+            }
+            respond(array('ok' => true) + audit_uncovered_vendors($pdo));
             break;
 
         case 'add':
@@ -88,8 +105,15 @@ try {
                 fail('An item with that name already exists.', 409);
             }
             $maxSort = (int) $pdo->query('SELECT COALESCE(MAX(sort), -1) FROM ' . $table)->fetchColumn();
-            $stmt = $pdo->prepare('INSERT INTO ' . $table . ' (name, sort) VALUES (?, ?)');
-            $stmt->execute(array($name, $maxSort + 1));
+            if ($isAreas) {
+                // Coverage areas carry kind + parent_id; validate the pairing.
+                $resolved = resolve_area_kind_parent($pdo, $b, 0);
+                $stmt = $pdo->prepare('INSERT INTO coverage_areas (name, sort, kind, parent_id) VALUES (?, ?, ?, ?)');
+                $stmt->execute(array($name, $maxSort + 1, $resolved['kind'], $resolved['parent_id']));
+            } else {
+                $stmt = $pdo->prepare('INSERT INTO ' . $table . ' (name, sort) VALUES (?, ?)');
+                $stmt->execute(array($name, $maxSort + 1));
+            }
             respond(array('ok' => true, 'items' => list_items($pdo, $table)));
             break;
 
@@ -108,10 +132,49 @@ try {
             respond(array('ok' => true, 'items' => list_items($pdo, $table)));
             break;
 
+        case 'edit':
+            // Coverage areas only: change name and/or kind and/or parent in one go.
+            // Vendor Types has no kind/parent, so use rename for it.
+            if (!$isAreas) {
+                fail('Use rename for vendor types.', 404);
+            }
+            $b    = body_json();
+            $id   = isset($b['id']) ? (int) $b['id'] : 0;
+            $name = isset($b['name']) ? trim($b['name']) : '';
+            if ($id <= 0 || $name === '') {
+                fail('id and name are required.');
+            }
+            if (!area_exists($pdo, $id)) {
+                fail('Coverage area not found.', 404);
+            }
+            if (name_exists($pdo, 'coverage_areas', $name, $id)) {
+                fail('Another item already uses that name.', 409);
+            }
+            $resolved = resolve_area_kind_parent($pdo, $b, $id);
+            $stmt = $pdo->prepare('UPDATE coverage_areas SET name = ?, kind = ?, parent_id = ? WHERE id = ?');
+            $stmt->execute(array($name, $resolved['kind'], $resolved['parent_id'], $id));
+            respond(array('ok' => true, 'items' => list_items($pdo, $table)));
+            break;
+
         case 'delete':
             $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
             if ($id <= 0) {
                 fail('Missing id.');
+            }
+            // Block deleting a node that still has children, so we never orphan a
+            // sub-tree silently (the FK on parent_id is ON DELETE SET NULL, which
+            // would quietly promote the children to top-level). The admin must
+            // re-parent or delete the children first.
+            if ($isAreas) {
+                $cStmt = $pdo->prepare('SELECT COUNT(*) FROM coverage_areas WHERE parent_id = ?');
+                $cStmt->execute(array($id));
+                $childCount = (int) $cStmt->fetchColumn();
+                if ($childCount > 0) {
+                    respond(array(
+                        'ok'    => false,
+                        'error' => 'This area has ' . $childCount . ' child area(s) under it. Re-parent or delete those first.',
+                    ), 409);
+                }
             }
             // Cascade clears the map rows via FK, so deleting an in-use item just
             // unassigns it from vendors. We require an explicit confirm flag so the
@@ -163,18 +226,128 @@ try {
     respond(array('ok' => false, 'error' => 'Server error: ' . $e->getMessage()), 500);
 }
 
-/** All items in a list, in display order, each with its current usage count. */
+/**
+ * All items in a list, each with its current usage count.
+ * Vendor Types: flat, ordered by name. Coverage Areas: the full tiered tree
+ * (id, name, sort, kind, parent_id) in tree-render order so the admin can show
+ * the indented hierarchy; the front end nests via parent_id.
+ */
 function list_items(PDO $pdo, $table)
 {
-    $meta  = ($table === 'vendor_types')
-        ? array('map' => 'vendor_type_map', 'col' => 'type_id')
-        : array('map' => 'vendor_area_map', 'col' => 'area_id');
+    if ($table === 'coverage_areas') {
+        // Reuse the canonical tree builder from db.php so the admin and the staff
+        // app agree on shape + order.
+        $rows = vdb_area_tree($pdo);
+        foreach ($rows as &$row) {
+            $row['usageCount'] = usage_count($pdo, 'vendor_area_map', 'area_id', (int) $row['id']);
+        }
+        unset($row);
+        return $rows;
+    }
+
     $rows = $pdo->query('SELECT id, name, sort FROM ' . $table . ' ORDER BY name COLLATE NOCASE')->fetchAll();
     foreach ($rows as &$row) {
-        $row['usageCount'] = usage_count($pdo, $meta['map'], $meta['col'], (int) $row['id']);
+        $row['usageCount'] = usage_count($pdo, 'vendor_type_map', 'type_id', (int) $row['id']);
     }
     unset($row);
     return $rows;
+}
+
+/** True if a coverage_areas row with this id exists. */
+function area_exists(PDO $pdo, $id)
+{
+    $stmt = $pdo->prepare('SELECT 1 FROM coverage_areas WHERE id = ?');
+    $stmt->execute(array((int) $id));
+    return (bool) $stmt->fetchColumn();
+}
+
+/**
+ * Validate + normalize the kind/parent pairing for a coverage-area add/edit.
+ * Returns array('kind' => ..., 'parent_id' => int|null). Rules:
+ *   - kind in {nationwide, state, region, county}; default 'county'.
+ *   - nationwide + state are TOP-LEVEL: parent_id is forced NULL.
+ *   - region: parent REQUIRED and must be a 'state'.
+ *   - county: parent REQUIRED and must be a 'region' OR a 'state'.
+ *   - a parent must exist and may not be the node itself (no self-parent); on
+ *     edit we also forbid pointing at one of the node's own descendants (cycle).
+ * fail()s with a clear message on any violation.
+ */
+function resolve_area_kind_parent(PDO $pdo, array $b, $selfId)
+{
+    $kind = isset($b['kind']) ? trim((string) $b['kind']) : 'county';
+    $allowed = array('nationwide', 'state', 'region', 'county');
+    if (!in_array($kind, $allowed, true)) {
+        fail('Invalid kind. Use nationwide, state, region, or county.');
+    }
+
+    $rawParent = isset($b['parent_id']) && $b['parent_id'] !== '' && $b['parent_id'] !== null
+        ? (int) $b['parent_id'] : 0;
+
+    // Top-level kinds never have a parent.
+    if ($kind === 'nationwide' || $kind === 'state') {
+        return array('kind' => $kind, 'parent_id' => null);
+    }
+
+    if ($rawParent <= 0) {
+        fail('A ' . $kind . ' needs a parent.');
+    }
+    if ($selfId > 0 && $rawParent === (int) $selfId) {
+        fail('An area cannot be its own parent.');
+    }
+    // Load the parent row to check its kind.
+    $pStmt = $pdo->prepare('SELECT kind FROM coverage_areas WHERE id = ?');
+    $pStmt->execute(array($rawParent));
+    $parentKind = $pStmt->fetchColumn();
+    if ($parentKind === false) {
+        fail('Chosen parent does not exist.');
+    }
+    if ($kind === 'region' && $parentKind !== 'state') {
+        fail('A region\'s parent must be a state.');
+    }
+    if ($kind === 'county' && $parentKind !== 'region' && $parentKind !== 'state') {
+        fail('A county\'s parent must be a region or a state.');
+    }
+    // Cycle guard on edit: the new parent must not be the node or one of its
+    // descendants. Walk the parent chain upward from the chosen parent; if we
+    // reach $selfId, it would form a loop.
+    if ($selfId > 0) {
+        $cur  = $rawParent;
+        $hops = 0;
+        while ($cur > 0 && $hops < 64) {
+            if ($cur === (int) $selfId) {
+                fail('That parent is inside this area\'s own branch (would create a loop).');
+            }
+            $aStmt = $pdo->prepare('SELECT parent_id FROM coverage_areas WHERE id = ?');
+            $aStmt->execute(array($cur));
+            $next = $aStmt->fetchColumn();
+            $cur  = ($next === null || $next === false) ? 0 : (int) $next;
+            $hops++;
+        }
+    }
+
+    return array('kind' => $kind, 'parent_id' => $rawParent);
+}
+
+/**
+ * Read-only audit: vendors that have NO coverage area mapped at all. Returns
+ * { count, vendors:[{id,name}] } so Clark can decide which should be Nationwide
+ * vs a real area. Ordered by name.
+ */
+function audit_uncovered_vendors(PDO $pdo)
+{
+    $rows = $pdo->query('
+        SELECT v.id, v.name
+        FROM vendors v
+        WHERE NOT EXISTS (
+            SELECT 1 FROM vendor_area_map m WHERE m.vendor_id = v.id
+        )
+        ORDER BY v.name COLLATE NOCASE
+    ')->fetchAll();
+    foreach ($rows as &$r) {
+        $r['id'] = (int) $r['id'];
+    }
+    unset($r);
+    return array('count' => count($rows), 'vendors' => $rows);
 }
 
 function usage_count(PDO $pdo, $map, $col, $id)
