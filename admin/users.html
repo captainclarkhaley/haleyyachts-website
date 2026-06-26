@@ -73,11 +73,18 @@
             text-transform: uppercase; letter-spacing: 0.6px; padding: 2px 7px; border-radius: 10px;
             background: #e6f7fb; color: #0e7c93;
         }
-        .admin-check {
-            display: flex; align-items: center; gap: 8px; font-size: 0.88rem;
-            color: #333; font-weight: 400; cursor: pointer;
+        /* Grouped panel for admin-only privileges, sized to grow as we add more. */
+        .admin-privs {
+            border: 1px solid #e5e5e5; border-radius: 5px; background: #fafbfc;
+            padding: 10px 12px; display: flex; flex-direction: column; gap: 9px;
         }
-        .admin-check input { width: auto; }
+        .admin-check {
+            display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+            color: #333; font-weight: 400; cursor: pointer; margin: 0;
+        }
+        .admin-check input {
+            width: 17px; height: 17px; margin: 0; flex: none; accent-color: #21cbea;
+        }
         .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .icon-btn {
             border: 1px solid #e5e5e5; background: #fff; color: #666; border-radius: 3px; cursor: pointer;
@@ -181,7 +188,7 @@
             <div class="field">
                 <label class="fl" for="fAccount">Account ID *</label>
                 <input type="text" id="fAccount" autocomplete="off">
-                <div class="hint">The login handle the staff member types to sign in.</div>
+                <div class="hint">Account ID should match your OWYG email.</div>
             </div>
             <div class="field">
                 <label class="fl" for="fName">Name</label>
@@ -201,8 +208,11 @@
                 <select id="fOffice"></select>
             </div>
             <div class="field">
-                <label class="fl" for="fAdmin">Admin</label>
-                <label class="admin-check"><input type="checkbox" id="fAdmin"> Administrator (can delete vendors)</label>
+                <label class="fl">Admin privileges</label>
+                <div class="admin-privs">
+                    <label class="admin-check"><input type="checkbox" id="fAdmin"> <span>Administrator - can delete vendors</span></label>
+                    <!-- Room for more admin-only privilege toggles here as they come up. -->
+                </div>
                 <div class="hint">Admins can delete vendors directly in the Vendor App. Non-admins can only request a delete (an admin is notified).</div>
             </div>
             <div class="field" id="passwordField">
