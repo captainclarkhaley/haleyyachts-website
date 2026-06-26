@@ -78,7 +78,10 @@ if (!function_exists('vmail_login_url')) {
         $url     = vmail_login_url();
         $subject = 'Your OneWater Vendor App account';
         $body =
-            "An account has been created for you in the OneWater Vendor App.\r\n\r\n" .
+            "An account has been created for you in the OneWater Vendor App. This new " .
+            "tool will help you and your fellow OWYG brokers share information regarding " .
+            "the people and the companies that you use in providing quality services to " .
+            "your clients.\r\n\r\n" .
             "Sign in here:\r\n" . $url . "\r\n\r\n" .
             "Account ID: " . $accountId . "\r\n" .
             "Temporary password: " . $tempPassword . "\r\n\r\n" .
