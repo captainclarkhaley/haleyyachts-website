@@ -42,6 +42,10 @@ if (!function_exists('vdb_connect')) {
         vdb_init_schema($pdo);
         vdb_migrate($pdo);
         vdb_seed_lists($pdo);
+        // Build/repair the coverage-area hierarchy. Runs AFTER seed_lists so a
+        // fresh install's flat legacy rows get promoted/parented; on the live DB
+        // it parents the existing rows. Idempotent + additive (see the function).
+        vdb_seed_hierarchy($pdo);
 
         return $pdo;
     }
@@ -59,13 +63,21 @@ if (!function_exists('vdb_connect')) {
             )
         ');
 
-        $pdo->exec('
+        // coverage_areas is a SELF-REFERENTIAL hierarchy:
+        //   kind = 'nationwide' | 'state' | 'region' | 'county'
+        //   parent_id -> coverage_areas.id (NULL for top-level: nationwide + states)
+        // Double-quoted PHP string because the SQL carries a single-quote literal
+        // (DEFAULT 'county') - keeps the quote layers from colliding.
+        $pdo->exec("
             CREATE TABLE IF NOT EXISTS coverage_areas (
-                id   INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE,
-                sort INTEGER NOT NULL DEFAULT 0
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                name      TEXT NOT NULL UNIQUE,
+                sort      INTEGER NOT NULL DEFAULT 0,
+                parent_id INTEGER NULL,
+                kind      TEXT NOT NULL DEFAULT 'county',
+                FOREIGN KEY (parent_id) REFERENCES coverage_areas(id) ON DELETE SET NULL
             )
-        ');
+        ");
 
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS vendors (
@@ -166,6 +178,7 @@ if (!function_exists('vdb_connect')) {
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_contacts_vendor ON contacts(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_typemap_vendor  ON vendor_type_map(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_areamap_vendor  ON vendor_area_map(vendor_id)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_areas_parent    ON coverage_areas(parent_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_ratings_vendor  ON vendor_ratings(vendor_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_account   ON users(account_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_users_email     ON users(email)');
@@ -187,6 +200,189 @@ if (!function_exists('vdb_connect')) {
         if (!vdb_column_exists($pdo, 'users', 'must_change_password')) {
             $pdo->exec('ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0');
         }
+
+        // coverage_areas hierarchy columns. The live table predates the tiered
+        // model, so CREATE TABLE IF NOT EXISTS will NOT add these - we ALTER them
+        // in only when missing. Both are ADDITIVE: every existing area row keeps
+        // its id, name, and sort untouched and simply picks up the column default
+        // (parent_id NULL = top-level, kind 'county'). Nothing is dropped, renamed,
+        // renumbered, or re-mapped. vendor_area_map is never touched.
+        if (!vdb_column_exists($pdo, 'coverage_areas', 'parent_id')) {
+            // No NOT NULL / no DEFAULT literal needed; SQLite back-fills NULL.
+            $pdo->exec('ALTER TABLE coverage_areas ADD COLUMN parent_id INTEGER NULL');
+        }
+        if (!vdb_column_exists($pdo, 'coverage_areas', 'kind')) {
+            // Double-quoted PHP string: the SQL carries a single-quote literal
+            // (DEFAULT 'county'). Existing rows back-fill to 'county' - harmless,
+            // and Clark re-tiers structural rows below + in the admin tool.
+            $pdo->exec("ALTER TABLE coverage_areas ADD COLUMN kind TEXT NOT NULL DEFAULT 'county'");
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Coverage-area hierarchy seeding (idempotent, additive, NON-destructive)
+    // -----------------------------------------------------------------------
+
+    /**
+     * Find an existing coverage_areas row by EXACT name, case-insensitive.
+     * Returns the row id (int) or 0 when none. Used so seeding REUSES rows that
+     * already exist rather than ever creating a duplicate.
+     */
+    function vdb_area_id_by_name(PDO $pdo, $name)
+    {
+        $stmt = $pdo->prepare('SELECT id FROM coverage_areas WHERE name = ? COLLATE NOCASE');
+        $stmt->execute(array($name));
+        $id = $stmt->fetchColumn();
+        return $id === false ? 0 : (int) $id;
+    }
+
+    /**
+     * Ensure a structural node exists with the given name/kind/parent.
+     *  - If a row with that exact name already exists (case-insensitive), REUSE
+     *    it: set its kind, and set its parent ONLY when its parent is currently
+     *    NULL (never overwrite a parent Clark may have set by hand).
+     *  - Otherwise INSERT a new row at the end of the sort order.
+     * Returns the node id. Never deletes or renumbers anything.
+     */
+    function vdb_ensure_area(PDO $pdo, $name, $kind, $parentId)
+    {
+        $id = vdb_area_id_by_name($pdo, $name);
+        if ($id > 0) {
+            // Reuse. Always normalize kind for a recognized structural row.
+            $pdo->prepare('UPDATE coverage_areas SET kind = ? WHERE id = ?')
+                ->execute(array($kind, $id));
+            // Only set parent where it is currently unset, so we never clobber a
+            // parent the admin tool already assigned.
+            if ($parentId !== null) {
+                $pdo->prepare('UPDATE coverage_areas SET parent_id = ? WHERE id = ? AND parent_id IS NULL')
+                    ->execute(array($parentId, $id));
+            }
+            return $id;
+        }
+        $maxSort = (int) $pdo->query('SELECT COALESCE(MAX(sort), -1) FROM coverage_areas')->fetchColumn();
+        $stmt = $pdo->prepare('INSERT INTO coverage_areas (name, sort, parent_id, kind) VALUES (?, ?, ?, ?)');
+        $stmt->execute(array($name, $maxSort + 1, $parentId, $kind));
+        return (int) $pdo->lastInsertId();
+    }
+
+    /**
+     * Best-effort parenting of an EXISTING county row under a region/state.
+     * Sets kind='county' and parent = $parentId, but ONLY when the row exists,
+     * matches the name exactly (case-insensitive), AND its parent is currently
+     * NULL. An unrecognized or already-parented row is left exactly as it is for
+     * Clark to fix in the admin tool. Never inserts, deletes, or renumbers.
+     */
+    function vdb_parent_existing_county(PDO $pdo, $name, $parentId)
+    {
+        $id = vdb_area_id_by_name($pdo, $name);
+        if ($id <= 0) {
+            return; // unknown row -> leave top-level, do not guess
+        }
+        $pdo->prepare("
+            UPDATE coverage_areas
+            SET kind = 'county', parent_id = ?
+            WHERE id = ? AND parent_id IS NULL
+        ")->execute(array($parentId, $id));
+    }
+
+    /**
+     * Build the tiered hierarchy on top of whatever coverage_areas already holds.
+     * IDEMPOTENT + ADDITIVE: re-running it is a no-op once everything is in place.
+     * It NEVER drops, deletes, or renumbers a row, NEVER touches vendor_area_map,
+     * and only sets a parent where the parent is currently NULL on an exact-name
+     * match. Wrapped in a transaction so a mid-way error rolls back cleanly and
+     * the existing api error handling surfaces it.
+     */
+    function vdb_seed_hierarchy(PDO $pdo)
+    {
+        // Guard: the columns must exist (vdb_migrate runs before this). If for any
+        // reason they do not, bail rather than error - the next load retries.
+        if (!vdb_column_exists($pdo, 'coverage_areas', 'parent_id')
+            || !vdb_column_exists($pdo, 'coverage_areas', 'kind')) {
+            return;
+        }
+
+        $pdo->beginTransaction();
+        try {
+            // --- top-level: Nationwide node ---
+            vdb_ensure_area($pdo, 'Nationwide / Not location-dependent', 'nationwide', null);
+
+            // --- top-level: Florida state node ---
+            // Reuse a legacy "Statewide" or "Florida Statewide" row if present so
+            // any vendor already tagged statewide keeps that exact tag (same id).
+            // Otherwise reuse/create "Florida". We do NOT rename the legacy row;
+            // we only promote it to kind='state', parent NULL.
+            $flId = vdb_area_id_by_name($pdo, 'Florida');
+            if ($flId <= 0) { $flId = vdb_area_id_by_name($pdo, 'Florida Statewide'); }
+            if ($flId <= 0) { $flId = vdb_area_id_by_name($pdo, 'Statewide'); }
+            if ($flId > 0) {
+                // Promote the existing row in place (keep its name + id + tags).
+                $pdo->prepare("UPDATE coverage_areas SET kind = 'state', parent_id = NULL WHERE id = ?")
+                    ->execute(array($flId));
+            } else {
+                $flId = vdb_ensure_area($pdo, 'Florida', 'state', null);
+            }
+
+            // --- other top-level states (no children seeded yet) ---
+            vdb_ensure_area($pdo, 'North Carolina', 'state', null);
+            vdb_ensure_area($pdo, 'South Carolina', 'state', null);
+            vdb_ensure_area($pdo, 'Maryland', 'state', null);
+            vdb_ensure_area($pdo, 'New York', 'state', null);
+
+            // --- Florida regions (reuse legacy region rows if present) ---
+            $southFlId     = vdb_ensure_area($pdo, 'South Florida', 'region', $flId);
+            $treasureId    = vdb_ensure_area($pdo, 'Treasure Coast', 'region', $flId);
+            $gulfId        = vdb_ensure_area($pdo, 'Gulf Coast', 'region', $flId);
+
+            // --- best-effort county parenting (exact name + parent currently NULL) ---
+            $byRegion = array(
+                $southFlId  => array('Miami-Dade', 'Broward', 'Palm Beach', 'Monroe (Keys)'),
+                $treasureId => array('Martin', 'St. Lucie'),
+                $gulfId     => array('Collier', 'Lee', 'Charlotte', 'Sarasota', 'Manatee', 'Pinellas', 'Hillsborough'),
+            );
+            foreach ($byRegion as $regionId => $counties) {
+                foreach ($counties as $countyName) {
+                    vdb_parent_existing_county($pdo, $countyName, (int) $regionId);
+                }
+            }
+
+            $pdo->commit();
+        } catch (Throwable $e) {
+            $pdo->rollBack();
+            throw $e; // let the api error handler surface it
+        }
+    }
+
+    /**
+     * The full coverage-area tree as a flat ordered list (id, name, kind,
+     * parent_id, sort). Ordered for tree rendering: kind rank first
+     * (nationwide, state, region, county) then sort then name. Callers that need
+     * strict nesting build the parent->children map from parent_id. Reused by the
+     * staff list endpoint (closure matching) and the admin tree UI.
+     */
+    function vdb_area_tree(PDO $pdo)
+    {
+        $rows = $pdo->query("
+            SELECT id, name, kind, parent_id, sort
+            FROM coverage_areas
+            ORDER BY
+                CASE kind
+                    WHEN 'nationwide' THEN 0
+                    WHEN 'state'      THEN 1
+                    WHEN 'region'     THEN 2
+                    WHEN 'county'     THEN 3
+                    ELSE 4
+                END,
+                sort,
+                name COLLATE NOCASE
+        ")->fetchAll();
+        foreach ($rows as &$r) {
+            $r['id']        = (int) $r['id'];
+            $r['parent_id'] = ($r['parent_id'] === null) ? null : (int) $r['parent_id'];
+            $r['sort']      = (int) $r['sort'];
+        }
+        unset($r);
+        return $rows;
     }
 
     /**
@@ -255,6 +451,10 @@ if (!function_exists('vdb_connect')) {
             'Rigging',
         );
 
+        // Fresh-install county seed only. The structural tiers (Nationwide,
+        // states, regions) are created by vdb_seed_hierarchy(), which also parents
+        // these counties under their region. On the LIVE DB this block is skipped
+        // entirely (coverage_areas is non-empty), so the live rows are untouched.
         $areas = array(
             'Miami-Dade',
             'Broward',
@@ -269,10 +469,6 @@ if (!function_exists('vdb_connect')) {
             'Manatee',
             'Pinellas',
             'Hillsborough',
-            'South Florida',
-            'Treasure Coast',
-            'Gulf Coast',
-            'Statewide',
         );
 
         $count = (int) $pdo->query('SELECT COUNT(*) FROM vendor_types')->fetchColumn();

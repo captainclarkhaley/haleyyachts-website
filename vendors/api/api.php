@@ -137,7 +137,9 @@ function handle_lists(PDO $pdo, $action)
         fail('Lists are read-only here. Use the admin tool to edit them.', 403);
     }
     $types = $pdo->query('SELECT id, name FROM vendor_types ORDER BY name COLLATE NOCASE')->fetchAll();
-    $areas = $pdo->query('SELECT id, name FROM coverage_areas ORDER BY name COLLATE NOCASE')->fetchAll();
+    // Coverage areas now ride as the full tiered tree (id, name, kind, parent_id,
+    // sort) in tree-render order so the front end can show an indented hierarchy.
+    $areas = vdb_area_tree($pdo);
     respond(array(
         'ok'             => true,
         'vendor_types'   => $types,
@@ -223,13 +225,19 @@ function vendors_list(PDO $pdo)
     }
 
     if (!empty($areaIds)) {
-        // Areas are OR: vendor covers any selected area.
-        $place   = implode(',', array_fill(0, count($areaIds), '?'));
+        // Hierarchy-aware area matching. For the SELECTED area ids we expand to a
+        // CLOSURE = each selected id + all its ANCESTORS + all its DESCENDANTS,
+        // plus the Nationwide node (a Nationwide-tagged vendor matches any area
+        // selection). A vendor matches the area facet if it carries ANY area in
+        // that closure (OR within the facet, AND across facets - unchanged).
+        // The area set is small, so the closure is computed in PHP from the tree.
+        $closure = area_filter_closure($pdo, $areaIds);
+        $place   = implode(',', array_fill(0, count($closure), '?'));
         $where[] = 'v.id IN (
             SELECT vendor_id FROM vendor_area_map
             WHERE area_id IN (' . $place . ')
         )';
-        $params = array_merge($params, $areaIds);
+        $params = array_merge($params, $closure);
     }
 
     $sql = 'SELECT v.id, v.name, v.address, v.phone, v.email, v.notes FROM vendors v';
@@ -248,6 +256,83 @@ function vendors_list(PDO $pdo)
     }
 
     respond(array('ok' => true, 'count' => count($vendors), 'vendors' => $vendors));
+}
+
+/**
+ * Expand a set of selected coverage-area ids into the closure of ids that should
+ * match the area filter, using the tiered tree (parent_id hierarchy):
+ *
+ *   closure = for each selected X:  X  +  all ANCESTORS of X  +  all DESCENDANTS
+ *             of X,  PLUS the Nationwide node (always).
+ *
+ * This gives containment in BOTH directions: selecting Florida pulls in its
+ * regions/counties (descendants); selecting Palm Beach pulls in South Florida +
+ * Florida (ancestors). The Nationwide node is added to every closure so a vendor
+ * tagged Nationwide matches any area selection. Selecting Nationwide itself is
+ * already covered (it is in its own closure). Returns a de-duplicated list of
+ * positive ints; the caller uses it as the IN (...) set against vendor_area_map.
+ */
+function area_filter_closure(PDO $pdo, array $selectedIds)
+{
+    $tree = vdb_area_tree($pdo);
+
+    // Index by id, and build a parent -> children adjacency from parent_id.
+    $byId     = array();
+    $children = array();
+    $nationwideId = null;
+    foreach ($tree as $row) {
+        $id = (int) $row['id'];
+        $byId[$id] = $row;
+        $pid = ($row['parent_id'] === null) ? 0 : (int) $row['parent_id'];
+        if (!isset($children[$pid])) {
+            $children[$pid] = array();
+        }
+        $children[$pid][] = $id;
+        if ($row['kind'] === 'nationwide') {
+            $nationwideId = $id;
+        }
+    }
+
+    $closure = array();
+
+    foreach ($selectedIds as $sid) {
+        $sid = (int) $sid;
+        if (!isset($byId[$sid])) {
+            continue; // ignore ids that are not real areas
+        }
+        $closure[$sid] = $sid;
+
+        // Walk up to collect ancestors (guard against a bad self/loop ref).
+        $cur  = $byId[$sid]['parent_id'];
+        $hops = 0;
+        while ($cur !== null && isset($byId[(int) $cur]) && $hops < 64) {
+            $cur = (int) $cur;
+            $closure[$cur] = $cur;
+            $cur = $byId[$cur]['parent_id'];
+            $hops++;
+        }
+
+        // Walk down to collect descendants (iterative DFS).
+        $stack = array($sid);
+        while (!empty($stack)) {
+            $node = array_pop($stack);
+            if (isset($children[$node])) {
+                foreach ($children[$node] as $childId) {
+                    if (!isset($closure[$childId])) {
+                        $closure[$childId] = $childId;
+                        $stack[] = $childId;
+                    }
+                }
+            }
+        }
+    }
+
+    // Nationwide always matches any area selection.
+    if ($nationwideId !== null) {
+        $closure[$nationwideId] = $nationwideId;
+    }
+
+    return array_values($closure);
 }
 
 /** Load one vendor row + its types/areas/contacts, or null. */
@@ -279,7 +364,7 @@ function enrich_vendor(PDO $pdo, array $row)
     $types = $tStmt->fetchAll();
 
     $aStmt = $pdo->prepare('
-        SELECT a.id, a.name FROM vendor_area_map m
+        SELECT a.id, a.name, a.kind FROM vendor_area_map m
         JOIN coverage_areas a ON a.id = m.area_id
         WHERE m.vendor_id = ? ORDER BY a.sort, a.name
     ');
