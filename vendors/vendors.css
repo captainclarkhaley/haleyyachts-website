@@ -304,25 +304,50 @@ body {
 table.vdb-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
+    /* Fixed layout = columns share the container width and never push the table
+       wider than the screen, so the full 7 columns are always visible with no
+       horizontal scroll. Long values wrap instead of forcing the table wide. */
+    table-layout: fixed;
 }
 .vdb-table thead th {
     text-align: left;
     background: var(--navy);
     color: #fff;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 11px 14px;
-    white-space: nowrap;
+    letter-spacing: 0.6px;
+    padding: 10px 10px;
+    white-space: normal;     /* allow long headers to wrap rather than widen */
+    vertical-align: bottom;
     position: sticky;
     top: 0;
 }
 .vdb-table tbody td {
-    padding: 11px 14px;
+    padding: 10px 10px;
     border-top: 1px solid var(--line);
     vertical-align: top;
+    overflow-wrap: anywhere; /* wrap long emails/words inside the column */
+}
+
+/* Column widths (sum to 100%) for the fixed layout. The phone stays on one line;
+   the contacts count and rating are centered. */
+.vdb-table th:nth-child(1), .vdb-table td:nth-child(1) { width: 15%; }
+.vdb-table th:nth-child(2), .vdb-table td:nth-child(2) { width: 15%; }
+.vdb-table th:nth-child(3), .vdb-table td:nth-child(3) { width: 15%; }
+.vdb-table th:nth-child(4), .vdb-table td:nth-child(4) { width: 13%; white-space: nowrap; }
+.vdb-table th:nth-child(5), .vdb-table td:nth-child(5) { width: 18%; }
+.vdb-table th:nth-child(6), .vdb-table td:nth-child(6) { width: 8%; text-align: center; }
+.vdb-table th:nth-child(7), .vdb-table td:nth-child(7) { width: 16%; }
+
+/* Smaller screens: tighten font + padding so all 7 columns still fit with no
+   horizontal scroll. */
+@media (max-width: 820px) {
+    table.vdb-table { font-size: 0.76rem; }
+    .vdb-table thead th { font-size: 0.6rem; padding: 8px 6px; letter-spacing: 0.3px; }
+    .vdb-table tbody td { padding: 8px 6px; }
+    .vdb-table th:nth-child(4), .vdb-table td:nth-child(4) { white-space: normal; }
 }
 .vdb-table tbody tr:hover { background: #fafcfd; }
 .vdb-table .vdb-vname { font-weight: 600; color: var(--navy); }
