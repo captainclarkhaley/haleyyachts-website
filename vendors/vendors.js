@@ -296,7 +296,11 @@
     }
 
     function initIdleWatch() {
-        var events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+        // Intentionally NOT 'mousemove': bare cursor movement (optical-mouse drift,
+        // a bumped desk) would otherwise restart the idle clock forever and the
+        // timeout would never fire. Real activity is a click, key, wheel, scroll,
+        // or touch.
+        var events = ['mousedown', 'keydown', 'wheel', 'scroll', 'touchstart', 'click'];
         for (var i = 0; i < events.length; i++) {
             document.addEventListener(events[i], onActivity, { passive: true });
         }
