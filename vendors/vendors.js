@@ -27,6 +27,7 @@
     var sortKey = '';      // active sort column key ('' = none), e.g. 'name', 'rating'
     var sortDir = 'asc';   // 'asc' or 'desc' for the active sort column
     var pendingStars = 0;  // star value picked in the detail rating control
+    var sessionEnding = false; // true once we begin redirecting away (login / forced change / idle logout)
 
     // ---- tiny helpers ------------------------------------------------------
 
@@ -134,15 +135,21 @@
             if (!res.ok && data.ok !== false) { data.ok = false; }
             data._status = res.status;
             // Session expired or never authenticated: the API returns 401. Bounce
-            // to the login page rather than showing a broken, empty app.
+            // to login AND stop the chain (return a promise that never resolves) so
+            // the calling handler never flashes a raw error dialog ("Not
+            // authenticated.") on the way out.
             if (res.status === 401) {
+                sessionEnding = true;
                 window.location.href = 'login.html';
+                return new Promise(function () {});
             }
             // Forced first-login password change: the API returns 403 with
-            // must_change. Send them to the forced-change screen (the server-side
-            // index.php redirect is the primary gate; this is defense in depth).
+            // must_change. Send them to the forced-change screen and likewise stop
+            // the chain. (The server-side index.php redirect is the primary gate.)
             if (res.status === 403 && data && data.must_change) {
+                sessionEnding = true;
                 window.location.href = 'change-password.html';
+                return new Promise(function () {});
             }
             return data;
         });
@@ -193,18 +200,17 @@
     // the idle clock; while active we ping the server at most once every ~4 min to
     // refresh its last_activity, comfortably inside the server's 15-min window.
     // We do NOT ping on a fixed interval, so a walked-away browser truly times out.
-    var idleTimer = null;      // fires at IDLE_WARN_MS -> shows the warning
-    var countdownTimer = null; // 1s ticks while the warning is shown
-    var countdownLeft = 0;     // seconds remaining in the warning
-    var lastActivityHandled = 0; // throttle for activity handler (ms epoch)
-    var lastKeepAlive = 0;       // last keep-alive ping time (ms epoch)
+    var idleCheckTimer = null;     // periodic wall-clock checker (1s)
+    var lastActivityTs = Date.now(); // ms epoch of the last real activity
+    var lastActivityHandled = 0;   // throttle for the activity handler (ms epoch)
+    var lastKeepAlive = 0;         // last keep-alive ping time (ms epoch)
     var warningShown = false;
 
     function sendKeepAlive() {
         lastKeepAlive = Date.now();
         // Fire-and-forget. A 401 here means the session is already gone; the next
-        // real API call's parseJson 401 handler will bounce to login, so we do not
-        // need to act on the result. Errors are ignored on purpose.
+        // real API call's parseJson 401 handler (or the idle checker) bounces to
+        // login, so we do not need to act on the result.
         fetch('auth.php?action=ping', {
             method: 'POST',
             headers: { 'Accept': 'application/json' }
@@ -217,70 +223,75 @@
         }
     }
 
-    function clearIdleTimers() {
-        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
-        if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    function setIdleOverlay(open) {
+        var ov = $('idleOverlay');
+        if (!ov) { return; }
+        ov.classList.toggle('open', open);
+        ov.setAttribute('aria-hidden', open ? 'false' : 'true');
     }
 
     function hideIdleWarning() {
         warningShown = false;
-        var ov = $('idleOverlay');
-        if (ov) {
-            ov.classList.remove('open');
-            ov.setAttribute('aria-hidden', 'true');
-        }
-        if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+        setIdleOverlay(false);
     }
 
-    // (Re)arm the idle clock. Called on real activity and on "Stay signed in".
-    function resetIdleTimer() {
-        if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
-        idleTimer = setTimeout(showIdleWarning, IDLE_WARN_MS);
+    function updateCountdownUI() {
+        var left = Math.ceil((IDLE_LIMIT_MS - (Date.now() - lastActivityTs)) / 1000);
+        if (left < 0) { left = 0; }
+        var cd = $('idleCountdown');
+        if (cd) { cd.textContent = String(left); }
     }
 
     function showIdleWarning() {
         warningShown = true;
-        countdownLeft = IDLE_COUNTDOWN_S;
-        var cd = $('idleCountdown');
-        if (cd) { cd.textContent = String(countdownLeft); }
-        var ov = $('idleOverlay');
-        if (ov) {
-            ov.classList.add('open');
-            ov.setAttribute('aria-hidden', 'false');
-        }
+        setIdleOverlay(true);
+        updateCountdownUI();
         var stay = $('btnStaySignedIn');
         if (stay) { stay.focus(); }
-
-        if (countdownTimer) { clearInterval(countdownTimer); }
-        countdownTimer = setInterval(function () {
-            countdownLeft--;
-            if (cd) { cd.textContent = String(countdownLeft < 0 ? 0 : countdownLeft); }
-            if (countdownLeft <= 0) {
-                clearInterval(countdownTimer);
-                countdownTimer = null;
-                logout();
-            }
-        }, 1000);
     }
 
-    // "Stay signed in": dismiss the warning, restart the idle clock, and ping the
-    // server immediately so the session is refreshed regardless of throttle.
+    function doIdleLogout() {
+        if (sessionEnding) { return; }
+        sessionEnding = true;
+        if (idleCheckTimer) { clearInterval(idleCheckTimer); idleCheckTimer = null; }
+        logout(); // clears the server session and redirects to login.html
+    }
+
+    // Wall-clock idle check, run every second AND whenever the tab regains focus.
+    // Measuring elapsed-since-last-activity (instead of a frozen setTimeout) keeps
+    // it correct across a backgrounded tab or a sleeping machine: on return, the
+    // real elapsed time is measured and an over-idle session is logged out at once.
+    function checkIdle() {
+        if (sessionEnding) { return; }
+        var idle = Date.now() - lastActivityTs;
+        if (idle >= IDLE_LIMIT_MS) {
+            doIdleLogout();
+            return;
+        }
+        if (idle >= IDLE_WARN_MS) {
+            if (!warningShown) { showIdleWarning(); }
+            else { updateCountdownUI(); }
+        } else if (warningShown) {
+            hideIdleWarning(); // activity brought us back under the warn threshold
+        }
+    }
+
+    // "Stay signed in": dismiss the warning, restart the idle clock, refresh server.
     function staySignedIn() {
+        lastActivityTs = Date.now();
         hideIdleWarning();
-        resetIdleTimer();
         sendKeepAlive();
     }
 
-    // Throttled activity handler. Any real user activity resets the idle clock and
+    // Throttled activity handler. Real activity refreshes the idle timestamp and
     // opportunistically keeps the server session alive. Ignored while the warning
     // is up: from there only "Stay signed in" or the countdown decides the outcome,
-    // so background mousemoves cannot silently cancel the warning.
+    // so a stray mousemove cannot silently cancel the warning.
     function onActivity() {
         if (warningShown) { return; }
-        var now = Date.now();
-        if (now - lastActivityHandled < ACTIVITY_THROTTLE_MS) { return; }
-        lastActivityHandled = now;
-        resetIdleTimer();
+        lastActivityTs = Date.now();
+        if (lastActivityTs - lastActivityHandled < ACTIVITY_THROTTLE_MS) { return; }
+        lastActivityHandled = lastActivityTs;
         maybeKeepAlive();
     }
 
@@ -291,7 +302,17 @@
         }
         var stay = $('btnStaySignedIn');
         if (stay) { stay.addEventListener('click', staySignedIn); }
-        resetIdleTimer();
+        // Re-check the instant the tab is shown or focused again, so a return from
+        // sleep or a background tab logs out immediately rather than waiting on the
+        // 1s tick (which itself is throttled while hidden).
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) { checkIdle(); }
+        });
+        window.addEventListener('focus', checkIdle);
+        window.addEventListener('pageshow', checkIdle);
+        lastActivityTs = Date.now();
+        if (idleCheckTimer) { clearInterval(idleCheckTimer); }
+        idleCheckTimer = setInterval(checkIdle, 1000);
     }
 
     // ---- My Profile (self-service: own profile + own password) -------------
