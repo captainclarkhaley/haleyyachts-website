@@ -82,7 +82,10 @@
             display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
             color: #333; font-weight: 400; cursor: pointer; margin: 0;
         }
-        .admin-check input {
+        /* Specific enough to beat the general ".field input { width: 100% }" rule,
+           which would otherwise stretch the checkbox full-width and push the label
+           off the panel. */
+        .admin-privs .admin-check input {
             width: 17px; height: 17px; margin: 0; flex: none; accent-color: #21cbea;
         }
         .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
