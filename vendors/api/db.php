@@ -38,6 +38,14 @@ if (!function_exists('vdb_connect')) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         $pdo->exec('PRAGMA foreign_keys = ON');
+        // Concurrency hardening for a small multi-user team. WAL lets readers and a
+        // writer run at the same time (searching while someone edits never blocks),
+        // and busy_timeout makes a connection wait up to 5s for a lock instead of
+        // immediately erroring if two writes ever collide. Both are idempotent per
+        // connection; WAL mode persists on the file once set. Creates -wal/-shm
+        // sidecar files (already gitignored).
+        $pdo->exec('PRAGMA journal_mode = WAL');
+        $pdo->exec('PRAGMA busy_timeout = 5000');
 
         vdb_init_schema($pdo);
         vdb_migrate($pdo);
