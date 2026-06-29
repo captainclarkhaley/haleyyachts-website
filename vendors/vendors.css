@@ -269,6 +269,20 @@ body {
 }
 .vdb-result-count strong { color: var(--navy); }
 
+/* Mobile-only "select all" (shown in the phone card view via the 640px query;
+   the desktop select-all is the table-header checkbox). */
+.vdb-mobile-selectall { display: none; }
+.vdb-mobile-selectall label {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.9rem; font-weight: 600; color: var(--navy); cursor: pointer;
+}
+.vdb-mobile-selectall input {
+    width: 20px; height: 20px; margin: 0; flex: none; accent-color: var(--cyan);
+}
+@media (max-width: 640px) {
+    .vdb-mobile-selectall { display: flex; align-items: center; margin: 4px 0 12px; }
+}
+
 /* ----- Buttons ----- */
 .btn {
     font-family: inherit;

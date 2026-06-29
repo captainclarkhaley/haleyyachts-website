@@ -1395,12 +1395,14 @@
             copyBtn.textContent = count > 0 ? ('Copy ' + count + ' for Email') : 'Copy Selected for Email';
             copyBtn.disabled = count === 0;
         }
-        var all = $('selectAll');
-        if (all) {
-            var total = displayedVendors.length;
-            all.checked = total > 0 && count === total;
-            all.indeterminate = count > 0 && count < total;
-        }
+        // Keep both the header (desktop) and the mobile "select all" in sync.
+        var total = displayedVendors.length;
+        var allOn = total > 0 && count === total;
+        var someOn = count > 0 && count < total;
+        ['selectAll', 'selectAllMobile'].forEach(function (id) {
+            var box = $(id);
+            if (box) { box.checked = allOn; box.indeterminate = someOn; }
+        });
     }
 
     // Toggle selection for every currently-displayed row.
@@ -1645,10 +1647,10 @@
         });
 
         // Select-all header checkbox toggles every currently-displayed row.
-        var selectAll = $('selectAll');
-        if (selectAll) {
-            selectAll.addEventListener('change', function () { toggleSelectAll(this.checked); });
-        }
+        ['selectAll', 'selectAllMobile'].forEach(function (id) {
+            var box = $(id);
+            if (box) { box.addEventListener('change', function () { toggleSelectAll(this.checked); }); }
+        });
 
         // Copy-for-email: build text, copy, and open the review modal.
         $('btnCopyEmail').addEventListener('click', openCopyModal);

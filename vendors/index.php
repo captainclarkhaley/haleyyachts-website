@@ -107,6 +107,12 @@ if ((int) $gateUser['must_change_password'] === 1) {
         </div>
     </section>
 
+    <!-- Mobile-only select-all (the desktop one lives in the table header, which
+         the phone card view hides). -->
+    <div class="vdb-mobile-selectall">
+        <label><input type="checkbox" id="selectAllMobile"> Select all shown</label>
+    </div>
+
     <!-- Results -->
     <div class="vdb-table-wrap">
         <table class="vdb-table">
