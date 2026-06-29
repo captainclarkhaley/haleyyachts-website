@@ -44,7 +44,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
             <button type="button" class="vdb-logout" id="btnProfile">My Profile</button>
             <button type="button" class="vdb-logout" id="btnLogout">Log out</button>
         </div>
-        <button type="button" class="vdb-logout vdb-export-csv" id="btnExport"
+        <button type="button" class="vdb-logout vdb-export-csv" id="btnExport" hidden
             title="Exports the vendors currently shown. With no filters active that is the full database, so it doubles as a backup.">Export CSV</button>
     </div>
     <img class="vdb-brand-logo" src="../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">

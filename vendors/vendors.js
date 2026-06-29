@@ -180,6 +180,11 @@
                 homeOffices = data.home_offices || [];
                 setUserBarLabel(currentUser);
                 $('userBar').hidden = false;
+                // Export CSV is an admin-only tool; reveal it only for admins.
+                if (currentUser.is_admin) {
+                    var exp = $('btnExport');
+                    if (exp) { exp.hidden = false; }
+                }
             })
             .catch(function () { /* leave the bar hidden on error */ });
     }
