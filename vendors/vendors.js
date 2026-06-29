@@ -1450,7 +1450,9 @@
             var lines = [joinParts([v.name, formatPhone(v.primary_phone), v.primary_email])];
             var pc = primaryContact(v);
             if (pc) {
-                lines.push(joinParts([pc.name, formatPhone(pc.phone), pc.email]));
+                // Prefix with "Contact:" so the contact line is not mistaken for a
+                // second vendor.
+                lines.push('Contact: ' + joinParts([pc.name, formatPhone(pc.phone), pc.email]));
             }
             blocks.push(lines.join('\n'));
         }
