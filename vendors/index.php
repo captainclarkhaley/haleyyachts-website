@@ -333,13 +333,12 @@ if ((int) $gateUser['must_change_password'] === 1) {
             <button type="button" class="vdb-modal-close" id="copyClose" aria-label="Close">&times;</button>
         </div>
         <div class="vdb-modal-body">
-            <p class="vdb-copy-hint">Copied to your clipboard. Review below and copy again if needed.</p>
+            <p class="vdb-copy-hint">These vendors are copied to your clipboard, ready to paste into an email.</p>
             <textarea id="copyText" class="vdb-copy-text" readonly rows="10"></textarea>
         </div>
         <div class="vdb-modal-foot">
             <span class="vdb-copy-status" id="copyStatus"></span>
             <button type="button" class="btn btn-ghost" id="btnCopyClose">Close</button>
-            <button type="button" class="btn btn-primary" id="btnCopyAgain">Copy</button>
         </div>
     </div>
 </div>

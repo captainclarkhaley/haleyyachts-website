@@ -1465,33 +1465,39 @@
     function openCopyModal() {
         var text = buildEmailText();
         if (!text) { return; }
-        $('copyText').value = text;
+        var ta = $('copyText');
+        ta.value = text;
         var ov = $('copyOverlay');
         ov.classList.add('open');
         ov.setAttribute('aria-hidden', 'false');
         setCopyStatus('');
-        // Try the clipboard up front; the modal is the fallback if it is blocked.
+        var isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
+        // Copy up front and tell the user how to paste. The textarea is the
+        // fallback if the clipboard API is blocked.
         copyTextToClipboard(text)
-            .then(function () { setCopyStatus('Copied'); })
-            .catch(function () { setCopyStatus('Select the text and copy manually.'); });
+            .then(function () {
+                setCopyStatus('Press ' + (isMac ? 'Cmd+V' : 'Ctrl+V') + ' to paste this into your email.');
+            })
+            .catch(function () {
+                ta.focus();
+                ta.select();
+                setCopyStatus('Select the text above, press ' + (isMac ? 'Cmd+C' : 'Ctrl+C') + ', then paste into your email.');
+            });
     }
 
     function closeCopyModal() {
         var ov = $('copyOverlay');
         ov.classList.remove('open');
         ov.setAttribute('aria-hidden', 'true');
+        clearSelection(); // closing the dialog clears the checked vendors
     }
 
-    function copyAgain() {
-        var ta = $('copyText');
-        copyTextToClipboard(ta.value)
-            .then(function () { setCopyStatus('Copied'); })
-            .catch(function () {
-                // Fallback: select the textarea contents so the user can Ctrl/Cmd-C.
-                ta.focus();
-                ta.select();
-                setCopyStatus('Press Ctrl/Cmd-C to copy.');
-            });
+    // Clear the copy-for-email selection and reflect it in the table + button.
+    function clearSelection() {
+        selectedIds = {};
+        var boxes = $('resultsBody').querySelectorAll('input[data-sel]');
+        for (var i = 0; i < boxes.length; i++) { boxes[i].checked = false; }
+        updateSelectionUi();
     }
 
     // ---- wiring ------------------------------------------------------------
@@ -1643,7 +1649,6 @@
         $('btnCopyEmail').addEventListener('click', openCopyModal);
         $('copyClose').addEventListener('click', closeCopyModal);
         $('btnCopyClose').addEventListener('click', closeCopyModal);
-        $('btnCopyAgain').addEventListener('click', copyAgain);
         bindBackdropDismiss($('copyOverlay'), closeCopyModal);
 
         // Detail view: close, edit, and delete all act on the open vendor.
