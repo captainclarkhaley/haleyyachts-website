@@ -729,12 +729,12 @@
                 '<td class="vdb-vname">' +
                     '<a href="#" class="vdb-vname-link" data-view="' + v.id + '">' + esc(v.name) + '</a>' +
                 '</td>' +
-                '<td>' + tagListHtml(v.types) + '</td>' +
-                '<td>' + tagListHtml(v.areas, 'area') + '</td>' +
-                '<td>' + phone + '</td>' +
-                '<td>' + email + '</td>' +
-                '<td>' + v.contact_count + '</td>' +
-                '<td class="vdb-rating-cell">' + ratingDisplay(v) + '</td>' +
+                '<td data-label="Type(s)">' + tagListHtml(v.types) + '</td>' +
+                '<td data-label="Coverage Area(s)">' + tagListHtml(v.areas, 'area') + '</td>' +
+                '<td data-label="Primary Phone">' + phone + '</td>' +
+                '<td data-label="Primary Email">' + email + '</td>' +
+                '<td data-label="Contacts">' + v.contact_count + '</td>' +
+                '<td class="vdb-rating-cell" data-label="Avg Rating">' + ratingDisplay(v) + '</td>' +
             '</tr>';
         }
         $('resultsBody').innerHTML = rows;

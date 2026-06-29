@@ -902,3 +902,114 @@ dl.vdb-detail dd {
     .vdb-header { padding: 24px 20px; }
     .vdb-brand-logo { height: 38px; }
 }
+
+/* ----- Phone: results table -> stacked cards, single-column filters ----- */
+/* Below this width the 8-column table is unreadable, so each result ROW becomes
+   a self-contained card (vendor name as the title, the other columns stacked as
+   labelled lines). The filter grid drops to one full-width column. All of this is
+   phone-only: above 640px the table renders exactly as before (fixed layout). */
+@media (max-width: 640px) {
+    /* Filters stack to one full-width column and tap-friendly controls. */
+    .vdb-filters { padding: 16px; }
+    .vdb-field-rating .vdb-multi { min-width: 0; }
+    .vdb-multi { max-height: 220px; }
+    /* Result count on its own line; actions wrap full-width and tappable. */
+    .vdb-filter-actions { flex-direction: column; align-items: stretch; }
+    .vdb-filter-actions > div {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .vdb-filter-actions .btn { flex: 1 1 auto; }
+
+    /* The wrapper no longer needs to scroll horizontally; cards fit the width. */
+    .vdb-table-wrap {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+    }
+    /* Collapse the table semantics to block flow. This overrides table-layout:
+       fixed and the per-column width rules, which only matter on desktop. */
+    .vdb-table,
+    .vdb-table tbody,
+    .vdb-table tr,
+    .vdb-table td {
+        display: block;
+        width: 100%;
+    }
+    /* Hide the column-header row; each card carries its own labels. */
+    .vdb-table thead { display: none; }
+
+    /* Each row is a card. */
+    .vdb-table tbody tr {
+        position: relative;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .vdb-table tbody tr:hover { background: #fff; } /* no desktop hover tint on cards */
+
+    /* Reset the fixed-layout widths that no longer apply, and drop the top border
+       the desktop rows used as a separator. */
+    .vdb-table tbody td {
+        width: 100% !important;
+        border-top: none;
+        padding: 6px 0;
+        text-align: left !important;
+        white-space: normal !important;
+    }
+
+    /* Vendor name = card title, sitting at the top. Leave room on the right for
+       the selection checkbox, which is pinned to the top-right corner. */
+    .vdb-table td.vdb-vname {
+        padding: 0 44px 8px 0;
+        margin-bottom: 6px;
+        border-bottom: 1px solid var(--line);
+    }
+    .vdb-table td.vdb-vname .vdb-vname-link {
+        font-size: 1.05rem;
+        font-weight: 700;
+    }
+
+    /* Selection checkbox: pinned top-right of the card with a comfortable tap
+       target. Still drives selection / Copy-for-Email via the same data-sel. */
+    .vdb-table td.vdb-sel-cell {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: auto !important;
+        padding: 0;
+    }
+    .vdb-table td.vdb-sel-cell input {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Label each stacked value with its column name as a small uppercase caption. */
+    .vdb-table td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--muted);
+        margin-bottom: 3px;
+    }
+    /* Rating cell can wrap on a phone; the stars + count read fine stacked. */
+    .vdb-table td.vdb-rating-cell { white-space: normal !important; }
+
+    /* Modals: tighter side padding and snug to the viewport edges so the form,
+       detail view, copy-for-email, and idle warning are comfortable on a phone.
+       Overlay already scrolls (overflow-y:auto) so tall modals stay reachable. */
+    .vdb-overlay { padding: 20px 10px; }
+    .vdb-modal-head { padding: 16px 18px; }
+    .vdb-modal-body { padding: 18px; }
+    .vdb-modal-foot { padding: 14px 18px; flex-wrap: wrap; }
+    .vdb-modal-foot .btn { flex: 1 1 auto; }
+    .vdb-modal-foot-split .vdb-foot-right { flex: 1 1 auto; }
+}
