@@ -100,6 +100,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <div class="vdb-filter-actions">
             <div class="vdb-result-count" id="resultCount">Loading...</div>
             <div>
+                <button type="button" class="btn btn-ghost" id="btnCopyEmail" disabled>Copy Selected for Email</button>
                 <button type="button" class="btn btn-ghost" id="btnClear">Clear</button>
                 <button type="button" class="btn btn-primary" id="btnAdd">+ Add Vendor</button>
             </div>
@@ -111,6 +112,9 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <table class="vdb-table">
             <thead>
                 <tr>
+                    <th class="vdb-th-select">
+                        <input type="checkbox" id="selectAll" aria-label="Select all shown vendors">
+                    </th>
                     <th class="vdb-th-sort" data-sort="name" role="button" tabindex="0"
                         aria-label="Vendor Name, click to sort">Vendor Name <span class="sort-ind"></span></th>
                     <th class="vdb-th-sort" data-sort="types" role="button" tabindex="0"
@@ -128,7 +132,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
                 </tr>
             </thead>
             <tbody id="resultsBody">
-                <tr><td colspan="7" class="vdb-empty">Loading vendors...</td></tr>
+                <tr><td colspan="8" class="vdb-empty">Loading vendors...</td></tr>
             </tbody>
         </table>
     </div>
@@ -317,6 +321,25 @@ if ((int) $gateUser['must_change_password'] === 1) {
         </div>
         <div class="vdb-modal-foot">
             <button type="button" class="btn btn-primary" id="btnStaySignedIn">Stay signed in</button>
+        </div>
+    </div>
+</div>
+
+<!-- Copy-for-email modal: review/copy the generated client-email text -->
+<div class="vdb-overlay" id="copyOverlay" aria-hidden="true">
+    <div class="vdb-modal vdb-copy-modal" role="dialog" aria-modal="true" aria-labelledby="copyTitle">
+        <div class="vdb-modal-head">
+            <h2 id="copyTitle">Copy for Email</h2>
+            <button type="button" class="vdb-modal-close" id="copyClose" aria-label="Close">&times;</button>
+        </div>
+        <div class="vdb-modal-body">
+            <p class="vdb-copy-hint">Copied to your clipboard. Review below and copy again if needed.</p>
+            <textarea id="copyText" class="vdb-copy-text" readonly rows="10"></textarea>
+        </div>
+        <div class="vdb-modal-foot">
+            <span class="vdb-copy-status" id="copyStatus"></span>
+            <button type="button" class="btn btn-ghost" id="btnCopyClose">Close</button>
+            <button type="button" class="btn btn-primary" id="btnCopyAgain">Copy</button>
         </div>
     </div>
 </div>

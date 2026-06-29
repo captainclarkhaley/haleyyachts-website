@@ -331,23 +331,30 @@ table.vdb-table {
     overflow-wrap: anywhere; /* wrap long emails/words inside the column */
 }
 
-/* Column widths (sum to 100%) for the fixed layout. The phone stays on one line;
-   the contacts count and rating are centered. */
-.vdb-table th:nth-child(1), .vdb-table td:nth-child(1) { width: 15%; }
-.vdb-table th:nth-child(2), .vdb-table td:nth-child(2) { width: 15%; }
-.vdb-table th:nth-child(3), .vdb-table td:nth-child(3) { width: 15%; }
-.vdb-table th:nth-child(4), .vdb-table td:nth-child(4) { width: 13%; white-space: nowrap; }
-.vdb-table th:nth-child(5), .vdb-table td:nth-child(5) { width: 18%; }
-.vdb-table th:nth-child(6), .vdb-table td:nth-child(6) { width: 8%; text-align: center; }
-.vdb-table th:nth-child(7), .vdb-table td:nth-child(7) { width: 16%; }
+/* Column widths (sum to 100%) for the fixed layout. Column 1 is the selection
+   checkbox; the data columns follow. The phone stays on one line; the contacts
+   count and rating are centered. */
+.vdb-table th:nth-child(1), .vdb-table td:nth-child(1) { width: 4%; text-align: center; }
+.vdb-table th:nth-child(2), .vdb-table td:nth-child(2) { width: 14%; }
+.vdb-table th:nth-child(3), .vdb-table td:nth-child(3) { width: 14%; }
+.vdb-table th:nth-child(4), .vdb-table td:nth-child(4) { width: 14%; }
+.vdb-table th:nth-child(5), .vdb-table td:nth-child(5) { width: 13%; white-space: nowrap; }
+.vdb-table th:nth-child(6), .vdb-table td:nth-child(6) { width: 17%; }
+.vdb-table th:nth-child(7), .vdb-table td:nth-child(7) { width: 8%; text-align: center; }
+.vdb-table th:nth-child(8), .vdb-table td:nth-child(8) { width: 16%; }
 
-/* Smaller screens: tighten font + padding so all 7 columns still fit with no
+/* Selection checkbox column: plain header (no sort), centered box. */
+.vdb-th-select { cursor: default; }
+.vdb-table .vdb-sel-cell input,
+.vdb-th-select input { accent-color: var(--cyan); cursor: pointer; }
+
+/* Smaller screens: tighten font + padding so all 8 columns still fit with no
    horizontal scroll. */
 @media (max-width: 820px) {
     table.vdb-table { font-size: 0.76rem; }
     .vdb-table thead th { font-size: 0.6rem; padding: 8px 6px; letter-spacing: 0.3px; }
     .vdb-table tbody td { padding: 8px 6px; }
-    .vdb-table th:nth-child(4), .vdb-table td:nth-child(4) { white-space: normal; }
+    .vdb-table th:nth-child(5), .vdb-table td:nth-child(5) { white-space: normal; }
 }
 .vdb-table tbody tr:hover { background: #fafcfd; }
 .vdb-table .vdb-vname { font-weight: 600; color: var(--navy); }
@@ -832,6 +839,37 @@ dl.vdb-detail dd {
     font-size: 0.85rem;
 }
 .vdb-foot-link a { color: var(--cyan); }
+
+/* ----- Copy-for-email modal ----- */
+.vdb-copy-modal { max-width: 560px; }
+.vdb-copy-hint {
+    margin: 0 0 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+.vdb-copy-text {
+    width: 100%;
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 10px 12px;
+    background: #fff;
+    resize: vertical;
+    line-height: 1.5;
+}
+.vdb-copy-text:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 2px rgba(33,203,234,0.18);
+}
+.vdb-copy-status {
+    margin-right: auto;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--cyan-d);
+}
 
 /* ----- Idle-timeout warning modal ----- */
 /* Sits ABOVE every other overlay (z 1100 vs 1000) so it is never hidden behind

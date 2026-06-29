@@ -24,6 +24,8 @@
     var formContacts = []; // working copy of contacts inside the open form
     var contactSeq = 0;    // local id generator for unmounted contact rows
     var currentVendors = []; // last result set rendered (before client filter/sort), for CSV export
+    var displayedVendors = []; // rows actually shown (filtered + sorted), in table order, for copy-for-email
+    var selectedIds = {};    // map of vendor id -> true for the copy-for-email selection
     var sortKey = '';      // active sort column key ('' = none), e.g. 'name', 'rating'
     var sortDir = 'asc';   // 'asc' or 'desc' for the active sort column
     var pendingStars = 0;  // star value picked in the detail rating control
@@ -575,7 +577,7 @@
             if (!data.ok) {
                 currentVendors = [];
                 updateExportState();
-                $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">' +
+                $('resultsBody').innerHTML = '<tr><td colspan="8" class="vdb-empty">' +
                     esc(data.error || 'Could not load vendors.') + '</td></tr>';
                 $('resultCount').textContent = '';
                 return;
@@ -586,7 +588,7 @@
         }).catch(function () {
             currentVendors = [];
             updateExportState();
-            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Network error loading vendors.</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="8" class="vdb-empty">Network error loading vendors.</td></tr>';
         });
     }, 180);
 
@@ -696,8 +698,12 @@
     }
 
     function renderResults(vendors) {
+        // The rows being rendered ARE the current display order; remember them so
+        // "Copy for Email" can build text in table order from the selection.
+        displayedVendors = vendors;
         if (!vendors.length) {
-            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">No vendors match. Adjust filters or add one.</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="8" class="vdb-empty">No vendors match. Adjust filters or add one.</td></tr>';
+            updateSelectionUi();
             return;
         }
         var rows = '';
@@ -709,7 +715,12 @@
             var email = v.primary_email
                 ? '<a href="mailto:' + esc(v.primary_email) + '">' + esc(v.primary_email) + '</a>'
                 : '<span style="color:#bbb">-</span>';
+            var checked = selectedIds[v.id] ? ' checked' : '';
             rows += '<tr>' +
+                '<td class="vdb-sel-cell">' +
+                    '<input type="checkbox" data-sel="' + v.id + '"' + checked +
+                        ' aria-label="Select ' + esc(v.name) + '">' +
+                '</td>' +
                 '<td class="vdb-vname">' +
                     '<a href="#" class="vdb-vname-link" data-view="' + v.id + '">' + esc(v.name) + '</a>' +
                 '</td>' +
@@ -722,6 +733,7 @@
             '</tr>';
         }
         $('resultsBody').innerHTML = rows;
+        updateSelectionUi();
     }
 
     // ---- form (add / edit) -------------------------------------------------
@@ -1358,6 +1370,130 @@
         if (btn) { btn.disabled = currentVendors.length === 0; }
     }
 
+    // ---- selection + copy-for-email ---------------------------------------
+
+    // Count of currently-displayed rows that are selected.
+    function selectedDisplayedCount() {
+        var n = 0;
+        for (var i = 0; i < displayedVendors.length; i++) {
+            if (selectedIds[displayedVendors[i].id]) { n++; }
+        }
+        return n;
+    }
+
+    // Reflect selection state into the Copy button (count + disabled) and the
+    // select-all header checkbox (checked / indeterminate / unchecked).
+    function updateSelectionUi() {
+        var count = selectedDisplayedCount();
+        var copyBtn = $('btnCopyEmail');
+        if (copyBtn) {
+            copyBtn.textContent = count > 0 ? ('Copy ' + count + ' for Email') : 'Copy Selected for Email';
+            copyBtn.disabled = count === 0;
+        }
+        var all = $('selectAll');
+        if (all) {
+            var total = displayedVendors.length;
+            all.checked = total > 0 && count === total;
+            all.indeterminate = count > 0 && count < total;
+        }
+    }
+
+    // Toggle selection for every currently-displayed row.
+    function toggleSelectAll(on) {
+        for (var i = 0; i < displayedVendors.length; i++) {
+            var id = displayedVendors[i].id;
+            if (on) { selectedIds[id] = true; } else { delete selectedIds[id]; }
+        }
+        var boxes = $('resultsBody').querySelectorAll('input[data-sel]');
+        for (var j = 0; j < boxes.length; j++) { boxes[j].checked = on; }
+        updateSelectionUi();
+    }
+
+    // One line of "piece, piece, piece" from non-empty parts only, so a missing
+    // email never leaves a dangling comma.
+    function joinParts(parts) {
+        var out = [];
+        for (var i = 0; i < parts.length; i++) {
+            var p = parts[i];
+            if (p != null && String(p).trim() !== '') { out.push(String(p).trim()); }
+        }
+        return out.join(', ');
+    }
+
+    // The primary contact for a vendor, or null. is_primary comes through as a
+    // boolean from enrich_vendor.
+    function primaryContact(v) {
+        if (!v.contacts) { return null; }
+        for (var i = 0; i < v.contacts.length; i++) {
+            if (v.contacts[i].is_primary) { return v.contacts[i]; }
+        }
+        return null;
+    }
+
+    // Build the copy-for-email text from the selected vendors, in table order.
+    // Per vendor:
+    //   line 1: Vendor Name, primary phone, primary email  (non-empty pieces)
+    //   line 2: primary contact name, phone, email  (only if a primary contact)
+    // Vendors separated by a blank line.
+    function buildEmailText() {
+        var blocks = [];
+        for (var i = 0; i < displayedVendors.length; i++) {
+            var v = displayedVendors[i];
+            if (!selectedIds[v.id]) { continue; }
+            var lines = [joinParts([v.name, formatPhone(v.primary_phone), v.primary_email])];
+            var pc = primaryContact(v);
+            if (pc) {
+                lines.push(joinParts([pc.name, formatPhone(pc.phone), pc.email]));
+            }
+            blocks.push(lines.join('\n'));
+        }
+        return blocks.join('\n\n');
+    }
+
+    function setCopyStatus(msg) {
+        var el = $('copyStatus');
+        if (el) { el.textContent = msg || ''; }
+    }
+
+    function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+        return Promise.reject(new Error('Clipboard API unavailable'));
+    }
+
+    function openCopyModal() {
+        var text = buildEmailText();
+        if (!text) { return; }
+        $('copyText').value = text;
+        var ov = $('copyOverlay');
+        ov.classList.add('open');
+        ov.setAttribute('aria-hidden', 'false');
+        setCopyStatus('');
+        // Try the clipboard up front; the modal is the fallback if it is blocked.
+        copyTextToClipboard(text)
+            .then(function () { setCopyStatus('Copied'); })
+            .catch(function () { setCopyStatus('Select the text and copy manually.'); });
+    }
+
+    function closeCopyModal() {
+        var ov = $('copyOverlay');
+        ov.classList.remove('open');
+        ov.setAttribute('aria-hidden', 'true');
+    }
+
+    function copyAgain() {
+        var ta = $('copyText');
+        copyTextToClipboard(ta.value)
+            .then(function () { setCopyStatus('Copied'); })
+            .catch(function () {
+                // Fallback: select the textarea contents so the user can Ctrl/Cmd-C.
+                ta.focus();
+                ta.select();
+                setCopyStatus('Press Ctrl/Cmd-C to copy.');
+            });
+    }
+
     // ---- wiring ------------------------------------------------------------
 
     function wire() {
@@ -1401,6 +1537,7 @@
             applyMultiFilter('fAreas', '');
             sortKey = '';
             sortDir = 'asc';
+            selectedIds = {};
             refresh();
         });
         $('fTypes').addEventListener('change', refresh);
@@ -1451,7 +1588,8 @@
         bindBackdropDismiss($('vendorOverlay'), closeModal);
         document.addEventListener('keydown', function (e) {
             if (e.key !== 'Escape') { return; }
-            if ($('profileOverlay').classList.contains('open')) { closeProfile(); }
+            if ($('copyOverlay').classList.contains('open')) { closeCopyModal(); }
+            else if ($('profileOverlay').classList.contains('open')) { closeProfile(); }
             else if ($('vendorOverlay').classList.contains('open')) { closeModal(); }
             else if ($('detailOverlay').classList.contains('open')) { closeDetail(); }
         });
@@ -1480,11 +1618,33 @@
             }
         });
 
-        // Results table is view-only: clicking a vendor name opens the detail view.
+        // Results table: clicking a vendor name opens the detail view; a row
+        // checkbox toggles selection only and must NOT open the detail view.
         $('resultsBody').addEventListener('click', function (e) {
+            if (e.target.getAttribute('data-sel') != null) { e.stopPropagation(); return; }
             var vw = e.target.getAttribute('data-view');
             if (vw) { e.preventDefault(); openDetail(parseInt(vw, 10)); }
         });
+        $('resultsBody').addEventListener('change', function (e) {
+            var sel = e.target.getAttribute('data-sel');
+            if (sel == null) { return; }
+            var id = parseInt(sel, 10);
+            if (e.target.checked) { selectedIds[id] = true; } else { delete selectedIds[id]; }
+            updateSelectionUi();
+        });
+
+        // Select-all header checkbox toggles every currently-displayed row.
+        var selectAll = $('selectAll');
+        if (selectAll) {
+            selectAll.addEventListener('change', function () { toggleSelectAll(this.checked); });
+        }
+
+        // Copy-for-email: build text, copy, and open the review modal.
+        $('btnCopyEmail').addEventListener('click', openCopyModal);
+        $('copyClose').addEventListener('click', closeCopyModal);
+        $('btnCopyClose').addEventListener('click', closeCopyModal);
+        $('btnCopyAgain').addEventListener('click', copyAgain);
+        bindBackdropDismiss($('copyOverlay'), closeCopyModal);
 
         // Detail view: close, edit, and delete all act on the open vendor.
         $('detailClose').addEventListener('click', closeDetail);
@@ -1574,7 +1734,7 @@
         loadUserBar();
         apiGet('r=lists&action=get').then(function (data) {
             if (!data.ok) {
-                $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Could not load lists: ' +
+                $('resultsBody').innerHTML = '<tr><td colspan="8" class="vdb-empty">Could not load lists: ' +
                     esc(data.error || 'unknown error') + '</td></tr>';
                 return;
             }
@@ -1584,7 +1744,7 @@
             renderAreaTree('fAreas', lists.coverage_areas);
             refresh();
         }).catch(function () {
-            $('resultsBody').innerHTML = '<tr><td colspan="7" class="vdb-empty">Network error. Is the PHP API reachable?</td></tr>';
+            $('resultsBody').innerHTML = '<tr><td colspan="8" class="vdb-empty">Network error. Is the PHP API reachable?</td></tr>';
         });
     }
 
