@@ -388,7 +388,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>From here you can also <strong>Edit</strong> or <strong>Delete</strong> the vendor, or <strong>Close</strong> to go back to the list.</p>
 
         <!-- IMG: vendor-detail -->
-        <div class="help-shot">the vendor detail view</div>
+        <figure class="help-fig">
+            <img src="help-img/vendor-detail.png?v=<?php echo @filemtime(__DIR__ . '/help-img/vendor-detail.png'); ?>" alt="Vendor detail view" loading="lazy">
+            <figcaption>the vendor detail view</figcaption>
+        </figure>
 
         <hr class="help-rule">
 
@@ -418,7 +421,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         </ol>
 
         <!-- IMG: add-vendor -->
-        <div class="help-shot">the Add Vendor form with the contacts section</div>
+        <figure class="help-fig">
+            <img src="help-img/add-vendor.png?v=<?php echo @filemtime(__DIR__ . '/help-img/add-vendor.png'); ?>" alt="Add Vendor form with contacts section" loading="lazy">
+            <figcaption>the Add Vendor form with the contacts section</figcaption>
+        </figure>
 
         <h3>The duplicate check</h3>
         <p>When you save a brand-new vendor, the app checks whether it might already exist. If the name matches an existing vendor, or a phone number matches, it pauses and shows a <strong>Possible duplicate</strong> panel listing the likely matches and why each one matched. You have three choices:</p>
@@ -457,7 +463,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>Your rating is added to the history with your name and the date, and the vendor's average updates right away. Each entry in the history has a <strong>Delete</strong> button if a rating needs to be removed.</p>
 
         <!-- IMG: ratings -->
-        <div class="help-shot">the Ratings section with the star picker and history</div>
+        <figure class="help-fig">
+            <img src="help-img/ratings.png?v=<?php echo @filemtime(__DIR__ . '/help-img/ratings.png'); ?>" alt="Ratings section with star picker and history" loading="lazy">
+            <figcaption>the Ratings section with the star picker and history</figcaption>
+        </figure>
 
         <hr class="help-rule">
 
@@ -493,7 +502,10 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
         <p>Closing the review box clears your selection, so start fresh next time.</p>
 
         <!-- IMG: copy-email -->
-        <div class="help-shot">the Copy for Email review box with sample text</div>
+        <figure class="help-fig">
+            <img src="help-img/copy-email.png?v=<?php echo @filemtime(__DIR__ . '/help-img/copy-email.png'); ?>" alt="Copy for Email review box" loading="lazy">
+            <figcaption>the Copy for Email review box with sample text</figcaption>
+        </figure>
 
         <hr class="help-rule">
 
@@ -511,7 +523,10 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
         <p>The same screen has a <strong>Change Password</strong> section. Enter your current password, then your new password twice (at least 8 characters), and click <strong>Change Password</strong>.</p>
 
         <!-- IMG: my-profile -->
-        <div class="help-shot">the My Profile screen with profile fields and the change-password section</div>
+        <figure class="help-fig">
+            <img src="help-img/my-profile.png?v=<?php echo @filemtime(__DIR__ . '/help-img/my-profile.png'); ?>" alt="My Profile screen" loading="lazy">
+            <figcaption>the My Profile screen with profile fields and the change-password section</figcaption>
+        </figure>
 
         <hr class="help-rule">
 
@@ -559,7 +574,10 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
         <p>Open <strong>Vendor Lists</strong> (<code>admin/vendor-lists.html</code>). These two lists are what staff choose from in the app; staff cannot edit them.</p>
 
         <!-- IMG: vendor-lists -->
-        <div class="help-shot">the Vendor Lists admin page with Vendor Types and Coverage Areas</div>
+        <figure class="help-fig">
+            <img src="help-img/vendor-lists.png?v=<?php echo @filemtime(__DIR__ . '/help-img/vendor-lists.png'); ?>" alt="Vendor Lists admin page" loading="lazy">
+            <figcaption>the Vendor Lists admin page with Vendor Types and Coverage Areas</figcaption>
+        </figure>
 
         <p><strong>Vendor Types</strong> is a flat, alphabetical list. Use the box to add a type, <strong>Rename</strong> to change one, and <strong>Delete</strong> to remove one. If a type is in use, deleting it only unassigns it from those vendors; the vendors themselves stay.</p>
 
