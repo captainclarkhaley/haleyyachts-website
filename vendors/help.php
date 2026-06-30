@@ -436,7 +436,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>This check only runs when you add a new vendor, not when you edit an existing one.</p>
 
         <!-- IMG: duplicate-panel -->
-        <div class="help-shot">the "Possible duplicate" panel</div>
+        <figure class="help-fig">
+            <img src="help-img/duplicate-panel.png?v=<?php echo @filemtime(__DIR__ . '/help-img/duplicate-panel.png'); ?>" alt="Possible duplicate panel" loading="lazy">
+            <figcaption>the "Possible duplicate" panel</figcaption>
+        </figure>
 
         <hr class="help-rule">
 
