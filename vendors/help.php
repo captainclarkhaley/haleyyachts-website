@@ -275,7 +275,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>As long as you are actively clicking and typing, you stay signed in.</p>
 
         <!-- IMG: idle-warning -->
-        <div class="help-shot">the "Still there?" inactivity warning box</div>
+        <figure class="help-fig">
+            <img src="help-img/idle-warning.png?v=<?php echo @filemtime(__DIR__ . '/help-img/idle-warning.png'); ?>" alt="Inactivity warning box" loading="lazy">
+            <figcaption>the "Still there?" inactivity warning box</figcaption>
+        </figure>
 
         <hr class="help-rule">
 
