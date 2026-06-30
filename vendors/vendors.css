@@ -20,6 +20,11 @@
 
 * { box-sizing: border-box; }
 
+/* The HTML hidden attribute must always win. Without this, author display rules
+   (e.g. .vdb-logout { display: inline-block }) override [hidden]'s display:none,
+   which made the admin-only Export button reappear for non-admins. */
+[hidden] { display: none !important; }
+
 body {
     font-family: 'Open Sans', Arial, sans-serif;
     background: var(--canvas);
