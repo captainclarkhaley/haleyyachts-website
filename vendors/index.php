@@ -41,6 +41,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
     <div class="vdb-topright">
         <div class="vdb-userbar" id="userBar" hidden>
             <span class="vdb-user-info" id="userInfo"></span>
+            <a class="vdb-logout" href="help.php" target="_blank" rel="noopener">Help</a>
             <button type="button" class="vdb-logout" id="btnProfile">My Profile</button>
             <button type="button" class="vdb-logout" id="btnLogout">Log out</button>
         </div>

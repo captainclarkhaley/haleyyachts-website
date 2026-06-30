@@ -102,6 +102,10 @@ body {
     border-radius: 4px;
     padding: 5px 12px;
     cursor: pointer;
+    /* Applies to the Help link too, which uses an <a> for the new-tab open. */
+    display: inline-block;
+    text-decoration: none;
+    line-height: 1.4;
 }
 .vdb-logout:hover { border-color: var(--cyan); color: var(--cyan); }
 @media (max-width: 620px) {
