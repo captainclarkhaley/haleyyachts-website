@@ -146,6 +146,18 @@ if ((int) $gateUser['must_change_password'] === 1) {
             color: #8a98a8; margin-right: 10px;
             border: 1px solid #c4cedb; border-radius: 3px; padding: 2px 7px;
         }
+        /* A placed screenshot (replaces a .help-shot placeholder once the image
+           exists). Responsive, bordered, with an italic caption. */
+        .help-fig { margin: 16px 0 22px; }
+        .help-fig img {
+            display: block; max-width: 100%; height: auto;
+            border: 1px solid #e1e6ec; border-radius: 6px;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.08);
+        }
+        .help-fig figcaption {
+            margin-top: 8px; font-size: 0.8rem; color: var(--muted);
+            font-style: italic; text-align: center;
+        }
 
         /* ----- Code block (Copy-for-Email example output) ----- */
         .help-codeblock {
@@ -193,7 +205,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p class="lead">The OneWater Vendor Database (the "Vendor App") is the OWYG staff directory of surveyors, mechanics, and trade vendors. Everyone on the team uses the same shared list, so when one person adds a good surveyor or rates a mechanic, the whole group sees it. This guide walks through signing in, finding a vendor, adding and editing records, rating vendors, and pulling vendor info into a client email. A shorter section at the end covers the admin tools for Clark and Annika.</p>
 
         <!-- IMG: main-screen -->
-        <div class="help-shot">the Vendor Database main screen</div>
+        <figure class="help-fig">
+            <img src="help-img/main-screen.png?v=<?php echo @filemtime(__DIR__ . '/help-img/main-screen.png'); ?>" alt="Vendor Database main screen" loading="lazy">
+            <figcaption>the Vendor Database main screen</figcaption>
+        </figure>
 
         <!-- ===== Table of contents ===== -->
         <nav class="help-toc" aria-label="Contents">
@@ -227,7 +242,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         </ol>
 
         <!-- IMG: sign-in -->
-        <div class="help-shot">the sign-in screen with Account ID and Password fields</div>
+        <figure class="help-fig">
+            <img src="help-img/sign-in.png?v=<?php echo @filemtime(__DIR__ . '/help-img/sign-in.png'); ?>" alt="Sign-in screen" loading="lazy">
+            <figcaption>the sign-in screen with Account ID and Password fields</figcaption>
+        </figure>
 
         <h3>First-time sign-in (set your own password)</h3>
         <p>The very first time you sign in, you use the temporary password an administrator emailed you. The app then requires you to set your own password before you can go any further.</p>
@@ -239,7 +257,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>This same step happens again if an administrator ever resets your password for you. There is no way around it except to sign out, so plan to set a password you will remember.</p>
 
         <!-- IMG: set-password -->
-        <div class="help-shot">the "Set Your Password" screen</div>
+        <figure class="help-fig">
+            <img src="help-img/set-password.png?v=<?php echo @filemtime(__DIR__ . '/help-img/set-password.png'); ?>" alt="Set Your Password screen" loading="lazy">
+            <figcaption>the "Set Your Password" screen</figcaption>
+        </figure>
 
         <h3>Signing out</h3>
         <p>Click <strong>Log out</strong> in the top-right corner whenever you are done. This ends your session right away.</p>
@@ -278,7 +299,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>The top of the main screen is the search-and-filter bar. You can use one filter or stack several together. The result count under the bar updates as you go.</p>
 
         <!-- IMG: filter-bar -->
-        <div class="help-shot">the search-and-filter bar with all four filters labeled</div>
+        <figure class="help-fig">
+            <img src="help-img/filter-bar.png?v=<?php echo @filemtime(__DIR__ . '/help-img/filter-bar.png'); ?>" alt="Search and filter bar" loading="lazy">
+            <figcaption>the search-and-filter bar with all four filters labeled</figcaption>
+        </figure>
 
         <h3>Search by name</h3>
         <p>The <strong>Vendor or Contact Name</strong> box matches either the vendor's name or the name of one of its contacts. Type any part of the name and the list narrows as you type.</p>
@@ -312,7 +336,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>So you rarely have to guess the exact tier. Pick the area you care about and the app fills in the rest.</p>
 
         <!-- IMG: coverage-filter -->
-        <div class="help-shot">the Coverage Area filter showing the indented USA / State / Region / County tiers</div>
+        <figure class="help-fig">
+            <img src="help-img/coverage-filter.png?v=<?php echo @filemtime(__DIR__ . '/help-img/coverage-filter.png'); ?>" alt="Coverage Area filter tiers" loading="lazy">
+            <figcaption>the Coverage Area filter showing the indented USA / State / Region / County tiers</figcaption>
+        </figure>
 
         <h3>Filter by Rating</h3>
         <p>Check one or more rating buckets to narrow the list:</p>
@@ -513,7 +540,10 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
         <p>The new user is emailed their temporary password and is required to change it the first time they sign in.</p>
 
         <!-- IMG: new-account -->
-        <div class="help-shot">the New Account form</div>
+        <figure class="help-fig">
+            <img src="help-img/new-account.png?v=<?php echo @filemtime(__DIR__ . '/help-img/new-account.png'); ?>" alt="New Account form" loading="lazy">
+            <figcaption>the New Account form</figcaption>
+        </figure>
 
         <p><strong>Admin privileges:</strong> the <strong>Administrator</strong> checkbox controls whether someone can delete vendors directly. Admins can delete; non-admins can only request a delete (which notifies an admin by email). Everyone defaults to non-admin, so be sure to flag at least one admin, or nobody can delete vendors.</p>
 
