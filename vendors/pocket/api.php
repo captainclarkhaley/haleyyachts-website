@@ -115,7 +115,9 @@ try {
     }
 } catch (Throwable $e) {
     error_log('pocket-api error: ' . $e->getMessage());
-    p_fail('Server error.', 500);
+    // Behind the app login, so it is safe to surface the real message to help
+    // diagnose issues on the live server.
+    p_fail('Server error: ' . $e->getMessage(), 500);
 }
 
 // ---------------------------------------------------------------------------
@@ -305,6 +307,14 @@ function pocket_save(PDO $pdo, array $authUser)
 {
     $userId  = (int) $authUser['id'];
     $isAdmin = isset($authUser['is_admin']) && (int) $authUser['is_admin'] === 1;
+
+    // If the POST exceeded the server's post_max_size, PHP silently discards ALL
+    // of $_POST and $_FILES. Detect that (a body arrived but nothing parsed) and
+    // give a clear message instead of a misleading "Make is required".
+    if (empty($_POST) && empty($_FILES)
+        && isset($_SERVER['CONTENT_LENGTH']) && (int) $_SERVER['CONTENT_LENGTH'] > 0) {
+        p_fail('The upload is larger than the server allows. Use smaller images (or fewer of them), then try again.', 413);
+    }
 
     $id          = isset($_POST['id']) ? (int) $_POST['id'] : 0;
     $make        = isset($_POST['make']) ? trim($_POST['make']) : '';
