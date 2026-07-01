@@ -196,7 +196,8 @@
                 window.location.href = 'change-password.html';
                 return;
             }
-            window.location.href = 'index.php';
+            // Post-login landing is the Broker Suite launcher, not the vendor app.
+            window.location.href = 'suite.php';
         }).catch(function () {
             $('btnLogin').disabled = false;
             showError('Network error. Try again.');
