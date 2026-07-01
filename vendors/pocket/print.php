@@ -385,13 +385,11 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
                 -webkit-column-break-inside: avoid;
             }
             .pr-caption { color: #000; }
-            /* Reserve a fixed height for the description SECTION so the footer
-               always prints at the same spot. A short description pads down to
-               the bottom of this reserved area; a full one (~760-char max) fills
-               it. Sized to fit one Letter page with everything else. The cyan
-               rule stays on .pr-desc, which hugs its text, so the empty padding
-               below a short description has no stray rule. */
-            .pr-desc-section { min-height: 48mm; }
+            /* NO fixed reserve on the description section: the images + specs
+               already consume most of the page, so reserving a full-size
+               description block leaves too little room and shoves the footer to
+               page 2. Let the description hug its text and the footer flow right
+               after it, which reliably stays on page 1. */
             .pr-desc {
                 break-inside: auto;
                 page-break-inside: auto;
