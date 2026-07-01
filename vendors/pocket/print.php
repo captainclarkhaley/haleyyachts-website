@@ -282,14 +282,14 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
            three tight lines. Length lives in the specs line under the title. */
         .pr-specs-list { margin: 0 0 14px 0; }
         .pr-spec-row {
-            font-size: .98rem; color: var(--navy); font-weight: 600;
-            line-height: 1.3; margin: 0 0 4px 0;
+            font-size: 1.1rem; color: var(--navy); font-weight: 600;
+            line-height: 1.55; margin: 0 0 9px 0;
         }
         .pr-spec-row .lbl {
-            font-size: .58rem; text-transform: uppercase; letter-spacing: 1px;
-            color: var(--cyan-d); font-weight: 700; margin-right: 5px;
+            font-size: .64rem; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--cyan-d); font-weight: 700; margin-right: 6px;
         }
-        .pr-spec-row .pr-sp { margin-right: 18px; }
+        .pr-spec-row .pr-sp { margin-right: 22px; }
 
         .pr-desc-h {
             font-size: .68rem; text-transform: uppercase; letter-spacing: 2px;
@@ -309,16 +309,16 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         .pr-contact {
             margin-top: auto;
             border-top: 2px solid var(--navy);
-            padding-top: 14px;
+            padding-top: 18px;
         }
         .pr-contact .pr-presented {
-            font-size: .68rem; text-transform: uppercase; letter-spacing: 2px;
-            color: var(--cyan-d); font-weight: 700; margin: 0 0 6px 0;
+            font-size: .7rem; text-transform: uppercase; letter-spacing: 2px;
+            color: var(--cyan-d); font-weight: 700; margin: 0 0 9px 0;
         }
         .pr-contact .pr-name {
-            font-size: 1.15rem; font-weight: 700; color: var(--navy); margin: 0 0 4px 0;
+            font-size: 1.3rem; font-weight: 700; color: var(--navy); margin: 0 0 7px 0;
         }
-        .pr-contact .pr-line { font-size: .92rem; color: var(--ink); margin: 0 0 2px 0; word-break: break-word; }
+        .pr-contact .pr-line { font-size: 1rem; color: var(--ink); line-height: 1.5; margin: 0 0 4px 0; word-break: break-word; }
         .pr-contact a { color: var(--cyan-d); text-decoration: none; }
 
         /* Footer caption pinned to the bottom of the sheet. flex:0 0 auto keeps
