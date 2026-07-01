@@ -990,9 +990,19 @@
     // ======================================================================
 
     function wireGlobal() {
+        // Close on a backdrop click ONLY when the mouse press also STARTED on the
+        // backdrop. Without this, a text drag that begins inside a field and is
+        // released over the backdrop fires a click on the overlay and closes it,
+        // losing in-progress entry (matches the vendor app's bindBackdropDismiss).
         ['detailOverlay', 'formOverlay', 'reviewOverlay'].forEach(function (id) {
-            $(id).addEventListener('click', function (e) {
-                if (e.target === $(id)) { closeOverlay(id); }
+            var ov = $(id);
+            var downOnSelf = false;
+            ov.addEventListener('mousedown', function (e) {
+                downOnSelf = (e.target === ov);
+            });
+            ov.addEventListener('click', function (e) {
+                if (downOnSelf && e.target === ov) { closeOverlay(id); }
+                downOnSelf = false;
             });
         });
         document.addEventListener('keydown', function (e) {
