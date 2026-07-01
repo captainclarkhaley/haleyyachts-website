@@ -224,15 +224,17 @@ function pocket_shape(PDO $pdo, array $row)
     $id       = (int) $row['id'];
     $brokerId = (int) $row['broker_id'];
 
-    // Broker display name from the users table.
-    $bStmt = $pdo->prepare('SELECT name, account_id FROM users WHERE id = ?');
+    // Broker display name + phone from the users table.
+    $bStmt = $pdo->prepare('SELECT name, account_id, cell FROM users WHERE id = ?');
     $bStmt->execute(array($brokerId));
     $b = $bStmt->fetch();
-    $brokerName = '';
+    $brokerName  = '';
+    $brokerPhone = '';
     if ($b) {
         $brokerName = (isset($b['name']) && trim($b['name']) !== '')
             ? $b['name']
             : (isset($b['account_id']) ? $b['account_id'] : '');
+        $brokerPhone = isset($b['cell']) ? (string) $b['cell'] : '';
     }
 
     // Images: hero first, then additional by sort.
@@ -267,6 +269,7 @@ function pocket_shape(PDO $pdo, array $row)
         'id'          => $id,
         'broker_id'   => $brokerId,
         'broker_name' => $brokerName,
+        'broker_phone' => $brokerPhone,
         'make'        => $row['make'],
         'model'       => $row['model'],
         'year'        => $row['year'] === null ? null : (int) $row['year'],

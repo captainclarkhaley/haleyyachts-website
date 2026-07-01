@@ -166,7 +166,8 @@
                     (meta ? '<div class="pl-card-meta">' + meta + '</div>' : '') +
                     '<div class="pl-card-price">' + esc(fmtPrice(l.price)) +
                         '<span class="pl-price-type">' + ptLabel + '</span></div>' +
-                    '<div class="pl-card-broker">Broker: ' + esc(l.broker_name || 'Unknown') + '</div>' +
+                    '<div class="pl-card-broker">Broker: ' + esc(l.broker_name || 'Unknown') +
+                        (l.broker_phone ? ' &middot; ' + esc(l.broker_phone) : '') + '</div>' +
                 '</div>' +
             '</div>';
         }
@@ -646,7 +647,8 @@
         }
 
         $('detailBody').innerHTML = heroHtml + grid + desc + galleryHtml +
-            '<div class="pl-detail-broker">Listing broker: ' + esc(l.broker_name || 'Unknown') + '</div>';
+            '<div class="pl-detail-broker">Listing broker: ' + esc(l.broker_name || 'Unknown') +
+                (l.broker_phone ? ' &middot; ' + esc(l.broker_phone) : '') + '</div>';
 
         // Owner-or-admin controls. The SERVER still enforces this on save/delete;
         // hiding the buttons is only a UI courtesy.
