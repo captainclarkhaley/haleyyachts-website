@@ -15,7 +15,7 @@
  *
  * Routed by ?action=list|get|save|delete.
  *   - list/get/delete: JSON or query params.
- *   - save: multipart/form-data (fields + up to 1 hero + 4 additional images).
+ *   - save: multipart/form-data (fields + up to 1 hero + 3 additional images).
  */
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
@@ -27,9 +27,9 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
 // Server-side limits (mirrored in the front end; enforced here as the source of truth).
-define('POCKET_DESC_MAX', 750);
-define('POCKET_MAX_IMAGES', 5);          // 1 hero + 4 additional
-define('POCKET_MAX_ADDITIONAL', 4);
+define('POCKET_DESC_MAX', 1200);         // fits the single-page print sheet
+define('POCKET_MAX_IMAGES', 4);          // 1 hero + 3 additional
+define('POCKET_MAX_ADDITIONAL', 3);
 define('POCKET_IMG_MAX_BYTES', 12 * 1024 * 1024); // 12 MB per upload (pre-resize)
 define('POCKET_IMG_MAX_DIM', 1600);      // longest side after resize, px
 
@@ -304,9 +304,9 @@ function pocket_shape(PDO $pdo, array $row)
  *
  * Fields arrive as multipart form fields; images arrive as file inputs:
  *   hero        - single file (optional)
- *   images[]    - up to 4 additional files
+ *   images[]    - up to 3 additional files
  * Validation: make must exist in pocket_makes; price_type in {net,list};
- * description <= 750 chars; year/length/price numeric; at most 5 images total.
+ * description <= 1200 chars; year/length/price numeric; at most 4 images total.
  * On create, expires_at = created_at + days_active.
  */
 function pocket_save(PDO $pdo, array $authUser)
@@ -379,7 +379,7 @@ function pocket_save(PDO $pdo, array $authUser)
         }
     }
 
-    // ---- count existing images (for the update path 5-image cap) ----
+    // ---- count existing images (for the update path 4-image cap) ----
     $existingImageCount = 0;
     if ($id > 0) {
         $cStmt = $pdo->prepare('SELECT COUNT(*) FROM pocket_listing_images WHERE listing_id = ?');
@@ -422,7 +422,7 @@ function pocket_save(PDO $pdo, array $authUser)
     $removeCount = count($removeIds);
 
     // ---- gather + validate uploaded files BEFORE any DB write ----
-    // hero: single. images[]: up to 4 additional.
+    // hero: single. images[]: up to 3 additional.
     $heroFile  = p_pick_single_upload('hero');
     $moreFiles = p_pick_multi_upload('images');
     if (count($moreFiles) > POCKET_MAX_ADDITIONAL) {
@@ -433,7 +433,7 @@ function pocket_save(PDO $pdo, array $authUser)
     // removals, plus the new uploads.
     $effectiveExisting = $existingImageCount - $removeCount;
     if ($effectiveExisting + $newImageCount > POCKET_MAX_IMAGES) {
-        p_fail('A listing may have at most ' . POCKET_MAX_IMAGES . ' images (1 hero + 4 additional).');
+        p_fail('A listing may have at most ' . POCKET_MAX_IMAGES . ' images (1 hero + 3 additional).');
     }
 
     // Process (validate type + resize + store) each upload to disk first. If any

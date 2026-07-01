@@ -210,9 +210,9 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 
                 <div class="pl-frow pl-frow-full">
                     <label for="fDesc">Description</label>
-                    <textarea id="fDesc" maxlength="750" rows="4"
+                    <textarea id="fDesc" maxlength="1200" rows="4"
                         placeholder="Key details, condition, notes for other brokers..."></textarea>
-                    <div class="pl-char-counter" id="descCount">0 / 750</div>
+                    <div class="pl-char-counter" id="descCount">0 / 1200</div>
                 </div>
 
                 <div class="pl-frow pl-frow-full">
@@ -223,7 +223,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                             <input type="file" id="fHero" accept="image/jpeg,image/png,image/webp">
                         </div>
                         <div class="pl-image-slot">
-                            <span class="pl-slot-label">Additional images (up to 4)</span>
+                            <span class="pl-slot-label">Additional images (up to 3)</span>
                             <input type="file" id="fMore" accept="image/jpeg,image/png,image/webp" multiple>
                         </div>
                     </div>

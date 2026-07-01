@@ -10,7 +10,7 @@
     'use strict';
 
     var API = 'api.php';
-    var DESC_MAX = 750;
+    var DESC_MAX = 1200;
 
     // Client-side image compression settings. Mirrors the server backstop
     // (api.php resizes to 1600px too) but doing it here keeps the UPLOAD small
@@ -570,14 +570,14 @@
         var kept = keptExistingCount();
         var nf = newFileCounts();
         var finalCount = kept + nf.hero + nf.more;
-        var room = 5 - finalCount;
+        var room = 4 - finalCount;
         var msg = 'Keeping ' + kept + ' of ' + total + '. ';
         if (room > 0) {
             msg += 'You can add ' + room + ' more.';
         } else if (room === 0) {
-            msg += 'At the 5-image limit.';
+            msg += 'At the 4-image limit.';
         } else {
-            msg += 'Over the 5-image limit by ' + (-room) + '. Remove some.';
+            msg += 'Over the 4-image limit by ' + (-room) + '. Remove some.';
         }
         note.textContent = msg;
         note.hidden = false;
@@ -710,15 +710,15 @@
     function validateDraft(d) {
         if (!d.make) { return 'Make is required.'; }
         if (d.description.length > DESC_MAX) { return 'Description exceeds ' + DESC_MAX + ' characters.'; }
-        if (d.moreFiles.length > 4) { return 'At most 4 additional images are allowed.'; }
-        // Final image count after removals + new uploads must fit the 5-image cap.
+        if (d.moreFiles.length > 3) { return 'At most 3 additional images are allowed.'; }
+        // Final image count after removals + new uploads must fit the 4-image cap.
         // Hero is not forced client-side (the server guarantees exactly one hero);
         // this only blocks going OVER the limit so the broker gets feedback before
         // the commit round-trip.
         var newHero = d.heroFile ? 1 : 0;
         var finalCount = d.keptExisting + newHero + d.moreFiles.length;
-        if (finalCount > 5) {
-            return 'A listing may have at most 5 images. Remove some before saving.';
+        if (finalCount > 4) {
+            return 'A listing may have at most 4 images. Remove some before saving.';
         }
         var numeric = [['year', d.year], ['length', d.length], ['price', d.price], ['days_active', d.days_active]];
         for (var i = 0; i < numeric.length; i++) {
