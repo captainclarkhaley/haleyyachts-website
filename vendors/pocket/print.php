@@ -121,6 +121,16 @@ $fmtPrice = function ($price, $priceType) {
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $listing = ($id > 0) ? pr_load_listing($pdo, $id) : null;
 
+// A clean tab/title (Year Make Model), not "Print Listing - Haley Yachts".
+$pageTitle = 'Listing';
+if ($listing) {
+    $tp = array();
+    foreach (array('year', 'make', 'model') as $k) {
+        if (!empty($listing[$k])) { $tp[] = (string) $listing[$k]; }
+    }
+    if (!empty($tp)) { $pageTitle = implode(' ', $tp); }
+}
+
 // Logged-in broker (the presenter) - server-side, never the listing owner.
 $presenterName = trim((string) $gateUser['name']);
 if ($presenterName === '') { $presenterName = (string) $gateUser['account_id']; }
@@ -132,7 +142,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Print Listing - Haley Yachts</title>
+    <title><?php echo $h($pageTitle); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="../../favicon.ico" sizes="any">
@@ -293,6 +303,9 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         .pr-contact a { color: var(--cyan-d); text-decoration: none; }
         .pr-caption { font-size: .74rem; color: var(--muted); margin: 12px 0 0 0; }
 
+        /* Screen-only bottom print button (hidden in print). */
+        .pr-actions-bottom { text-align: center; margin: 4px auto 44px; }
+
         .pr-notfound {
             max-width: 560px; margin: 60px auto; background: #fff;
             border: 1px dashed var(--line); border-radius: 12px;
@@ -301,8 +314,11 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
 
         /* ---- PRINT ---- */
         @media print {
-            body { background: #fff; }
+            /* margin:0 on @page drops the browser's own header (date, document
+               title) and footer (page URL); body padding restores safe margins. */
+            body { background: #fff; padding: 12mm; }
             .pr-toolbar { display: none !important; }
+            .pr-actions-bottom { display: none !important; }
             .pr-sheet {
                 max-width: 100%; margin: 0; border: none; border-radius: 0;
             }
@@ -318,7 +334,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             .pr-desc, .pr-line { color: #000; }
             img { max-width: 100%; }
             a { color: #000; text-decoration: none; }
-            @page { margin: 14mm; }
+            @page { margin: 0; }
         }
     </style>
 </head>
@@ -326,7 +342,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
 
 <div class="pr-toolbar">
     <a href="index.php">&larr; Back to Pocket Listings</a>
-    <button type="button" class="pr-print-btn" id="prPrint">Print</button>
+    <button type="button" class="pr-print-btn js-print">Print</button>
 </div>
 
 <?php if (!$listing): ?>
@@ -423,33 +439,21 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             </div>
         </div>
     </div>
+
+    <div class="pr-actions-bottom">
+        <button type="button" class="pr-print-btn js-print">Print this listing</button>
+    </div>
 <?php endif; ?>
 
 <script>
     (function () {
-        var btn = document.getElementById('prPrint');
-        if (btn) {
-            btn.addEventListener('click', function () { window.print(); });
+        // No auto-print: the broker sees the formatted sheet first, then prints
+        // via a button when ready. Auto-firing window.print() on load caused a
+        // second dialog to reopen after the first was dismissed.
+        var btns = document.querySelectorAll('.js-print');
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].addEventListener('click', function () { window.print(); });
         }
-        <?php if ($listing): ?>
-        // Auto-open the print dialog once images have loaded, so the layout is
-        // complete. The button remains a manual fallback.
-        function firePrint() { try { window.print(); } catch (e) {} }
-        var imgs = Array.prototype.slice.call(document.images);
-        var pending = imgs.filter(function (im) { return !im.complete; });
-        if (!pending.length) {
-            window.addEventListener('load', firePrint);
-        } else {
-            var left = pending.length;
-            var done = function () { if (--left <= 0) { firePrint(); } };
-            pending.forEach(function (im) {
-                im.addEventListener('load', done);
-                im.addEventListener('error', done);
-            });
-            // Safety net: never hang forever if an image stalls.
-            setTimeout(firePrint, 2500);
-        }
-        <?php endif; ?>
     })();
 </script>
 
