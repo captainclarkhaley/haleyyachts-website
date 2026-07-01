@@ -177,7 +177,11 @@ if (!function_exists('pocket_notify_new_listing')) {
             $body .= $htmlBody . "\r\n\r\n";
             $body .= '--' . $boundary . '--' . "\r\n";
 
-            $sent = @mail($to, $subject, $body, implode("\r\n", $headers));
+            // 5th arg sets the envelope sender (Return-Path) so SPF is checked
+            // against haleyyachts.com, not the default cPanel user - the piece
+            // that makes the whitelisted domain pass cleanly. POCKET_MAIL_FROM is
+            // a fixed trusted constant (never user input), so no shell-arg risk.
+            $sent = @mail($to, $subject, $body, implode("\r\n", $headers), '-f' . POCKET_MAIL_FROM);
             if (!$sent) {
                 error_log('pocket-mailer: mail() returned false for listing id '
                     . (isset($listing['id']) ? (int) $listing['id'] : 0));
