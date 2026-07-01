@@ -1,0 +1,42 @@
+# ============================================================
+# Pocket Listings - uploaded image directory
+# ============================================================
+# This directory holds broker-uploaded listing photos (jpg/png/webp),
+# served back over the web via normal <img src>. It is intentionally
+# web-readable, UNLIKE the api/data directory. Two safeguards:
+#   1. No directory listing.
+#   2. Never execute anything here as a script. A cleverly named
+#      "image" (e.g. shell.php.jpg or a polyglot) must be served as a
+#      static file, never run. We disable the PHP handler and strip the
+#      executable bit for common script types.
+# The files themselves are .gitignored (only this .htaccess + .gitkeep
+# are tracked) so a cPanel deploy pull never clobbers real uploads.
+# BACK THESE UP separately, like the sqlite DB - they are live data.
+# ============================================================
+
+Options -Indexes -ExecCGI
+
+# Refuse to run anything as a script in this directory.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .pl .py .cgi .asp .aspx
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8
+
+# Only allow image types to be requested at all.
+<FilesMatch "(?i)\.(jpe?g|png|webp)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>

@@ -38,3 +38,11 @@ vendors/api/data/*.sqlite
 vendors/api/data/*.sqlite-journal
 vendors/api/data/*.sqlite-wal
 vendors/api/data/*.sqlite-shm
+
+# Pocket Listings uploaded images - broker-uploaded photos are server-side live
+# data, NOT code. Keep them out of git so a cPanel deploy pull never clobbers
+# real uploads. Only the .htaccess + .gitkeep in that dir are tracked. Back the
+# uploads folder up separately, like the .sqlite file.
+vendors/pocket/uploads/*
+!vendors/pocket/uploads/.htaccess
+!vendors/pocket/uploads/.gitkeep

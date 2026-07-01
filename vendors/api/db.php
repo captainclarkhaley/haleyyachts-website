@@ -55,6 +55,12 @@ if (!function_exists('vdb_connect')) {
         // it parents the existing rows. Idempotent + additive (see the function).
         vdb_seed_hierarchy($pdo);
 
+        // Pocket Listings (second Broker Suite app). Its tables are created + seeded
+        // here, sharing this same DB so it can read the users table (brokers). All
+        // additive + idempotent - it never touches the vendor tables above.
+        vdb_init_pocket_schema($pdo);
+        vdb_seed_pocket_makes($pdo);
+
         return $pdo;
     }
 
@@ -532,6 +538,109 @@ if (!function_exists('vdb_connect')) {
             foreach ($areas as $i => $name) {
                 $stmt->execute(array($name, $i));
             }
+        }
+    }
+
+    // =======================================================================
+    // POCKET LISTINGS (Broker Suite app #2) - schema + seed
+    //
+    // Shares this SQLite DB so it can read the users table (brokers). These
+    // three tables are entirely NEW - CREATE TABLE IF NOT EXISTS never touches
+    // or rewrites the vendor tables. Phase 1 scope: the network email,
+    // print/share sheet, expiration cron, and comps are LATER phases, but the
+    // schema already carries the room they need (status/archived_at for the
+    // lifecycle, expires_at for expiration, price_type for net/list).
+    // =======================================================================
+
+    /**
+     * Create the Pocket Listings tables if they do not already exist.
+     * Additive + idempotent; never alters the vendor schema.
+     */
+    function vdb_init_pocket_schema(PDO $pdo)
+    {
+        // Controlled builder (make) list. Seeded once from vdb_seed_pocket_makes.
+        $pdo->exec('
+            CREATE TABLE IF NOT EXISTS pocket_makes (
+                id   INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                sort INTEGER NOT NULL DEFAULT 0
+            )
+        ');
+
+        // A pocket (off-market) listing. broker_id references users.id - the
+        // broker who entered it, captured server-side from the session, NEVER
+        // from the request. price_type is the Net/List toggle. status +
+        // archived_at exist for the later lifecycle phase but Phase 1 only ever
+        // writes status='active'. expires_at = created_at + days_active, computed
+        // on insert (for the later expiration phase; nothing enforces it yet).
+        // Double-quoted PHP string: the SQL carries single-quote literals
+        // (DEFAULT 'list', DEFAULT '', DEFAULT 'active', datetime('now')).
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS pocket_listings (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                broker_id   INTEGER NOT NULL,
+                make        TEXT NOT NULL DEFAULT '',
+                model       TEXT NOT NULL DEFAULT '',
+                year        INTEGER,
+                length      INTEGER,
+                location    TEXT NOT NULL DEFAULT '',
+                price       INTEGER,
+                price_type  TEXT NOT NULL DEFAULT 'list',
+                description TEXT NOT NULL DEFAULT '',
+                days_active INTEGER,
+                created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+                expires_at  TEXT,
+                status      TEXT NOT NULL DEFAULT 'active',
+                archived_at TEXT,
+                FOREIGN KEY (broker_id) REFERENCES users(id)
+            )
+        ");
+
+        // Up to 1 hero + 4 additional images per listing. Cascade-delete with the
+        // listing so removing a listing cleans its image rows (the files on disk
+        // are unlinked by the API delete handler). Double-quoted PHP string: the
+        // SQL carries a single-quote literal (DEFAULT '').
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS pocket_listing_images (
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                listing_id INTEGER NOT NULL,
+                filename   TEXT NOT NULL DEFAULT '',
+                is_hero    INTEGER NOT NULL DEFAULT 0,
+                sort       INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY (listing_id) REFERENCES pocket_listings(id) ON DELETE CASCADE
+            )
+        ");
+
+        // Index the FKs (search orders by created_at DESC; broker_id + listing_id
+        // are the joined/filtered columns).
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pocket_listings_broker ON pocket_listings(broker_id)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pocket_listings_status ON pocket_listings(status)');
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pocket_images_listing  ON pocket_listing_images(listing_id)');
+    }
+
+    /**
+     * Seed the controlled builder list ONLY when empty, so Clark can curate it
+     * later without this overwriting his edits. Alphabetical; sort mirrors order.
+     */
+    function vdb_seed_pocket_makes(PDO $pdo)
+    {
+        $count = (int) $pdo->query('SELECT COUNT(*) FROM pocket_makes')->fetchColumn();
+        if ($count > 0) {
+            return;
+        }
+        $makes = array(
+            'Azimut', 'Bavaria', 'Beneteau', 'Bertram', 'Boston Whaler',
+            'Cabo', 'Carver', 'Catalina', 'Chris-Craft', 'Cranchi',
+            'Ferretti', 'Formula', 'Fountaine Pajot', 'Grady-White',
+            'Grand Banks', 'Hatteras', 'Hinckley', 'Intrepid', 'Jeanneau',
+            'Lagoon', 'Leopard', 'Marlow', 'MJM', 'Nordhavn',
+            'Ocean Alexander', 'Pershing', 'Prestige', 'Princess', 'Pursuit',
+            'Regal', 'Regulator', 'Riviera', 'Sabre', 'Sea Ray',
+            'Sunseeker', 'Tiara', 'Viking', 'Wellcraft', 'World Cat', 'Yellowfin',
+        );
+        $stmt = $pdo->prepare('INSERT OR IGNORE INTO pocket_makes (name, sort) VALUES (?, ?)');
+        foreach ($makes as $i => $name) {
+            $stmt->execute(array($name, $i));
         }
     }
 }

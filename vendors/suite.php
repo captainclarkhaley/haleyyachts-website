@@ -540,8 +540,11 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                 'name'     => 'Pocket Listings',
                 'monogram' => 'PL',
                 'desc'     => 'Enter private off-market listings and let OWYG brokers search the network.',
-                'href'     => '#',
-                'status'   => 'soon',
+                // LIVE for admins (navigable link to the app); coming-soon for
+                // everyone else. Gated server-side on the resolved session user so
+                // a non-admin cannot reach it by tampering with the client.
+                'href'     => $isAdmin ? 'pocket/' : '#',
+                'status'   => $isAdmin ? 'live' : 'soon',
             ),
         );
 
