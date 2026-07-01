@@ -511,7 +511,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <main class="bs-main">
 
     <section class="bs-hero">
-        <div class="bs-overline"><?php echo $h($greeting); ?></div>
+        <div class="bs-overline" id="bsGreeting"><?php echo $h($greeting); ?></div>
         <h1>Welcome back, <?php echo $h($firstName); ?>.</h1>
         <p>Choose an application to open. Your suite grows as new tools come aboard.</p>
     </section>
@@ -672,6 +672,16 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 (function () {
     'use strict';
     function $(id) { return document.getElementById(id); }
+
+    // Greeting from the broker's LOCAL computer time (not the server clock), so
+    // it reflects the time zone the broker is actually in. Overrides the
+    // server-rendered fallback in #bsGreeting.
+    (function setLocalGreeting() {
+        var el = $('bsGreeting');
+        if (!el) { return; }
+        var h = new Date().getHours();
+        el.textContent = h < 12 ? 'GOOD MORNING' : (h < 18 ? 'GOOD AFTERNOON' : 'GOOD EVENING');
+    })();
 
     var homeOffices = [];   // canonical home-office list from auth.php?action=me
     var currentUser = null; // last-known public user from auth.php?action=me
