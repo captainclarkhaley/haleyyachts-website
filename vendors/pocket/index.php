@@ -249,6 +249,14 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             <div class="pl-notice error" id="reviewError"></div>
             <p class="pl-review-hint">Check everything below, then Commit to save. Nothing is stored until you commit.</p>
             <div id="reviewCard"></div>
+
+            <!-- Commit progress (hidden until a commit starts) -->
+            <div class="pl-progress" id="commitProgress" hidden aria-live="polite">
+                <div class="pl-progress-label" id="commitProgressLabel">Uploading...</div>
+                <div class="pl-progress-track">
+                    <div class="pl-progress-bar" id="commitProgressBar"></div>
+                </div>
+            </div>
         </div>
         <div class="pl-modal-foot pl-modal-foot-split">
             <button type="button" class="btn btn-ghost" id="btnReviewEdit">&larr; Edit</button>

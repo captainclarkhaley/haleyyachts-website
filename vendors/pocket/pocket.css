@@ -416,6 +416,51 @@ body {
 .pl-rc-thumbs { display: flex; gap: 6px; flex-wrap: wrap; }
 .pl-rc-thumbs img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
 
+/* ----- Commit progress bar ----- */
+.pl-progress { margin-top: 18px; }
+.pl-progress-label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 8px;
+}
+.pl-progress-track {
+    position: relative;
+    width: 100%;
+    height: 10px;
+    background: var(--navy);
+    border-radius: 999px;
+    overflow: hidden;
+}
+.pl-progress-bar {
+    height: 100%;
+    width: 0;
+    background: var(--cyan);
+    border-radius: 999px;
+    transition: width .18s ease;
+}
+/* Indeterminate "Saving..." state: a striped bar sweeping left to right. */
+.pl-progress.indeterminate .pl-progress-bar {
+    width: 100%;
+    transition: none;
+    background-image: linear-gradient(
+        -45deg,
+        var(--cyan-d) 25%, var(--cyan) 25%,
+        var(--cyan) 50%, var(--cyan-d) 50%,
+        var(--cyan-d) 75%, var(--cyan) 75%,
+        var(--cyan)
+    );
+    background-size: 28px 28px;
+    animation: pl-progress-stripes 1s linear infinite;
+}
+@keyframes pl-progress-stripes {
+    from { background-position: 0 0; }
+    to   { background-position: 28px 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pl-progress.indeterminate .pl-progress-bar { animation: none; }
+}
+
 /* ----- Detail view ----- */
 .pl-detail-hero {
     width: 100%;

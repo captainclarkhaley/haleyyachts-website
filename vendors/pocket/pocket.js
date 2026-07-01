@@ -126,6 +126,63 @@
         }).then(parseJson);
     }
 
+    // Multipart POST via XMLHttpRequest so we can report UPLOAD progress (fetch
+    // cannot). Posts the same FormData to api.php?<qs>. onProgress(pct) is called
+    // with 0-100 while bytes upload (or with null when the total is not known),
+    // then again with 100 once the upload completes. Re-implements the auth
+    // handling that parseJson does (XHR bypasses it): 401 -> login, 403+
+    // must_change -> change-password. Resolves with the parsed { ok, error,
+    // listing } body; rejects with an Error carrying a clear message on network
+    // failure or a non-JSON body.
+    function apiPostFormXhr(qs, formData, onProgress) {
+        return new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', API + '?' + qs);
+            xhr.setRequestHeader('Accept', 'application/json');
+
+            if (xhr.upload && typeof onProgress === 'function') {
+                xhr.upload.onprogress = function (e) {
+                    if (e.lengthComputable && e.total > 0) {
+                        onProgress(Math.round((e.loaded / e.total) * 100));
+                    } else {
+                        onProgress(null);
+                    }
+                };
+                // Upload finished; server is now processing (resize + DB write).
+                xhr.upload.onload = function () { onProgress(100); };
+            }
+
+            xhr.onload = function () {
+                var status = xhr.status;
+                if (status === 401) {
+                    window.location.href = '../login.html';
+                    return; // leave the promise pending; navigation takes over
+                }
+                var data;
+                try { data = xhr.responseText ? JSON.parse(xhr.responseText) : {}; }
+                catch (e) { data = null; }
+
+                if (status === 403 && data && data.must_change) {
+                    window.location.href = '../change-password.html';
+                    return;
+                }
+                if (data === null) {
+                    reject(new Error('Bad server response.'));
+                    return;
+                }
+                if (status < 200 || status >= 300) {
+                    if (data.ok !== false) { data.ok = false; }
+                }
+                data._status = status;
+                resolve(data);
+            };
+            xhr.onerror = function () { reject(new Error('Network error saving the listing.')); };
+            xhr.ontimeout = function () { reject(new Error('The upload timed out. Please try again.')); };
+
+            xhr.send(formData);
+        });
+    }
+
     // ======================================================================
     // LIST + SEARCH/FILTER
     // ======================================================================
@@ -559,7 +616,59 @@
         $('reviewCard').innerHTML = html;
     }
 
-    // "Commit": submit fields + files in ONE multipart request.
+    // ---- commit progress UI ------------------------------------------------
+    // The bar has two phases: a DETERMINATE fill (0-100%) while the image bytes
+    // upload, then an INDETERMINATE "Saving listing..." sweep once the upload
+    // hits 100% (the server is resizing + writing to the DB, which is not
+    // trackable). setCommitProgress drives the determinate fill; goSavingPhase
+    // flips it to indeterminate; hideCommitProgress resets it on finish/error.
+
+    function showCommitProgress() {
+        var wrap = $('commitProgress');
+        wrap.classList.remove('indeterminate');
+        $('commitProgressBar').style.width = '0%';
+        $('commitProgressLabel').textContent = 'Uploading... 0%';
+        wrap.hidden = false;
+    }
+    function setCommitProgress(pct) {
+        // Guard: once we have flipped to the Saving phase, ignore late ticks.
+        if ($('commitProgress').classList.contains('indeterminate')) { return; }
+        if (pct == null) {
+            // Total unknown - show an indeterminate-ish label but keep the label.
+            $('commitProgressLabel').textContent = 'Uploading...';
+            return;
+        }
+        var p = Math.max(0, Math.min(100, pct));
+        $('commitProgressBar').style.width = p + '%';
+        if (p >= 100) {
+            goSavingPhase();
+        } else {
+            $('commitProgressLabel').textContent = 'Uploading... ' + p + '%';
+        }
+    }
+    function goSavingPhase() {
+        var wrap = $('commitProgress');
+        if (wrap.classList.contains('indeterminate')) { return; }
+        wrap.classList.add('indeterminate');
+        $('commitProgressBar').style.width = '100%';
+        $('commitProgressLabel').textContent = 'Saving listing...';
+    }
+    function hideCommitProgress() {
+        var wrap = $('commitProgress');
+        wrap.hidden = true;
+        wrap.classList.remove('indeterminate');
+        $('commitProgressBar').style.width = '0%';
+    }
+
+    // Enable/disable the review overlay's action buttons as a group.
+    function setCommitButtonsDisabled(disabled) {
+        $('btnCommit').disabled = disabled;
+        $('btnReviewEdit').disabled = disabled;
+        $('reviewClose').disabled = disabled;
+    }
+
+    // "Commit": submit fields + files in ONE multipart request, over XHR so the
+    // upload progress can drive the bar.
     function commitDraft() {
         if (!draft) { return; }
         clearNotice('reviewError');
@@ -579,19 +688,27 @@
             fd.append('images[]', draft.moreFiles[i]);
         }
 
-        $('btnCommit').disabled = true;
-        apiPostForm('action=save', fd).then(function (data) {
-            $('btnCommit').disabled = false;
+        setCommitButtonsDisabled(true);
+        showCommitProgress();
+
+        apiPostFormXhr('action=save', fd, setCommitProgress).then(function (data) {
             if (!data.ok) {
+                hideCommitProgress();
+                setCommitButtonsDisabled(false);
                 showNotice('reviewError', data.error || 'Could not save the listing.');
                 return;
             }
+            // Success: the overlay closes and the list reloads. Reset the UI so a
+            // later commit starts clean, and re-enable the buttons behind it.
+            hideCommitProgress();
+            setCommitButtonsDisabled(false);
             draft = null;
             closeOverlay('reviewOverlay');
             loadListings();
-        }).catch(function () {
-            $('btnCommit').disabled = false;
-            showNotice('reviewError', 'Network error saving the listing.');
+        }).catch(function (err) {
+            hideCommitProgress();
+            setCommitButtonsDisabled(false);
+            showNotice('reviewError', (err && err.message) || 'Network error saving the listing.');
         });
     }
 
