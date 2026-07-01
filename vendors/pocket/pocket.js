@@ -221,7 +221,7 @@
     function wireFilters() {
         ['fKeyword', 'fYearMin', 'fYearMax', 'fLenMin', 'fLenMax', 'fPriceMin', 'fPriceMax']
             .forEach(function (id) { $(id).addEventListener('input', debouncedLoad); });
-        $('fMake').addEventListener('change', loadListings);
+        $('fMake').addEventListener('input', debouncedLoad);
         $('btnClear').addEventListener('click', function () {
             ['fKeyword', 'fYearMin', 'fYearMax', 'fLenMin', 'fLenMax', 'fPriceMin', 'fPriceMax']
                 .forEach(function (id) { $(id).value = ''; });

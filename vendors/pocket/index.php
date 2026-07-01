@@ -38,6 +38,16 @@ $isAdmin = isset($gateUser['is_admin']) && (int) $gateUser['is_admin'] === 1;
 
 // The controlled builder list for the Make dropdowns (filter + form).
 $makes = $pdo->query('SELECT name FROM pocket_makes ORDER BY name COLLATE NOCASE')->fetchAll(PDO::FETCH_COLUMN);
+// For the FILTER combobox: the seeded makes PLUS any custom makes actually used on
+// listings, so a broker can find and filter by makes that were typed in but are
+// not on the curated list.
+$filterMakes = $pdo->query("
+    SELECT name FROM (
+        SELECT name FROM pocket_makes
+        UNION
+        SELECT make AS name FROM pocket_listings WHERE make IS NOT NULL AND make != ''
+    ) ORDER BY name COLLATE NOCASE
+")->fetchAll(PDO::FETCH_COLUMN);
 
 $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
 ?>
@@ -79,12 +89,12 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             </div>
             <div class="pl-field">
                 <label for="fMake">Make</label>
-                <select id="fMake">
-                    <option value="">All makes</option>
-                    <?php foreach ($makes as $m): ?>
-                    <option value="<?php echo $h($m); ?>"><?php echo $h($m); ?></option>
+                <input type="text" id="fMake" list="filterMakeOptions" autocomplete="off" placeholder="All makes">
+                <datalist id="filterMakeOptions">
+                    <?php foreach ($filterMakes as $m): ?>
+                    <option value="<?php echo $h($m); ?>"></option>
                     <?php endforeach; ?>
-                </select>
+                </datalist>
             </div>
             <div class="pl-field pl-range">
                 <label>Year</label>
