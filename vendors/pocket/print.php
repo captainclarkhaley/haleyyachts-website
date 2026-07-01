@@ -189,14 +189,19 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         }
         .pr-print-btn:hover { background: var(--cyan-d); border-color: var(--cyan-d); }
 
-        /* The printable sheet. */
+        /* The printable sheet. A flex column so the footer caption is pushed to
+           the bottom of the sheet regardless of description length. min-height
+           fills the viewport on screen; in print the sheet fills the page. */
         .pr-sheet {
             max-width: 780px;
             margin: 22px auto;
+            min-height: calc(100vh - 44px);
             background: #fff;
             border: 1px solid var(--line);
             border-radius: 12px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .pr-head {
@@ -217,7 +222,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         }
         .pr-keyline { height: 3px; background: var(--cyan); }
 
-        .pr-body { padding: 22px 30px 26px; }
+        .pr-body { padding: 22px 30px 26px; flex: 1 0 auto; }
 
         /* Full-width title block above the two columns. */
         .pr-titleblock { margin: 0 0 18px 0; }
@@ -308,7 +313,18 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         }
         .pr-contact .pr-line { font-size: .92rem; color: var(--ink); margin: 0 0 2px 0; word-break: break-word; }
         .pr-contact a { color: var(--cyan-d); text-decoration: none; }
-        .pr-caption { font-size: .74rem; color: var(--muted); margin: 16px 0 0 0; }
+
+        /* Footer caption pinned to the bottom of the sheet. flex:0 0 auto keeps
+           it its natural height while .pr-body takes the slack above it. */
+        .pr-footer {
+            flex: 0 0 auto;
+            border-top: 1px solid var(--line);
+            padding: 12px 30px 16px;
+            margin: 0;
+        }
+        .pr-caption {
+            font-size: .74rem; color: var(--muted); margin: 0; text-align: center;
+        }
 
         /* Narrow screen: stack the two columns (print stays two-column). */
         @media screen and (max-width: 560px) {
@@ -334,6 +350,10 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             .pr-actions-bottom { display: none !important; }
             .pr-sheet {
                 max-width: 100%; margin: 0; border: none; border-radius: 0;
+                /* Fill the printable page height so the footer is pushed to the
+                   bottom of the sheet. 100vh under print maps to the page box
+                   (minus the 12mm body padding, top + bottom). */
+                min-height: calc(100vh - 24mm);
             }
             .pr-head {
                 background: var(--navy) !important;
@@ -352,11 +372,13 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             .pr-head,
             .pr-titleblock,
             .pr-col-left,
-            .pr-col-right {
+            .pr-col-right,
+            .pr-footer {
                 break-inside: avoid;
                 page-break-inside: avoid;
                 -webkit-column-break-inside: avoid;
             }
+            .pr-caption { color: #000; }
             /* The description is the ONLY block allowed to flow to page 2. */
             .pr-desc {
                 break-inside: auto;
@@ -477,7 +499,9 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
                 <p class="pr-desc-h">Description</p>
                 <div class="pr-desc"><?php echo $h($listing['description']); ?></div>
             <?php endif; ?>
+        </div>
 
+        <div class="pr-footer">
             <p class="pr-caption">This listing is presented by <?php echo $h($presenterName); ?> of Haley Yachts / One Water Yacht Group. Private, off-market - please do not distribute publicly.</p>
         </div>
     </div>
