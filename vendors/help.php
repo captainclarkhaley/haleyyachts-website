@@ -204,7 +204,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
 
     <div class="help-card">
 
-        <p class="lead">The OneWater Vendor Database (the "Vendor App") is the OWYG staff directory of surveyors, mechanics, and trade vendors. Everyone on the team uses the same shared list, so when one person adds a good surveyor or rates a mechanic, the whole group sees it. This guide walks through signing in, finding a vendor, adding and editing records, rating vendors, and pulling vendor info into a client email. A shorter section at the end covers the admin tools for Clark and Annika.</p>
+        <p class="lead">The OneWater Vendor Database (the "Vendor App") is the OWYG staff directory of surveyors, mechanics, and trade vendors. Everyone on the team uses the same shared list, so when one person adds a good surveyor or rates a mechanic, the whole group sees it. This guide walks through signing in, finding a vendor, adding and editing records, rating vendors, and pulling vendor info into a client email. A shorter section at the end covers the admin tools for Clark and your Administrative Assistant.</p>
 
         <!-- IMG: main-screen -->
         <figure class="help-fig">
@@ -543,7 +543,7 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
 
         <!-- ===== For Administrators ===== -->
         <h2 id="for-administrators">For Administrators</h2>
-        <p>This section is for Clark and Annika. The admin tools live in the password-protected admin area, separate from the staff app.</p>
+        <p>This section is for Clark and your Administrative Assistant. The admin tools live in the password-protected admin area, separate from the staff app.</p>
 
         <h3>Managing staff accounts</h3>
         <p>Open <strong>Staff Accounts</strong> (<code>admin/users.html</code>).</p>
@@ -615,7 +615,7 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
 
         <!-- ===== Need help? ===== -->
         <h2 id="need-help">Need help?</h2>
-        <p>If something is not working or you are locked out, contact your administrator (Clark or Annika) and they can reset your access.</p>
+        <p>If something is not working or you are locked out, contact your administrator (Clark or your Administrative Assistant) and they can reset your access.</p>
 
     </div>
 
