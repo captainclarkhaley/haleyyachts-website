@@ -762,19 +762,45 @@
         var title = esc(titleBits.join(' ')) || 'Listing';
         var ptLabel = (d.price_type === 'net') ? 'NET' : 'LIST';
 
-        // Build the hero preview from the chosen File via an object URL.
-        var heroHtml;
-        if (d.heroFile) {
-            var url = URL.createObjectURL(d.heroFile);
-            heroHtml = '<img class="pl-rc-hero" src="' + url + '" alt="Hero preview">';
-        } else {
-            heroHtml = '<div class="pl-rc-hero-empty">No hero image</div>';
+        // Build the preview from the FINAL image set that will exist after commit:
+        // the kept existing images (not marked for removal) plus any new uploads.
+        // This is why the hero now shows on edit even when it is an existing image
+        // the broker kept, rather than a freshly uploaded file.
+        var imgs = [];
+        for (var e = 0; e < existingImgs.length; e++) {
+            if (removedIds[existingImgs[e].id]) { continue; }
+            imgs.push({ src: existingImgs[e].url, hero: !!existingImgs[e].is_hero });
         }
+        if (d.heroFile) {
+            // A new hero replaces the hero flag; demote any kept hero.
+            for (var k = 0; k < imgs.length; k++) { imgs[k].hero = false; }
+            imgs.unshift({ src: URL.createObjectURL(d.heroFile), hero: true });
+        }
+        for (var m = 0; m < d.moreFiles.length; m++) {
+            imgs.push({ src: URL.createObjectURL(d.moreFiles[m]), hero: false });
+        }
+        // Guarantee one hero (mirrors the server: if the old hero was removed and
+        // no new one set, the earliest surviving image is promoted).
+        var hasHero = false;
+        for (var hh = 0; hh < imgs.length; hh++) { if (imgs[hh].hero) { hasHero = true; break; } }
+        if (!hasHero && imgs.length) { imgs[0].hero = true; }
+
+        var heroHtml = '<div class="pl-rc-hero-empty">No hero image</div>';
         var thumbsHtml = '';
-        if (d.moreFiles.length) {
+        var thumbSrcs = [];
+        var heroDone = false;
+        for (var z = 0; z < imgs.length; z++) {
+            if (imgs[z].hero && !heroDone) {
+                heroHtml = '<img class="pl-rc-hero" src="' + esc(imgs[z].src) + '" alt="Hero preview">';
+                heroDone = true;
+            } else {
+                thumbSrcs.push(imgs[z].src);
+            }
+        }
+        if (thumbSrcs.length) {
             thumbsHtml = '<div class="pl-rc-thumbs">';
-            for (var i = 0; i < d.moreFiles.length; i++) {
-                thumbsHtml += '<img src="' + URL.createObjectURL(d.moreFiles[i]) + '" alt="Additional preview">';
+            for (var t = 0; t < thumbSrcs.length; t++) {
+                thumbsHtml += '<img src="' + esc(thumbSrcs[t]) + '" alt="Additional preview">';
             }
             thumbsHtml += '</div>';
         }
