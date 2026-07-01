@@ -539,7 +539,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             array(
                 'name'     => 'Pocket Listings',
                 'monogram' => 'PL',
-                'desc'     => 'Enter private off-market listings and let brokers search the network.',
+                'desc'     => 'Enter private off-market listings and let OWYG brokers search the network.',
                 'href'     => '#',
                 'status'   => 'soon',
             ),
