@@ -27,7 +27,7 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
 
 // Server-side limits (mirrored in the front end; enforced here as the source of truth).
-define('POCKET_DESC_MAX', 1200);         // fits the single-page print sheet
+define('POCKET_DESC_MAX', 750);          // comfortably one page on the print sheet
 define('POCKET_MAX_IMAGES', 4);          // 1 hero + 3 additional
 define('POCKET_MAX_ADDITIONAL', 3);
 define('POCKET_IMG_MAX_BYTES', 12 * 1024 * 1024); // 12 MB per upload (pre-resize)
@@ -306,7 +306,7 @@ function pocket_shape(PDO $pdo, array $row)
  *   hero        - single file (optional)
  *   images[]    - up to 3 additional files
  * Validation: make must exist in pocket_makes; price_type in {net,list};
- * description <= 1200 chars; year/length/price numeric; at most 4 images total.
+ * description <= 750 chars; year/length/price numeric; at most 4 images total.
  * On create, expires_at = created_at + days_active.
  */
 function pocket_save(PDO $pdo, array $authUser)

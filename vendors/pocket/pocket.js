@@ -10,7 +10,7 @@
     'use strict';
 
     var API = 'api.php';
-    var DESC_MAX = 1200;
+    var DESC_MAX = 750;
 
     // Client-side image compression settings. Mirrors the server backstop
     // (api.php resizes to 1600px too) but doing it here keeps the UPLOAD small

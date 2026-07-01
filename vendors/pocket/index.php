@@ -210,9 +210,9 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 
                 <div class="pl-frow pl-frow-full">
                     <label for="fDesc">Description</label>
-                    <textarea id="fDesc" maxlength="1200" rows="4"
+                    <textarea id="fDesc" maxlength="750" rows="4"
                         placeholder="Key details, condition, notes for other brokers..."></textarea>
-                    <div class="pl-char-counter" id="descCount">0 / 1200</div>
+                    <div class="pl-char-counter" id="descCount">0 / 750</div>
                 </div>
 
                 <div class="pl-frow pl-frow-full">
