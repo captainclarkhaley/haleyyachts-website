@@ -158,6 +158,8 @@ if ((int) $gateUser['must_change_password'] === 1) {
             margin-top: 8px; font-size: 0.8rem; color: var(--muted);
             font-style: italic; text-align: center;
         }
+        /* Portrait phone screenshot: cap the width so it does not dominate. */
+        .help-fig-phone img { max-width: 300px; margin-left: auto; margin-right: auto; }
 
         /* ----- Code block (Copy-for-Email example output) ----- */
         .help-codeblock {
@@ -372,7 +374,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>Everything else works the same as on a computer. Tap a vendor name to open it.</p>
 
         <!-- IMG: phone-cards -->
-        <div class="help-shot">the phone view showing stacked vendor cards</div>
+        <figure class="help-fig help-fig-phone">
+            <img src="help-img/phone-cards.jpg?v=<?php echo @filemtime(__DIR__ . '/help-img/phone-cards.jpg'); ?>" alt="Phone card view" loading="lazy">
+            <figcaption>the phone view showing stacked vendor cards</figcaption>
+        </figure>
 
         <hr class="help-rule">
 
