@@ -337,11 +337,11 @@ function pocket_save(PDO $pdo, array $authUser)
     if ($make === '') {
         p_fail('Make is required.');
     }
-    // Make must exist in the controlled list.
-    $mStmt = $pdo->prepare('SELECT 1 FROM pocket_makes WHERE name = ?');
-    $mStmt->execute(array($make));
-    if (!$mStmt->fetchColumn()) {
-        p_fail('Make must be chosen from the builder list.');
+    // Make is a combobox: brokers pick from pocket_makes OR type a make not yet in
+    // the list (a fuller manufacturer list is coming). So we accept any non-empty
+    // make; just cap the length so a stray paste cannot bloat the field.
+    if (mb_strlen($make) > 60) {
+        p_fail('Make is too long (60 characters max).');
     }
     if ($priceType !== 'net' && $priceType !== 'list') {
         p_fail('Price type must be Net or List.');

@@ -164,12 +164,13 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                 <div class="pl-form-grid">
                     <div class="pl-frow">
                         <label for="fFormMake">Make *</label>
-                        <select id="fFormMake" required>
-                            <option value="">Select a make...</option>
+                        <input type="text" id="fFormMake" list="makeOptions" required autocomplete="off"
+                            placeholder="Type or choose a make">
+                        <datalist id="makeOptions">
                             <?php foreach ($makes as $m): ?>
-                            <option value="<?php echo $h($m); ?>"><?php echo $h($m); ?></option>
+                            <option value="<?php echo $h($m); ?>"></option>
                             <?php endforeach; ?>
-                        </select>
+                        </datalist>
                     </div>
                     <div class="pl-frow">
                         <label for="fModel">Model</label>
