@@ -119,6 +119,21 @@ if (!function_exists('pocket_notify_new_listing')) {
                 $heroAbs = POCKET_SITE_BASE . '/vendors/pocket/' . ltrim((string) $listing['hero_url'], '/');
             }
 
+            // Additional images (up to 4), absolute URLs, for the strip under the
+            // hero. Skip the hero itself (the shape lists it first / flags it).
+            $heroRel = isset($listing['hero_url']) ? (string) $listing['hero_url'] : '';
+            $moreAbs = array();
+            if (!empty($listing['images']) && is_array($listing['images'])) {
+                foreach ($listing['images'] as $im) {
+                    $u = isset($im['url']) ? (string) $im['url'] : '';
+                    if ($u === '') { continue; }
+                    if (!empty($im['is_hero'])) { continue; }
+                    if ($heroRel !== '' && $u === $heroRel) { continue; }
+                    $moreAbs[] = POCKET_SITE_BASE . '/vendors/pocket/' . ltrim($u, '/');
+                    if (count($moreAbs) >= 4) { break; }
+                }
+            }
+
             $suiteUrl = POCKET_SITE_BASE . '/vendors/pocket/';
             $brokerPhoneFmt = p_format_phone($brokerCell);
 
@@ -152,7 +167,7 @@ if (!function_exists('pocket_notify_new_listing')) {
             $htmlBody = p_build_html_body(
                 $title, $length, $location, $year, $priceDisplay,
                 $description, $brokerName, $brokerPhoneFmt, $brokerEmail,
-                $heroAbs, $suiteUrl
+                $heroAbs, $moreAbs, $suiteUrl
             );
 
             // --- send via authenticated SMTP (PHPMailer) ---
@@ -349,7 +364,7 @@ if (!function_exists('pocket_notify_new_listing')) {
      * user-supplied value is escaped with p_h().
      */
     function p_build_html_body($title, $length, $location, $year, $priceDisplay,
-        $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $heroAbs, $suiteUrl)
+        $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $heroAbs, $moreAbs, $suiteUrl)
     {
         $eTitle = p_h($title);
         $ePrice = p_h($priceDisplay);
@@ -378,6 +393,27 @@ if (!function_exists('pocket_notify_new_listing')) {
                     'style="display:block; width:100%; max-width:600px; height:auto; border:0; outline:none;" />' .
                   '</td>' .
                 '</tr>';
+        }
+
+        // Additional images (up to 4) as an even row under the hero. Table-based
+        // for email-client width control; equal-width cells.
+        $galleryBlock = '';
+        if (!empty($moreAbs) && is_array($moreAbs)) {
+            $n = count($moreAbs);
+            $pct = (int) floor(100 / $n);
+            $cells = '';
+            foreach ($moreAbs as $mu) {
+                $cells .=
+                    '<td width="' . $pct . '%" valign="top" style="padding:0 3px; font-size:0; line-height:0;">' .
+                    '<img src="' . p_h($mu) . '" alt="" ' .
+                    'style="display:block; width:100%; height:auto; border:0; outline:none; border-radius:4px;" />' .
+                    '</td>';
+            }
+            $galleryBlock =
+                '<tr><td style="padding:6px 6px 0 6px; background-color:#ffffff;" bgcolor="#ffffff">' .
+                '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="width:100%;"><tr>' .
+                $cells .
+                '</tr></table></td></tr>';
         }
 
         // Contact rows (each rendered only when present).
@@ -426,21 +462,18 @@ if (!function_exists('pocket_notify_new_listing')) {
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 'New Pocket Listing</p>' .
-'<table role="presentation" border="0" cellpadding="0" cellspacing="0" align="center" style="margin:0 auto;"><tr>' .
-'<td valign="middle" align="center">' .
-'<img src="' . POCKET_SITE_BASE . '/images/brand/haleyyachtslogo-reverse.png" width="180" height="32" alt="Haley Yachts" ' .
-'style="display:block; width:180px; max-width:180px; height:32px; border:0; outline:none;" /></td>' .
-'<td width="20" style="width:20px; font-size:0; line-height:0;">&nbsp;</td>' .
-'<td valign="middle" align="center">' .
-'<img src="' . POCKET_SITE_BASE . '/images/email/owyg-banner-reverse.png" width="158" height="41" alt="One Water Yacht Group" ' .
-'style="display:block; width:158px; max-width:158px; height:41px; border:0; outline:none;" /></td>' .
-'</tr></table></td></tr>' .
+'<img src="' . POCKET_SITE_BASE . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
+'</td></tr>' .
 
 // Cyan keyline
 '<tr><td bgcolor="#21cbea" height="3" style="background-color:#21cbea; height:3px; line-height:3px; font-size:0; padding:0;">&nbsp;</td></tr>' .
 
 // Hero (optional)
 $heroBlock .
+
+// Additional images strip (optional)
+$galleryBlock .
 
 // Body: title, specs, price, description
 '<tr><td bgcolor="#ffffff" style="background-color:#ffffff; padding:28px 40px 8px 40px;">' .
