@@ -240,7 +240,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
 
         .pr-hero {
             width: 100%;
-            max-height: 280px;
+            max-height: 210px;
             object-fit: cover;
             border-radius: 10px;
             background: #dde5eb;
