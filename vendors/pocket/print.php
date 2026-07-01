@@ -353,13 +353,13 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             .pr-actions-bottom { display: none !important; }
             .pr-sheet {
                 max-width: 100%; margin: 0; border: none; border-radius: 0;
-                /* Push the footer toward the page bottom via the flex layout.
-                   Use a FIXED height, NOT vh: in print, vh is unreliable and
-                   often maps to the screen viewport, which overshot the page and
-                   bounced the footer onto page 2. 245mm sits inside a US Letter
-                   printable area (11in minus the 24mm body padding is ~255mm),
-                   leaving safe margin so the footer never spills. */
-                min-height: 245mm;
+                /* Do NOT force the sheet to a page height in print. Any forced
+                   height (vh OR a fixed mm value) that ends up even slightly too
+                   tall pushes the footer past the page-1 edge onto page 2, and
+                   print scaling makes the exact number unpredictable. Letting the
+                   sheet be only as tall as its content keeps the footer flowing
+                   directly after the description, always on page 1. */
+                min-height: 0;
             }
             .pr-head {
                 background: var(--navy) !important;
