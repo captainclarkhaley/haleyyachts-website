@@ -282,7 +282,7 @@
                     (l.created_at ? '<div class="pl-card-date">Listed ' + esc(formatDate(l.created_at)) + '</div>' : '') +
                     '<div class="pl-card-actions">' +
                         '<a class="pl-card-print" href="print.php?id=' + l.id + '" ' +
-                            'target="_blank" rel="noopener" data-print="' + l.id + '">Print</a>' +
+                            'target="haleyPrint" data-print="' + l.id + '">Print</a>' +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -1107,7 +1107,7 @@
             '<div class="pl-detail-broker">Listing broker: ' + esc(l.broker_name || 'Unknown') +
                 (l.broker_phone ? ' &middot; ' + esc(formatPhone(l.broker_phone)) : '') + '</div>' +
             '<div class="pl-detail-actions">' +
-                '<a class="pl-card-print" href="print.php?id=' + l.id + '" target="_blank" rel="noopener">Print one-pager</a>' +
+                '<a class="pl-card-print" href="print.php?id=' + l.id + '" target="haleyPrint">Print one-pager</a>' +
             '</div>';
 
         // Owner-or-admin controls. The SERVER still enforces this on save/delete;
