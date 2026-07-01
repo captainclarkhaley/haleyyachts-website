@@ -474,7 +474,10 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <p>Your rating is added to the history with your name and the date, and the vendor's average updates right away. Each entry in the history has a <strong>Delete</strong> button if a rating needs to be removed.</p>
 
         <!-- IMG: ratings -->
-        <div class="help-shot">the Ratings section with the star picker and history</div>
+        <figure class="help-fig">
+            <img src="help-img/ratings.png?v=<?php echo @filemtime(__DIR__ . '/help-img/ratings.png'); ?>" alt="Ratings section with star picker and history" loading="lazy">
+            <figcaption>the Ratings section with the star picker and history</figcaption>
+        </figure>
 
         <hr class="help-rule">
 
