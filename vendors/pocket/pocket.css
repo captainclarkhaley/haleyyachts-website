@@ -228,6 +228,11 @@ body {
     padding-top: 8px;
     border-top: 1px solid var(--line);
 }
+.pl-card-date {
+    font-size: .72rem;
+    color: var(--muted);
+    margin-top: 3px;
+}
 
 /* ----- Foot link ----- */
 .pl-foot-link { text-align: center; margin-top: 34px; }

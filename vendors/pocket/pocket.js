@@ -64,6 +64,19 @@
         return s;
     }
 
+    // Render a stored UTC "YYYY-MM-DD HH:MM:SS" as a readable "Mon D, YYYY".
+    function formatDate(raw) {
+        var s = String(raw == null ? '' : raw).trim();
+        if (!s) { return ''; }
+        var p = s.split(' ')[0].split('-');
+        if (p.length !== 3) { return s.split(' ')[0]; }
+        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        var mi = parseInt(p[1], 10) - 1;
+        if (mi < 0 || mi > 11) { return s.split(' ')[0]; }
+        return months[mi] + ' ' + parseInt(p[2], 10) + ', ' + p[0];
+    }
+
     // Digits only, and the same digits grouped with thousands commas.
     function digitsOnly(s) { return String(s == null ? '' : s).replace(/\D/g, ''); }
     function withCommas(s) {
@@ -260,6 +273,7 @@
                         '<span class="pl-price-type">' + ptLabel + '</span></div>' +
                     '<div class="pl-card-broker">Broker: ' + esc(l.broker_name || 'Unknown') +
                         (l.broker_phone ? ' &middot; ' + esc(formatPhone(l.broker_phone)) : '') + '</div>' +
+                    (l.created_at ? '<div class="pl-card-date">Listed ' + esc(formatDate(l.created_at)) + '</div>' : '') +
                 '</div>' +
             '</div>';
         }
