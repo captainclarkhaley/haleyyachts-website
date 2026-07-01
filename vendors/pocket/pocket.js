@@ -313,6 +313,23 @@
         });
     }
 
+    // Transient top-center toast (self-styled, auto-dismiss). Used as a light
+    // testing aid to surface the network-email result to admins after a commit.
+    function plToast(msg, ok) {
+        var t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:9999;'
+            + 'background:' + (ok ? '#0a1628' : '#c0392b') + ';color:#fff;padding:10px 18px;'
+            + 'border-radius:8px;font-size:.85rem;font-weight:600;'
+            + 'box-shadow:0 8px 24px -8px rgba(10,22,40,0.5);opacity:0;transition:opacity .2s;';
+        document.body.appendChild(t);
+        requestAnimationFrame(function () { t.style.opacity = '1'; });
+        setTimeout(function () {
+            t.style.opacity = '0';
+            setTimeout(function () { if (t.parentNode) { t.parentNode.removeChild(t); } }, 300);
+        }, 5000);
+    }
+
     // ======================================================================
     // OVERLAY helpers
     // ======================================================================
@@ -751,11 +768,20 @@
             }
             // Success: the overlay closes and the list reloads. Reset the UI so a
             // later commit starts clean, and re-enable the buttons behind it.
+            var wasNew = !draft.id;
             hideCommitProgress();
             setCommitButtonsDisabled(false);
             draft = null;
             closeOverlay('reviewOverlay');
             loadListings();
+            // Testing aid: on a NEW listing, tell admins whether the server's
+            // mail() accepted the network notification. This is about acceptance,
+            // not delivery - a "sent" that never arrives is a whitelist/SPF issue.
+            if (IS_ADMIN && wasNew && typeof data.notify_sent !== 'undefined') {
+                plToast(data.notify_sent
+                    ? 'Network email: sent ✓'
+                    : 'Network email: NOT sent ✗', !!data.notify_sent);
+            }
         }).catch(function (err) {
             hideCommitProgress();
             setCommitButtonsDisabled(false);

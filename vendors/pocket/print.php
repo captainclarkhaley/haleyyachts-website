@@ -60,14 +60,23 @@ function pr_load_listing(PDO $pdo, $id)
         ORDER BY is_hero DESC, sort, id
     ');
     $iStmt->execute(array($id));
-    $hero = '';
-    $firstUrl = '';
+    // Collect every image in display order, then split out the hero. The rest
+    // (up to 4) print as a horizontal strip under the hero.
+    $all = array();
+    $heroIdx = -1;
     foreach ($iStmt->fetchAll() as $img) {
-        $url = 'uploads/' . rawurlencode((string) $img['filename']);
-        if ($firstUrl === '') { $firstUrl = $url; }
-        if ((int) $img['is_hero'] === 1 && $hero === '') { $hero = $url; }
+        $isHero = ((int) $img['is_hero'] === 1);
+        $all[] = 'uploads/' . rawurlencode((string) $img['filename']);
+        if ($isHero && $heroIdx === -1) { $heroIdx = count($all) - 1; }
     }
-    if ($hero === '' && $firstUrl !== '') { $hero = $firstUrl; }
+    if ($heroIdx === -1 && !empty($all)) { $heroIdx = 0; }
+    $hero = ($heroIdx >= 0) ? $all[$heroIdx] : '';
+    $more = array();
+    foreach ($all as $i => $u) {
+        if ($i === $heroIdx) { continue; }
+        $more[] = $u;
+        if (count($more) >= 4) { break; }
+    }
 
     return array(
         'id'          => (int) $row['id'],
@@ -81,6 +90,7 @@ function pr_load_listing(PDO $pdo, $id)
         'price_type'  => $row['price_type'],
         'description' => $row['description'],
         'hero_url'    => $hero,
+        'more_urls'   => $more,
     );
 }
 
@@ -100,10 +110,11 @@ $fmtPhone = function ($raw) {
     return $s;
 };
 $fmtPrice = function ($price, $priceType) {
+    // Client-facing sheet: a NET listing never prints a number - the net price
+    // is a broker-to-broker figure, not for the buyer. List price prints as is.
+    if ($priceType === 'net') { return 'Please Call for Pricing'; }
     if ($price === null || $price === '') { return 'Price on request'; }
-    $out = '$' . number_format((int) $price);
-    $out .= ($priceType === 'net') ? ' (Net)' : ' (List)';
-    return $out;
+    return '$' . number_format((int) $price) . ' (List)';
 };
 
 // --- load the listing ---
@@ -184,16 +195,15 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             color: #fff;
             padding: 22px 30px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
+            gap: 10px;
+            text-align: center;
         }
-        .pr-head .pr-brands { display: flex; align-items: center; gap: 16px; }
-        .pr-head img.pr-haley { height: 30px; width: auto; display: block; }
-        .pr-head img.pr-owyg { height: 38px; width: auto; display: block; }
+        .pr-head img.pr-owyg { height: 46px; width: auto; display: block; }
         .pr-head .pr-tag {
             font-size: .68rem; letter-spacing: 2px; text-transform: uppercase;
-            color: #cfe9f1; font-weight: 600; text-align: right;
+            color: #cfe9f1; font-weight: 600;
         }
         .pr-keyline { height: 3px; background: var(--cyan); }
 
@@ -206,7 +216,23 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             border-radius: 10px;
             background: #dde5eb;
             display: block;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
+        }
+
+        /* Up to 4 additional images, horizontal across, under the hero. */
+        .pr-gallery {
+            display: flex;
+            gap: 10px;
+            margin: 0 0 20px 0;
+        }
+        .pr-gallery img {
+            flex: 1 1 0;
+            min-width: 0;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #dde5eb;
+            display: block;
         }
 
         .pr-eyebrow {
@@ -333,20 +359,25 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
     // Absolute-safe hero (the app serves it relative; on this same-origin page a
     // relative uploads/ path resolves fine).
     $heroUrl = (isset($listing['hero_url']) && $listing['hero_url'] !== '') ? (string) $listing['hero_url'] : '';
+    $moreUrls = (isset($listing['more_urls']) && is_array($listing['more_urls'])) ? $listing['more_urls'] : array();
 ?>
     <div class="pr-sheet">
         <div class="pr-head">
-            <div class="pr-brands">
-                <img class="pr-haley" src="../../images/brand/haleyyachtslogo-reverse.png" alt="Haley Yachts">
-                <img class="pr-owyg" src="../../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
-            </div>
-            <div class="pr-tag">Private Listing<br>Off-Market</div>
+            <img class="pr-owyg" src="../../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+            <div class="pr-tag">Private Listing &middot; Off-Market</div>
         </div>
         <div class="pr-keyline"></div>
 
         <div class="pr-body">
             <?php if ($heroUrl !== ''): ?>
                 <img class="pr-hero" src="<?php echo $h($heroUrl); ?>" alt="<?php echo $h($title); ?>">
+            <?php endif; ?>
+            <?php if (!empty($moreUrls)): ?>
+                <div class="pr-gallery">
+                    <?php foreach ($moreUrls as $mu): ?>
+                        <img src="<?php echo $h($mu); ?>" alt="">
+                    <?php endforeach; ?>
+                </div>
             <?php endif; ?>
 
             <p class="pr-eyebrow">Off-Market &middot; OWYG Broker Network</p>
