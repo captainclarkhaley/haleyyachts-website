@@ -28,6 +28,12 @@
     var draft = null;         // the pending form draft awaiting commit (review stage)
     var priceType = 'list';   // Net/List toggle in the form
 
+    // Edit-only image state. existingImgs is the listing's current images (each
+    // {id, url, is_hero}); removedIds holds the integer ids the broker marked for
+    // removal. Both reset in resetForm(). New-listing flow leaves these empty.
+    var existingImgs = [];
+    var removedIds = {};      // set keyed by int id -> true
+
     function $(id) { return document.getElementById(id); }
 
     function esc(s) {
@@ -526,7 +532,102 @@
         clearNotice('optNote');
         heroComp = null;
         moreComp = null;
-        $('existingImgsNote').hidden = true;
+        existingImgs = [];
+        removedIds = {};
+        $('existingThumbs').innerHTML = '';
+        $('existingImgs').hidden = true;
+        $('imgCountNote').hidden = true;
+    }
+
+    // Count existing images NOT marked for removal.
+    function keptExistingCount() {
+        var kept = 0;
+        for (var i = 0; i < existingImgs.length; i++) {
+            if (!removedIds[existingImgs[i].id]) { kept++; }
+        }
+        return kept;
+    }
+
+    // Count new files currently attached (compressed state if present, else the
+    // raw inputs). Hero is 0/1; more is the additional count.
+    function newFileCounts() {
+        var hero = heroComp
+            ? (heroComp.files.length ? 1 : 0)
+            : ($('fHero').files.length ? 1 : 0);
+        var more = moreComp
+            ? moreComp.files.length
+            : $('fMore').files.length;
+        return { hero: hero, more: more };
+    }
+
+    // Live "Keeping N of M. You can add K more." line under the image inputs.
+    // Only shown on edit (when the listing had images). Recomputed as thumbnails
+    // are removed and as new files are attached.
+    function updateImgCount() {
+        var note = $('imgCountNote');
+        if (!existingImgs.length) { note.hidden = true; return; }
+        var total = existingImgs.length;
+        var kept = keptExistingCount();
+        var nf = newFileCounts();
+        var finalCount = kept + nf.hero + nf.more;
+        var room = 5 - finalCount;
+        var msg = 'Keeping ' + kept + ' of ' + total + '. ';
+        if (room > 0) {
+            msg += 'You can add ' + room + ' more.';
+        } else if (room === 0) {
+            msg += 'At the 5-image limit.';
+        } else {
+            msg += 'Over the 5-image limit by ' + (-room) + '. Remove some.';
+        }
+        note.textContent = msg;
+        note.hidden = false;
+    }
+
+    // Render the current-image thumbnails for the edit form. Each has a remove
+    // (x) control; the hero gets a small badge. Removing a thumbnail marks its id
+    // in removedIds, fades the node, and recomputes the live count.
+    function renderExistingThumbs() {
+        var wrap = $('existingThumbs');
+        wrap.innerHTML = '';
+        if (!existingImgs.length) {
+            $('existingImgs').hidden = true;
+            return;
+        }
+        $('existingImgs').hidden = false;
+        for (var i = 0; i < existingImgs.length; i++) {
+            var img = existingImgs[i];
+            var cell = document.createElement('div');
+            cell.className = 'pl-ex-thumb';
+            cell.setAttribute('data-img-id', String(img.id));
+
+            var pic = document.createElement('img');
+            pic.src = img.url;
+            pic.alt = 'Listing image';
+            cell.appendChild(pic);
+
+            if (img.is_hero) {
+                var badge = document.createElement('span');
+                badge.className = 'pl-ex-badge';
+                badge.textContent = 'Hero';
+                cell.appendChild(badge);
+            }
+
+            var x = document.createElement('button');
+            x.type = 'button';
+            x.className = 'pl-ex-remove';
+            x.setAttribute('aria-label', 'Remove this image');
+            x.textContent = '×';
+            (function (id, node) {
+                x.addEventListener('click', function () {
+                    removedIds[id] = true;
+                    node.classList.add('removed');
+                    updateImgCount();
+                });
+            })(img.id, cell);
+            cell.appendChild(x);
+
+            wrap.appendChild(cell);
+        }
     }
 
     function openNewForm() {
@@ -552,13 +653,14 @@
         $('fDesc').value = l.description || '';
         setPriceType(l.price_type);
         updateDescCount();
-        var count = (l.images || []).length;
-        if (count > 0) {
-            var note = $('existingImgsNote');
-            note.textContent = 'This listing already has ' + count + ' image' + (count === 1 ? '' : 's') +
-                '. New uploads are added (up to 5 total).';
-            note.hidden = false;
-        }
+        // Populate the current-image thumbnails so the broker can remove/replace
+        // them. The live count line reflects removals + new attachments.
+        existingImgs = (l.images || []).map(function (im) {
+            return { id: im.id, url: im.url, is_hero: !!im.is_hero };
+        });
+        removedIds = {};
+        renderExistingThumbs();
+        updateImgCount();
         openOverlay('formOverlay');
         $('fFormMake').focus();
     }
@@ -579,7 +681,12 @@
             days_active: $('fDays').value.trim(),
             price: digitsOnly($('fPrice').value),
             price_type: priceType,
-            description: $('fDesc').value
+            description: $('fDesc').value,
+            // Existing images marked for removal (ints). Empty on new listings.
+            removeIds: Object.keys(removedIds).map(function (k) { return parseInt(k, 10); })
+                .filter(function (n) { return n > 0; }),
+            // Snapshot of how many existing images survive, for the review guard.
+            keptExisting: keptExistingCount()
         };
 
         // Await the compressed results. If no compression state exists for an
@@ -604,6 +711,15 @@
         if (!d.make) { return 'Make is required.'; }
         if (d.description.length > DESC_MAX) { return 'Description exceeds ' + DESC_MAX + ' characters.'; }
         if (d.moreFiles.length > 4) { return 'At most 4 additional images are allowed.'; }
+        // Final image count after removals + new uploads must fit the 5-image cap.
+        // Hero is not forced client-side (the server guarantees exactly one hero);
+        // this only blocks going OVER the limit so the broker gets feedback before
+        // the commit round-trip.
+        var newHero = d.heroFile ? 1 : 0;
+        var finalCount = d.keptExisting + newHero + d.moreFiles.length;
+        if (finalCount > 5) {
+            return 'A listing may have at most 5 images. Remove some before saving.';
+        }
         var numeric = [['year', d.year], ['length', d.length], ['price', d.price], ['days_active', d.days_active]];
         for (var i = 0; i < numeric.length; i++) {
             var v = numeric[i][1];
@@ -755,6 +871,12 @@
         for (var i = 0; i < draft.moreFiles.length; i++) {
             fd.append('images[]', draft.moreFiles[i]);
         }
+        // Existing images the broker removed (edit only). One entry per id.
+        if (draft.removeIds && draft.removeIds.length) {
+            for (var r = 0; r < draft.removeIds.length; r++) {
+                fd.append('remove_images[]', String(draft.removeIds[r]));
+            }
+        }
 
         setCommitButtonsDisabled(true);
         showCommitProgress();
@@ -878,10 +1000,12 @@
         $('fHero').addEventListener('change', function () {
             heroComp = startCompression(this.files, 'optNote');
             updateOptTotal();
+            updateImgCount();
         });
         $('fMore').addEventListener('change', function () {
             moreComp = startCompression(this.files, 'optNote');
             updateOptTotal();
+            updateImgCount();
         });
 
         $('btnReview').addEventListener('click', goToReview);

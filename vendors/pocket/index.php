@@ -227,8 +227,15 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                             <input type="file" id="fMore" accept="image/jpeg,image/png,image/webp" multiple>
                         </div>
                     </div>
+                    <!-- Current images (edit only). Thumbnails with a remove (x)
+                         control; removed ones are tracked client-side and sent as
+                         remove_images[] on commit. -->
+                    <div class="pl-existing" id="existingImgs" hidden>
+                        <span class="pl-slot-label">Current images</span>
+                        <div class="pl-existing-thumbs" id="existingThumbs"></div>
+                    </div>
                     <div class="pl-optnote" id="optNote"></div>
-                    <p class="pl-hint" id="existingImgsNote" hidden></p>
+                    <p class="pl-hint" id="imgCountNote" hidden></p>
                 </div>
             </form>
         </div>

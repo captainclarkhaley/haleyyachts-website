@@ -387,6 +387,40 @@ function pocket_save(PDO $pdo, array $authUser)
         $existingImageCount = (int) $cStmt->fetchColumn();
     }
 
+    // ---- images marked for removal on edit (remove_images[]) ----
+    // Parse to a set of positive ints, then keep ONLY the ids that actually
+    // belong to THIS listing. Constraining every query by listing_id is what
+    // stops one broker from deleting another listing's images by guessing ids;
+    // the listing itself was ownership-checked above. We capture the filenames
+    // now so the files can be unlinked AFTER the transaction commits.
+    $removeIds   = array();  // validated, listing-owned ids to delete
+    $removeFiles = array();  // filenames for those ids, for post-commit unlink
+    $removedHero = false;    // did the removal set include the current hero?
+    if ($id > 0) {
+        $requested = array();
+        if (isset($_POST['remove_images']) && is_array($_POST['remove_images'])) {
+            foreach ($_POST['remove_images'] as $rid) {
+                $n = (int) $rid;
+                if ($n > 0) { $requested[$n] = true; }  // dedupe via keys
+            }
+        }
+        if (!empty($requested)) {
+            $ids = array_keys($requested);
+            $place = implode(',', array_fill(0, count($ids), '?'));
+            $rStmt = $pdo->prepare(
+                'SELECT id, filename, is_hero FROM pocket_listing_images
+                 WHERE listing_id = ? AND id IN (' . $place . ')'
+            );
+            $rStmt->execute(array_merge(array($id), $ids));
+            foreach ($rStmt->fetchAll() as $r) {
+                $removeIds[]   = (int) $r['id'];
+                $removeFiles[] = (string) $r['filename'];
+                if ((int) $r['is_hero'] === 1) { $removedHero = true; }
+            }
+        }
+    }
+    $removeCount = count($removeIds);
+
     // ---- gather + validate uploaded files BEFORE any DB write ----
     // hero: single. images[]: up to 4 additional.
     $heroFile  = p_pick_single_upload('hero');
@@ -395,7 +429,10 @@ function pocket_save(PDO $pdo, array $authUser)
         p_fail('At most ' . POCKET_MAX_ADDITIONAL . ' additional images are allowed.');
     }
     $newImageCount = ($heroFile ? 1 : 0) + count($moreFiles);
-    if ($existingImageCount + $newImageCount > POCKET_MAX_IMAGES) {
+    // Cap check against what will actually remain: existing minus the valid
+    // removals, plus the new uploads.
+    $effectiveExisting = $existingImageCount - $removeCount;
+    if ($effectiveExisting + $newImageCount > POCKET_MAX_IMAGES) {
         p_fail('A listing may have at most ' . POCKET_MAX_IMAGES . ' images (1 hero + 4 additional).');
     }
 
@@ -473,11 +510,23 @@ function pocket_save(PDO $pdo, array $authUser)
             }
         }
 
+        // Remove the images the broker marked for deletion. Both the id list and
+        // the listing_id constraint were validated above, but we re-scope by
+        // listing_id here too so the DELETE can never touch another listing.
+        if (!empty($removeIds)) {
+            $place = implode(',', array_fill(0, count($removeIds), '?'));
+            $del = $pdo->prepare(
+                'DELETE FROM pocket_listing_images
+                 WHERE listing_id = ? AND id IN (' . $place . ')'
+            );
+            $del->execute(array_merge(array($id), $removeIds));
+        }
+
         // Insert image rows for the newly stored files. Hero flagged is_hero=1.
-        // On update we APPEND (never blow away existing images in Phase 1).
+        // On update we APPEND to whatever survived the removal above.
         if ($heroName !== '') {
-            // If a new hero is supplied on an update, demote any prior hero so
-            // there is at most one hero flagged.
+            // A new hero is supplied: demote any prior hero so there is at most
+            // one hero flagged, then insert the new one as the hero.
             if ($id > 0) {
                 $pdo->prepare('UPDATE pocket_listing_images SET is_hero = 0 WHERE listing_id = ?')
                     ->execute(array($id));
@@ -502,11 +551,44 @@ function pocket_save(PDO $pdo, array $authUser)
             }
         }
 
+        // Hero integrity: guarantee at most one hero, and a hero whenever images
+        // remain. If the old hero was removed and NO new hero replaced it, the
+        // listing is left with zero heroes; promote the earliest surviving image
+        // (hero flag first, then sort, then id) so the thumbnail still resolves.
+        // Zero remaining images is allowed and leaves nothing to promote.
+        if ($id > 0 && $heroName === '' && $removedHero) {
+            $pStmt = $pdo->prepare('
+                SELECT id FROM pocket_listing_images
+                WHERE listing_id = ?
+                ORDER BY is_hero DESC, sort, id
+                LIMIT 1
+            ');
+            $pStmt->execute(array($id));
+            $promoteId = $pStmt->fetchColumn();
+            if ($promoteId !== false) {
+                $pdo->prepare('UPDATE pocket_listing_images SET is_hero = 1 WHERE id = ? AND listing_id = ?')
+                    ->execute(array((int) $promoteId, $id));
+            }
+        }
+
         $pdo->commit();
     } catch (Throwable $e) {
         $pdo->rollBack();
         foreach ($savedFiles as $f) { @unlink($f); }
         throw $e;
+    }
+
+    // The removed image ROWS are gone (committed). Now unlink their files from
+    // disk, best-effort, using the same basename() guard as pocket_delete so a
+    // stored path trick cannot reach outside the uploads dir.
+    if (!empty($removeFiles)) {
+        $dir = p_uploads_dir();
+        foreach ($removeFiles as $f) {
+            $safe = basename($f);
+            if ($safe !== '' && $safe !== '.' && $safe !== '..') {
+                @unlink($dir . '/' . $safe);
+            }
+        }
     }
 
     $listing = pocket_load($pdo, $id);
