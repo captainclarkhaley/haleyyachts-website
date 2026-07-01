@@ -38,3 +38,10 @@
 
 # ----- No directory listing -----
 Options -Indexes
+
+# ----- Default page for /vendors/ is the Broker Suite launcher -----
+# So haleyyachts.com/vendors lands on the Suite menu (the front door), falling
+# back to the vendor app (index.php) if suite.php is ever missing. The vendor app
+# itself stays reachable at /vendors/index.php (the Suite's Vendor Management tile
+# links there).
+DirectoryIndex suite.php index.php
