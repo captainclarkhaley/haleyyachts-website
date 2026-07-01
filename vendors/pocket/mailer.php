@@ -181,11 +181,12 @@ if (!function_exists('pocket_notify_new_listing')) {
             // against haleyyachts.com, not the default cPanel user - the piece
             // that makes the whitelisted domain pass cleanly. POCKET_MAIL_FROM is
             // a fixed trusted constant (never user input), so no shell-arg risk.
+            $listingId = isset($listing['id']) ? (int) $listing['id'] : 0;
+            error_log('pocket-mailer: invoking mail() for listing ' . $listingId
+                . ' to=' . $to . ' from=' . $fromAddr);
             $sent = @mail($to, $subject, $body, implode("\r\n", $headers), '-f' . POCKET_MAIL_FROM);
-            if (!$sent) {
-                error_log('pocket-mailer: mail() returned false for listing id '
-                    . (isset($listing['id']) ? (int) $listing['id'] : 0));
-            }
+            error_log('pocket-mailer: mail() returned ' . ($sent ? 'TRUE' : 'FALSE')
+                . ' for listing ' . $listingId);
             return (bool) $sent;
         } catch (Throwable $e) {
             error_log('pocket-mailer error: ' . $e->getMessage());
