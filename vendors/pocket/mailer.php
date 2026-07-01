@@ -155,41 +155,66 @@ if (!function_exists('pocket_notify_new_listing')) {
                 $heroAbs, $suiteUrl
             );
 
-            // multipart/alternative with a unique boundary.
-            $boundary = 'pocket_' . bin2hex(random_bytes(16));
-
-            $headers = array();
-            $headers[] = 'MIME-Version: 1.0';
-            $headers[] = 'From: ' . $fromName . ' <' . $fromAddr . '>';
-            if ($replyTo !== '') {
-                $headers[] = 'Reply-To: ' . $replyTo;
-            }
-            $headers[] = 'Content-Type: multipart/alternative; boundary="' . $boundary . '"';
-
-            $body  = 'This is a multipart message in MIME format.' . "\r\n\r\n";
-            $body .= '--' . $boundary . "\r\n";
-            $body .= 'Content-Type: text/plain; charset=UTF-8' . "\r\n";
-            $body .= 'Content-Transfer-Encoding: 8bit' . "\r\n\r\n";
-            $body .= $textBody . "\r\n\r\n";
-            $body .= '--' . $boundary . "\r\n";
-            $body .= 'Content-Type: text/html; charset=UTF-8' . "\r\n";
-            $body .= 'Content-Transfer-Encoding: 8bit' . "\r\n\r\n";
-            $body .= $htmlBody . "\r\n\r\n";
-            $body .= '--' . $boundary . '--' . "\r\n";
-
-            // 5th arg sets the envelope sender (Return-Path) so SPF is checked
-            // against haleyyachts.com, not the default cPanel user - the piece
-            // that makes the whitelisted domain pass cleanly. POCKET_MAIL_FROM is
-            // a fixed trusted constant (never user input), so no shell-arg risk.
+            // --- send via authenticated SMTP (PHPMailer) ---
+            // Bare mail() does not deliver on this GoDaddy host, so the
+            // notification goes out through the real no-reply@haleyyachts.com
+            // mailbox over authenticated SMTP. Credentials live in an UNTRACKED
+            // server-side file (pocket_mail_config), never in the repo.
             $listingId = isset($listing['id']) ? (int) $listing['id'] : 0;
-            error_log('pocket-mailer: invoking mail() for listing ' . $listingId
-                . ' to=' . $to . ' from=' . $fromAddr);
-            $sent = @mail($to, $subject, $body, implode("\r\n", $headers), '-f' . POCKET_MAIL_FROM);
-            error_log('pocket-mailer: mail() returned ' . ($sent ? 'TRUE' : 'FALSE')
-                . ' for listing ' . $listingId);
-            return (bool) $sent;
+
+            $cfg = pocket_mail_config();
+            if ($cfg === null) {
+                error_log('pocket-mailer: mail-config.php missing or incomplete; '
+                    . 'cannot send listing ' . $listingId);
+                return false;
+            }
+
+            require_once __DIR__ . '/lib/phpmailer/Exception.php';
+            require_once __DIR__ . '/lib/phpmailer/PHPMailer.php';
+            require_once __DIR__ . '/lib/phpmailer/SMTP.php';
+
+            $mail = new PHPMailer\PHPMailer\PHPMailer(true); // true => throw on error
+            $mail->isSMTP();
+            $mail->Host     = $cfg['host'];
+            $mail->Port     = $cfg['port'];
+            $mail->SMTPAuth = true;
+            $mail->Username = $cfg['username'];
+            $mail->Password = $cfg['password'];
+            if ($cfg['secure'] !== '') {
+                $mail->SMTPSecure = $cfg['secure']; // 'ssl' or 'tls'
+            }
+            // A same-server relay can present a cert whose name does not match the
+            // configured host alias; allow relaxing that via config so the TLS
+            // handshake on an internal submission does not abort the send.
+            if ($cfg['allow_self_signed']) {
+                $mail->SMTPOptions = array('ssl' => array(
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true,
+                ));
+            }
+
+            $mail->CharSet = 'UTF-8';
+            $mail->setFrom(POCKET_MAIL_FROM, POCKET_MAIL_FROM_NAME);
+            $mail->addAddress($to);
+            if ($brokerEmail !== '') {
+                $mail->addReplyTo($brokerEmail, $brokerName !== '' ? $brokerName : $brokerEmail);
+            }
+            $mail->Subject = $subject;
+            $mail->isHTML(true);
+            $mail->Body    = $htmlBody;
+            $mail->AltBody = $textBody;
+
+            error_log('pocket-mailer: SMTP send via ' . $cfg['host'] . ':' . $cfg['port']
+                . ' for listing ' . $listingId . ' to=' . $to);
+            $mail->send();
+            error_log('pocket-mailer: SMTP send OK for listing ' . $listingId);
+            return true;
         } catch (Throwable $e) {
-            error_log('pocket-mailer error: ' . $e->getMessage());
+            // PHPMailer stashes the SMTP-level detail in ErrorInfo; include it so
+            // the log shows WHY a send failed (auth, connect, TLS, etc.).
+            $detail = (isset($mail) && $mail->ErrorInfo !== '') ? ' | ' . $mail->ErrorInfo : '';
+            error_log('pocket-mailer error: ' . $e->getMessage() . $detail);
             return false;
         }
     }
@@ -197,6 +222,31 @@ if (!function_exists('pocket_notify_new_listing')) {
     // =======================================================================
     // HELPERS
     // =======================================================================
+
+    /**
+     * Load the untracked SMTP credentials from mail-config.php (which returns an
+     * array). Returns a normalized config array, or null when the file is absent
+     * or missing a required key. The file is server-side only and gitignored, so
+     * the mailbox password never enters the repo and a git pull never clobbers it.
+     */
+    function pocket_mail_config()
+    {
+        $path = __DIR__ . '/mail-config.php';
+        if (!is_file($path)) { return null; }
+        $cfg = include $path;
+        if (!is_array($cfg)) { return null; }
+        foreach (array('host', 'username', 'password') as $k) {
+            if (!isset($cfg[$k]) || (string) $cfg[$k] === '') { return null; }
+        }
+        return array(
+            'host'              => (string) $cfg['host'],
+            'port'              => isset($cfg['port']) ? (int) $cfg['port'] : 465,
+            'username'          => (string) $cfg['username'],
+            'password'          => (string) $cfg['password'],
+            'secure'            => isset($cfg['secure']) ? (string) $cfg['secure'] : 'ssl',
+            'allow_self_signed' => !empty($cfg['allow_self_signed']),
+        );
+    }
 
     /**
      * Strip CR and LF from a value bound for a mail header, defeating header

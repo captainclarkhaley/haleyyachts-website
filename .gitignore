@@ -46,3 +46,6 @@ vendors/api/data/*.sqlite-shm
 vendors/pocket/uploads/*
 !vendors/pocket/uploads/.htaccess
 !vendors/pocket/uploads/.gitkeep
+
+# Pocket Listings SMTP credentials (server-side only, never commit)
+vendors/pocket/mail-config.php
