@@ -298,7 +298,8 @@ if (!function_exists('pocket_notify_new_listing')) {
         if ($brokerEmail !== '')    { $lines[] = $brokerEmail; }
 
         $lines[] = '';
-        $lines[] = 'View in the Broker Suite: ' . $suiteUrl;
+        $lines[] = 'For a customer friendly version of this listing, click below:';
+        $lines[] = 'View Pocket Listings: ' . $suiteUrl;
 
         return implode("\r\n", $lines);
     }
@@ -410,6 +411,7 @@ if (!function_exists('pocket_notify_new_listing')) {
 'New Pocket Listing</p>' .
 '<img src="' . POCKET_SITE_BASE . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#9fb8cf; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:14px 0 0 0; text-align:center;">Off-Market &middot; OWYG Broker Network</p>' .
 '</td></tr>' .
 
 // Cyan keyline
@@ -423,7 +425,6 @@ $galleryBlock .
 
 // Body: title, specs, price, description
 '<tr><td bgcolor="#ffffff" style="background-color:#ffffff; padding:28px 40px 8px 40px;">' .
-'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#5b7a96; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 8px 0;">Off-Market &middot; OWYG Broker Network</p>' .
 '<h1 style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:24px; line-height:30px; color:#0a1628; font-weight:700; margin:0 0 8px 0;">' . $eTitle . '</h1>' .
 $specsRow .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:20px; line-height:26px; color:#0a1628; font-weight:700; margin:0 0 16px 0;">' . $ePrice . '</p>' .
@@ -443,16 +444,15 @@ $contactRows .
 
 // CTA button
 '<tr><td align="center" bgcolor="#ffffff" style="background-color:#ffffff; padding:24px 40px 32px 40px;">' .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:14px; line-height:20px; color:#5b7a96; margin:0 0 14px 0; text-align:center;">For a customer friendly version of this listing, click below</p>' .
 '<a href="' . $eSuite . '" target="_blank" rel="noopener" ' .
 'style="display:inline-block; background-color:#21cbea; color:#0a1628; font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:15px; font-weight:700; text-decoration:none; padding:13px 28px; border-radius:8px;">' .
-'View in the Broker Suite</a></td></tr>' .
+'View Pocket Listings</a></td></tr>' .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
 '<img src="' . POCKET_SITE_BASE . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
-'<img src="' . POCKET_SITE_BASE . '/images/brand/haleyyachtslogo-footer.png" width="160" height="28" alt="Haley Yachts" ' .
-'style="display:block; width:160px; max-width:160px; height:28px; border:0; outline:none; opacity:0.85; margin:0 auto 14px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
 '&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.7); margin:0;">' .
