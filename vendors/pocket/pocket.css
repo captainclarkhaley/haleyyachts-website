@@ -350,6 +350,24 @@ body {
 }
 .pl-toggle-btn.active { background: var(--cyan); color: var(--navy); }
 
+/* Make select + "+ Add" affordance */
+.pl-make-row { display: flex; gap: 8px; align-items: stretch; }
+.pl-make-row select { flex: 1 1 auto; }
+.pl-make-add {
+    flex: 0 0 auto;
+    font-family: inherit;
+    font-size: .82rem;
+    font-weight: 600;
+    padding: 0 14px;
+    background: #fff;
+    color: var(--cyan-d);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.pl-make-add:hover { border-color: var(--cyan); color: var(--navy); background: rgba(33,203,234,0.08); }
+
 /* Image inputs */
 .pl-image-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .pl-image-slot { display: flex; flex-direction: column; gap: 6px; }

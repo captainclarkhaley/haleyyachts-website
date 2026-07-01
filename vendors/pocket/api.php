@@ -110,6 +110,9 @@ try {
         case 'delete':
             pocket_delete($pdo, $authUser);
             break;
+        case 'add_make':
+            pocket_add_make($pdo);
+            break;
         default:
             p_fail('Unknown action.', 404);
     }
@@ -757,4 +760,57 @@ function pocket_delete(PDO $pdo, array $authUser)
     }
 
     p_respond(array('ok' => true, 'deleted' => $id));
+}
+
+// ---------------------------------------------------------------------------
+// add_make (add a manufacturer to pocket_makes; any authenticated broker)
+// ---------------------------------------------------------------------------
+
+/**
+ * Add a manufacturer to the curated pocket_makes list. Gated by the top-of-file
+ * require_auth (any authenticated broker may add one - the same shared list feeds
+ * both the form and the filter selects).
+ *
+ * Reads `name` (query param, form field, or JSON body), trims it, validates it is
+ * non-empty and <= 60 chars, then dedupes case-insensitively: if a row already
+ * matches (COLLATE NOCASE) we return that row's canonical name and DO NOT insert
+ * a duplicate. Otherwise INSERT it with sort = max(sort)+1 and return the name.
+ * Responds { ok:true, name: <canonical name> }.
+ */
+function pocket_add_make(PDO $pdo)
+{
+    $name = '';
+    if (isset($_GET['name'])) {
+        $name = trim((string) $_GET['name']);
+    }
+    if ($name === '' && isset($_POST['name'])) {
+        $name = trim((string) $_POST['name']);
+    }
+    if ($name === '') {
+        $b = p_body_json();
+        if (isset($b['name'])) { $name = trim((string) $b['name']); }
+    }
+
+    if ($name === '') {
+        p_fail('Manufacturer name is required.');
+    }
+    if (mb_strlen($name) > 60) {
+        p_fail('Manufacturer name is too long (60 characters max).');
+    }
+
+    // Dedupe case-insensitively. If it already exists, return the canonical name.
+    $sel = $pdo->prepare('SELECT id, name FROM pocket_makes WHERE name = ? COLLATE NOCASE');
+    $sel->execute(array($name));
+    $existing = $sel->fetch();
+    if ($existing) {
+        p_respond(array('ok' => true, 'name' => (string) $existing['name']));
+    }
+
+    // Give it a sort value after the current max so it lands sensibly if the app
+    // ever orders by sort (the selects order by name, so this is future-proofing).
+    $maxSort = (int) $pdo->query('SELECT COALESCE(MAX(sort), 0) FROM pocket_makes')->fetchColumn();
+    $ins = $pdo->prepare('INSERT INTO pocket_makes (name, sort) VALUES (?, ?)');
+    $ins->execute(array($name, $maxSort + 1));
+
+    p_respond(array('ok' => true, 'name' => $name));
 }

@@ -221,7 +221,7 @@
     function wireFilters() {
         ['fKeyword', 'fYearMin', 'fYearMax', 'fLenMin', 'fLenMax', 'fPriceMin', 'fPriceMax']
             .forEach(function (id) { $(id).addEventListener('input', debouncedLoad); });
-        $('fMake').addEventListener('input', debouncedLoad);
+        $('fMake').addEventListener('change', loadListings);
         $('btnClear').addEventListener('click', function () {
             ['fKeyword', 'fYearMin', 'fYearMax', 'fLenMin', 'fLenMax', 'fPriceMin', 'fPriceMax']
                 .forEach(function (id) { $(id).value = ''; });
@@ -595,8 +595,83 @@
         });
     }
 
+    // ---- "+ Add" manufacturer flow ----------------------------------------
+    // Prompt for a name, require an explicit confirm ("are you sure" gate), then
+    // POST to add_make. On success add the canonical name as an <option> to BOTH
+    // the form select and the filter select (kept in sync) and select it in the
+    // form. If the make already exists (case-insensitive) we never create a
+    // duplicate - just select the existing option.
+
+    // Find an existing <option> in a select by case-insensitive value match.
+    function findOption(sel, name) {
+        var target = String(name).toLowerCase();
+        for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value.toLowerCase() === target) { return sel.options[i]; }
+        }
+        return null;
+    }
+
+    // Insert a make option alphabetically (case-insensitive) into a select,
+    // skipping the leading placeholder/"All makes" option. Returns the option
+    // (existing one if already present).
+    function insertMakeOption(sel, name) {
+        var existing = findOption(sel, name);
+        if (existing) { return existing; }
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        var lower = name.toLowerCase();
+        var placed = false;
+        // Start at index 1 to keep the placeholder first option in place.
+        for (var i = 1; i < sel.options.length; i++) {
+            if (sel.options[i].value.toLowerCase() > lower) {
+                sel.add(opt, sel.options[i]);
+                placed = true;
+                break;
+            }
+        }
+        if (!placed) { sel.add(opt); }
+        return opt;
+    }
+
+    function addMake() {
+        var raw = window.prompt('New manufacturer name:');
+        if (raw == null) { return; }            // cancelled
+        var name = raw.trim();
+        if (name === '') { return; }            // empty -> do nothing
+
+        var formSel = $('fFormMake');
+        // Already in the list? Just select it, no confirm, no POST, no duplicate.
+        var have = findOption(formSel, name);
+        if (have) { formSel.value = have.value; return; }
+
+        if (!window.confirm('Add "' + name + '" as a new manufacturer?')) { return; }
+
+        var btn = $('btnAddMake');
+        btn.disabled = true;
+        apiPost('action=add_make&name=' + encodeURIComponent(name)).then(function (data) {
+            btn.disabled = false;
+            if (!data.ok || !data.name) {
+                showNotice('formError', (data && data.error) || 'Could not add the manufacturer.');
+                return;
+            }
+            // Canonical name from the server (may be an existing row's casing).
+            var canonical = data.name;
+            insertMakeOption(formSel, canonical);
+            insertMakeOption($('fMake'), canonical);   // keep the filter select in sync
+            // Select the (possibly existing) canonical option in the form.
+            var picked = findOption(formSel, canonical);
+            if (picked) { formSel.value = picked.value; }
+            clearNotice('formError');
+        }).catch(function () {
+            btn.disabled = false;
+            showNotice('formError', 'Network error adding the manufacturer.');
+        });
+    }
+
     function wireForm() {
         $('btnNew').addEventListener('click', openNewForm);
+        $('btnAddMake').addEventListener('click', addMake);
         $('formClose').addEventListener('click', function () { closeOverlay('formOverlay'); });
         $('btnFormCancel').addEventListener('click', function () { closeOverlay('formOverlay'); });
         $('fDesc').addEventListener('input', updateDescCount);
