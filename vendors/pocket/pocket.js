@@ -12,6 +12,12 @@
     var API = 'api.php';
     var DESC_MAX = 750;
 
+    // Client-side image compression settings. Mirrors the server backstop
+    // (api.php resizes to 1600px too) but doing it here keeps the UPLOAD small
+    // so a big phone photo never trips the server's post_max_size limit.
+    var IMG_MAX_DIM = 1600;      // longest side, px (never upscale a smaller image)
+    var IMG_JPEG_QUALITY = 0.82; // canvas.toBlob JPEG quality
+
     // Identity from the server-rendered <body> data attributes. The SERVER still
     // enforces every permission; these only decide which buttons to show.
     var CURRENT_USER_ID = parseInt(document.body.getAttribute('data-user-id'), 10) || 0;
@@ -206,6 +212,126 @@
     function clearNotice(id) { var e = $(id); e.textContent = ''; e.classList.remove('show'); }
 
     // ======================================================================
+    // CLIENT-SIDE IMAGE COMPRESSION
+    // ----------------------------------------------------------------------
+    // When a broker attaches a photo we resize it (longest side <= 1600px) and
+    // re-encode to JPEG in the browser BEFORE it goes into the draft/upload. The
+    // server still validates + resizes as the backstop; this just keeps the
+    // multipart body small so a 10 MB phone photo does not trip post_max_size.
+    // ======================================================================
+
+    // Decode a File into something drawable, honouring EXIF orientation. Prefer
+    // createImageBitmap with imageOrientation:'from-image' (auto-rotates); fall
+    // back to a plain <img> + object URL (modern browsers auto-orient a drawn
+    // <img> anyway). Resolves with { source, width, height, cleanup }.
+    function decodeImage(file) {
+        var canBitmap = (typeof createImageBitmap === 'function');
+        if (canBitmap) {
+            try {
+                return createImageBitmap(file, { imageOrientation: 'from-image' }).then(function (bmp) {
+                    return { source: bmp, width: bmp.width, height: bmp.height, cleanup: function () {
+                        if (bmp.close) { bmp.close(); }
+                    } };
+                }).catch(function () {
+                    return decodeImageViaTag(file);
+                });
+            } catch (e) {
+                // Older engine that lacks the imageOrientation option throws.
+                return decodeImageViaTag(file);
+            }
+        }
+        return decodeImageViaTag(file);
+    }
+
+    function decodeImageViaTag(file) {
+        return new Promise(function (resolve, reject) {
+            var url = URL.createObjectURL(file);
+            var img = new Image();
+            img.onload = function () {
+                resolve({ source: img, width: img.naturalWidth, height: img.naturalHeight,
+                    cleanup: function () { URL.revokeObjectURL(url); } });
+            };
+            img.onerror = function () {
+                URL.revokeObjectURL(url);
+                reject(new Error('decode failed'));
+            };
+            img.src = url;
+        });
+    }
+
+    // Resize + JPEG re-encode a File. Resolves with a compressed File (.jpg), or
+    // the ORIGINAL file if it cannot be decoded/encoded (graceful fallback: the
+    // server still validates + resizes). Never rejects.
+    function compressImage(file) {
+        if (!file || !/^image\//i.test(file.type || '')) {
+            return Promise.resolve(file);
+        }
+        return decodeImage(file).then(function (dec) {
+            var w = dec.width, h = dec.height;
+            if (!w || !h) { dec.cleanup(); return file; }
+
+            var scale = 1;
+            if (w > IMG_MAX_DIM || h > IMG_MAX_DIM) {
+                scale = (w >= h) ? (IMG_MAX_DIM / w) : (IMG_MAX_DIM / h);
+            }
+            var nw = Math.max(1, Math.round(w * scale));
+            var nh = Math.max(1, Math.round(h * scale));
+
+            var canvas = document.createElement('canvas');
+            canvas.width = nw;
+            canvas.height = nh;
+            var ctx = canvas.getContext('2d');
+            if (!ctx) { dec.cleanup(); return file; }
+            // White backfill so PNG transparency flattens to white (not black).
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, nw, nh);
+            ctx.drawImage(dec.source, 0, 0, nw, nh);
+            dec.cleanup();
+
+            return new Promise(function (resolve) {
+                if (!canvas.toBlob) { resolve(file); return; }
+                canvas.toBlob(function (blob) {
+                    if (!blob) { resolve(file); return; }
+                    var base = (file.name || 'image').replace(/\.[^.]+$/, '');
+                    var name = (base || 'image') + '.jpg';
+                    var out;
+                    try {
+                        out = new File([blob], name, { type: 'image/jpeg' });
+                    } catch (e) {
+                        // Some engines lack the File constructor; a named Blob works
+                        // for FormData too, but tag it so the multipart part is sane.
+                        blob.name = name;
+                        out = blob;
+                    }
+                    resolve(out);
+                }, 'image/jpeg', IMG_JPEG_QUALITY);
+            });
+        }).catch(function () {
+            // Undecodable / unsupported: fall back to the original file.
+            return file;
+        });
+    }
+
+    // Per-input compression state. Each holds { promise, files } where promise
+    // resolves to an array of compressed Files. readFormDraft() awaits these so a
+    // commit never races ahead of an in-flight resize.
+    var heroComp = null;   // single-file: files is [File] or []
+    var moreComp = null;   // multi-file: files is [File, ...]
+
+    // Kick off compression for a freshly-selected FileList. Returns a state
+    // object; also flips a lightweight "optimizing" note while it runs.
+    function startCompression(fileList, noticeId) {
+        var files = Array.prototype.slice.call(fileList);
+        if (!files.length) { return { promise: Promise.resolve([]), files: [] }; }
+        showNotice(noticeId, 'Optimizing image' + (files.length === 1 ? '' : 's') + '...');
+        var promise = Promise.all(files.map(compressImage)).then(function (out) {
+            clearNotice(noticeId);
+            return out;
+        });
+        return { promise: promise, files: files };
+    }
+
+    // ======================================================================
     // NEW / EDIT FORM
     // ======================================================================
 
@@ -237,6 +363,8 @@
         setPriceType('list');
         updateDescCount();
         clearNotice('formError');
+        heroComp = null;
+        moreComp = null;
         $('existingImgsNote').hidden = true;
     }
 
@@ -274,11 +402,13 @@
         $('fFormMake').focus();
     }
 
-    // Read the form into a draft object (+ keep the File handles for commit).
+    // Read the form into a draft object. Resolves with the draft once any
+    // in-flight image compression has finished, so heroFile / moreFiles are the
+    // SMALL (resized + JPEG) versions that get uploaded. If nothing was selected
+    // (or the input changed without a stored compression state) it falls back to
+    // reading the raw file inputs directly. Returns a Promise.
     function readFormDraft() {
-        var heroFile = $('fHero').files.length ? $('fHero').files[0] : null;
-        var moreFiles = Array.prototype.slice.call($('fMore').files);
-        return {
+        var base = {
             id: $('fId').value ? parseInt($('fId').value, 10) : 0,
             make: $('fFormMake').value.trim(),
             model: $('fModel').value.trim(),
@@ -288,10 +418,24 @@
             days_active: $('fDays').value.trim(),
             price: $('fPrice').value.trim(),
             price_type: priceType,
-            description: $('fDesc').value,
-            heroFile: heroFile,
-            moreFiles: moreFiles
+            description: $('fDesc').value
         };
+
+        // Await the compressed results. If no compression state exists for an
+        // input (e.g. it was never touched) but the raw input holds files, fall
+        // back to those originals so nothing is silently dropped.
+        var heroPromise = heroComp
+            ? heroComp.promise.then(function (arr) { return arr.length ? arr[0] : null; })
+            : Promise.resolve($('fHero').files.length ? $('fHero').files[0] : null);
+        var morePromise = moreComp
+            ? moreComp.promise
+            : Promise.resolve(Array.prototype.slice.call($('fMore').files));
+
+        return Promise.all([heroPromise, morePromise]).then(function (r) {
+            base.heroFile = r[0];
+            base.moreFiles = r[1];
+            return base;
+        });
     }
 
     // Client-side validation before the review stage (server re-validates).
@@ -310,16 +454,26 @@
     }
 
     // "Save -> Review": validate, build the draft, render the preview card.
+    // Image compression is async, so this awaits readFormDraft(). The Review
+    // button is disabled while a big photo is still optimizing so the broker
+    // cannot race ahead of the resize.
     function goToReview() {
         clearNotice('formError');
-        var d = readFormDraft();
-        var err = validateDraft(d);
-        if (err) { showNotice('formError', err); return; }
-        draft = d;
-        renderReview(d);
-        closeOverlay('formOverlay');
-        clearNotice('reviewError');
-        openOverlay('reviewOverlay');
+        var btn = $('btnReview');
+        btn.disabled = true;
+        readFormDraft().then(function (d) {
+            btn.disabled = false;
+            var err = validateDraft(d);
+            if (err) { showNotice('formError', err); return; }
+            draft = d;
+            renderReview(d);
+            closeOverlay('formOverlay');
+            clearNotice('reviewError');
+            openOverlay('reviewOverlay');
+        }).catch(function () {
+            btn.disabled = false;
+            showNotice('formError', 'Could not prepare the images. Please try again.');
+        });
     }
 
     // ======================================================================
@@ -412,6 +566,16 @@
         $('fDesc').addEventListener('input', updateDescCount);
         $('ptList').addEventListener('click', function () { setPriceType('list'); });
         $('ptNet').addEventListener('click', function () { setPriceType('net'); });
+
+        // Compress images the moment they are attached (before commit). The
+        // resulting small JPEGs are stored and awaited at Review/Commit time.
+        $('fHero').addEventListener('change', function () {
+            heroComp = startCompression(this.files, 'formError');
+        });
+        $('fMore').addEventListener('change', function () {
+            moreComp = startCompression(this.files, 'formError');
+        });
+
         $('btnReview').addEventListener('click', goToReview);
 
         // Review overlay
