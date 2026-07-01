@@ -203,105 +203,118 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             background: var(--navy);
             background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%);
             color: #fff;
-            padding: 22px 30px;
+            padding: 14px 30px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             text-align: center;
         }
-        .pr-head img.pr-owyg { height: 46px; width: auto; display: block; }
+        .pr-head img.pr-owyg { height: 44px; width: auto; display: block; }
         .pr-head .pr-tag {
             font-size: .68rem; letter-spacing: 2px; text-transform: uppercase;
             color: #cfe9f1; font-weight: 600;
         }
         .pr-keyline { height: 3px; background: var(--cyan); }
 
-        .pr-body { padding: 26px 30px 30px; }
+        .pr-body { padding: 22px 30px 26px; }
+
+        /* Full-width title block above the two columns. */
+        .pr-titleblock { margin: 0 0 18px 0; }
+        .pr-title {
+            font-size: 1.7rem; font-weight: 700; color: var(--navy);
+            margin: 0 0 6px 0; line-height: 1.2;
+        }
+        .pr-specs-line { font-size: .95rem; color: var(--muted); margin: 0; }
+
+        /* Two-column main body (table for print reliability). */
+        .pr-cols { width: 100%; border-collapse: collapse; }
+        .pr-cols td { vertical-align: top; padding: 0; }
+        .pr-col-left  { width: 58%; padding-right: 18px !important; }
+        .pr-col-right { width: 42%; }
 
         .pr-hero {
             width: 100%;
-            max-height: 380px;
+            max-height: 280px;
             object-fit: cover;
             border-radius: 10px;
             background: #dde5eb;
             display: block;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
-        /* Up to 4 additional images, horizontal across, under the hero. */
+        /* Up to 3 additional images, horizontal strip under the hero. */
         .pr-gallery {
             display: flex;
-            gap: 10px;
-            margin: 0 0 20px 0;
+            gap: 8px;
+            margin: 0;
         }
         .pr-gallery img {
             flex: 1 1 0;
             min-width: 0;
-            height: 120px;
+            height: 78px;
             object-fit: cover;
             border-radius: 8px;
             background: #dde5eb;
             display: block;
         }
 
-        .pr-eyebrow {
-            font-size: .68rem; text-transform: uppercase; letter-spacing: 2px;
-            color: var(--cyan-d); font-weight: 700; margin: 0 0 6px 0;
-        }
-        .pr-title {
-            font-size: 1.7rem; font-weight: 700; color: var(--navy);
-            margin: 0 0 6px 0; line-height: 1.2;
-        }
-        .pr-specs { font-size: .95rem; color: var(--muted); margin: 0 0 12px 0; }
+        /* Price is the loudest non-image element. */
         .pr-price {
-            font-size: 1.4rem; font-weight: 700; color: var(--navy);
-            margin: 0 0 18px 0;
+            font-size: 1.6rem; font-weight: 700; color: var(--navy);
+            margin: 0 0 18px 0; line-height: 1.2;
         }
         .pr-price .pr-pt {
             font-size: .72rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: .08em; color: var(--cyan-d); margin-left: 8px;
+            letter-spacing: .08em; color: var(--cyan-d); margin-left: 6px;
+            white-space: nowrap;
         }
 
-        .pr-specs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 14px;
-            margin: 0 0 20px 0;
-            padding: 16px 0;
-            border-top: 1px solid var(--line);
+        /* Compact vertical spec list in the right column. */
+        .pr-specs-list { margin: 0 0 20px 0; }
+        .pr-specs-list .pr-spec {
+            padding: 8px 0;
             border-bottom: 1px solid var(--line);
         }
+        .pr-specs-list .pr-spec:first-child { border-top: 1px solid var(--line); }
         .pr-spec .lbl {
-            font-size: .64rem; text-transform: uppercase; letter-spacing: 1px;
-            color: var(--muted); font-weight: 700; display: block; margin-bottom: 3px;
+            font-size: .62rem; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--cyan-d); font-weight: 700; display: block; margin-bottom: 2px;
         }
-        .pr-spec .val { font-size: 1rem; color: var(--navy); font-weight: 600; }
+        .pr-spec .val { font-size: .98rem; color: var(--navy); font-weight: 600; }
 
         .pr-desc-h {
             font-size: .68rem; text-transform: uppercase; letter-spacing: 2px;
-            color: var(--muted); font-weight: 700; margin: 0 0 8px 0;
+            color: var(--muted); font-weight: 700; margin: 22px 0 8px 0;
         }
         .pr-desc {
             font-size: .95rem; color: var(--ink); white-space: pre-wrap;
-            margin: 0 0 24px 0;
+            margin: 0 0 20px 0;
+            orphans: 2; widows: 2;
         }
 
-        /* Contact block: the LOGGED-IN broker (presenter). */
+        /* Contact block: the LOGGED-IN broker (presenter). Sits at the bottom of
+           the right column. */
         .pr-contact {
             border-top: 2px solid var(--navy);
-            padding-top: 16px;
+            padding-top: 14px;
         }
         .pr-contact .pr-presented {
             font-size: .68rem; text-transform: uppercase; letter-spacing: 2px;
-            color: var(--cyan-d); font-weight: 700; margin: 0 0 8px 0;
+            color: var(--cyan-d); font-weight: 700; margin: 0 0 6px 0;
         }
         .pr-contact .pr-name {
-            font-size: 1.2rem; font-weight: 700; color: var(--navy); margin: 0 0 4px 0;
+            font-size: 1.15rem; font-weight: 700; color: var(--navy); margin: 0 0 4px 0;
         }
-        .pr-contact .pr-line { font-size: .95rem; color: var(--ink); margin: 0 0 2px 0; }
+        .pr-contact .pr-line { font-size: .92rem; color: var(--ink); margin: 0 0 2px 0; word-break: break-word; }
         .pr-contact a { color: var(--cyan-d); text-decoration: none; }
-        .pr-caption { font-size: .74rem; color: var(--muted); margin: 12px 0 0 0; }
+        .pr-caption { font-size: .74rem; color: var(--muted); margin: 16px 0 0 0; }
+
+        /* Narrow screen: stack the two columns (print stays two-column). */
+        @media screen and (max-width: 560px) {
+            .pr-cols, .pr-cols tbody, .pr-cols tr, .pr-cols td { display: block; width: 100%; }
+            .pr-col-left { padding-right: 0 !important; margin-bottom: 18px; }
+        }
 
         /* Screen-only bottom print button (hidden in print). */
         .pr-actions-bottom { text-align: center; margin: 4px auto 44px; }
@@ -334,6 +347,22 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             .pr-desc, .pr-line { color: #000; }
             img { max-width: 100%; }
             a { color: #000; text-decoration: none; }
+
+            /* Nothing here may split across pages except the description. */
+            .pr-head,
+            .pr-titleblock,
+            .pr-col-left,
+            .pr-col-right {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                -webkit-column-break-inside: avoid;
+            }
+            /* The description is the ONLY block allowed to flow to page 2. */
+            .pr-desc {
+                break-inside: auto;
+                page-break-inside: auto;
+                orphans: 2; widows: 2;
+            }
             @page { margin: 0; }
         }
     </style>
@@ -385,58 +414,71 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         <div class="pr-keyline"></div>
 
         <div class="pr-body">
-            <?php if ($heroUrl !== ''): ?>
-                <img class="pr-hero" src="<?php echo $h($heroUrl); ?>" alt="<?php echo $h($title); ?>">
-            <?php endif; ?>
-            <?php if (!empty($moreUrls)): ?>
-                <div class="pr-gallery">
-                    <?php foreach ($moreUrls as $mu): ?>
-                        <img src="<?php echo $h($mu); ?>" alt="">
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <p class="pr-eyebrow">Off-Market &middot; OWYG Broker Network</p>
-            <h1 class="pr-title"><?php echo $h($title); ?></h1>
-            <?php if ($specsLine !== ''): ?>
-                <p class="pr-specs"><?php echo $specsLine; ?></p>
-            <?php endif; ?>
-            <p class="pr-price"><?php echo $h($priceStr); ?></p>
-
-            <div class="pr-specs-grid">
-                <?php if (!empty($listing['length'])): ?>
-                    <div class="pr-spec"><span class="lbl">Length</span><span class="val"><?php echo $h($listing['length']); ?> ft</span></div>
-                <?php endif; ?>
-                <?php if (!empty($listing['location'])): ?>
-                    <div class="pr-spec"><span class="lbl">Location</span><span class="val"><?php echo $h($listing['location']); ?></span></div>
-                <?php endif; ?>
-                <?php if (!empty($listing['year'])): ?>
-                    <div class="pr-spec"><span class="lbl">Year</span><span class="val"><?php echo $h($listing['year']); ?></span></div>
-                <?php endif; ?>
-                <?php if (!empty($listing['make'])): ?>
-                    <div class="pr-spec"><span class="lbl">Make</span><span class="val"><?php echo $h($listing['make']); ?></span></div>
-                <?php endif; ?>
-                <?php if (!empty($listing['model'])): ?>
-                    <div class="pr-spec"><span class="lbl">Model</span><span class="val"><?php echo $h($listing['model']); ?></span></div>
+            <div class="pr-titleblock">
+                <h1 class="pr-title"><?php echo $h($title); ?></h1>
+                <?php if ($specsLine !== ''): ?>
+                    <p class="pr-specs-line"><?php echo $specsLine; ?></p>
                 <?php endif; ?>
             </div>
+
+            <?php
+                // Cap the additional-images strip at 3 on the printout (the listing
+                // still stores up to 4; we simply do not render the 4th here).
+                $stripUrls = array_slice($moreUrls, 0, 3);
+            ?>
+            <table class="pr-cols"><tbody><tr>
+                <td class="pr-col-left">
+                    <?php if ($heroUrl !== ''): ?>
+                        <img class="pr-hero" src="<?php echo $h($heroUrl); ?>" alt="<?php echo $h($title); ?>">
+                    <?php endif; ?>
+                    <?php if (!empty($stripUrls)): ?>
+                        <div class="pr-gallery">
+                            <?php foreach ($stripUrls as $mu): ?>
+                                <img src="<?php echo $h($mu); ?>" alt="">
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </td>
+                <td class="pr-col-right">
+                    <p class="pr-price"><?php echo $h($priceStr); ?></p>
+
+                    <div class="pr-specs-list">
+                        <?php if (!empty($listing['length'])): ?>
+                            <div class="pr-spec"><span class="lbl">Length</span><span class="val"><?php echo $h($listing['length']); ?> ft</span></div>
+                        <?php endif; ?>
+                        <?php if (!empty($listing['location'])): ?>
+                            <div class="pr-spec"><span class="lbl">Location</span><span class="val"><?php echo $h($listing['location']); ?></span></div>
+                        <?php endif; ?>
+                        <?php if (!empty($listing['year'])): ?>
+                            <div class="pr-spec"><span class="lbl">Year</span><span class="val"><?php echo $h($listing['year']); ?></span></div>
+                        <?php endif; ?>
+                        <?php if (!empty($listing['make'])): ?>
+                            <div class="pr-spec"><span class="lbl">Make</span><span class="val"><?php echo $h($listing['make']); ?></span></div>
+                        <?php endif; ?>
+                        <?php if (!empty($listing['model'])): ?>
+                            <div class="pr-spec"><span class="lbl">Model</span><span class="val"><?php echo $h($listing['model']); ?></span></div>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="pr-contact">
+                        <p class="pr-presented">Presented by</p>
+                        <p class="pr-name"><?php echo $h($presenterName); ?></p>
+                        <?php if ($presenterPhone !== ''): ?>
+                            <p class="pr-line"><?php echo $h($presenterPhone); ?></p>
+                        <?php endif; ?>
+                        <?php if ($presenterEmail !== ''): ?>
+                            <p class="pr-line"><a href="mailto:<?php echo $h(rawurlencode($presenterEmail)); ?>"><?php echo $h($presenterEmail); ?></a></p>
+                        <?php endif; ?>
+                    </div>
+                </td>
+            </tr></tbody></table>
 
             <?php if (!empty($listing['description'])): ?>
                 <p class="pr-desc-h">Description</p>
                 <div class="pr-desc"><?php echo $h($listing['description']); ?></div>
             <?php endif; ?>
 
-            <div class="pr-contact">
-                <p class="pr-presented">Presented by</p>
-                <p class="pr-name"><?php echo $h($presenterName); ?></p>
-                <?php if ($presenterPhone !== ''): ?>
-                    <p class="pr-line"><?php echo $h($presenterPhone); ?></p>
-                <?php endif; ?>
-                <?php if ($presenterEmail !== ''): ?>
-                    <p class="pr-line"><a href="mailto:<?php echo $h(rawurlencode($presenterEmail)); ?>"><?php echo $h($presenterEmail); ?></a></p>
-                <?php endif; ?>
-                <p class="pr-caption">This listing is presented by <?php echo $h($presenterName); ?> of Haley Yachts / One Water Yacht Group. Private, off-market - please do not distribute publicly.</p>
-            </div>
+            <p class="pr-caption">This listing is presented by <?php echo $h($presenterName); ?> of Haley Yachts / One Water Yacht Group. Private, off-market - please do not distribute publicly.</p>
         </div>
     </div>
 
