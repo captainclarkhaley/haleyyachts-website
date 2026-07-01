@@ -8,15 +8,22 @@
  * commits, and ONLY when a listing was just CREATED (never on edit). It sends a
  * co-branded HTML + plain-text email announcing the new listing to the network.
  *
- * The email is sent via PHP mail(). A failure here NEVER breaks the API
- * response: the function wraps the send in try/catch, error_log()s on failure,
- * and returns a boolean the caller can surface as an informational field.
+ * The email is sent over authenticated SMTP through the shared sender in
+ * ../mail-smtp.php (the real no-reply@haleyyachts.com mailbox), NOT bare mail().
+ * A failure here NEVER breaks the API response: the send is best-effort,
+ * error_log()s on failure, and returns a boolean the caller can surface as an
+ * informational field. A missing secrets file degrades gracefully (logged,
+ * returns false).
  *
  * SECURITY: every value that lands in a mail HEADER (To, From, Reply-To,
  * Subject) is stripped of CR/LF first (p_mail_header_safe) so a make, model, or
  * broker email cannot inject extra headers. Every user-supplied value in the
  * HTML body is escaped with htmlspecialchars.
  */
+
+// Shared authenticated-SMTP sender + config loader. Both Broker Suite mailers
+// route through this so there is one transport and one secrets file.
+require_once __DIR__ . '/../mail-smtp.php';
 
 if (!function_exists('pocket_notify_new_listing')) {
 
@@ -32,11 +39,10 @@ if (!function_exists('pocket_notify_new_listing')) {
     // purpose - do not ship a real rollout with this hard-coded single To.
     define('POCKET_NOTIFY_TO', 'clark@mvroam.com');
 
-    // The From address OWYG is whitelisting for SPF/DKIM. Until that alignment
-    // clears at the DNS level, sends from here may land in spam - expected
-    // during testing, not a bug in this code.
+    // The From address, sent over authenticated SMTP so SPF/DKIM authenticate
+    // it. The From DISPLAY NAME ("OneWater") comes from the shared secrets file
+    // (from_name), not from here, so both Broker Suite mailers stay consistent.
     define('POCKET_MAIL_FROM', 'no-reply@haleyyachts.com');
-    define('POCKET_MAIL_FROM_NAME', 'Haley Yachts');
 
     // Absolute base for image URLs and the "view in Broker Suite" link. Email
     // clients cannot resolve relative paths, so everything the email references
@@ -154,10 +160,11 @@ if (!function_exists('pocket_notify_new_listing')) {
             $subject = p_mail_header_safe($subject);
 
             // --- recipients / header addresses (all header-sanitized) ---
-            $to       = p_mail_header_safe(POCKET_NOTIFY_TO);
-            $fromAddr = p_mail_header_safe(POCKET_MAIL_FROM);
-            $fromName = p_mail_header_safe(POCKET_MAIL_FROM_NAME);
-            $replyTo  = p_mail_header_safe($brokerEmail); // may be '' -> omitted below
+            // From address + display name are handled by the shared sender
+            // (From: no-reply@haleyyachts.com, display "OneWater" from the
+            // secrets file). Here we only sanitize the To and the Reply-To.
+            $to      = p_mail_header_safe(POCKET_NOTIFY_TO);
+            $replyTo = p_mail_header_safe($brokerEmail); // may be '' -> omitted below
 
             // --- build both MIME parts ---
             $textBody = p_build_text_body(
@@ -170,66 +177,30 @@ if (!function_exists('pocket_notify_new_listing')) {
                 $heroAbs, $moreAbs, $suiteUrl
             );
 
-            // --- send via authenticated SMTP (PHPMailer) ---
+            // --- send via the shared authenticated-SMTP sender ---
             // Bare mail() does not deliver on this GoDaddy host, so the
             // notification goes out through the real no-reply@haleyyachts.com
-            // mailbox over authenticated SMTP. Credentials live in an UNTRACKED
-            // server-side file (pocket_mail_config), never in the repo.
+            // mailbox over authenticated SMTP. Credentials live in the UNTRACKED,
+            // gitignored vendors/mail-secrets.php (shared with the Vendor app
+            // mailer), never in the repo. A missing secrets file degrades
+            // gracefully (logged, returns false) and never breaks the API flow.
             $listingId = isset($listing['id']) ? (int) $listing['id'] : 0;
 
-            $cfg = pocket_mail_config();
-            if ($cfg === null) {
-                error_log('pocket-mailer: mail-config.php missing or incomplete; '
-                    . 'cannot send listing ' . $listingId);
-                return false;
+            $ok = mail_smtp_send(
+                $to,
+                $subject,
+                $textBody,
+                $htmlBody,
+                'pocket-mailer:listing-' . $listingId,
+                $replyTo,            // Reply-To: the listing broker (may be '')
+                POCKET_MAIL_FROM     // From: no-reply@haleyyachts.com
+            );
+            if (!$ok) {
+                error_log('pocket-mailer: notification not sent for listing ' . $listingId);
             }
-
-            require_once __DIR__ . '/lib/phpmailer/Exception.php';
-            require_once __DIR__ . '/lib/phpmailer/PHPMailer.php';
-            require_once __DIR__ . '/lib/phpmailer/SMTP.php';
-
-            $mail = new PHPMailer\PHPMailer\PHPMailer(true); // true => throw on error
-            $mail->isSMTP();
-            $mail->Host     = $cfg['host'];
-            $mail->Port     = $cfg['port'];
-            $mail->SMTPAuth = true;
-            $mail->Username = $cfg['username'];
-            $mail->Password = $cfg['password'];
-            if ($cfg['secure'] !== '') {
-                $mail->SMTPSecure = $cfg['secure']; // 'ssl' or 'tls'
-            }
-            // A same-server relay can present a cert whose name does not match the
-            // configured host alias; allow relaxing that via config so the TLS
-            // handshake on an internal submission does not abort the send.
-            if ($cfg['allow_self_signed']) {
-                $mail->SMTPOptions = array('ssl' => array(
-                    'verify_peer'       => false,
-                    'verify_peer_name'  => false,
-                    'allow_self_signed' => true,
-                ));
-            }
-
-            $mail->CharSet = 'UTF-8';
-            $mail->setFrom(POCKET_MAIL_FROM, POCKET_MAIL_FROM_NAME);
-            $mail->addAddress($to);
-            if ($brokerEmail !== '') {
-                $mail->addReplyTo($brokerEmail, $brokerName !== '' ? $brokerName : $brokerEmail);
-            }
-            $mail->Subject = $subject;
-            $mail->isHTML(true);
-            $mail->Body    = $htmlBody;
-            $mail->AltBody = $textBody;
-
-            error_log('pocket-mailer: SMTP send via ' . $cfg['host'] . ':' . $cfg['port']
-                . ' for listing ' . $listingId . ' to=' . $to);
-            $mail->send();
-            error_log('pocket-mailer: SMTP send OK for listing ' . $listingId);
-            return true;
+            return $ok;
         } catch (Throwable $e) {
-            // PHPMailer stashes the SMTP-level detail in ErrorInfo; include it so
-            // the log shows WHY a send failed (auth, connect, TLS, etc.).
-            $detail = (isset($mail) && $mail->ErrorInfo !== '') ? ' | ' . $mail->ErrorInfo : '';
-            error_log('pocket-mailer error: ' . $e->getMessage() . $detail);
+            error_log('pocket-mailer error: ' . $e->getMessage());
             return false;
         }
     }
@@ -237,31 +208,6 @@ if (!function_exists('pocket_notify_new_listing')) {
     // =======================================================================
     // HELPERS
     // =======================================================================
-
-    /**
-     * Load the untracked SMTP credentials from mail-config.php (which returns an
-     * array). Returns a normalized config array, or null when the file is absent
-     * or missing a required key. The file is server-side only and gitignored, so
-     * the mailbox password never enters the repo and a git pull never clobbers it.
-     */
-    function pocket_mail_config()
-    {
-        $path = __DIR__ . '/mail-config.php';
-        if (!is_file($path)) { return null; }
-        $cfg = include $path;
-        if (!is_array($cfg)) { return null; }
-        foreach (array('host', 'username', 'password') as $k) {
-            if (!isset($cfg[$k]) || (string) $cfg[$k] === '') { return null; }
-        }
-        return array(
-            'host'              => (string) $cfg['host'],
-            'port'              => isset($cfg['port']) ? (int) $cfg['port'] : 465,
-            'username'          => (string) $cfg['username'],
-            'password'          => (string) $cfg['password'],
-            'secure'            => isset($cfg['secure']) ? (string) $cfg['secure'] : 'ssl',
-            'allow_self_signed' => !empty($cfg['allow_self_signed']),
-        );
-    }
 
     /**
      * Strip CR and LF from a value bound for a mail header, defeating header

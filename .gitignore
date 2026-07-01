@@ -47,5 +47,12 @@ vendors/pocket/uploads/*
 !vendors/pocket/uploads/.htaccess
 !vendors/pocket/uploads/.gitkeep
 
-# Pocket Listings SMTP credentials (server-side only, never commit)
+# Broker Suite SMTP credentials (server-side only, never commit). One shared
+# secrets file feeds BOTH mailers (Vendor app auth mail + Pocket notification).
+# Copy vendors/mail-secrets.sample.php -> vendors/mail-secrets.php on the server
+# and set the real mailbox password there; it must never enter git.
+vendors/mail-secrets.php
+
+# Legacy per-app Pocket credentials file (kept ignored for backward compat;
+# the consolidated vendors/mail-secrets.php above supersedes it).
 vendors/pocket/mail-config.php

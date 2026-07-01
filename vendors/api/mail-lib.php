@@ -6,18 +6,26 @@
  * accounts endpoint (admin/users-api.php) so the onboarding, admin-reset, and
  * password-changed notices are built and sent from one place.
  *
- * Every sender here is BEST-EFFORT: mail() returning false is logged with a
- * generic line (NEVER a password) and the boolean is returned so the caller can
- * ignore the failure and still complete its operation (create / reset / change).
+ * Every sender here is BEST-EFFORT: a failed send is logged with a generic line
+ * (NEVER a password) and the boolean is returned so the caller can ignore the
+ * failure and still complete its operation (create / reset / change).
+ *
+ * TRANSPORT: mail is sent over authenticated SMTP through the real
+ * no-reply@haleyyachts.com mailbox (see ../mail-smtp.php), NOT bare mail(). This
+ * is what lets SPF/DKIM authenticate the message so it reaches the inbox.
+ * Credentials live in the untracked, gitignored vendors/mail-secrets.php. If
+ * that file is missing, the send degrades gracefully (logged, returns false) and
+ * the app flow is never interrupted.
  *
  * SECURITY: a temporary password is included in the BODY of the onboarding and
  * admin-reset emails (that is the whole point of those messages). It is NEVER
  * written to error_log or any HTTP response. The password-changed confirmation
  * contains no password at all.
- *
- * Actual deliverability still depends on the domain's SPF/DKIM being in place
- * for no-reply@haleyyachts.com - that is pending and out of scope for this file.
  */
+
+// Shared authenticated-SMTP sender + config loader. Both Broker Suite mailers
+// route through this so there is one transport and one secrets file.
+require_once __DIR__ . '/../mail-smtp.php';
 
 if (!defined('VMAIL_FROM')) {
     // From-address for all Vendor app system mail. Must be on the site domain so
@@ -46,26 +54,33 @@ if (!function_exists('vmail_login_url')) {
         return 'https://' . $host . '/vendors/login.html';
     }
 
-    /** Standard plain-text headers for all Vendor app system mail. */
-    function vmail_headers()
-    {
-        return 'From: OneWater <' . VMAIL_FROM . ">\r\n" .
-               'Reply-To: ' . VMAIL_FROM . "\r\n" .
-               "Content-Type: text/plain; charset=UTF-8\r\n";
-    }
-
     /**
-     * Low-level best-effort sender. Returns mail()'s bool. On failure it logs a
-     * generic line tagged with $context and NEVER the password or body. The
-     * caller treats a false return as non-fatal.
+     * Low-level best-effort sender. Sends a plain-text message over authenticated
+     * SMTP via the shared mail_smtp_send() (From: OneWater <no-reply@...>, with a
+     * Reply-To of the same mailbox). Returns true on a successful hand-off, false
+     * otherwise. On failure it logs a generic line tagged with $context and NEVER
+     * the password or body. The caller treats a false return as non-fatal.
+     *
+     * Signature is unchanged from the previous mail()-based version, so all
+     * callers keep working without edits.
      */
     function vmail_send($toEmail, $subject, $body, $context)
     {
-        $sent = @mail($toEmail, $subject, $body, vmail_headers());
-        if (!$sent) {
-            error_log('vendor-mail: ' . $context . ' send failed (mail() returned false).');
-        }
-        return $sent;
+        // header-safe the To/Subject: strip CR/LF/NUL so nothing can inject a
+        // second header. The From is a fixed constant, not user input.
+        $to      = str_replace(array("\r", "\n", "\0"), '', (string) $toEmail);
+        $subject = str_replace(array("\r", "\n", "\0"), '', (string) $subject);
+
+        // Plain-text only ($htmlBody = null). Reply-To mirrors the From mailbox.
+        return mail_smtp_send(
+            trim($to),
+            trim($subject),
+            $body,
+            null,
+            'vendor-mail:' . $context,
+            VMAIL_FROM,   // Reply-To
+            VMAIL_FROM    // From address (the authenticated mailbox)
+        );
     }
 
     /**
