@@ -327,6 +327,11 @@ function pocket_save(PDO $pdo, array $authUser)
     $model       = isset($_POST['model']) ? trim($_POST['model']) : '';
     $location    = isset($_POST['location']) ? trim($_POST['location']) : '';
     $description = isset($_POST['description']) ? trim($_POST['description']) : '';
+    // Normalize newlines to LF so the length matches the browser's counter and
+    // maxlength (which measure the LF-normalized value). Otherwise each CRLF pair
+    // counts as 2 here, and a description that reads exactly 750 in the counter is
+    // rejected server-side by the number of line breaks.
+    $description = str_replace(array("\r\n", "\r"), "\n", $description);
     $priceType   = isset($_POST['price_type']) ? trim($_POST['price_type']) : 'list';
 
     // Numeric fields: blank -> null, otherwise int. Reject non-numeric that is
