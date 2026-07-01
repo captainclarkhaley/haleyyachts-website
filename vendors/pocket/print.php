@@ -112,7 +112,7 @@ $fmtPhone = function ($raw) {
 $fmtPrice = function ($price, $priceType) {
     // Client-facing sheet: a NET listing never prints a number - the net price
     // is a broker-to-broker figure, not for the buyer. List price prints as is.
-    if ($priceType === 'net') { return 'Please Call for Pricing'; }
+    if ($priceType === 'net') { return 'Call for Pricing'; }
     if ($price === null || $price === '') { return 'Price on request'; }
     return '$' . number_format((int) $price) . ' (List)';
 };
