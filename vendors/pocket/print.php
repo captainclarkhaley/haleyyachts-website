@@ -293,7 +293,8 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             color: var(--muted); font-weight: 700; margin: 22px 0 8px 0;
         }
         .pr-desc {
-            font-size: .95rem; color: var(--ink); white-space: pre-wrap;
+            font-size: .82rem; color: var(--ink); white-space: pre-wrap;
+            line-height: 1.5;
             margin: 0 0 20px 0;
             orphans: 2; widows: 2;
             border-left: 3px solid var(--cyan);
@@ -352,14 +353,12 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             .pr-actions-bottom { display: none !important; }
             .pr-sheet {
                 max-width: 100%; margin: 0; border: none; border-radius: 0;
-                /* Do NOT force page-fill in print: a min-height near 100vh is a
-                   classic cause of a blank/extra second page. The footer is
-                   pinned to the page bottom via position:fixed below instead. */
-                min-height: 0;
+                /* Fill the page so the flex layout pushes the footer to the
+                   bottom. A few mm of slack under the content box (page height
+                   minus the 24mm body padding) avoids a rounding overflow that
+                   would spill a blank second page. */
+                min-height: calc(100vh - 30mm);
             }
-            /* Reserve room at the bottom so the description never runs under the
-               fixed footer. */
-            .pr-body { padding-bottom: 22mm; }
             .pr-head {
                 background: var(--navy) !important;
                 -webkit-print-color-adjust: exact; print-color-adjust: exact;
@@ -384,14 +383,6 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
                 -webkit-column-break-inside: avoid;
             }
             .pr-caption { color: #000; }
-            /* Pin the footer to the bottom of every printed page WITHOUT adding
-               flow height (which would push content onto a new page). Sits inside
-               the 12mm body margin. */
-            .pr-footer {
-                position: fixed;
-                left: 12mm; right: 12mm; bottom: 12mm;
-                background: #fff;
-            }
             /* The description is the ONLY block allowed to flow to page 2. */
             .pr-desc {
                 break-inside: auto;
