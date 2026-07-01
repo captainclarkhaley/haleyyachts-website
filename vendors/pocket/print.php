@@ -234,13 +234,16 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
 
         /* Two-column main body (table for print reliability). */
         .pr-cols { width: 100%; border-collapse: collapse; }
-        .pr-cols td { vertical-align: top; padding: 0; }
+        .pr-cols td { vertical-align: top; padding: 0; height: 100%; }
         .pr-col-left  { width: 58%; padding-right: 18px !important; }
         .pr-col-right { width: 42%; }
+        /* Fill the cell height so "Presented by" can sit at the bottom, aligned
+           with the bottom of the photo column. */
+        .pr-right-inner { display: flex; flex-direction: column; height: 100%; }
 
         .pr-hero {
             width: 100%;
-            max-height: 210px;
+            max-height: 280px;
             object-fit: cover;
             border-radius: 10px;
             background: #dde5eb;
@@ -275,18 +278,18 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             white-space: nowrap;
         }
 
-        /* Compact vertical spec list in the right column. */
-        .pr-specs-list { margin: 0 0 20px 0; }
-        .pr-specs-list .pr-spec {
-            padding: 8px 0;
-            border-bottom: 1px solid var(--line);
+        /* Compact spec block in the right column: Year+Make, Model, Location on
+           three tight lines. Length lives in the specs line under the title. */
+        .pr-specs-list { margin: 0 0 14px 0; }
+        .pr-spec-row {
+            font-size: .98rem; color: var(--navy); font-weight: 600;
+            line-height: 1.3; margin: 0 0 4px 0;
         }
-        .pr-specs-list .pr-spec:first-child { border-top: 1px solid var(--line); }
-        .pr-spec .lbl {
-            font-size: .62rem; text-transform: uppercase; letter-spacing: 1px;
-            color: var(--cyan-d); font-weight: 700; display: block; margin-bottom: 2px;
+        .pr-spec-row .lbl {
+            font-size: .58rem; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--cyan-d); font-weight: 700; margin-right: 5px;
         }
-        .pr-spec .val { font-size: .98rem; color: var(--navy); font-weight: 600; }
+        .pr-spec-row .pr-sp { margin-right: 18px; }
 
         .pr-desc-h {
             font-size: .68rem; text-transform: uppercase; letter-spacing: 2px;
@@ -304,6 +307,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         /* Contact block: the LOGGED-IN broker (presenter). Sits at the bottom of
            the right column. */
         .pr-contact {
+            margin-top: auto;
             border-top: 2px solid var(--navy);
             padding-top: 14px;
         }
@@ -369,7 +373,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
                 background: var(--cyan) !important;
                 -webkit-print-color-adjust: exact; print-color-adjust: exact;
             }
-            .pr-title, .pr-price, .pr-spec .val, .pr-contact .pr-name { color: #000; }
+            .pr-title, .pr-price, .pr-spec-row, .pr-contact .pr-name { color: #000; }
             .pr-desc, .pr-line { color: #000; }
             img { max-width: 100%; }
             a { color: #000; text-decoration: none; }
@@ -474,35 +478,36 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
                     <?php endif; ?>
                 </td>
                 <td class="pr-col-right">
-                    <p class="pr-price"><?php echo $h($priceStr); ?></p>
+                    <div class="pr-right-inner">
+                        <div class="pr-right-top">
+                            <p class="pr-price"><?php echo $h($priceStr); ?></p>
 
-                    <div class="pr-specs-list">
-                        <?php if (!empty($listing['length'])): ?>
-                            <div class="pr-spec"><span class="lbl">Length</span><span class="val"><?php echo $h($listing['length']); ?> ft</span></div>
-                        <?php endif; ?>
-                        <?php if (!empty($listing['location'])): ?>
-                            <div class="pr-spec"><span class="lbl">Location</span><span class="val"><?php echo $h($listing['location']); ?></span></div>
-                        <?php endif; ?>
-                        <?php if (!empty($listing['year'])): ?>
-                            <div class="pr-spec"><span class="lbl">Year</span><span class="val"><?php echo $h($listing['year']); ?></span></div>
-                        <?php endif; ?>
-                        <?php if (!empty($listing['make'])): ?>
-                            <div class="pr-spec"><span class="lbl">Make</span><span class="val"><?php echo $h($listing['make']); ?></span></div>
-                        <?php endif; ?>
-                        <?php if (!empty($listing['model'])): ?>
-                            <div class="pr-spec"><span class="lbl">Model</span><span class="val"><?php echo $h($listing['model']); ?></span></div>
-                        <?php endif; ?>
-                    </div>
+                            <div class="pr-specs-list">
+                                <?php if (!empty($listing['year']) || !empty($listing['make'])): ?>
+                                    <div class="pr-spec-row">
+                                        <?php if (!empty($listing['year'])): ?><span class="pr-sp"><span class="lbl">Year</span><?php echo $h($listing['year']); ?></span><?php endif; ?>
+                                        <?php if (!empty($listing['make'])): ?><span class="pr-sp"><span class="lbl">Make</span><?php echo $h($listing['make']); ?></span><?php endif; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if (!empty($listing['model'])): ?>
+                                    <div class="pr-spec-row"><span class="lbl">Model</span><?php echo $h($listing['model']); ?></div>
+                                <?php endif; ?>
+                                <?php if (!empty($listing['location'])): ?>
+                                    <div class="pr-spec-row"><span class="lbl">Location</span><?php echo $h($listing['location']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
 
-                    <div class="pr-contact">
-                        <p class="pr-presented">Presented by</p>
-                        <p class="pr-name"><?php echo $h($presenterName); ?></p>
-                        <?php if ($presenterPhone !== ''): ?>
-                            <p class="pr-line"><?php echo $h($presenterPhone); ?></p>
-                        <?php endif; ?>
-                        <?php if ($presenterEmail !== ''): ?>
-                            <p class="pr-line"><a href="mailto:<?php echo $h(rawurlencode($presenterEmail)); ?>"><?php echo $h($presenterEmail); ?></a></p>
-                        <?php endif; ?>
+                        <div class="pr-contact">
+                            <p class="pr-presented">Presented by</p>
+                            <p class="pr-name"><?php echo $h($presenterName); ?></p>
+                            <?php if ($presenterPhone !== ''): ?>
+                                <p class="pr-line"><?php echo $h($presenterPhone); ?></p>
+                            <?php endif; ?>
+                            <?php if ($presenterEmail !== ''): ?>
+                                <p class="pr-line"><a href="mailto:<?php echo $h(rawurlencode($presenterEmail)); ?>"><?php echo $h($presenterEmail); ?></a></p>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </td>
             </tr></tbody></table>
