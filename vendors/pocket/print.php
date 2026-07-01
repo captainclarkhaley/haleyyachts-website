@@ -296,6 +296,8 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             font-size: .95rem; color: var(--ink); white-space: pre-wrap;
             margin: 0 0 20px 0;
             orphans: 2; widows: 2;
+            border-left: 3px solid var(--cyan);
+            padding-left: 14px;
         }
 
         /* Contact block: the LOGGED-IN broker (presenter). Sits at the bottom of
@@ -384,6 +386,8 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
                 break-inside: auto;
                 page-break-inside: auto;
                 orphans: 2; widows: 2;
+                /* Keep the cyan left rule in color when printed. */
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
             }
             @page { margin: 0; }
         }
