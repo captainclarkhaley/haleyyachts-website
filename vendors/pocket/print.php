@@ -352,11 +352,14 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             .pr-actions-bottom { display: none !important; }
             .pr-sheet {
                 max-width: 100%; margin: 0; border: none; border-radius: 0;
-                /* Fill the printable page height so the footer is pushed to the
-                   bottom of the sheet. 100vh under print maps to the page box
-                   (minus the 12mm body padding, top + bottom). */
-                min-height: calc(100vh - 24mm);
+                /* Do NOT force page-fill in print: a min-height near 100vh is a
+                   classic cause of a blank/extra second page. The footer is
+                   pinned to the page bottom via position:fixed below instead. */
+                min-height: 0;
             }
+            /* Reserve room at the bottom so the description never runs under the
+               fixed footer. */
+            .pr-body { padding-bottom: 22mm; }
             .pr-head {
                 background: var(--navy) !important;
                 -webkit-print-color-adjust: exact; print-color-adjust: exact;
@@ -381,6 +384,14 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
                 -webkit-column-break-inside: avoid;
             }
             .pr-caption { color: #000; }
+            /* Pin the footer to the bottom of every printed page WITHOUT adding
+               flow height (which would push content onto a new page). Sits inside
+               the 12mm body margin. */
+            .pr-footer {
+                position: fixed;
+                left: 12mm; right: 12mm; bottom: 12mm;
+                background: #fff;
+            }
             /* The description is the ONLY block allowed to flow to page 2. */
             .pr-desc {
                 break-inside: auto;
