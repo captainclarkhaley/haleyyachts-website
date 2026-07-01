@@ -274,6 +274,10 @@
                     '<div class="pl-card-broker">Broker: ' + esc(l.broker_name || 'Unknown') +
                         (l.broker_phone ? ' &middot; ' + esc(formatPhone(l.broker_phone)) : '') + '</div>' +
                     (l.created_at ? '<div class="pl-card-date">Listed ' + esc(formatDate(l.created_at)) + '</div>' : '') +
+                    '<div class="pl-card-actions">' +
+                        '<a class="pl-card-print" href="print.php?id=' + l.id + '" ' +
+                            'target="_blank" rel="noopener" data-print="' + l.id + '">Print</a>' +
+                    '</div>' +
                 '</div>' +
             '</div>';
         }
@@ -283,6 +287,14 @@
         for (var j = 0; j < cards.length; j++) {
             cards[j].addEventListener('click', function () {
                 openDetail(parseInt(this.getAttribute('data-id'), 10));
+            });
+        }
+        // Print links open the one-pager in a new tab; stop the click from also
+        // opening the card detail overlay behind it.
+        var printLinks = wrap.querySelectorAll('.pl-card-print');
+        for (var k = 0; k < printLinks.length; k++) {
+            printLinks[k].addEventListener('click', function (e) {
+                e.stopPropagation();
             });
         }
     }
@@ -917,7 +929,10 @@
 
         $('detailBody').innerHTML = heroHtml + grid + desc + galleryHtml +
             '<div class="pl-detail-broker">Listing broker: ' + esc(l.broker_name || 'Unknown') +
-                (l.broker_phone ? ' &middot; ' + esc(formatPhone(l.broker_phone)) : '') + '</div>';
+                (l.broker_phone ? ' &middot; ' + esc(formatPhone(l.broker_phone)) : '') + '</div>' +
+            '<div class="pl-detail-actions">' +
+                '<a class="pl-card-print" href="print.php?id=' + l.id + '" target="_blank" rel="noopener">Print one-pager</a>' +
+            '</div>';
 
         // Owner-or-admin controls. The SERVER still enforces this on save/delete;
         // hiding the buttons is only a UI courtesy.

@@ -419,6 +419,11 @@ function pocket_save(PDO $pdo, array $authUser)
         p_fail($e->getMessage());
     }
 
+    // Capture create-vs-edit BEFORE $id gets reassigned to lastInsertId below.
+    // A NEW listing has $id === 0 here; the notification email fires on create
+    // ONLY, never on an edit.
+    $isNew = ($id <= 0);
+
     // ---- DB write ----
     $pdo->beginTransaction();
     try {
@@ -505,7 +510,19 @@ function pocket_save(PDO $pdo, array $authUser)
     }
 
     $listing = pocket_load($pdo, $id);
-    p_respond(array('ok' => true, 'listing' => $listing));
+
+    // ---- network notification email (create only, OUTSIDE the transaction) ----
+    // Fired only for a brand-new listing, and only after the commit succeeded so
+    // the email never announces a listing that failed to save. The mailer never
+    // throws: it returns a boolean and logs its own failures, so a mail problem
+    // cannot break this API response. 'notify_sent' is informational only.
+    $notifySent = false;
+    if ($isNew && $listing) {
+        require_once __DIR__ . '/mailer.php';
+        $notifySent = pocket_notify_new_listing($pdo, $listing, $authUser);
+    }
+
+    p_respond(array('ok' => true, 'listing' => $listing, 'notify_sent' => $notifySent));
 }
 
 /** Read a numeric POST field: '' -> null, numeric -> int, non-numeric -> fail. */

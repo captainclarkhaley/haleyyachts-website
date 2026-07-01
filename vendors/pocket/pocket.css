@@ -233,6 +233,32 @@ body {
     color: var(--muted);
     margin-top: 3px;
 }
+.pl-card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+}
+.pl-card-print {
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--cyan-d);
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 5px 12px;
+}
+.pl-card-print:hover {
+    border-color: var(--cyan);
+    color: var(--navy);
+    background: rgba(33,203,234,0.08);
+}
+.pl-detail-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+}
 
 /* ----- Foot link ----- */
 .pl-foot-link { text-align: center; margin-top: 34px; }
