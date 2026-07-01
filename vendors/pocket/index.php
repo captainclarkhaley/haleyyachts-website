@@ -227,6 +227,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                             <input type="file" id="fMore" accept="image/jpeg,image/png,image/webp" multiple>
                         </div>
                     </div>
+                    <div class="pl-optnote" id="optNote"></div>
                     <p class="pl-hint" id="existingImgsNote" hidden></p>
                 </div>
             </form>

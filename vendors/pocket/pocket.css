@@ -300,6 +300,9 @@ body {
 .pl-notice.show { display: block; }
 .pl-notice.error { background: #fdecea; border-left: 4px solid var(--danger); color: #7a241c; }
 
+.pl-optnote { display: none; font-size: .78rem; color: var(--muted); margin-top: 8px; }
+.pl-optnote.show { display: block; }
+
 /* ----- Form ----- */
 .pl-form-grid {
     display: grid;

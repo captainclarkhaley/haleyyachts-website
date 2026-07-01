@@ -425,6 +425,30 @@
     var heroComp = null;   // single-file: files is [File] or []
     var moreComp = null;   // multi-file: files is [File, ...]
 
+    function fmtBytes(b) {
+        b = b || 0;
+        if (b < 1024 * 1024) { return Math.max(1, Math.round(b / 1024)) + ' KB'; }
+        return (b / 1048576).toFixed(1) + ' MB';
+    }
+
+    // Sum the compressed sizes of everything currently attached (hero + more)
+    // and show it under the image inputs, so the broker sees the real upload
+    // payload. Awaits both compression promises so the number is post-shrink.
+    function updateOptTotal() {
+        var proms = [];
+        if (heroComp) { proms.push(heroComp.promise); }
+        if (moreComp) { proms.push(moreComp.promise); }
+        if (!proms.length) { clearNotice('optNote'); return; }
+        Promise.all(proms).then(function (results) {
+            var files = [];
+            results.forEach(function (r) { files = files.concat(r || []); });
+            if (!files.length) { clearNotice('optNote'); return; }
+            var bytes = files.reduce(function (a, f) { return a + ((f && f.size) || 0); }, 0);
+            showNotice('optNote', files.length + ' image' + (files.length === 1 ? '' : 's') +
+                ' optimized · ' + fmtBytes(bytes) + ' to upload');
+        });
+    }
+
     // Kick off compression for a freshly-selected FileList. Returns a state
     // object; also flips a lightweight "optimizing" note while it runs.
     function startCompression(fileList, noticeId) {
@@ -470,6 +494,7 @@
         setPriceType('list');
         updateDescCount();
         clearNotice('formError');
+        clearNotice('optNote');
         heroComp = null;
         moreComp = null;
         $('existingImgsNote').hidden = true;
@@ -813,10 +838,12 @@
         // Compress images the moment they are attached (before commit). The
         // resulting small JPEGs are stored and awaited at Review/Commit time.
         $('fHero').addEventListener('change', function () {
-            heroComp = startCompression(this.files, 'formError');
+            heroComp = startCompression(this.files, 'optNote');
+            updateOptTotal();
         });
         $('fMore').addEventListener('change', function () {
-            moreComp = startCompression(this.files, 'formError');
+            moreComp = startCompression(this.files, 'optNote');
+            updateOptTotal();
         });
 
         $('btnReview').addEventListener('click', goToReview);
