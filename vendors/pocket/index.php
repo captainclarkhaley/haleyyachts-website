@@ -193,7 +193,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                     </div>
                     <div class="pl-frow">
                         <label for="fPrice">Price ($)</label>
-                        <input type="number" id="fPrice" inputmode="numeric" min="0">
+                        <input type="text" id="fPrice" inputmode="numeric" autocomplete="off" placeholder="0">
                     </div>
                     <div class="pl-frow">
                         <label>Price Type</label>

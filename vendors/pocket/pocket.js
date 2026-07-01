@@ -53,6 +53,41 @@
         return '$' + num.toLocaleString('en-US');
     }
 
+    // Format a US phone for display: 10 digits -> (305) 555-1212, 11 with a
+    // leading 1 -> 1 (305) 555-1212, anything else returned as entered.
+    function formatPhone(raw) {
+        var s = String(raw == null ? '' : raw).trim();
+        if (!s) { return s; }
+        var d = s.replace(/\D/g, '');
+        if (d.length === 10) { return '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6); }
+        if (d.length === 11 && d.charAt(0) === '1') { return '1 (' + d.slice(1, 4) + ') ' + d.slice(4, 7) + '-' + d.slice(7); }
+        return s;
+    }
+
+    // Digits only, and the same digits grouped with thousands commas.
+    function digitsOnly(s) { return String(s == null ? '' : s).replace(/\D/g, ''); }
+    function withCommas(s) {
+        var d = digitsOnly(s);
+        return d === '' ? '' : d.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    // Live thousands-separator formatting on a text input, caret-preserving.
+    function attachPriceFormat(el) {
+        if (!el) { return; }
+        el.addEventListener('input', function () {
+            var caret = el.selectionStart;
+            var digitsLeft = digitsOnly(el.value.slice(0, caret)).length;
+            var formatted = withCommas(el.value);
+            el.value = formatted;
+            var pos = 0, seen = 0;
+            while (pos < formatted.length && seen < digitsLeft) {
+                if (/\d/.test(formatted.charAt(pos))) { seen++; }
+                pos++;
+            }
+            if (el.setSelectionRange) { el.setSelectionRange(pos, pos); }
+        });
+    }
+
     // ---- response parsing (mirrors the vendor app: 401 -> login, 403 must_change) ----
     function parseJson(res) {
         return res.text().then(function (t) {
@@ -167,7 +202,7 @@
                     '<div class="pl-card-price">' + esc(fmtPrice(l.price)) +
                         '<span class="pl-price-type">' + ptLabel + '</span></div>' +
                     '<div class="pl-card-broker">Broker: ' + esc(l.broker_name || 'Unknown') +
-                        (l.broker_phone ? ' &middot; ' + esc(l.broker_phone) : '') + '</div>' +
+                        (l.broker_phone ? ' &middot; ' + esc(formatPhone(l.broker_phone)) : '') + '</div>' +
                 '</div>' +
             '</div>';
         }
@@ -388,7 +423,7 @@
         $('fLength').value = (l.length == null) ? '' : l.length;
         $('fLocation').value = l.location || '';
         $('fDays').value = (l.days_active == null) ? '' : l.days_active;
-        $('fPrice').value = (l.price == null) ? '' : l.price;
+        $('fPrice').value = (l.price == null) ? '' : withCommas(String(l.price));
         $('fDesc').value = l.description || '';
         setPriceType(l.price_type);
         updateDescCount();
@@ -417,7 +452,7 @@
             length: $('fLength').value.trim(),
             location: $('fLocation').value.trim(),
             days_active: $('fDays').value.trim(),
-            price: $('fPrice').value.trim(),
+            price: digitsOnly($('fPrice').value),
             price_type: priceType,
             description: $('fDesc').value
         };
@@ -565,6 +600,7 @@
         $('formClose').addEventListener('click', function () { closeOverlay('formOverlay'); });
         $('btnFormCancel').addEventListener('click', function () { closeOverlay('formOverlay'); });
         $('fDesc').addEventListener('input', updateDescCount);
+        attachPriceFormat($('fPrice'));
         $('ptList').addEventListener('click', function () { setPriceType('list'); });
         $('ptNet').addEventListener('click', function () { setPriceType('net'); });
 
@@ -648,7 +684,7 @@
 
         $('detailBody').innerHTML = heroHtml + grid + desc + galleryHtml +
             '<div class="pl-detail-broker">Listing broker: ' + esc(l.broker_name || 'Unknown') +
-                (l.broker_phone ? ' &middot; ' + esc(l.broker_phone) : '') + '</div>';
+                (l.broker_phone ? ' &middot; ' + esc(formatPhone(l.broker_phone)) : '') + '</div>';
 
         // Owner-or-admin controls. The SERVER still enforces this on save/delete;
         // hiding the buttons is only a UI courtesy.
