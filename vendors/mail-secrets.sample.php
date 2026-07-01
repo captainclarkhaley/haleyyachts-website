@@ -35,6 +35,6 @@ return array(
     'secure'            => 'ssl',                     // 'ssl' for 465, 'tls' for 587
     'username'          => 'no-reply@haleyyachts.com',
     'password'          => 'PUT-THE-MAILBOX-PASSWORD-HERE',
-    'from_name'         => 'OneWater',                // display name on the From line
+    'from_name'         => 'OWYG Brokers',            // display name on the From line
     'allow_self_signed' => true,                      // relax cert check for same-server relay
 );
