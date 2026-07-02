@@ -11,8 +11,8 @@
  * pocket/help-img/. Every figure is guarded with file_exists so the page renders
  * clean before the screenshots are dropped in.
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
 $gateUser = current_user(vdb_connect());

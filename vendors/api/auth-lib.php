@@ -53,7 +53,7 @@ if (!function_exists('start_secure_session')) {
 
         $params = array(
             'lifetime' => 0,        // session cookie; clears on browser close
-            'path'     => '/vendors/',
+            'path'     => '/',
             'httponly' => true,
             'secure'   => $https,
             'samesite' => 'Lax',

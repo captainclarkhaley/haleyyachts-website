@@ -14,8 +14,8 @@
  * Phase 1 scope only. The broker-network email, print/share sheet, expiration
  * automation, and comps are LATER phases.
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
 $pdo = vdb_connect();

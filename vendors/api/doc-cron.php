@@ -47,13 +47,13 @@ if (PHP_SAPI !== 'cli') {
 }
 
 // The DB layer keys its paths off DOCUMENT_ROOT, which the CLI does not set.
-// Point it at the site root (two levels up from /vendors/api/) so vdb_connect
+// Point it at the suite root (one level up from api/) so vdb_connect
 // opens the same vendors.sqlite the web app uses.
 if (empty($_SERVER['DOCUMENT_ROOT'])) {
-    $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__, 2);
+    $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__, 1);
 }
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 require_once __DIR__ . '/../mail-smtp.php';
 
 // Reminder branding. DOC_CRON_FROM_NAME is a FIXED contextual label (not an

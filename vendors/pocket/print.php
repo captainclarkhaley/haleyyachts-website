@@ -13,8 +13,8 @@
  * as their own to hand to a client. A caption states it is presented by that
  * broker.
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
 $pdo = vdb_connect();

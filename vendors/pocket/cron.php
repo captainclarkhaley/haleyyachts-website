@@ -42,13 +42,13 @@ if (PHP_SAPI !== 'cli') {
 }
 
 // The DB layer keys its paths off DOCUMENT_ROOT, which the CLI does not set.
-// Point it at the site root (two levels up from /vendors/pocket/) so vdb_connect
+// Point it at the suite root (one level up from pocket/) so vdb_connect
 // opens the same vendors.sqlite the web app uses.
 if (empty($_SERVER['DOCUMENT_ROOT'])) {
-    $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__, 2);
+    $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__, 1);
 }
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 // Requiring the mailer also pulls in mail-smtp.php (the shared sender). We reuse
 // its constants + formatters and call mail_smtp_send; we never redefine anything.
 require_once __DIR__ . '/mailer.php';
@@ -115,7 +115,7 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     $nWord    = $daysLeft . ' ' . $dayWord;
     $expiryDate = pocket_cron_format_date($expiresAt);
 
-    $suiteUrl = $siteBase . '/vendors/pocket/';
+    $suiteUrl = $siteBase . '/pocket/';
 
     // --- subject (header-safe: strip any CR/LF a make/model could carry) ---
     $subject = p_mail_header_safe('Pocket Listing expiring in ' . $nWord . ': ' . $title);

@@ -14,10 +14,10 @@
  * lives in the separate /admin/ realm.
  */
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 // mail-lib provides send_delete_request_email() for the non-admin delete path.
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/mail-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/mail-lib.php';
 
 // Start the hardened session BEFORE any output so the auth cookie is honored.
 start_secure_session();
@@ -951,7 +951,7 @@ function handle_ratings(PDO $pdo, $action, array $authUser)
 /** Absolute path to the private document store (created on demand, 0755). */
 function docs_dir()
 {
-    $dir = $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/docs';
+    $dir = $_SERVER['DOCUMENT_ROOT'] . '/api/docs';
     if (!is_dir($dir)) {
         @mkdir($dir, 0755, true);
     }

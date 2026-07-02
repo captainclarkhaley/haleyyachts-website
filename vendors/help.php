@@ -10,8 +10,8 @@
  * docs/vendor-app-manual.md (blocked from the public site); future copy edits can
  * be made directly here.
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
 $gateUser = current_user(vdb_connect());

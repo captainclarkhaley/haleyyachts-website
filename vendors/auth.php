@@ -29,9 +29,9 @@
  *     in /admin/users-api.php and enforces the same minimum there).
  */
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/mail-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/mail-lib.php';
 
 // All Vendor app system mail (onboarding, admin reset, password-changed, reset
 // link) is built and sent from vendors/api/mail-lib.php, which owns the

@@ -134,7 +134,7 @@ if (!function_exists('pocket_notify_new_listing')) {
             // shape is a relative "uploads/<encoded>" path.
             $heroAbs = '';
             if (isset($listing['hero_url']) && (string) $listing['hero_url'] !== '') {
-                $heroAbs = $siteBase . '/vendors/pocket/' . ltrim((string) $listing['hero_url'], '/');
+                $heroAbs = $siteBase . '/pocket/' . ltrim((string) $listing['hero_url'], '/');
             }
 
             // Additional images (up to 4), absolute URLs, for the strip under the
@@ -147,12 +147,12 @@ if (!function_exists('pocket_notify_new_listing')) {
                     if ($u === '') { continue; }
                     if (!empty($im['is_hero'])) { continue; }
                     if ($heroRel !== '' && $u === $heroRel) { continue; }
-                    $moreAbs[] = $siteBase . '/vendors/pocket/' . ltrim($u, '/');
+                    $moreAbs[] = $siteBase . '/pocket/' . ltrim($u, '/');
                     if (count($moreAbs) >= 4) { break; }
                 }
             }
 
-            $suiteUrl = $siteBase . '/vendors/pocket/';
+            $suiteUrl = $siteBase . '/pocket/';
             $brokerPhoneFmt = p_format_phone($brokerCell);
 
             // --- subject ---

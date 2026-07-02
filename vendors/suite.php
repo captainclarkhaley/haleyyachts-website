@@ -14,8 +14,8 @@
  * The session cookie is path-scoped to /vendors/, which is exactly why this file
  * lives under /vendors/ - do not move it out of that path.
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
 $gateUser = current_user(vdb_connect());

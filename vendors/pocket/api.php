@@ -18,8 +18,8 @@
  *   - save: multipart/form-data (fields + up to 1 hero + 3 additional images).
  */
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
 
@@ -76,7 +76,7 @@ function p_body_json()
 /** Absolute path to the uploads directory (created on demand). */
 function p_uploads_dir()
 {
-    $dir = $_SERVER['DOCUMENT_ROOT'] . '/vendors/pocket/uploads';
+    $dir = $_SERVER['DOCUMENT_ROOT'] . '/pocket/uploads';
     if (!is_dir($dir)) {
         @mkdir($dir, 0755, true);
     }

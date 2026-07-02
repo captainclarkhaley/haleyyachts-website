@@ -7,8 +7,8 @@
  * bypassed by disabling JavaScript. The data API (api/api.php) enforces the same
  * check independently, so this redirect is convenience + defense in depth.
  */
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
 $gateUser = current_user(vdb_connect());

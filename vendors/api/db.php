@@ -6,7 +6,7 @@
  * (admin/vendor-lists-api.php). On first run it creates the SQLite file, builds
  * the schema, and seeds the two predefined lists if they are empty.
  *
- * The DB file lives at:  {DOCUMENT_ROOT}/vendors/api/data/vendors.sqlite
+ * The DB file lives at:  {DOCUMENT_ROOT}/api/data/vendors.sqlite
  * It is kept OUT of git (.gitignore) and blocked from the web by
  * vendors/api/data/.htaccess. Back it up separately - it is the live data.
  *
@@ -26,7 +26,7 @@ if (!function_exists('vdb_connect')) {
             return $pdo;
         }
 
-        $dataDir = $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/data';
+        $dataDir = $_SERVER['DOCUMENT_ROOT'] . '/api/data';
         $dbPath  = $dataDir . '/vendors.sqlite';
 
         if (!is_dir($dataDir)) {

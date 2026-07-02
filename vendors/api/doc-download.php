@@ -18,8 +18,8 @@
  * than reusing require_auth (which returns a JSON 401).
  */
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/auth-lib.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
 
@@ -64,7 +64,7 @@ try {
     if ($safe === '' || $safe === '.' || $safe === '..') {
         dd_stop(404, 'Document not found.');
     }
-    $path = $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/docs/' . $safe;
+    $path = $_SERVER['DOCUMENT_ROOT'] . '/api/docs/' . $safe;
     if (!is_file($path)) {
         dd_stop(404, 'Document file is missing.');
     }
