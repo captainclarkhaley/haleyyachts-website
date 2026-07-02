@@ -532,12 +532,12 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                 ADMIN section. Server-side gated on $isAdmin: a non-admin never
                 receives this markup at all (not merely hidden with CSS), and the
                 admin pages themselves re-gate via admin/admin-guard.php.
-                Phase 2a shipped Settings; 2b adds Staff Accounts. Predefined
-                Lists lands in 2c - add it here as a sibling bs-menu-link anchor
-                when built.
+                Phase 2a shipped Settings; 2b added Staff Accounts; 2c adds
+                Predefined Lists.
             -->
             <div class="bs-menu-admin-head">Admin</div>
             <a class="bs-menu-link" href="admin/users.php" role="menuitem">Staff Accounts</a>
+            <a class="bs-menu-link" href="admin/vendor-lists.php" role="menuitem">Predefined Lists</a>
             <a class="bs-menu-link" href="admin/settings.php" role="menuitem">Settings</a>
             <?php endif; ?>
         </div>
