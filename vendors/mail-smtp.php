@@ -75,7 +75,7 @@ if (!function_exists('mail_smtp_config')) {
             'username'          => (string) $cfg['username'],
             'password'          => (string) $cfg['password'],
             'from_name'         => (isset($cfg['from_name']) && (string) $cfg['from_name'] !== '')
-                                        ? (string) $cfg['from_name'] : 'OneWater',
+                                        ? (string) $cfg['from_name'] : 'OWYG Brokers',
             'allow_self_signed' => !empty($cfg['allow_self_signed']),
         );
     }
