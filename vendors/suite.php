@@ -546,6 +546,13 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                 'href'     => $isAdmin ? 'pocket/' : '#',
                 'status'   => $isAdmin ? 'live' : 'soon',
             ),
+            array(
+                'name'     => 'Broker Looking For...',
+                'monogram' => 'BL',
+                'desc'     => 'Post what your client is searching for and let OWYG brokers surface a match.',
+                'href'     => '#',
+                'status'   => 'soon',
+            ),
         );
 
         foreach ($apps as $app) {
