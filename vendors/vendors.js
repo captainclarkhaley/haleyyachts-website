@@ -10,6 +10,7 @@
     var NOTES_MAX = 150;
     var CONTACT_NOTES_MAX = 100;
     var RATING_NOTE_MAX = 150;
+    var DOC_MAX_MB = 15; // upload cap, mirrored server-side (DOC_MAX_BYTES)
 
     // ---- idle / session keep-alive thresholds (ms) -------------------------
     var IDLE_LIMIT_MS    = 10 * 60 * 1000; // total idle before logout: 10 min
@@ -29,6 +30,7 @@
     var sortKey = '';      // active sort column key ('' = none), e.g. 'name', 'rating'
     var sortDir = 'asc';   // 'asc' or 'desc' for the active sort column
     var pendingStars = 0;  // star value picked in the detail rating control
+    var docPurposes = []; // controlled Purpose list for the document upload dropdown
     var sessionEnding = false; // true once we begin redirecting away (login / forced change / idle logout)
 
     // ---- tiny helpers ------------------------------------------------------
@@ -127,6 +129,16 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify(body || {})
+        }).then(parseJson);
+    }
+
+    // Multipart POST (file uploads). Do NOT set Content-Type - the browser sets
+    // the multipart boundary. Shares parseJson so the 401/403 handling matches.
+    function apiUpload(qs, formData) {
+        return fetch(API + '?' + qs, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: formData
         }).then(parseJson);
     }
 
@@ -938,10 +950,206 @@
             '</div>' +
         '</div>';
 
+        // Documents section. The list (any user) + the admin-only upload panel are
+        // filled by loadDocuments() after render, so add/delete refresh just here.
+        h += '<div class="vdb-documents" id="vdbDocuments">' +
+            '<h3>Documents</h3>' +
+            '<div class="vdb-doc-list" id="docList">' +
+                '<div class="vdb-detail-empty">Loading documents...</div>' +
+            '</div>' +
+            '<div id="docUploadHost"></div>' +
+        '</div>';
+
         $('detailBody').innerHTML = h;
 
         pendingStars = 0;
         loadRatings(v.id);
+        loadDocuments(v.id);
+    }
+
+    // ---- documents (per-vendor uploads) -----------------------------------
+
+    function isAdmin() {
+        return !!(currentUser && currentUser.is_admin);
+    }
+
+    // Badge for a document's computed status (from the server: ok/expiring/expired).
+    function docBadge(status) {
+        if (status === 'expired') {
+            return '<span class="vdb-doc-badge expired">Expired</span>';
+        }
+        if (status === 'expiring') {
+            return '<span class="vdb-doc-badge expiring">Expiring soon</span>';
+        }
+        return '';
+    }
+
+    function loadDocuments(vendorId) {
+        apiGet('r=documents&action=list&vendor_id=' + vendorId).then(function (data) {
+            var host = $('docList');
+            if (!host) { return; }
+            if (!data.ok) {
+                host.innerHTML = '<div class="vdb-detail-empty">Could not load documents.</div>';
+                return;
+            }
+            renderDocuments(data.documents || []);
+            renderDocUpload(); // admin-only; renders nothing for non-admins
+        }).catch(function () {
+            var host = $('docList');
+            if (host) { host.innerHTML = '<div class="vdb-detail-empty">Network error loading documents.</div>'; }
+        });
+    }
+
+    function renderDocuments(docs) {
+        var host = $('docList');
+        if (!host) { return; }
+        if (!docs.length) {
+            host.innerHTML = '<div class="vdb-detail-empty">No documents on file.</div>';
+            return;
+        }
+        var admin = isAdmin();
+        var html = '';
+        for (var i = 0; i < docs.length; i++) {
+            var d = docs[i];
+            var expiry = d.expires_at
+                ? '<span class="vdb-doc-expiry">Expires ' + formatDate(d.expires_at) + '</span>'
+                : '<span class="vdb-doc-expiry none">No expiration</span>';
+            var dl = 'api/doc-download.php?id=' + encodeURIComponent(d.id);
+            html += '<div class="vdb-doc-entry">' +
+                '<div class="vdb-doc-main">' +
+                    '<div class="vdb-doc-purpose">' + esc(d.purpose) + ' ' + docBadge(d.status) + '</div>' +
+                    '<div class="vdb-doc-file">' + esc(d.original_name || 'document') + '</div>' +
+                    expiry +
+                '</div>' +
+                '<div class="vdb-doc-actions">' +
+                    '<a class="vdb-doc-dl" href="' + esc(dl) + '" target="_blank" rel="noopener">Download</a>' +
+                    (admin ? '<button type="button" class="vdb-doc-delete" data-rmdoc="' + d.id +
+                        '" aria-label="Delete document">Delete</button>' : '') +
+                '</div>' +
+            '</div>';
+        }
+        host.innerHTML = html;
+    }
+
+    // Render the admin-only upload panel. Non-admins get nothing (list + download
+    // only). The SERVER also enforces admin on upload, so this is UX, not security.
+    function renderDocUpload() {
+        var host = $('docUploadHost');
+        if (!host) { return; }
+        if (!isAdmin()) { host.innerHTML = ''; return; }
+
+        var opts = '<option value="">Select a purpose...</option>';
+        for (var i = 0; i < docPurposes.length; i++) {
+            opts += '<option value="' + esc(docPurposes[i]) + '">' + esc(docPurposes[i]) + '</option>';
+        }
+
+        host.innerHTML = '<div class="vdb-doc-upload">' +
+            '<div class="vdb-notice error" id="docUploadError"></div>' +
+            '<div class="vdb-doc-uprow">' +
+                '<div>' +
+                    '<label for="docPurpose">Purpose</label>' +
+                    '<div class="vdb-doc-purpose-pick">' +
+                        '<select id="docPurpose">' + opts + '</select>' +
+                        '<button type="button" class="btn btn-ghost btn-sm" id="btnAddPurpose">+ Add</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div>' +
+                    '<label for="docExpires">Expiration Date</label>' +
+                    '<input type="date" id="docExpires">' +
+                    '<div class="vdb-doc-hint">Leave blank if none</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="vdb-doc-uprow">' +
+                '<div>' +
+                    '<label for="docFile">File (PDF or image, max ' + DOC_MAX_MB + ' MB)</label>' +
+                    '<input type="file" id="docFile" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp">' +
+                '</div>' +
+                '<div></div>' +
+            '</div>' +
+            '<div class="vdb-doc-upload-actions">' +
+                '<button type="button" class="btn btn-primary btn-sm" id="btnUploadDoc">Upload Document</button>' +
+            '</div>' +
+        '</div>';
+    }
+
+    function docUploadError(msg) {
+        var e = $('docUploadError');
+        if (e) { e.textContent = msg; e.classList.add('show'); }
+    }
+    function clearDocUploadError() {
+        var e = $('docUploadError');
+        if (e) { e.textContent = ''; e.classList.remove('show'); }
+    }
+
+    function uploadDocument() {
+        clearDocUploadError();
+        var fileInput = $('docFile');
+        var purpose = $('docPurpose') ? $('docPurpose').value : '';
+        var expires = $('docExpires') ? $('docExpires').value : '';
+
+        if (!purpose) { docUploadError('Choose a purpose.'); return; }
+        if (!fileInput || !fileInput.files || !fileInput.files.length) {
+            docUploadError('Choose a file to upload.');
+            return;
+        }
+        var file = fileInput.files[0];
+        if (file.size > DOC_MAX_MB * 1024 * 1024) {
+            docUploadError('That file is larger than ' + DOC_MAX_MB + ' MB.');
+            return;
+        }
+
+        var fd = new FormData();
+        fd.append('vendor_id', String(detailVendorId));
+        fd.append('purpose', purpose);
+        fd.append('expires_at', expires || '');
+        fd.append('file', file);
+
+        var btn = $('btnUploadDoc');
+        if (btn) { btn.disabled = true; }
+        apiUpload('r=documents&action=upload', fd).then(function (data) {
+            if (btn) { btn.disabled = false; }
+            if (!data.ok) { docUploadError(data.error || 'Upload failed.'); return; }
+            loadDocuments(detailVendorId); // refresh the list + reset the panel
+        }).catch(function () {
+            if (btn) { btn.disabled = false; }
+            docUploadError('Network error during upload.');
+        });
+    }
+
+    function deleteDocument(id) {
+        if (!confirm('Delete this document? This cannot be undone.')) { return; }
+        apiGet('r=documents&action=delete&id=' + id).then(function (data) {
+            if (!data.ok) { alert(data.error || 'Delete failed.'); return; }
+            loadDocuments(detailVendorId);
+        });
+    }
+
+    // Admin adds a new Purpose to the controlled list (mirrors the pocket make add).
+    function addPurpose() {
+        var name = prompt('New document purpose (e.g. Certificate, W-9):', '');
+        if (name == null) { return; }
+        name = name.trim();
+        if (!name) { return; }
+        apiPost('r=purposes&action=add', { name: name }).then(function (data) {
+            if (!data.ok) { docUploadError(data.error || 'Could not add purpose.'); return; }
+            // Add (case-insensitively) to the local list, then reselect it.
+            var canonical = data.name || name;
+            var exists = false;
+            for (var i = 0; i < docPurposes.length; i++) {
+                if (docPurposes[i].toLowerCase() === canonical.toLowerCase()) { exists = true; break; }
+            }
+            if (!exists) { docPurposes.push(canonical); docPurposes.sort(); }
+            renderDocUpload();
+            var sel = $('docPurpose');
+            if (sel) { sel.value = canonical; }
+        });
+    }
+
+    function loadPurposes() {
+        apiGet('r=purposes&action=list').then(function (data) {
+            if (!data || !data.ok) { return; }
+            docPurposes = (data.purposes || []).map(function (p) { return p.name; });
+        }).catch(function () { /* leave empty; upload will warn to add one */ });
     }
 
     // ---- ratings (anonymous) ----------------------------------------------
@@ -1684,6 +1892,11 @@
             if (e.target.id === 'btnSubmitRating') { submitRating(); return; }
             var rm = e.target.getAttribute('data-rmrating');
             if (rm) { deleteRating(parseInt(rm, 10)); return; }
+            // Document actions (delegated: the doc section is rebuilt per open).
+            var rmDoc = e.target.getAttribute('data-rmdoc');
+            if (rmDoc) { deleteDocument(parseInt(rmDoc, 10)); return; }
+            if (e.target.id === 'btnUploadDoc') { uploadDocument(); return; }
+            if (e.target.id === 'btnAddPurpose') { addPurpose(); return; }
         });
         detailBody.addEventListener('input', function (e) {
             if (e.target.id !== 'ratingNote') { return; }
@@ -1746,6 +1959,7 @@
         wire();
         initIdleWatch();
         loadUserBar();
+        loadPurposes();
         apiGet('r=lists&action=get').then(function (data) {
             if (!data.ok) {
                 $('resultsBody').innerHTML = '<tr><td colspan="8" class="vdb-empty">Could not load lists: ' +

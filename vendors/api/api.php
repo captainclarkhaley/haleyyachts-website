@@ -29,6 +29,9 @@ header('Cache-Control: no-store');
 define('VENDOR_NOTES_MAX', 150);
 define('CONTACT_NOTES_MAX', 100);
 define('RATING_NOTE_MAX', 150);
+// Vendor documents: ~15MB cap, and the private on-disk store (never web-served;
+// the deny-all .htaccess in that dir + the download endpoint are the boundary).
+define('DOC_MAX_BYTES', 15 * 1024 * 1024);
 
 /** Emit a JSON response with an HTTP status and stop. */
 function respond($payload, $status = 200)
@@ -119,6 +122,12 @@ try {
             break;
         case 'ratings':
             handle_ratings($pdo, $action, $authUser);
+            break;
+        case 'documents':
+            handle_documents($pdo, $action, $authUser);
+            break;
+        case 'purposes':
+            handle_purposes($pdo, $action, $authUser);
             break;
         default:
             fail('Unknown resource.', 404);
@@ -927,4 +936,402 @@ function handle_ratings(PDO $pdo, $action, array $authUser)
         default:
             fail('Unknown ratings action.', 404);
     }
+}
+
+// ---------------------------------------------------------------------------
+// vendor documents (per-vendor uploads + expiration reminders)
+//
+// SENSITIVE files (insurance certificates, etc.). The bytes live in the private
+// vendors/api/docs/ store, which is denied to the web by its .htaccess; the ONLY
+// way to fetch one is the authenticated doc-download.php endpoint. Upload/delete
+// are ADMIN-ONLY, enforced SERVER-SIDE from the SESSION user's is_admin (never
+// the request). Any authenticated user may list + download.
+// ---------------------------------------------------------------------------
+
+/** Absolute path to the private document store (created on demand, 0755). */
+function docs_dir()
+{
+    $dir = $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/docs';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+    return $dir;
+}
+
+/** True when the session user is an admin (decided from $authUser, never input). */
+function doc_is_admin(array $authUser)
+{
+    return isset($authUser['is_admin']) && (int) $authUser['is_admin'] === 1;
+}
+
+/**
+ * Compute a document's status relative to now (UTC), from its expires_at:
+ *   'expired'  - expires_at is in the past (date <= today)
+ *   'expiring' - expires_at is today or within the next 10 days
+ *   'ok'       - further out, or no expiry set
+ * expires_at is stored as a plain YYYY-MM-DD date. We compare on whole days.
+ */
+function doc_status($expiresAt)
+{
+    $exp = trim((string) $expiresAt);
+    if ($exp === '') {
+        return 'ok';
+    }
+    $expTs = strtotime($exp . ' 00:00:00 UTC');
+    if ($expTs === false) {
+        return 'ok';
+    }
+    $todayTs = strtotime(gmdate('Y-m-d') . ' 00:00:00 UTC');
+    if ($expTs < $todayTs) {
+        return 'expired';
+    }
+    $daysUntil = (int) floor(($expTs - $todayTs) / 86400);
+    if ($daysUntil <= 10) {
+        return 'expiring';
+    }
+    return 'ok';
+}
+
+/** Validate a YYYY-MM-DD date string. Returns the normalized date or null. */
+function doc_valid_date($raw)
+{
+    $s = trim((string) $raw);
+    if ($s === '') {
+        return null;
+    }
+    if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $s, $m)) {
+        return null;
+    }
+    if (!checkdate((int) $m[2], (int) $m[3], (int) $m[1])) {
+        return null;
+    }
+    return $s;
+}
+
+function handle_documents(PDO $pdo, $action, array $authUser)
+{
+    switch ($action) {
+        case 'list':
+            doc_list($pdo);
+            break;
+        case 'upload':
+            doc_upload($pdo, $authUser);
+            break;
+        case 'delete':
+            doc_delete($pdo, $authUser);
+            break;
+        default:
+            fail('Unknown documents action.', 404);
+    }
+}
+
+/**
+ * List a vendor's documents (any authenticated user). Returns metadata only -
+ * the file bytes are never exposed here; the client links to doc-download.php.
+ * Each row carries a computed status ('expired' | 'expiring' | 'ok').
+ */
+function doc_list(PDO $pdo)
+{
+    $vendorId = isset($_GET['vendor_id']) ? (int) $_GET['vendor_id'] : 0;
+    if ($vendorId <= 0) {
+        fail('Missing vendor_id.');
+    }
+    $stmt = $pdo->prepare('
+        SELECT id, purpose, expires_at, original_name, created_at
+        FROM vendor_documents
+        WHERE vendor_id = ?
+        ORDER BY created_at DESC, id DESC
+    ');
+    $stmt->execute(array($vendorId));
+    $rows = $stmt->fetchAll();
+
+    $out = array();
+    foreach ($rows as $row) {
+        $out[] = array(
+            'id'            => (int) $row['id'],
+            'purpose'       => $row['purpose'],
+            'expires_at'    => $row['expires_at'],
+            'original_name' => $row['original_name'],
+            'created_at'    => $row['created_at'],
+            'status'        => doc_status($row['expires_at']),
+        );
+    }
+    respond(array('ok' => true, 'documents' => $out));
+}
+
+/**
+ * Upload a document to a vendor - ADMIN ONLY (403 for a non-admin, decided from
+ * the SESSION user). Multipart POST fields: vendor_id, purpose (non-empty),
+ * expires_at (optional YYYY-MM-DD), file.
+ *
+ * Files are validated by CONTENT, not extension: PDFs must start with "%PDF-";
+ * images must pass getimagesize and be JPEG/PNG/WEBP. Anything else is rejected.
+ * Stored under an unguessable random hex filename in the private docs store; the
+ * original name is kept in the row for the download filename.
+ */
+function doc_upload(PDO $pdo, array $authUser)
+{
+    if (!doc_is_admin($authUser)) {
+        fail('Only an administrator can upload documents.', 403);
+    }
+
+    // A POST that blew past post_max_size arrives with empty $_POST/$_FILES.
+    if (empty($_POST) && empty($_FILES)
+        && isset($_SERVER['CONTENT_LENGTH']) && (int) $_SERVER['CONTENT_LENGTH'] > 0) {
+        fail('The upload is larger than the server allows. Use a smaller file, then try again.', 413);
+    }
+
+    $vendorId = isset($_POST['vendor_id']) ? (int) $_POST['vendor_id'] : 0;
+    $purpose  = isset($_POST['purpose']) ? trim((string) $_POST['purpose']) : '';
+    $expires  = doc_valid_date(isset($_POST['expires_at']) ? $_POST['expires_at'] : '');
+
+    if ($vendorId <= 0) {
+        fail('Missing vendor_id.');
+    }
+    $check = $pdo->prepare('SELECT 1 FROM vendors WHERE id = ?');
+    $check->execute(array($vendorId));
+    if (!$check->fetchColumn()) {
+        fail('Vendor not found.', 404);
+    }
+    if ($purpose === '') {
+        fail('A document purpose is required.');
+    }
+    if (mb_strlen($purpose) > 60) {
+        fail('Purpose is too long (60 characters max).');
+    }
+    // An expires_at that was supplied but did not parse is a client error.
+    if (isset($_POST['expires_at']) && trim((string) $_POST['expires_at']) !== '' && $expires === null) {
+        fail('Expiration date must be a valid date (YYYY-MM-DD) or left blank.');
+    }
+
+    // ---- pull + validate the file BEFORE any DB write ----
+    if (!isset($_FILES['file']) || !is_array($_FILES['file'])
+        || !isset($_FILES['file']['error']) || $_FILES['file']['error'] === UPLOAD_ERR_NO_FILE) {
+        fail('Choose a file to upload.');
+    }
+    $f = $_FILES['file'];
+    if ($f['error'] !== UPLOAD_ERR_OK) {
+        // Distinguish the size-limit errors from a generic failure.
+        if ($f['error'] === UPLOAD_ERR_INI_SIZE || $f['error'] === UPLOAD_ERR_FORM_SIZE) {
+            fail('The file is too large.', 413);
+        }
+        fail('The file failed to upload.');
+    }
+
+    // doc_store_upload validates by content, stores the file, and returns the
+    // random on-disk name. On any invalid file it emits a JSON error via fail()
+    // and exits, so control only continues here on a good, stored file.
+    $storedName = doc_store_upload($f);
+
+    $originalName = doc_clean_original_name((string) $f['name']);
+    $uploadedBy   = isset($authUser['id']) ? (int) $authUser['id'] : 0;
+
+    $ins = $pdo->prepare('
+        INSERT INTO vendor_documents
+            (vendor_id, filename, original_name, purpose, expires_at, uploaded_by)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ');
+    try {
+        $ins->execute(array($vendorId, $storedName, $originalName, $purpose, $expires, $uploadedBy));
+    } catch (Throwable $e) {
+        // Roll back the just-written file so we never orphan bytes on disk.
+        $path = docs_dir() . '/' . $storedName;
+        @unlink($path);
+        throw $e;
+    }
+    $id = (int) $pdo->lastInsertId();
+
+    respond(array(
+        'ok'       => true,
+        'document' => array(
+            'id'            => $id,
+            'purpose'       => $purpose,
+            'expires_at'    => $expires,
+            'original_name' => $originalName,
+            'created_at'    => gmdate('Y-m-d H:i:s'),
+            'status'        => doc_status($expires),
+        ),
+    ));
+}
+
+/**
+ * Validate + store one uploaded document. Returns the stored (random) filename.
+ * On an invalid file it emits a clear JSON error via fail() and exits - it never
+ * returns a bad name. Validation is by CONTENT, never the client name or MIME:
+ *   - PDF: the first bytes must be "%PDF-".
+ *   - Image: getimagesize must recognize it as JPEG, PNG, or WEBP.
+ * Size is capped at DOC_MAX_BYTES. Files are chmod 0644.
+ */
+function doc_store_upload(array $f)
+{
+    $size = isset($f['size']) ? (int) $f['size'] : 0;
+    if ($size <= 0) {
+        fail('The file was empty.');
+    }
+    if ($size > DOC_MAX_BYTES) {
+        fail('The file is too large (max 15 MB).', 413);
+    }
+    $tmp = isset($f['tmp_name']) ? $f['tmp_name'] : '';
+    if ($tmp === '' || !is_uploaded_file($tmp)) {
+        fail('Invalid upload.');
+    }
+
+    // Sniff the real content. Read the first 5 bytes for the PDF magic; otherwise
+    // hand the whole file to getimagesize which validates the image structure.
+    $ext = null;
+    $fh = @fopen($tmp, 'rb');
+    $head = ($fh !== false) ? fread($fh, 5) : '';
+    if ($fh !== false) {
+        fclose($fh);
+    }
+    if ($head === '%PDF-') {
+        $ext = 'pdf';
+    } else {
+        $info = @getimagesize($tmp);
+        if ($info !== false) {
+            switch ($info[2]) {
+                case IMAGETYPE_JPEG: $ext = 'jpg';  break;
+                case IMAGETYPE_PNG:  $ext = 'png';  break;
+                case IMAGETYPE_WEBP: $ext = 'webp'; break;
+            }
+        }
+    }
+    if ($ext === null) {
+        fail('Unsupported file type. Upload a PDF, JPG, PNG, or WEBP.');
+    }
+
+    $name = bin2hex(random_bytes(16)) . '.' . $ext;
+    $dest = docs_dir() . '/' . $name;
+    if (!move_uploaded_file($tmp, $dest)) {
+        fail('Could not store the uploaded file.');
+    }
+    @chmod($dest, 0644);
+    return $name;
+}
+
+/**
+ * Normalize the client-supplied original name for storage + later download. Keep
+ * just the basename, strip control chars, and cap the length. Never used as a
+ * path - only echoed back in a sanitized Content-Disposition header downstream.
+ */
+function doc_clean_original_name($raw)
+{
+    $name = basename((string) $raw);
+    // Drop anything non-printable / control.
+    $name = preg_replace('/[\x00-\x1F\x7F]/', '', $name);
+    $name = trim($name);
+    if ($name === '' || $name === '.' || $name === '..') {
+        $name = 'document';
+    }
+    if (mb_strlen($name) > 180) {
+        $name = mb_substr($name, 0, 180);
+    }
+    return $name;
+}
+
+/**
+ * Delete a document - ADMIN ONLY (403 for a non-admin, decided from the SESSION
+ * user). Removes the row and unlinks the file. The stored filename is run through
+ * basename() before it touches the filesystem so a tampered value cannot escape
+ * the docs store.
+ */
+function doc_delete(PDO $pdo, array $authUser)
+{
+    if (!doc_is_admin($authUser)) {
+        fail('Only an administrator can delete documents.', 403);
+    }
+
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+    if ($id <= 0) {
+        $b  = body_json();
+        $id = isset($b['id']) ? (int) $b['id'] : 0;
+    }
+    if ($id <= 0) {
+        fail('Missing document id.');
+    }
+
+    $stmt = $pdo->prepare('SELECT filename FROM vendor_documents WHERE id = ?');
+    $stmt->execute(array($id));
+    $filename = $stmt->fetchColumn();
+    if ($filename === false) {
+        fail('Document not found.', 404);
+    }
+
+    $pdo->prepare('DELETE FROM vendor_documents WHERE id = ?')->execute(array($id));
+
+    // Best-effort unlink; basename() guards against any stored path trick.
+    $safe = basename((string) $filename);
+    if ($safe !== '' && $safe !== '.' && $safe !== '..') {
+        @unlink(docs_dir() . '/' . $safe);
+    }
+
+    respond(array('ok' => true, 'deleted' => $id));
+}
+
+// ---------------------------------------------------------------------------
+// document purposes (controlled list; list = any user, add = ADMIN ONLY)
+// ---------------------------------------------------------------------------
+
+function handle_purposes(PDO $pdo, $action, array $authUser)
+{
+    switch ($action) {
+        case 'list':
+            $rows = $pdo->query('SELECT id, name FROM document_purposes ORDER BY sort, name COLLATE NOCASE')->fetchAll();
+            $out = array();
+            foreach ($rows as $r) {
+                $out[] = array('id' => (int) $r['id'], 'name' => $r['name']);
+            }
+            respond(array('ok' => true, 'purposes' => $out));
+            break;
+
+        case 'add':
+            purpose_add($pdo, $authUser);
+            break;
+
+        default:
+            fail('Unknown purposes action.', 404);
+    }
+}
+
+/**
+ * Add a Purpose to the controlled list - ADMIN ONLY (decided from the SESSION
+ * user). Dedupes case-insensitively (COLLATE NOCASE): an existing match returns
+ * its canonical name and does NOT insert a duplicate. Otherwise inserts with
+ * sort = max(sort)+1. Mirrors the pocket add_make flow.
+ */
+function purpose_add(PDO $pdo, array $authUser)
+{
+    if (!doc_is_admin($authUser)) {
+        fail('Only an administrator can add a purpose.', 403);
+    }
+
+    $name = '';
+    if (isset($_POST['name'])) {
+        $name = trim((string) $_POST['name']);
+    }
+    if ($name === '') {
+        $b = body_json();
+        if (isset($b['name'])) {
+            $name = trim((string) $b['name']);
+        }
+    }
+    if ($name === '') {
+        fail('A purpose name is required.');
+    }
+    if (mb_strlen($name) > 60) {
+        fail('Purpose name is too long (60 characters max).');
+    }
+
+    $sel = $pdo->prepare('SELECT id, name FROM document_purposes WHERE name = ? COLLATE NOCASE');
+    $sel->execute(array($name));
+    $existing = $sel->fetch();
+    if ($existing) {
+        respond(array('ok' => true, 'name' => (string) $existing['name']));
+    }
+
+    $maxSort = (int) $pdo->query('SELECT COALESCE(MAX(sort), 0) FROM document_purposes')->fetchColumn();
+    $ins = $pdo->prepare('INSERT INTO document_purposes (name, sort) VALUES (?, ?)');
+    $ins->execute(array($name, $maxSort + 1));
+
+    respond(array('ok' => true, 'name' => $name));
 }

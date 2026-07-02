@@ -94,10 +94,13 @@ if (!function_exists('mail_smtp_config')) {
      * @param string      $replyTo   optional Reply-To address ('' = none)
      * @param string      $fromEmail From address; defaults to the config username
      *                               (the authenticated mailbox) when left ''
+     * @param string      $cc        optional CC address ('' = none)
+     * @param string      $fromName  optional From display name; defaults to the
+     *                               config from_name when left ''
      * @return bool
      */
     function mail_smtp_send($toEmail, $subject, $textBody, $htmlBody, $context,
-        $replyTo = '', $fromEmail = '')
+        $replyTo = '', $fromEmail = '', $cc = '', $fromName = '')
     {
         $mail = null;
         try {
@@ -135,13 +138,19 @@ if (!function_exists('mail_smtp_config')) {
 
             $mail->CharSet = 'UTF-8';
 
-            // From is the authenticated mailbox by default so SPF/DKIM align.
-            $from = ($fromEmail !== '') ? $fromEmail : $cfg['username'];
-            $mail->setFrom($from, $cfg['from_name']);
+            // From is the authenticated mailbox by default so SPF/DKIM align. The
+            // From DISPLAY NAME may be overridden per-send via $fromName; when left
+            // '' it keeps the config default exactly as before.
+            $from     = ($fromEmail !== '') ? $fromEmail : $cfg['username'];
+            $fromDisp = ($fromName !== '') ? $fromName : $cfg['from_name'];
+            $mail->setFrom($from, $fromDisp);
 
             $mail->addAddress($toEmail);
             if ($replyTo !== '') {
                 $mail->addReplyTo($replyTo);
+            }
+            if ($cc !== '') {
+                $mail->addCC($cc);
             }
 
             $mail->Subject = $subject;

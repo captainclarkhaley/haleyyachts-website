@@ -727,6 +727,113 @@ dl.vdb-detail dd {
     word-break: break-word;
 }
 
+/* ----- Documents (per-vendor uploads) ----- */
+.vdb-documents {
+    margin-top: 22px;
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+}
+.vdb-documents h3 {
+    margin: 0 0 12px;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+}
+.vdb-doc-entry {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #fff;
+}
+.vdb-doc-main { flex: 1 1 auto; min-width: 0; }
+.vdb-doc-purpose { font-weight: 600; color: var(--navy); font-size: 0.9rem; }
+.vdb-doc-file {
+    font-size: 0.82rem;
+    color: var(--muted);
+    word-break: break-word;
+}
+.vdb-doc-expiry { font-size: 0.82rem; color: var(--ink); }
+.vdb-doc-expiry.none { color: var(--muted); font-style: italic; }
+.vdb-doc-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+.vdb-doc-badge.expiring { background: var(--warn-bg); color: var(--warn-br); border: 1px solid var(--warn-br); }
+.vdb-doc-badge.expired  { background: #fdecea; color: var(--danger); border: 1px solid #e3b4ae; }
+.vdb-doc-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.vdb-doc-dl {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--cyan-d);
+    text-decoration: none;
+    white-space: nowrap;
+}
+.vdb-doc-dl:hover { text-decoration: underline; }
+.vdb-doc-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.78rem;
+    color: var(--danger);
+    padding: 0;
+}
+.vdb-doc-delete:hover { text-decoration: underline; }
+
+/* Admin-only upload panel */
+.vdb-doc-upload {
+    background: var(--canvas);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px;
+    margin-top: 14px;
+}
+.vdb-doc-upload .vdb-doc-uprow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.vdb-doc-upload label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 5px;
+}
+.vdb-doc-upload input[type="file"],
+.vdb-doc-upload input[type="date"],
+.vdb-doc-upload select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 8px 10px;
+    background: #fff;
+}
+.vdb-doc-purpose-pick { display: flex; gap: 8px; align-items: center; }
+.vdb-doc-purpose-pick select { flex: 1 1 auto; }
+.vdb-doc-hint { font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-top: 4px; }
+.vdb-doc-upload-actions { display: flex; justify-content: flex-end; }
+
+@media (max-width: 560px) {
+    .vdb-doc-upload .vdb-doc-uprow { grid-template-columns: 1fr; }
+}
+
 /* ----- My Profile modal ----- */
 /* The profile form reuses .vdb-form; these add the read-only Account ID look,
    the home-office <select>, the password divider, and right-aligned actions. */

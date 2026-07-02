@@ -47,6 +47,15 @@ vendors/pocket/uploads/*
 !vendors/pocket/uploads/.htaccess
 !vendors/pocket/uploads/.gitkeep
 
+# Vendor documents - SENSITIVE uploaded files (insurance certs, etc.). Server-side
+# live data, NOT code. Never web-served directly (see vendors/api/docs/.htaccess);
+# fetched only through the authenticated doc-download.php endpoint. Keep the files
+# out of git so a cPanel deploy pull never clobbers real uploads. Only the
+# .htaccess + .gitkeep in that dir are tracked. Back this folder up separately.
+vendors/api/docs/*
+!vendors/api/docs/.htaccess
+!vendors/api/docs/.gitkeep
+
 # Broker Suite SMTP credentials (server-side only, never commit). One shared
 # secrets file feeds BOTH mailers (Vendor app auth mail + Pocket notification).
 # Copy vendors/mail-secrets.sample.php -> vendors/mail-secrets.php on the server

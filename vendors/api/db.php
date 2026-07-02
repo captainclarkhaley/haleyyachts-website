@@ -61,6 +61,11 @@ if (!function_exists('vdb_connect')) {
         vdb_init_pocket_schema($pdo);
         vdb_seed_pocket_makes($pdo);
 
+        // Vendor documents (per-vendor uploads + expiration reminders). Additive +
+        // idempotent; never touches any existing vendor/contact/pocket table.
+        vdb_init_documents_schema($pdo);
+        vdb_seed_document_purposes($pdo);
+
         return $pdo;
     }
 
@@ -657,6 +662,77 @@ if (!function_exists('vdb_connect')) {
         $stmt = $pdo->prepare('INSERT OR IGNORE INTO pocket_makes (name, sort) VALUES (?, ?)');
         foreach ($makes as $i => $name) {
             $stmt->execute(array($name, $i));
+        }
+    }
+
+    // =======================================================================
+    // VENDOR DOCUMENTS (per-vendor uploads + expiration reminders)
+    //
+    // Two NEW tables, entirely additive + idempotent (CREATE TABLE IF NOT
+    // EXISTS), never touching the vendor/contact/pocket tables:
+    //   document_purposes  - the admin-managed controlled list (mirrors
+    //                         vendor_types: id / name UNIQUE / sort).
+    //   vendor_documents   - one row per uploaded file. The BYTES live on disk
+    //                        in vendors/api/docs/ under a random filename; this
+    //                        row keeps the metadata + the two reminder flags.
+    // =======================================================================
+
+    /**
+     * Create the vendor-documents tables if they do not already exist.
+     * Additive + idempotent; never alters the vendor schema.
+     */
+    function vdb_init_documents_schema(PDO $pdo)
+    {
+        // Controlled Purpose list (Insurance, Certificate, admin can add more).
+        // Same shape as vendor_types so the admin-managed-list pattern carries over.
+        $pdo->exec('
+            CREATE TABLE IF NOT EXISTS document_purposes (
+                id   INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE,
+                sort INTEGER NOT NULL DEFAULT 0
+            )
+        ');
+
+        // One row per uploaded document. filename is the random on-disk name;
+        // original_name is preserved for the download filename. purpose is the
+        // Purpose label (denormalized text, like the pocket make field). expires_at
+        // is NULL for no-expiry docs. reminded_10d / reminded_exp guard the cron so
+        // each reminder is sent at most once. uploaded_by = users.id (session user).
+        // Double-quoted PHP string: the SQL carries single-quote literals
+        // (DEFAULT '' and datetime('now')).
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS vendor_documents (
+                id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                vendor_id     INTEGER NOT NULL,
+                filename      TEXT NOT NULL,
+                original_name TEXT NOT NULL DEFAULT '',
+                purpose       TEXT NOT NULL DEFAULT '',
+                expires_at    TEXT NULL,
+                reminded_10d  INTEGER NOT NULL DEFAULT 0,
+                reminded_exp  INTEGER NOT NULL DEFAULT 0,
+                uploaded_by   INTEGER NOT NULL DEFAULT 0,
+                created_at    TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE
+            )
+        ");
+
+        $pdo->exec('CREATE INDEX IF NOT EXISTS idx_docs_vendor ON vendor_documents(vendor_id)');
+    }
+
+    /**
+     * Seed the Purpose list ONLY when empty (guarded by a COUNT, exactly like
+     * vdb_seed_lists does for vendor_types), so Clark can curate it afterward via
+     * the add-purpose flow without this overwriting his edits.
+     */
+    function vdb_seed_document_purposes(PDO $pdo)
+    {
+        $count = (int) $pdo->query('SELECT COUNT(*) FROM document_purposes')->fetchColumn();
+        if ($count === 0) {
+            $seed = array('Insurance', 'Certificate');
+            $stmt = $pdo->prepare('INSERT INTO document_purposes (name, sort) VALUES (?, ?)');
+            foreach ($seed as $i => $name) {
+                $stmt->execute(array($name, $i));
+            }
         }
     }
 }
