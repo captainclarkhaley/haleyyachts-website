@@ -146,7 +146,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
     </div>
 
     <div class="vdb-foot-link">
-        <a href="../index.html">&larr; Return to public site</a>
+        <a href="suite.php">&larr; Back to Broker Suite</a>
     </div>
 </div>
 

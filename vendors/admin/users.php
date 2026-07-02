@@ -31,7 +31,14 @@ require_once __DIR__ . '/admin-guard.php';
         .admin-container { max-width: 1000px; margin: 0 auto; }
         .admin-header {
             background: #0a1628; color: #fff; padding: 36px 48px; border-radius: 6px 6px 0 0; text-align: center;
+            position: relative;
         }
+        .admin-back {
+            position: absolute; top: 16px; left: 20px;
+            color: #cfe9f1; text-decoration: none; font-size: 0.82rem;
+            border: 1px solid rgba(255,255,255,0.22); padding: 6px 12px; border-radius: 999px;
+        }
+        .admin-back:hover { border-color: #21cbea; color: #fff; }
         .admin-header h1 {
             font-size: 1.7rem; font-weight: 300; text-transform: uppercase; letter-spacing: 3px; margin: 0;
         }
@@ -150,6 +157,7 @@ require_once __DIR__ . '/admin-guard.php';
 
 <div class="admin-container">
     <div class="admin-header">
+        <a class="admin-back" href="../suite.php" title="Back to the Broker Suite menu">&larr; Broker Suite</a>
         <h1>STAFF <strong>ACCOUNTS</strong></h1>
         <div class="accent-line"></div>
         <p>Login accounts for the Broker Suite at /vendors/</p>
