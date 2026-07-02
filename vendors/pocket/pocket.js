@@ -27,6 +27,7 @@
     var listings = [];        // last result set rendered
     var draft = null;         // the pending form draft awaiting commit (review stage)
     var priceType = 'list';   // Net/List toggle in the form
+    var showArchived = false; // admin-only: viewing archived (expired) listings
 
     // Edit-only image state. existingImgs is the listing's current images (each
     // {id, url, is_hero}); removedIds holds the integer ids the broker marked for
@@ -220,6 +221,9 @@
         add('length_max', $('fLenMax').value);
         add('price_min', $('fPriceMin').value);
         add('price_max', $('fPriceMax').value);
+        // Admin-only archived view. The SERVER ignores this for non-admins; we
+        // also only ever set it when the admin toggle is on.
+        if (IS_ADMIN && showArchived) { params.push('archived=1'); }
         return params.join('&');
     }
 
@@ -243,10 +247,14 @@
     function renderCards() {
         var wrap = $('cards');
         var n = listings.length;
-        $('resultCount').innerHTML = '<strong>' + n + '</strong> active listing' + (n === 1 ? '' : 's');
+        var arch = (IS_ADMIN && showArchived);
+        var word = arch ? 'archived' : 'active';
+        $('resultCount').innerHTML = '<strong>' + n + '</strong> ' + word + ' listing' + (n === 1 ? '' : 's');
 
         if (n === 0) {
-            wrap.innerHTML = '<div class="pl-empty">No listings match. Add one with "+ New Pocket Listing".</div>';
+            wrap.innerHTML = arch
+                ? '<div class="pl-empty">No archived listings.</div>'
+                : '<div class="pl-empty">No listings match. Add one with "+ New Pocket Listing".</div>';
             return;
         }
 
@@ -261,16 +269,35 @@
             var meta = metaBits.join(' &middot; ');
             var ptLabel = (l.price_type === 'net') ? 'NET' : 'LIST';
 
+            var isArchived = (l.status === 'archived');
+            var statusLabel = isArchived ? 'Archived' : (l.status || 'active');
+            var statusClass = 'pl-card-status' + (isArchived ? ' archived' : '');
+
             var thumb;
             if (l.hero_url) {
                 thumb = '<div class="pl-card-thumb" style="background-image:url(\'' + esc(l.hero_url) + '\')">' +
-                    '<span class="pl-card-status">' + esc(l.status || 'active') + '</span></div>';
+                    '<span class="' + statusClass + '">' + esc(statusLabel) + '</span></div>';
             } else {
                 thumb = '<div class="pl-card-thumb noimg">No photo' +
-                    '<span class="pl-card-status">' + esc(l.status || 'active') + '</span></div>';
+                    '<span class="' + statusClass + '">' + esc(statusLabel) + '</span></div>';
             }
 
-            html += '<div class="pl-card" data-id="' + l.id + '">' +
+            // Actions row: Print always; Reactivate only for admins on archived
+            // cards. The server re-enforces admin-only on reactivate.
+            var actions = '<a class="pl-card-print" href="print.php?id=' + l.id + '" ' +
+                'target="haleyPrint" data-print="' + l.id + '">Print</a>';
+            if (isArchived && IS_ADMIN) {
+                actions += '<button type="button" class="pl-card-reactivate" data-reactivate="' + l.id + '">Reactivate</button>';
+            }
+
+            var dateLine = '';
+            if (isArchived && l.archived_at) {
+                dateLine = '<div class="pl-card-date">Archived ' + esc(formatDate(l.archived_at)) + '</div>';
+            } else if (l.created_at) {
+                dateLine = '<div class="pl-card-date">Listed ' + esc(formatDate(l.created_at)) + '</div>';
+            }
+
+            html += '<div class="pl-card' + (isArchived ? ' is-archived' : '') + '" data-id="' + l.id + '">' +
                 thumb +
                 '<div class="pl-card-body">' +
                     '<div class="pl-card-title">' + title + '</div>' +
@@ -279,11 +306,8 @@
                         '<span class="pl-price-type">' + ptLabel + '</span></div>' +
                     '<div class="pl-card-broker">Broker: ' + esc(l.broker_name || 'Unknown') +
                         (l.broker_phone ? ' &middot; ' + esc(formatPhone(l.broker_phone)) : '') + '</div>' +
-                    (l.created_at ? '<div class="pl-card-date">Listed ' + esc(formatDate(l.created_at)) + '</div>' : '') +
-                    '<div class="pl-card-actions">' +
-                        '<a class="pl-card-print" href="print.php?id=' + l.id + '" ' +
-                            'target="haleyPrint" data-print="' + l.id + '">Print</a>' +
-                    '</div>' +
+                    dateLine +
+                    '<div class="pl-card-actions">' + actions + '</div>' +
                 '</div>' +
             '</div>';
         }
@@ -303,6 +327,44 @@
                 e.stopPropagation();
             });
         }
+        // Reactivate buttons (admin-only, archived view). Stop the card-detail
+        // click, confirm, then POST action=reactivate and reload the current view.
+        var reBtns = wrap.querySelectorAll('.pl-card-reactivate');
+        for (var r = 0; r < reBtns.length; r++) {
+            reBtns[r].addEventListener('click', function (e) {
+                e.stopPropagation();
+                reactivateListing(parseInt(this.getAttribute('data-reactivate'), 10), this);
+            });
+        }
+    }
+
+    // Reactivate an archived listing (admin-only; the server re-enforces this).
+    // Confirms with the days_active window, POSTs, then reloads the current view.
+    function reactivateListing(id, btn) {
+        if (!id) { return; }
+        var l = null;
+        for (var i = 0; i < listings.length; i++) {
+            if (listings[i].id === id) { l = listings[i]; break; }
+        }
+        var days = (l && l.days_active != null && l.days_active !== '') ? l.days_active : null;
+        var msg = days
+            ? 'Reactivate this listing for another ' + days + ' day' + (String(days) === '1' ? '' : 's') + '?'
+            : 'Reactivate this listing? (No expiration window is set, so it will stay active until one is.)';
+        if (!confirm(msg)) { return; }
+
+        if (btn) { btn.disabled = true; }
+        apiPost('action=reactivate&id=' + id).then(function (data) {
+            if (!data.ok) {
+                if (btn) { btn.disabled = false; }
+                alert(data.error || 'Could not reactivate the listing.');
+                return;
+            }
+            // Reload the current (archived) view; the reactivated listing drops out.
+            loadListings();
+        }).catch(function () {
+            if (btn) { btn.disabled = false; }
+            alert('Network error reactivating the listing.');
+        });
     }
 
     var debouncedLoad = debounce(loadListings, 280);
@@ -311,10 +373,24 @@
         ['fKeyword', 'fYearMin', 'fYearMax', 'fLenMin', 'fLenMax', 'fPriceMin', 'fPriceMax']
             .forEach(function (id) { $(id).addEventListener('input', debouncedLoad); });
         $('fMake').addEventListener('change', loadListings);
+
+        // Admin-only "Show archived" toggle. Flips the view between active and
+        // archived listings; the server enforces admin-only regardless.
+        var archEl = $('fArchived');
+        if (archEl) {
+            archEl.addEventListener('change', function () {
+                showArchived = !!this.checked;
+                loadListings();
+            });
+        }
+
         $('btnClear').addEventListener('click', function () {
             ['fKeyword', 'fYearMin', 'fYearMax', 'fLenMin', 'fLenMax', 'fPriceMin', 'fPriceMax']
                 .forEach(function (id) { $(id).value = ''; });
             $('fMake').value = '';
+            // Clear returns to the active view (leave archived mode).
+            if (archEl) { archEl.checked = false; }
+            showArchived = false;
             loadListings();
         });
     }

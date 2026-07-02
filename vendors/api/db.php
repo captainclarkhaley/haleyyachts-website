@@ -616,6 +616,22 @@ if (!function_exists('vdb_connect')) {
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pocket_listings_broker ON pocket_listings(broker_id)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pocket_listings_status ON pocket_listings(status)');
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_pocket_images_listing  ON pocket_listing_images(listing_id)');
+
+        // ---- Phase 3 lifecycle columns (idempotent, additive) ----
+        // pocket_listings predates the expiration reminders on the live server, so
+        // CREATE TABLE IF NOT EXISTS above will NOT add these to the existing table.
+        // Each is checked via PRAGMA table_info and ALTERed in only when missing.
+        // reminded_7d / reminded_1d track which expiry reminder emails the daily
+        // cron has already sent for a listing so it never double-sends; both are
+        // reset to 0 when a listing is (re)activated. Existing rows back-fill to 0
+        // (no reminder sent yet), which is correct - the cron will send on schedule.
+        // Additive ALTER only; no data dropped or rewritten.
+        if (!vdb_column_exists($pdo, 'pocket_listings', 'reminded_7d')) {
+            $pdo->exec('ALTER TABLE pocket_listings ADD COLUMN reminded_7d INTEGER NOT NULL DEFAULT 0');
+        }
+        if (!vdb_column_exists($pdo, 'pocket_listings', 'reminded_1d')) {
+            $pdo->exec('ALTER TABLE pocket_listings ADD COLUMN reminded_1d INTEGER NOT NULL DEFAULT 0');
+        }
     }
 
     /**

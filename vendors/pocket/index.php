@@ -114,6 +114,12 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         <div class="pl-filter-actions">
             <div class="pl-result-count" id="resultCount">Loading...</div>
             <div class="pl-filter-buttons">
+                <?php if ($isAdmin): ?>
+                <label class="pl-archived-toggle" id="archivedToggleWrap" title="Admin: view archived (expired) listings">
+                    <input type="checkbox" id="fArchived">
+                    <span>Show archived</span>
+                </label>
+                <?php endif; ?>
                 <button type="button" class="btn btn-ghost" id="btnClear">Clear</button>
                 <button type="button" class="btn btn-primary" id="btnNew">+ New Pocket Listing</button>
             </div>

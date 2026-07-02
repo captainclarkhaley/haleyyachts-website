@@ -99,7 +99,7 @@ try {
 
     switch ($action) {
         case 'list':
-            pocket_list($pdo);
+            pocket_list($pdo, $authUser);
             break;
         case 'get':
             pocket_get($pdo);
@@ -109,6 +109,9 @@ try {
             break;
         case 'delete':
             pocket_delete($pdo, $authUser);
+            break;
+        case 'reactivate':
+            pocket_reactivate($pdo, $authUser);
             break;
         case 'add_make':
             pocket_add_make($pdo);
@@ -136,14 +139,25 @@ try {
  *   length_min, length_max
  *   price_min, price_max
  * Default order: created_at DESC, id DESC (newest entered first). Active only.
+ *
+ * ADMIN archived view: an admin may pass archived=1 to list status='archived'
+ * instead of 'active'. This is enforced SERVER-SIDE from the session user - a
+ * NON-admin who passes archived=1 is ignored entirely and only ever sees active
+ * listings. Archived listings are never visible to non-admins.
  */
-function pocket_list(PDO $pdo)
+function pocket_list(PDO $pdo, array $authUser)
 {
     $q     = isset($_GET['q']) ? trim($_GET['q']) : '';
     $make  = isset($_GET['make']) ? trim($_GET['make']) : '';
 
-    $where  = array("l.status = 'active'");
-    $params = array();
+    // Archived toggle is admin-only. Decide the status filter from the SESSION
+    // user, never the request alone: a non-admin passing archived=1 gets 'active'.
+    $isAdmin      = isset($authUser['is_admin']) && (int) $authUser['is_admin'] === 1;
+    $wantArchived = $isAdmin && isset($_GET['archived']) && (string) $_GET['archived'] === '1';
+    $statusFilter = $wantArchived ? 'archived' : 'active';
+
+    $where  = array('l.status = ?');
+    $params = array($statusFilter);
 
     if ($q !== '') {
         $where[]  = '(l.make LIKE ? OR l.model LIKE ? OR l.location LIKE ? OR l.description LIKE ?)';
@@ -285,6 +299,7 @@ function pocket_shape(PDO $pdo, array $row)
         'created_at'  => $row['created_at'],
         'expires_at'  => $row['expires_at'],
         'status'      => $row['status'],
+        'archived_at' => isset($row['archived_at']) ? $row['archived_at'] : null,
         'hero_url'    => $hero,
         'images'      => $images,
     );
@@ -864,6 +879,72 @@ function pocket_delete(PDO $pdo, array $authUser)
     }
 
     p_respond(array('ok' => true, 'deleted' => $id));
+}
+
+// ---------------------------------------------------------------------------
+// reactivate (ADMIN-ONLY: bring an archived listing back to active)
+// ---------------------------------------------------------------------------
+
+/**
+ * Reactivate an archived listing. ADMIN-ONLY, enforced SERVER-SIDE from the
+ * SESSION user (never the request body). A non-admin gets 403 and no row is
+ * touched.
+ *
+ * On reactivate:
+ *   - status      -> 'active'
+ *   - archived_at -> NULL
+ *   - reminded_7d/reminded_1d -> 0 (fresh reminder window)
+ *   - expires_at  -> recomputed from NOW + days_active (a fresh active window),
+ *                    using the CURRENT time as the new start. created_at is left
+ *                    UNTOUCHED (the original entry date is preserved). If
+ *                    days_active is null, expires_at is left NULL (never expires
+ *                    until the broker sets a window on edit).
+ *
+ * Returns the reshaped listing (pocket_shape).
+ */
+function pocket_reactivate(PDO $pdo, array $authUser)
+{
+    $isAdmin = isset($authUser['is_admin']) && (int) $authUser['is_admin'] === 1;
+    if (!$isAdmin) {
+        p_fail('Admins only.', 403);
+    }
+
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+    if ($id <= 0) {
+        // Also accept it in a JSON body for symmetry with the other actions.
+        $b = p_body_json();
+        $id = isset($b['id']) ? (int) $b['id'] : 0;
+    }
+    if ($id <= 0) {
+        p_fail('Missing listing id.');
+    }
+
+    $stmt = $pdo->prepare('SELECT * FROM pocket_listings WHERE id = ?');
+    $stmt->execute(array($id));
+    $existing = $stmt->fetch();
+    if (!$existing) {
+        p_fail('Listing not found.', 404);
+    }
+
+    // New expiry window from NOW (only when days_active is set). created_at is
+    // preserved; the fresh window starts at the current time, not the original
+    // creation date.
+    $daysActive = ($existing['days_active'] === null || $existing['days_active'] === '')
+        ? null
+        : (int) $existing['days_active'];
+    $nowUtc    = gmdate('Y-m-d H:i:s');
+    $expiresAt = ($daysActive !== null) ? p_compute_expiry($nowUtc, $daysActive) : null;
+
+    $upd = $pdo->prepare("
+        UPDATE pocket_listings
+        SET status = 'active', archived_at = NULL,
+            reminded_7d = 0, reminded_1d = 0, expires_at = ?
+        WHERE id = ?
+    ");
+    $upd->execute(array($expiresAt, $id));
+
+    $listing = pocket_load($pdo, $id);
+    p_respond(array('ok' => true, 'listing' => $listing));
 }
 
 // ---------------------------------------------------------------------------

@@ -123,7 +123,24 @@ body {
 }
 .pl-result-count { font-size: .85rem; color: var(--muted); }
 .pl-result-count strong { color: var(--navy); }
-.pl-filter-buttons { display: flex; gap: 10px; }
+.pl-filter-buttons { display: flex; gap: 10px; align-items: center; }
+
+/* Admin-only "Show archived" toggle in the filter bar. */
+.pl-archived-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    user-select: none;
+}
+.pl-archived-toggle:hover { border-color: var(--muted); color: var(--ink); }
+.pl-archived-toggle input { margin: 0; accent-color: var(--gold); }
 
 /* ----- Buttons ----- */
 .btn {
@@ -199,6 +216,13 @@ body {
     padding: 4px 9px;
     border-radius: 999px;
 }
+/* Archived badge: gold, to read clearly against the dimmed thumbnail. */
+.pl-card-status.archived {
+    background: var(--gold);
+    color: #2a1e00;
+}
+/* Dim archived cards a touch so the active/archived distinction is obvious. */
+.pl-card.is-archived .pl-card-thumb { filter: grayscale(0.35) opacity(0.92); }
 .pl-card-body { padding: 14px 15px 16px; display: flex; flex-direction: column; gap: 6px; }
 .pl-card-title {
     font-size: 1.02rem;
@@ -254,6 +278,20 @@ body {
     color: var(--navy);
     background: rgba(33,203,234,0.08);
 }
+/* Reactivate button (admin-only, archived cards). Matches the print pill size. */
+.pl-card-reactivate {
+    font-family: inherit;
+    font-size: .78rem;
+    font-weight: 600;
+    color: var(--navy);
+    cursor: pointer;
+    background: var(--cyan);
+    border: 1px solid var(--cyan);
+    border-radius: 8px;
+    padding: 5px 12px;
+}
+.pl-card-reactivate:hover { background: var(--cyan-d); border-color: var(--cyan-d); }
+.pl-card-reactivate:disabled { opacity: .6; cursor: default; }
 .pl-detail-actions {
     margin-top: 16px;
     display: flex;
