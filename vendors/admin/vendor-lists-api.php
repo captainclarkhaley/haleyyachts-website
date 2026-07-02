@@ -1,13 +1,13 @@
 <?php
 /**
- * vendor-lists-api.php (Broker Suite admin copy) - ADMIN-ONLY endpoint to manage
+ * vendor-lists-api.php (Yacht Broker Support admin copy) - ADMIN-ONLY endpoint to manage
  * the two predefined lists the Vendor Database draws from: Vendor Types and
  * Coverage Areas.
  *
  * RELOCATED from /admin/vendor-lists-api.php as part of Phase 2c. The original
  * still lives under /admin/ and keeps working until 2d retires it; this copy is
  * the in-app version, gated by the SAME session + is_admin flag the rest of the
- * Broker Suite uses instead of the old /admin/ Directory Privacy realm.
+ * Yacht Broker Support uses instead of the old /admin/ Directory Privacy realm.
  *
  * AUTH MODEL (the only real change vs. the original): this is an API endpoint,
  * so it does NOT redirect. It requires a valid in-app session (require_auth ->

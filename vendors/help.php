@@ -309,7 +309,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             <li>On the sign-in screen, click <strong>Forgot password?</strong></li>
             <li>Enter the email on your account.</li>
             <li>Click <strong>Send Reset Link</strong>.</li>
-            <li>Check your email for a message from <strong>no-reply@haleyyachts.com</strong> with a reset link.</li>
+            <li>Check your email for a message from <strong>no-reply@owyg.yachtbrokersupport.com</strong> with a reset link.</li>
             <li>Click the link, set a new password (at least 8 characters, entered twice), and you are sent back to sign in.</li>
         </ol>
         <p>The reset link <strong>expires in 1 hour</strong>. If it expires, just request a new one from the sign-in screen.</p>
@@ -619,10 +619,10 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
 
         <!-- ===== For Administrators ===== -->
         <h2 id="for-administrators">For Administrators</h2>
-        <p>This section is for Clark and your Administrative Assistant. The admin tools now live inside the Broker Suite. To reach them, open the account menu on the Broker Suite launcher and choose <strong>Admin</strong>. These tools are admin only and use your Broker Suite login, with no separate password.</p>
+        <p>This section is for Clark and your Administrative Assistant. The admin tools now live inside Yacht Broker Support. To reach them, open the account menu on the launcher and choose <strong>Admin</strong>. These tools are admin only and use your Yacht Broker Support login, with no separate password.</p>
 
         <h3>Managing staff accounts</h3>
-        <p>Open the account menu on the Broker Suite launcher, choose <strong>Admin</strong>, then <strong>Staff Accounts</strong>.</p>
+        <p>Open the account menu on the Yacht Broker Support launcher, choose <strong>Admin</strong>, then <strong>Staff Accounts</strong>.</p>
         <p><strong>Create an account:</strong></p>
         <ol>
             <li>Click <strong>+ New Account</strong>.</li>
@@ -658,7 +658,7 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
         </ul>
 
         <h3>Managing the predefined lists</h3>
-        <p>Open the account menu on the Broker Suite launcher, choose <strong>Admin</strong>, then <strong>Predefined Lists</strong>. These two lists are what staff choose from in the app; staff cannot edit them.</p>
+        <p>Open the account menu on the Yacht Broker Support launcher, choose <strong>Admin</strong>, then <strong>Predefined Lists</strong>. These two lists are what staff choose from in the app; staff cannot edit them.</p>
 
         <!-- IMG: vendor-lists -->
         <figure class="help-fig">
@@ -685,7 +685,7 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
         <p>When a non-admin requests a vendor delete, the system emails the request to the admin notification address so an admin can act on it.</p>
 
         <h3>A note on system emails</h3>
-        <p>All system emails (onboarding/temporary passwords, password resets, and delete-request notifications) are sent from <strong>no-reply@haleyyachts.com</strong>. Let staff know to expect mail from that address and to check spam if it does not arrive.</p>
+        <p>All system emails (onboarding/temporary passwords, password resets, and delete-request notifications) are sent from <strong>no-reply@owyg.yachtbrokersupport.com</strong>. Let staff know to expect mail from that address and to check spam if it does not arrive.</p>
 
         <hr class="help-rule">
 

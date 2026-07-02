@@ -1,6 +1,6 @@
 <?php
 /**
- * suite.php - Broker Suite launcher (master app menu).
+ * suite.php - Yacht Broker Support launcher (master app menu).
  *
  * This is the screen a broker lands on after signing in: an umbrella home that
  * lists every app in the suite (Vendor Management, Pocket Listings, ...) and lets
@@ -71,7 +71,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broker Suite - <?php echo $h($brandName); ?></title>
+    <title><?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -79,7 +79,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ============================================================
-           YACHT BROKER SUPPORT - BROKER SUITE - palette tokens
+           YACHT BROKER SUPPORT - palette tokens
            --accent is the brand cyan (#23cbea). (Palette originated
            with the Haley Yachts site; kept as-is for the product.)
            ============================================================ */
@@ -129,14 +129,6 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             min-width: 0;
         }
         .bs-brand img { height: 28px; width: auto; display: block; object-fit: contain; opacity: .92; }
-        .bs-brand-divider { width: 1px; height: 32px; background: rgba(238,244,247,0.2); flex: none; }
-        .bs-brand-label {
-            font-size: 11px;
-            letter-spacing: .42em;
-            color: var(--accent);
-            font-weight: 600;
-            white-space: nowrap;
-        }
         /* Primary product wordmark (typographic - no logo image yet). */
         .bs-wordmark {
             display: flex;
@@ -236,7 +228,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         .bs-dropdown .bs-menu-profile { border-bottom: 1px solid var(--hair); }
         .bs-dropdown .bs-menu-logout { color: var(--logout-red); }
         /* Admin section inside the account dropdown (admin only). A labeled
-           group of links to the Broker Suite admin pages, set off from the
+           group of links to the Yacht Broker Support admin pages, set off from the
            personal-account items above it by a top border + a small caption. */
         .bs-dropdown .bs-menu-admin-head {
             padding: 10px 16px 4px;
@@ -553,8 +545,6 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                 <span class="bs-wm-tenant-label"><?php echo $h($tenantName); ?></span>
             </span>
         </div>
-        <span class="bs-brand-divider"></span>
-        <span class="bs-brand-label">BROKER SUITE</span>
     </div>
 
     <div class="bs-account">

@@ -47,7 +47,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     <div class="vdb-topright">
         <div class="vdb-userbar" id="userBar" hidden>
             <span class="vdb-user-info" id="userInfo"></span>
-            <a class="vdb-logout" href="suite.php" title="Back to the Broker Suite launcher">&larr; Broker Suite</a>
+            <a class="vdb-logout" href="suite.php" title="Back to the menu">&larr; Menu</a>
             <a class="vdb-logout" href="help.php" target="_blank" rel="noopener">Help</a>
             <button type="button" class="vdb-logout" id="btnProfile">My Profile</button>
             <button type="button" class="vdb-logout" id="btnLogout">Log out</button>
@@ -157,7 +157,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     </div>
 
     <div class="vdb-foot-link">
-        <a href="suite.php">&larr; Back to Broker Suite</a>
+        <a href="suite.php">&larr; Back to Menu</a>
     </div>
 </div>
 

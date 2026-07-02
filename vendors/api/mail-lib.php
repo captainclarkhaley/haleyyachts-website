@@ -23,14 +23,14 @@
  * contains no password at all.
  */
 
-// Shared authenticated-SMTP sender + config loader. Both Broker Suite mailers
+// Shared authenticated-SMTP sender + config loader. Both Yacht Broker Support mailers
 // route through this so there is one transport and one secrets file.
 require_once __DIR__ . '/../mail-smtp.php';
 
 if (!defined('VMAIL_FROM')) {
     // From-address for all Vendor app system mail. Must be on the site domain so
     // SPF/DKIM can authenticate it once those records are configured.
-    define('VMAIL_FROM', 'no-reply@haleyyachts.com');
+    define('VMAIL_FROM', 'no-reply@owyg.yachtbrokersupport.com');
 }
 
 if (!defined('ADMIN_NOTIFY_EMAIL')) {
@@ -49,7 +49,7 @@ if (!function_exists('vmail_login_url')) {
      */
     function vmail_login_url()
     {
-        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'haleyyachts.com';
+        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'owyg.yachtbrokersupport.com';
         $host = preg_replace('/[^A-Za-z0-9.\-:]/', '', $host);
         return 'https://' . $host . '/login.html';
     }
@@ -173,7 +173,7 @@ if (!function_exists('vmail_login_url')) {
      */
     function send_reset_link_email($toEmail, $rawToken)
     {
-        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'haleyyachts.com';
+        $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'owyg.yachtbrokersupport.com';
         $host = preg_replace('/[^A-Za-z0-9.\-:]/', '', $host);
         $link = 'https://' . $host . '/reset.html?token=' . $rawToken;
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * pocket/cron.php - Pocket Listings expiration lifecycle (Broker Suite app #2),
+ * pocket/cron.php - Pocket Listings expiration lifecycle (Yacht Broker Support app #2),
  * Phase 3. Runs ONCE PER DAY as a scheduled shell job (cPanel cron), never from
  * the web.
  *
@@ -74,9 +74,9 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     // --- environment values from settings (Phase 1), each with the original
     // hardcoded literal as its fallback so a missing/blank setting sends exactly
     // as before. A $pdo is in scope, so read them here and thread through. ---
-    $siteBase = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
+    $siteBase = suite_setting($pdo, 'site_base_url', 'https://owyg.yachtbrokersupport.com');
     $notifyTo = suite_setting($pdo, 'pocket_notify_to', 'clark@mvroam.com');
-    $mailFrom = suite_setting($pdo, 'mail_from_address', 'no-reply@haleyyachts.com');
+    $mailFrom = suite_setting($pdo, 'mail_from_address', 'no-reply@owyg.yachtbrokersupport.com');
     // Product-first branding for the footer (config-driven).
     $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
     $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
@@ -132,7 +132,7 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     if ($priceDisplay !== '') { $text[] = 'Price: ' . $priceDisplay; }
     if ($brokerName !== '')   { $text[] = 'Listed by: ' . $brokerName; }
     $text[] = '';
-    $text[] = 'Review or renew this listing in the Broker Suite:';
+    $text[] = 'Review or renew this listing in Yacht Broker Support:';
     $text[] = $suiteUrl;
     $text[] = '';
     $text[] = '(Reminder sent to the test inbox during rollout.)';
@@ -157,7 +157,7 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
         $htmlBody,
         'pocket-expiry:listing-' . $listingId,
         '',                 // Reply-To: none
-        $mailFrom           // From: no-reply@haleyyachts.com
+        $mailFrom           // From: no-reply@owyg.yachtbrokersupport.com
     );
 }
 

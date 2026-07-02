@@ -21,14 +21,14 @@
  * HTML body is escaped with htmlspecialchars.
  */
 
-// Shared authenticated-SMTP sender + config loader. Both Broker Suite mailers
+// Shared authenticated-SMTP sender + config loader. Both Yacht Broker Support mailers
 // route through this so there is one transport and one secrets file.
 require_once __DIR__ . '/../mail-smtp.php';
 
 if (!function_exists('pocket_notify_new_listing')) {
 
     // =======================================================================
-    // CONFIG (Broker Suite settings layer, Phase 1)
+    // CONFIG (Yacht Broker Support settings layer, Phase 1)
     //
     // These three environment values are no longer define()'d constants. They now
     // live in the DB-backed suite_settings table and are read at CALL time (where
@@ -41,13 +41,13 @@ if (!function_exists('pocket_notify_new_listing')) {
     //     audience. Going live is now a settings edit (or a users-table query +
     //     send loop), not a code change. Do not ship a real rollout still pointed
     //     at the single test inbox.
-    //   mail_from_address  -> 'no-reply@haleyyachts.com'
+    //   mail_from_address  -> 'no-reply@owyg.yachtbrokersupport.com'
     //     The From address, sent over authenticated SMTP so SPF/DKIM authenticate
     //     it. The From DISPLAY NAME ("OneWater") still comes from the shared
-    //     secrets file (from_name), NOT from settings, so both Broker Suite
+    //     secrets file (from_name), NOT from settings, so both Yacht Broker Support
     //     mailers stay consistent.
-    //   site_base_url      -> 'https://haleyyachts.com'
-    //     Absolute base for image URLs and the "view in Broker Suite" link. Email
+    //   site_base_url      -> 'https://owyg.yachtbrokersupport.com'
+    //     Absolute base for image URLs and the "view in Yacht Broker Support" link. Email
     //     clients cannot resolve relative paths, so everything the email
     //     references must be absolute off this.
 
@@ -75,9 +75,9 @@ if (!function_exists('pocket_notify_new_listing')) {
             // scope) into locals, then thread those locals through the header
             // fields + body builders - the builders no longer reference any
             // constant directly.
-            $siteBase = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
+            $siteBase = suite_setting($pdo, 'site_base_url', 'https://owyg.yachtbrokersupport.com');
             $notifyTo = suite_setting($pdo, 'pocket_notify_to', 'clark@mvroam.com');
-            $mailFrom = suite_setting($pdo, 'mail_from_address', 'no-reply@haleyyachts.com');
+            $mailFrom = suite_setting($pdo, 'mail_from_address', 'no-reply@owyg.yachtbrokersupport.com');
             // Product-first branding for titles/footers (config-driven).
             $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
             $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
@@ -176,7 +176,7 @@ if (!function_exists('pocket_notify_new_listing')) {
 
             // --- recipients / header addresses (all header-sanitized) ---
             // From address + display name are handled by the shared sender
-            // (From: no-reply@haleyyachts.com, display "OneWater" from the
+            // (From: no-reply@owyg.yachtbrokersupport.com, display "OneWater" from the
             // secrets file). Here we only sanitize the To and the Reply-To.
             $to      = p_mail_header_safe($notifyTo);
             $replyTo = p_mail_header_safe($brokerEmail); // may be '' -> omitted below
@@ -210,7 +210,7 @@ if (!function_exists('pocket_notify_new_listing')) {
                 $htmlBody,
                 'pocket-mailer:listing-' . $listingId,
                 $replyTo,            // Reply-To: the listing broker (may be '')
-                $mailFrom            // From: no-reply@haleyyachts.com
+                $mailFrom            // From: no-reply@owyg.yachtbrokersupport.com
             );
             if (!$ok) {
                 error_log('pocket-mailer: notification not sent for listing ' . $listingId);

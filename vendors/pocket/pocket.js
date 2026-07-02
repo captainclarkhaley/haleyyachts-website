@@ -1,5 +1,5 @@
 /* ============================================================
-   Pocket Listings - staff app front end (Broker Suite app #2).
+   Pocket Listings - staff app front end (Yacht Broker Support app #2).
    Talks to api.php (same /vendors/ realm + session).
    Phase 1: list/search, new+edit form, review-then-commit,
    image upload, detail view. NO network email / print-share /

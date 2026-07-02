@@ -1,6 +1,6 @@
 <?php
 /**
- * users.php (Broker Suite admin copy) - Staff Accounts management page.
+ * users.php (Yacht Broker Support admin copy) - Staff Accounts management page.
  *
  * RELOCATED from /admin/users.html as part of Phase 2b. The gate below replaces
  * the old /admin/ Directory Privacy realm with the shared in-app admin guard: a
@@ -18,7 +18,7 @@ require_once __DIR__ . '/admin-guard.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Accounts - Broker Suite Admin - <?php echo htmlspecialchars((string) $brandName, ENT_QUOTES, 'UTF-8'); ?></title>
+    <title>Staff Accounts - Admin - <?php echo htmlspecialchars((string) $brandName, ENT_QUOTES, 'UTF-8'); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -157,16 +157,16 @@ require_once __DIR__ . '/admin-guard.php';
 
 <div class="admin-container">
     <div class="admin-header">
-        <a class="admin-back" href="../suite.php" title="Back to the Broker Suite menu">&larr; Broker Suite</a>
+        <a class="admin-back" href="../suite.php" title="Back to the menu">&larr; Menu</a>
         <h1>STAFF <strong>ACCOUNTS</strong></h1>
         <div class="accent-line"></div>
-        <p>Login accounts for the Broker Suite at /vendors/</p>
+        <p>Login accounts for Yacht Broker Support</p>
     </div>
 
     <div class="admin-body">
         <div class="security-notice">
             <strong>Admin only</strong>
-            These accounts log staff into the Broker Suite at <code>/vendors/</code>. Passwords are stored hashed (never in plain text) and are never shown here. Create an account for each staff member, set an initial password, and share it securely. Disabling an account blocks login immediately. Deleting an account is permanent.
+            These accounts log staff into Yacht Broker Support. Passwords are stored hashed (never in plain text) and are never shown here. Create an account for each staff member, set an initial password, and share it securely. Disabling an account blocks login immediately. Deleting an account is permanent.
         </div>
 
         <div class="notice error" id="notice"></div>
@@ -195,7 +195,7 @@ require_once __DIR__ . '/admin-guard.php';
         </table>
 
         <div class="footer-link">
-            <a href="../suite.php">&larr; Back to Broker Suite</a> &nbsp;|&nbsp;
+            <a href="../suite.php">&larr; Back to Menu</a> &nbsp;|&nbsp;
             <a href="../index.php" target="_blank">Open Vendor Management &rarr;</a>
         </div>
     </div>

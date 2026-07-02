@@ -1,6 +1,6 @@
 <?php
 /**
- * pocket/api.php - JSON API for the Pocket Listings app (Broker Suite app #2).
+ * pocket/api.php - JSON API for the Pocket Listings app (Yacht Broker Support app #2).
  *
  * ACCESS CONTROL: this endpoint is a real security boundary. Every request must
  * carry a valid in-app session (require_auth below); an unauthenticated request

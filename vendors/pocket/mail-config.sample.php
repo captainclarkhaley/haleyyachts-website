@@ -2,7 +2,7 @@
 /**
  * DEPRECATED - use the consolidated secrets file instead.
  *
- * SMTP credentials are now shared by BOTH Broker Suite mailers (the Vendor app
+ * SMTP credentials are now shared by BOTH Yacht Broker Support mailers (the Vendor app
  * auth mail AND this Pocket notification) in ONE file:
  *
  *     vendors/mail-secrets.php   (copied from vendors/mail-secrets.sample.php)

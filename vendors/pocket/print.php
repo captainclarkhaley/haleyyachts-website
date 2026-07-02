@@ -1,7 +1,7 @@
 <?php
 /**
  * pocket/print.php - print-optimized ONE-PAGER for a single pocket listing
- * (Broker Suite app #2, Phase 2).
+ * (Yacht Broker Support app #2, Phase 2).
  *
  * Same server-side auth gate as index.php: an unauthenticated visitor is
  * redirected to the shared /vendors/ login BEFORE any markup is sent, and a user

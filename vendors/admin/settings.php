@@ -1,6 +1,6 @@
 <?php
 /**
- * admin/settings.php - Broker Suite Settings editor (Phase 2a).
+ * admin/settings.php - Yacht Broker Support Settings editor (Phase 2a).
  *
  * View + edit the four non-secret suite_settings values from Phase 1
  * (site_base_url, mail_from_address, pocket_notify_to, doc_admin_email). These
@@ -38,12 +38,12 @@ $SETTING_KEYS = array('site_base_url', 'mail_from_address', 'pocket_notify_to', 
 $FIELD_META = array(
     'site_base_url' => array(
         'label' => 'Site base URL',
-        'hint'  => 'Absolute base for links in emails and print sheets, e.g. https://haleyyachts.com. No trailing slash. This is the portability lever - it is what changes when the suite moves to its own domain.',
+        'hint'  => 'Absolute base for links in emails and print sheets, e.g. https://owyg.yachtbrokersupport.com. No trailing slash. This is the portability lever - it is what changes when the suite moves to its own domain.',
         'type'  => 'url',
     ),
     'mail_from_address' => array(
         'label' => 'Email From address',
-        'hint'  => 'The From address suite emails are sent as, e.g. no-reply@haleyyachts.com.',
+        'hint'  => 'The From address suite emails are sent as, e.g. no-reply@owyg.yachtbrokersupport.com.',
         'type'  => 'email',
     ),
     'pocket_notify_to' => array(
@@ -189,7 +189,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Broker Suite Admin - <?php echo $h($brandName); ?></title>
+    <title>Settings - Admin - <?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -369,9 +369,9 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
         </div>
         <span class="divider"></span>
-        <span class="label">BROKER SUITE ADMIN</span>
+        <span class="label">ADMIN</span>
     </div>
-    <a class="adm-back" href="../suite.php">&larr; Back to Broker Suite</a>
+    <a class="adm-back" href="../suite.php">&larr; Back to Menu</a>
 </header>
 
 <main class="adm-wrap">

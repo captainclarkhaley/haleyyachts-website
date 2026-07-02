@@ -1,8 +1,8 @@
 <?php
 /**
- * admin-guard.php - shared auth prologue for every Broker Suite admin page.
+ * admin-guard.php - shared auth prologue for every Yacht Broker Support admin page.
  *
- * Broker Suite admin pages live under /vendors/admin/ and are gated by the SAME
+ * Yacht Broker Support admin pages live under /vendors/admin/ and are gated by the SAME
  * in-app session + is_admin flag the rest of the suite uses - NOT the old
  * password-protected /admin/ folder (that separate area is untouched by this
  * work and stays as-is). Include this file at the very top of an admin page,

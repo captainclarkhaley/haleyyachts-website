@@ -1,9 +1,9 @@
 # Vendor Database - one-time setup (cPanel / GoDaddy)
 
-Product: **Yacht Broker Support** (the Broker Suite), tenant **One Water Yacht
+Product: **Yacht Broker Support**, tenant **One Water Yacht
 Group**. Display names are config-driven via the `brand_name` / `tenant_name`
-suite settings. The `haleyyachts.com` URLs below are the CURRENT deploy target;
-they move to the product's own subdomain at deploy time (a separate step).
+suite settings. The suite is deployed at its own subdomain,
+`https://owyg.yachtbrokersupport.com`.
 
 The Vendor Database is a small server-side app. The website is static, but this
 feature needs PHP and SQLite, both of which the GoDaddy cPanel server already
@@ -17,14 +17,14 @@ provides. Everything is file-based, there is no external database to provision.
 
 ## What it is
 
-- Staff app: `https://haleyyachts.com/vendors/` (Broker Suite login)
-- Admin console (staff accounts + predefined lists): inside the Broker Suite,
+- Staff app: `https://owyg.yachtbrokersupport.com/` (Yacht Broker Support login)
+- Admin console (staff accounts + predefined lists): inside Yacht Broker Support,
   reached from the launcher's account menu > Admin (gated by the in-app
   `is_admin` login, NOT the `/admin/` folder password)
 - Data: a single SQLite file at `public_html/vendors/api/data/vendors.sqlite`
 
 The staff app and the admin console write to the SAME SQLite file. The split is
-by role: every staff member signs in with their Broker Suite account, but only
+by role: every staff member signs in with their Yacht Broker Support account, but only
 those flagged `is_admin` see the Admin menu and can reach the account and list
 management screens.
 
@@ -32,7 +32,7 @@ management screens.
 
 The app authenticates staff itself, against the same SQLite database:
 
-- **Accounts** are created by you (admin) in the Broker Suite admin console
+- **Accounts** are created by you (admin) in the Yacht Broker Support admin console
   (launcher > account menu > Admin > Staff Accounts), gated by the in-app
   `is_admin` login. There is NO public self-signup.
 - **Login page:** `vendors/login.html` (Account ID + password, plus "Forgot
@@ -49,7 +49,7 @@ The app authenticates staff itself, against the same SQLite database:
      enters their email, and gets a one-time link (`reset.html?token=...`) that
      expires in 1 hour. For anti-enumeration the page always says "if that email
      is on file, a link has been sent," whether or not the email matched.
-  2. Admin: in the Broker Suite admin console (Admin > Staff Accounts),
+  2. Admin: in the Yacht Broker Support admin console (Admin > Staff Accounts),
      "Reset PW" sets a new password directly. This is the fallback if email
      delivery is a problem.
 
@@ -59,7 +59,7 @@ hash. Sessions use HttpOnly + Secure + SameSite=Lax cookies and the session id
 is regenerated on login.
 
 **About the reset EMAILS:** the link is sent with PHP `mail()` from
-`no-reply@haleyyachts.com` (configurable at the top of `vendors/auth.php`).
+`no-reply@owyg.yachtbrokersupport.com` (configurable at the top of `vendors/auth.php`).
 Whether it arrives depends on the server actually being able to send mail from
 the domain. If resets land in spam or do not arrive, the domain may need SPF /
 DKIM / a real mailbox configured. **The admin "Reset PW" button is the reliable
@@ -74,14 +74,14 @@ the cPanel popup is still active, then remove it. Order:
 
 1. **Pull** the new files to the server (cPanel Git pull, as usual). This brings
    down `index.php`, `login.html`, `reset.html`, `auth.php`, `api/auth-lib.php`,
-   and the Broker Suite admin console (`vendors/suite.php`,
+   and the Yacht Broker Support admin console (`vendors/suite.php`,
    `vendors/admin/users.php`, `vendors/admin/users-api.php`), and removes the old
    `vendors/index.html`.
-2. **Create your own account(s)** in the Broker Suite admin console (launcher >
+2. **Create your own account(s)** in the Yacht Broker Support admin console (launcher >
    account menu > Admin > Staff Accounts), gated by the in-app `is_admin` login.
    Give yourself an Account ID, email, home office, and an initial password. Add
    the rest of the staff now or later.
-3. **Test the new login** at `https://haleyyachts.com/vendors/`. The cPanel
+3. **Test the new login** at `https://owyg.yachtbrokersupport.com/`. The cPanel
    popup will still appear first (that is fine for now) - clear it with your
    existing cPanel staff credentials, then you should land on `login.html`. Sign
    in with the account you just made. Confirm the app loads, your name + home
@@ -128,7 +128,7 @@ Privacy. If you do not see it in the folder browser, you have not pulled yet.
    to **Create User**, sometimes titled "Create a User who can access this
    directory"). Type a **Username**, type a **Password** twice (or use the
    generator), and click **Save** / **Add User**. That username + password is
-   what staff type into the browser pop-up at `haleyyachts.com/vendors/`.
+   what staff type into the browser pop-up at `owyg.yachtbrokersupport.com`.
 5. To add more staff, repeat step 4 with another username and password. Each
    person can have their own login, all pointing at the same `/vendors/` folder.
 
@@ -140,7 +140,7 @@ cPanel writes the `.htpasswd` file and appends its managed `cp:ppd` block to
 `/vendors/` area is unprotected if it is live on the web.
 
 (Staff accounts and the predefined lists are NOT protected by the `/admin/`
-folder password anymore - they live in the Broker Suite admin console, gated by
+folder password anymore - they live in the Yacht Broker Support admin console, gated by
 the in-app `is_admin` login. The `/admin/` password realm still protects the
 separate website admin tools, unchanged.)
 
@@ -156,7 +156,7 @@ GoDaddy cPanel ships with this enabled by default, but to be sure:
 ### 3. The database auto-creates on first load
 
 There is nothing to import. The first time any authenticated user opens the
-staff app or the Broker Suite admin console, `vendors/api/db.php` creates
+staff app or the Yacht Broker Support admin console, `vendors/api/db.php` creates
 `vendors/api/data/vendors.sqlite`, builds the tables, and seeds the starter
 Vendor Types and Coverage Areas. From then on it just opens the existing file.
 
@@ -183,13 +183,13 @@ Back it up separately:
 Only `.htaccess` is tracked under `data/`. The `.sqlite` file (and any
 `-journal`, `-wal`, `-shm` siblings) are ignored on purpose.
 
-### 5. The Broker Suite admin console gates the lists page
+### 5. The Yacht Broker Support admin console gates the lists page
 
-Staff accounts and the predefined lists now live inside the Broker Suite
+Staff accounts and the predefined lists now live inside Yacht Broker Support
 (`vendors/admin/users.php` and `vendors/admin/vendor-lists.php`, reached from the
 launcher's account menu > Admin). They are gated by the in-app `is_admin` login,
 NOT the `/admin/` folder password. No cPanel realm step for them. Just sign in to
-the Broker Suite as an admin account and confirm the Admin menu shows
+Yacht Broker Support as an admin account and confirm the Admin menu shows
 **Staff Accounts** and **Predefined Lists**. The `/admin/` password realm still
 protects the separate website admin tools.
 
@@ -205,12 +205,12 @@ protects the separate website admin tools.
 
 ## Quick smoke test after setup
 
-1. Open `https://haleyyachts.com/vendors/`, log in with a staff user. You should
+1. Open `https://owyg.yachtbrokersupport.com/`, log in with a staff user. You should
    see an empty results table and the filter lists already populated with the
    seeded Vendor Types and Coverage Areas.
 2. Click **+ Add Vendor**, fill in a name, tick a type and an area, add a contact
    marked Primary, Save. It should appear in the table with the primary phone or
    email derived from that contact.
-3. In the Broker Suite, open the account menu > Admin > Predefined Lists (as an
+3. In Yacht Broker Support, open the account menu > Admin > Predefined Lists (as an
    admin account), rename or add a list item, then reload the staff app and
    confirm the change shows up in the filters.

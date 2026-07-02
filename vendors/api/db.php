@@ -55,7 +55,7 @@ if (!function_exists('vdb_connect')) {
         // it parents the existing rows. Idempotent + additive (see the function).
         vdb_seed_hierarchy($pdo);
 
-        // Pocket Listings (second Broker Suite app). Its tables are created + seeded
+        // Pocket Listings (second Yacht Broker Support app). Its tables are created + seeded
         // here, sharing this same DB so it can read the users table (brokers). All
         // additive + idempotent - it never touches the vendor tables above.
         vdb_init_pocket_schema($pdo);
@@ -66,7 +66,7 @@ if (!function_exists('vdb_connect')) {
         vdb_init_documents_schema($pdo);
         vdb_seed_document_purposes($pdo);
 
-        // Suite settings (Broker Suite platform config layer, Phase 1). A single
+        // Suite settings (Yacht Broker Support platform config layer, Phase 1). A single
         // key/value table of non-secret, environment/rollout knobs (base URL,
         // from address, notification recipients, admin email). Additive +
         // idempotent; seeded with today's hardcoded values via INSERT OR IGNORE
@@ -79,7 +79,7 @@ if (!function_exists('vdb_connect')) {
     }
 
     // =======================================================================
-    // SUITE SETTINGS (Broker Suite platform config layer, Phase 1)
+    // SUITE SETTINGS (Yacht Broker Support platform config layer, Phase 1)
     //
     // One flat key/value table of non-secret, environment/rollout knobs shared
     // across the suite. Code reads a setting with the current hardcoded literal
@@ -114,8 +114,8 @@ if (!function_exists('vdb_connect')) {
     function vdb_seed_settings(PDO $pdo)
     {
         $defaults = array(
-            'site_base_url'     => 'https://haleyyachts.com',
-            'mail_from_address' => 'no-reply@haleyyachts.com',
+            'site_base_url'     => 'https://owyg.yachtbrokersupport.com',
+            'mail_from_address' => 'no-reply@owyg.yachtbrokersupport.com',
             'pocket_notify_to'  => 'clark@mvroam.com',
             'doc_admin_email'   => 'admin@OWYG.com',
             'brand_name'        => 'Yacht Broker Support',
@@ -641,7 +641,7 @@ if (!function_exists('vdb_connect')) {
     }
 
     // =======================================================================
-    // POCKET LISTINGS (Broker Suite app #2) - schema + seed
+    // POCKET LISTINGS (Yacht Broker Support app #2) - schema + seed
     //
     // Shares this SQLite DB so it can read the users table (brokers). These
     // three tables are entirely NEW - CREATE TABLE IF NOT EXISTS never touches

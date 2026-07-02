@@ -1,6 +1,6 @@
 <?php
 /**
- * vendor-lists.php (Broker Suite admin copy) - Predefined Lists management page
+ * vendor-lists.php (Yacht Broker Support admin copy) - Predefined Lists management page
  * (Vendor Types + Coverage Areas).
  *
  * RELOCATED from /admin/vendor-lists.html as part of Phase 2c. The gate below
@@ -19,7 +19,7 @@ require_once __DIR__ . '/admin-guard.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Lists - Broker Suite Admin - <?php echo htmlspecialchars((string) $brandName, ENT_QUOTES, 'UTF-8'); ?></title>
+    <title>Vendor Lists - Admin - <?php echo htmlspecialchars((string) $brandName, ENT_QUOTES, 'UTF-8'); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -183,7 +183,7 @@ require_once __DIR__ . '/admin-guard.php';
 
 <div class="admin-container">
     <div class="admin-header">
-        <a class="admin-back" href="../suite.php" title="Back to the Broker Suite menu">&larr; Broker Suite</a>
+        <a class="admin-back" href="../suite.php" title="Back to the menu">&larr; Menu</a>
         <h1>VENDOR <strong>LISTS</strong></h1>
         <div class="accent-line"></div>
         <p>Manage the Vendor Types and Coverage Areas used by the staff Vendor Database</p>
@@ -251,7 +251,7 @@ require_once __DIR__ . '/admin-guard.php';
         </div>
 
         <div class="footer-link">
-            <a href="../suite.php">&larr; Back to Broker Suite</a> &nbsp;|&nbsp;
+            <a href="../suite.php">&larr; Back to Menu</a> &nbsp;|&nbsp;
             <a href="../index.php" target="_blank">Open staff Vendor Database &rarr;</a>
         </div>
     </div>

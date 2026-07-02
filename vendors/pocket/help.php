@@ -219,7 +219,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 
     <div class="help-card">
 
-        <p class="lead">Pocket Listings is a private, off-market listings board for the OWYG broker network. A broker posts a boat, and other OWYG brokers can search it and contact the listing broker directly. It uses the same sign-in as the rest of the Broker Suite, so if you are already signed in to the Vendor Database you are signed in here too. This guide covers finding a listing, creating one, editing it (including photos), printing a customer sheet, how a listing expires, and the admin tools.</p>
+        <p class="lead">Pocket Listings is a private, off-market listings board for the OWYG broker network. A broker posts a boat, and other OWYG brokers can search it and contact the listing broker directly. It uses the same sign-in as the rest of Yacht Broker Support, so if you are already signed in to the Vendor Database you are signed in here too. This guide covers finding a listing, creating one, editing it (including photos), printing a customer sheet, how a listing expires, and the admin tools.</p>
 
         <?php if (file_exists(__DIR__ . '/help-img/main-screen.png')): ?>
         <!-- IMG: main-screen -->
@@ -249,7 +249,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         <!-- ===== What it is ===== -->
         <h2 id="what-it-is">What Pocket Listings is</h2>
         <p>Pocket Listings is a shared, private board of off-market boats for the OWYG broker network. It is not public and it is not on the open web. Only signed-in OWYG brokers can see it.</p>
-        <p>The idea is simple: when you have a boat that is not listed publicly, you post it here so the rest of the network knows it exists. Another broker who has a buyer can search the board, find your listing, and contact you directly. Sign-in is the same account you use for the Vendor Database and the rest of the Broker Suite.</p>
+        <p>The idea is simple: when you have a boat that is not listed publicly, you post it here so the rest of the network knows it exists. Another broker who has a buyer can search the board, find your listing, and contact you directly. Sign-in is the same account you use for the Vendor Database and the rest of Yacht Broker Support.</p>
 
         <hr class="help-rule">
 

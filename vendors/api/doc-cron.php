@@ -31,7 +31,7 @@
  *     and to upload the renewed policy under that vendor's documents. There is always
  *     a recipient, so this case never skips for a missing vendor email.
  *
- * From address = default (no-reply@haleyyachts.com). Every value is HTML-escaped in
+ * From address = default (no-reply@owyg.yachtbrokersupport.com). Every value is HTML-escaped in
  * the HTML body; header values are CR/LF-stripped before they touch a header.
  *
  * TIME: everything is UTC. expires_at is a plain YYYY-MM-DD date; we compare it
@@ -222,7 +222,7 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
             $htmlBody,
             'vendor-doc-expiry:doc-' . $docId,
             $adminEmail,            // Reply-To: admin email
-            '',                     // From address: default (no-reply@haleyyachts.com)
+            '',                     // From address: default (no-reply@owyg.yachtbrokersupport.com)
             '',                     // CC: none (internal)
             DOC_CRON_FROM_NAME      // From NAME: Admin at One Water Yacht Group
         );
@@ -281,7 +281,7 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
         $htmlBody,
         'vendor-doc-expiry:doc-' . $docId,
         $adminEmail,            // Reply-To: admin email
-        '',                     // From address: default (no-reply@haleyyachts.com)
+        '',                     // From address: default (no-reply@owyg.yachtbrokersupport.com)
         $adminEmail,            // CC: admin email
         DOC_CRON_FROM_NAME      // From NAME: Admin at One Water Yacht Group
     );
@@ -446,7 +446,7 @@ try {
 // a later bad/blank row can never change routing mid-run, and a missing setting
 // behaves exactly like the old constant.
 $adminEmail = suite_setting($pdo, 'doc_admin_email', 'admin@OWYG.com');
-$siteBase   = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
+$siteBase   = suite_setting($pdo, 'site_base_url', 'https://owyg.yachtbrokersupport.com');
 // Product-first branding for the email footers (config-driven).
 $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
 $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');

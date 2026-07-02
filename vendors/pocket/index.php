@@ -2,7 +2,7 @@
 /**
  * pocket/index.php - Pocket Listings app entry page WITH a server-side auth gate.
  *
- * Second app in the OWYG Broker Suite. An unauthenticated visitor is redirected
+ * Second app in OWYG Yacht Broker Support. An unauthenticated visitor is redirected
  * to the shared /vendors/ login BEFORE any markup is sent - the gate cannot be
  * bypassed by disabling JavaScript. The data API (pocket/api.php) enforces the
  * same checks independently (defense in depth).
@@ -63,7 +63,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 
 <header class="pl-header">
     <div class="pl-topright">
-        <a class="pl-navlink" href="../suite.php" title="Back to the Broker Suite launcher">&larr; Broker Suite</a>
+        <a class="pl-navlink" href="../suite.php" title="Back to the menu">&larr; Menu</a>
         <a class="pl-navlink" href="help.php" target="_blank" rel="noopener" title="Open the Pocket Listings help guide">Help</a>
         <span class="pl-user-info"><?php echo $h($fullName); ?></span>
     </div>
@@ -142,7 +142,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     </div>
 
     <div class="pl-foot-link">
-        <a href="../suite.php">&larr; Return to the Broker Suite</a>
+        <a href="../suite.php">&larr; Back to Menu</a>
     </div>
 </div>
 

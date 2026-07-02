@@ -1,6 +1,6 @@
 <?php
 /**
- * mail-smtp.php - shared authenticated-SMTP sender for ALL Broker Suite app
+ * mail-smtp.php - shared authenticated-SMTP sender for ALL Yacht Broker Support app
  * mail (the Vendor app auth mail in api/mail-lib.php AND the Pocket Listings
  * network notification in pocket/mailer.php).
  *
