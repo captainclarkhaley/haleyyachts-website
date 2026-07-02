@@ -42,11 +42,13 @@ needs lifting into `vendordb/`, with shared code pulled into `core/`.
 
 ## Phases
 
-**Phase 1 - Config/settings layer (STARTING).** DB `suite_settings` table + a
-cached accessor, seeded with today's values. Migrate the hardcoded base URL,
-notification recipients, and admin email in the Pocket mailer/cron and the
-vendor doc-cron to read from settings (with fallbacks). No UI yet. Delivers: the
-go-live recipient switch and the portability foundation.
+**Phase 1 - Config/settings layer (DONE, 2026-07-02, commit 383f96b).** DB
+`suite_settings` table + a cached `suite_setting()` accessor, seeded via INSERT
+OR IGNORE with site_base_url / mail_from_address / pocket_notify_to /
+doc_admin_email. The Pocket mailer + cron and the vendor doc-cron now read those
+at call time with the old literal as the fallback. Behavior-neutral (values
+unchanged; only the source moved). No UI yet - editing a value still means a
+direct DB change until the Phase 2 editor lands.
 
 **Phase 2 - Admin console.** An admin-only dropdown on `suite.php` (gated by the
 in-app `is_admin`) that consolidates the existing admin tools (staff accounts,
