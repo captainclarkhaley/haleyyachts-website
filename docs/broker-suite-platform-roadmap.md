@@ -50,10 +50,15 @@ at call time with the old literal as the fallback. Behavior-neutral (values
 unchanged; only the source moved). No UI yet - editing a value still means a
 direct DB change until the Phase 2 editor lands.
 
-**Phase 2 - Admin console.** An admin-only dropdown on `suite.php` (gated by the
-in-app `is_admin`) that consolidates the existing admin tools (staff accounts,
-predefined lists) plus a Settings editor for the Phase 1 values. Retire the
-separate password-protected admin area - one login, one place to manage.
+**Phase 2 - Admin console (DONE, 2026-07-02).** An admin-only dropdown on
+`suite.php` (gated by the in-app `is_admin`) with Staff Accounts, Predefined
+Lists, and a Settings editor - all under `vendors/admin/` behind the shared
+`admin-guard.php` (in-app login, no separate password). Shipped in sub-phases:
+2a settings editor + console shell (`3e0f406`); 2b staff accounts relocated with
+self-lockout / last-admin guards (`6f4b575`); 2c predefined lists relocated
+(`264bd33`); 2d retired the old `/admin/` copies + fixed all references
+(`4eb122d`). The `/admin/` folder (website tools + its password realm) is
+untouched.
 
 **Phase 3 - Restructure + rename `/vendors` -> `/brokersuite`.** Lift the Vendor
 DB into `vendordb/`, shared code into `core/`, and rename the suite root. Done as
