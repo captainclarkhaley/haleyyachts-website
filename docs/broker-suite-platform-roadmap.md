@@ -69,6 +69,13 @@ ONE migration since both churn every path. Migration steps (NOT just a rename):
 **Future - own URL/domain.** Once the above lands, this is mostly a
 `site_base_url` change + DNS + moving the suite to the new docroot.
 
+## Pending go-live changes
+
+Config edits to make (via the admin Settings editor) when each feature goes live:
+- **Pocket Listings notification (`pocket_notify_to`)** - when ready to go live,
+  change it from the test inbox to **`owygsalesall@owyg.com`** (Clark, 2026-07-02).
+  Sends to one address; no per-broker fan-out is built.
+
 ## Adding a module (e.g. "Broker Looking For...")
 
 Copy the module skeleton (page, js, css, api, help, help-img, own uploads if
