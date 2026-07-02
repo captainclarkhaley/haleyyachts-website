@@ -189,10 +189,10 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - Broker Suite Admin - Haley Yachts</title>
+    <title>Settings - Broker Suite Admin - <?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="icon" href="../../favicon.ico" sizes="any">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Palette mirrors the suite launcher: navy #0a1628-ish + brand cyan. */
         :root {
@@ -233,6 +233,14 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             gap: 18px;
         }
         .adm-topbar img { height: 34px; width: auto; display: block; }
+        /* Primary product wordmark (typographic), OWYG banner demoted to a small
+           secondary tenant mark beneath. */
+        .adm-topbar .wordmark { display: flex; flex-direction: column; gap: 4px; }
+        .adm-topbar .wordmark .wm-name {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 22px; line-height: 1; font-weight: 600; letter-spacing: .01em; color: #fff;
+        }
+        .adm-topbar .wordmark img { height: 16px; opacity: .82; }
         .adm-topbar .divider { width: 1px; height: 26px; background: rgba(238,244,247,0.2); }
         .adm-topbar .label {
             font-size: 11px;
@@ -356,7 +364,10 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 
 <header class="adm-topbar">
     <div class="brand">
-        <img src="../../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+        <div class="wordmark">
+            <span class="wm-name"><?php echo $h($brandName); ?></span>
+            <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+        </div>
         <span class="divider"></span>
         <span class="label">BROKER SUITE ADMIN</span>
     </div>

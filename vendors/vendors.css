@@ -1,6 +1,6 @@
 /* ============================================================
-   Vendor Database - staff app styles
-   Reuses the Haley Yachts palette and admin look:
+   Vendor Database - staff app styles (Yacht Broker Support)
+   Palette (originated with the Haley Yachts site, kept for the product):
      navy #0a1628, cyan #21cbea, Open Sans, light #f4f6f8 canvas.
    ============================================================ */
 
@@ -61,6 +61,29 @@ body {
     width: auto;
     max-width: 78%;
     margin: 0 auto 14px;
+}
+/* Primary product wordmark (typographic - no logo image yet), with the OWYG
+   banner demoted to a small secondary tenant mark beneath it. */
+.vdb-wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+}
+.vdb-wordmark .vdb-wm-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+.vdb-wordmark .vdb-wm-tenant img {
+    display: block;
+    height: 26px;
+    width: auto;
+    opacity: 0.82;
 }
 .vdb-header .accent-line {
     width: 60px; height: 3px; background: var(--cyan); margin: 12px auto 14px;

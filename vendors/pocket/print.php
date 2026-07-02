@@ -121,7 +121,11 @@ $fmtPrice = function ($price, $priceType) {
 $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $listing = ($id > 0) ? pr_load_listing($pdo, $id) : null;
 
-// A clean tab/title (Year Make Model), not "Print Listing - Haley Yachts".
+// Config-driven branding (product-first).
+$brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+
+// A clean tab/title (Year Make Model), not a product-name suffix.
 $pageTitle = 'Listing';
 if ($listing) {
     $tp = array();
@@ -144,8 +148,8 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $h($pageTitle); ?></title>
     <meta name="robots" content="noindex, nofollow">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="../../favicon.ico" sizes="any">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <style>
         :root {
             --navy:   #0a1628;
@@ -215,6 +219,14 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             gap: 8px;
             text-align: center;
         }
+        /* Primary product wordmark (typographic), OWYG banner demoted to a small
+           secondary tenant mark beneath. */
+        .pr-wordmark { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .pr-wordmark .pr-wm-name {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.5rem; line-height: 1; font-weight: 600; letter-spacing: 0.5px; color: #fff;
+        }
+        .pr-wordmark img.pr-owyg { height: 26px; width: auto; display: block; opacity: .85; }
         .pr-head img.pr-owyg { height: 44px; width: auto; display: block; }
         .pr-head .pr-tag {
             font-size: .68rem; letter-spacing: 2px; text-transform: uppercase;
@@ -446,7 +458,10 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
 ?>
     <div class="pr-sheet">
         <div class="pr-head">
-            <img class="pr-owyg" src="../../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+            <div class="pr-wordmark">
+                <span class="pr-wm-name"><?php echo $h($brandName); ?></span>
+                <img class="pr-owyg" src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+            </div>
             <div class="pr-tag">Private Listing &middot; Off-Market</div>
         </div>
         <div class="pr-keyline"></div>
@@ -521,7 +536,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         </div>
 
         <div class="pr-footer">
-            <p class="pr-caption">This listing is presented by <?php echo $h($presenterName); ?> of Haley Yachts / One Water Yacht Group. Private, off-market - please do not distribute publicly.</p>
+            <p class="pr-caption">This listing is presented by <?php echo $h($presenterName); ?> of <?php echo $h($tenantName); ?>. Private, off-market - please do not distribute publicly.</p>
         </div>
     </div>
 

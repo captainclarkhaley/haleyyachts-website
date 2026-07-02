@@ -11,7 +11,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
-$gateUser = current_user(vdb_connect());
+$pdo = vdb_connect();
+$gateUser = current_user($pdo);
 if ($gateUser === null) {
     header('Location: login.html');
     exit;
@@ -23,16 +24,21 @@ if ((int) $gateUser['must_change_password'] === 1) {
     header('Location: change-password.html');
     exit;
 }
+
+// Config-driven branding (product-first).
+$brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Database - Haley Yachts</title>
+    <title>Vendor Database - <?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="stylesheet" href="vendors.css?v=<?php echo @filemtime(__DIR__ . '/vendors.css'); ?>">
 </head>
 <body>
@@ -49,7 +55,12 @@ if ((int) $gateUser['must_change_password'] === 1) {
         <button type="button" class="vdb-logout vdb-export-csv" id="btnExport" hidden
             title="Exports the vendors currently shown. With no filters active that is the full database, so it doubles as a backup.">Export CSV</button>
     </div>
-    <img class="vdb-brand-logo" src="../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+    <div class="vdb-wordmark">
+        <span class="vdb-wm-name"><?php echo $h($brandName); ?></span>
+        <span class="vdb-wm-tenant">
+            <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+        </span>
+    </div>
     <h1>Vendor Database</h1>
     <div class="accent-line"></div>
     <p>Staff directory of surveyors, mechanics, and trade vendors</p>

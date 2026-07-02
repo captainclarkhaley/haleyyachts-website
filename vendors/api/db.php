@@ -118,6 +118,8 @@ if (!function_exists('vdb_connect')) {
             'mail_from_address' => 'no-reply@haleyyachts.com',
             'pocket_notify_to'  => 'clark@mvroam.com',
             'doc_admin_email'   => 'admin@OWYG.com',
+            'brand_name'        => 'Yacht Broker Support',
+            'tenant_name'       => 'One Water Yacht Group',
         );
         $stmt = $pdo->prepare('INSERT OR IGNORE INTO suite_settings (key, value) VALUES (?, ?)');
         foreach ($defaults as $key => $value) {

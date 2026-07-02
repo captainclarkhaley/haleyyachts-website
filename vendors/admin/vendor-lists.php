@@ -19,10 +19,10 @@ require_once __DIR__ . '/admin-guard.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Lists - Haley Yachts Admin</title>
+    <title>Vendor Lists - Broker Suite Admin - <?php echo htmlspecialchars((string) $brandName, ENT_QUOTES, 'UTF-8'); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="../../favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <style>
         * { box-sizing: border-box; }
         body {

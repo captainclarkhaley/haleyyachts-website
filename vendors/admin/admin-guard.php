@@ -23,8 +23,10 @@
  * the gate lives in exactly one place.
  *
  * Exposes to the including page:
- *   PDO   $pdo       the shared vendor/suite database handle (vdb_connect)
- *   array $gateUser  the resolved, active, admin user row from current_user()
+ *   PDO    $pdo         the shared vendor/suite database handle (vdb_connect)
+ *   array  $gateUser    the resolved, active, admin user row from current_user()
+ *   string $brandName   product-first display name (config-driven suite_setting)
+ *   string $tenantName  tenant/org display name (config-driven suite_setting)
  */
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
@@ -53,5 +55,9 @@ if (!$gateIsAdmin) {
     header('Location: ../suite.php');
     exit;
 }
+
+// Config-driven branding (product-first), available to every admin page.
+$brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
 
 // From here down the including page runs with $pdo + $gateUser, guaranteed admin.

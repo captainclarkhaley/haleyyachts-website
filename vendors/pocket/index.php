@@ -36,6 +36,10 @@ if ($fullName === '') { $fullName = (string) $gateUser['account_id']; }
 $currentUserId = (int) $gateUser['id'];
 $isAdmin = isset($gateUser['is_admin']) && (int) $gateUser['is_admin'] === 1;
 
+// Config-driven branding (product-first).
+$brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+
 // The controlled builder list for the Make dropdowns (filter + form).
 $makes = $pdo->query('SELECT name FROM pocket_makes ORDER BY name COLLATE NOCASE')->fetchAll(PDO::FETCH_COLUMN);
 
@@ -46,10 +50,10 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pocket Listings - Haley Yachts</title>
+    <title>Pocket Listings - <?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="../../favicon.ico" sizes="any">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="stylesheet" href="pocket.css?v=<?php echo @filemtime(__DIR__ . '/pocket.css'); ?>">
 </head>
 <body
@@ -63,7 +67,12 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         <a class="pl-navlink" href="help.php" target="_blank" rel="noopener" title="Open the Pocket Listings help guide">Help</a>
         <span class="pl-user-info"><?php echo $h($fullName); ?></span>
     </div>
-    <img class="pl-brand-logo" src="../../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+    <div class="pl-wordmark">
+        <span class="pl-wm-name"><?php echo $h($brandName); ?></span>
+        <span class="pl-wm-tenant">
+            <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+        </span>
+    </div>
     <h1>Pocket Listings</h1>
     <div class="pl-accent-line"></div>
     <p>Private, off-market listings for the OWYG broker network</p>

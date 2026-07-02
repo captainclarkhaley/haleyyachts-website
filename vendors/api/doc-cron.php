@@ -162,7 +162,8 @@ function doc_cron_provided_by(array $row)
  * setting) are read ONCE in MAIN and passed in, so routing cannot change
  * mid-run. Both carry their original hardcoded literal as the fallback default.
  */
-function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase)
+function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase,
+    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group')
 {
     $purpose     = (string) $row['purpose'];
     $description = isset($row['description']) ? trim((string) $row['description']) : '';
@@ -208,7 +209,9 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
             doc_cron_h($purpose),
             doc_cron_h($description),
             doc_cron_h($expiryDate),
-            $siteBase
+            $siteBase,
+            $brandName,
+            $tenantName
         );
 
         $to = doc_cron_header_safe($toEmail); // = the admin email from the caller
@@ -264,7 +267,9 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
         doc_cron_h($description),
         doc_cron_h($expiryDate),
         doc_cron_h($adminEmail),
-        $siteBase
+        $siteBase,
+        $brandName,
+        $tenantName
     );
 
     $to = doc_cron_header_safe($toEmail);
@@ -286,9 +291,12 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
  * Short co-branded HTML body. All values arrive ALREADY escaped from the caller.
  * Same navy-masthead / cyan-keyline tone as the pocket reminders.
  */
-function doc_cron_html_body($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $eAdminEmail, $siteBase)
+function doc_cron_html_body($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $eAdminEmail, $siteBase,
+    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group')
 {
     $eSiteBase = doc_cron_h($siteBase);
+    $eBrand    = doc_cron_h($brandName);
+    $eTenant   = doc_cron_h($tenantName);
     $heading = $expired ? 'Document Expired' : 'Document Expiring';
     $lead = $expired
         ? ('A document we have on file for <strong>' . $eVendor . '</strong> has expired.')
@@ -339,7 +347,7 @@ $dateRow .
 '<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0;">' .
-'&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .
+'&copy; 2026 ' . $eBrand . ' &nbsp;&middot;&nbsp; ' . $eTenant . '</p>' .
 '</td></tr>' .
 
 '</table>' .
@@ -353,9 +361,12 @@ $dateRow .
  * vendor, and it asks us to upload the renewal under the vendor's documents. All
  * values arrive ALREADY escaped from the caller.
  */
-function doc_cron_html_body_us($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $siteBase)
+function doc_cron_html_body_us($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $siteBase,
+    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group')
 {
     $eSiteBase = doc_cron_h($siteBase);
+    $eBrand    = doc_cron_h($brandName);
+    $eTenant   = doc_cron_h($tenantName);
     $heading = $expired ? 'Our Policy Expired' : 'Our Policy Expiring';
     $lead = $expired
         ? ('The policy we provide to <strong>' . $eVendor . '</strong> for ' . $ePurpose . ' has expired.')
@@ -406,7 +417,7 @@ $dateRow .
 '<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0;">' .
-'&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .
+'&copy; 2026 ' . $eBrand . ' &nbsp;&middot;&nbsp; ' . $eTenant . '</p>' .
 '</td></tr>' .
 
 '</table>' .
@@ -436,6 +447,9 @@ try {
 // behaves exactly like the old constant.
 $adminEmail = suite_setting($pdo, 'doc_admin_email', 'admin@OWYG.com');
 $siteBase   = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
+// Product-first branding for the email footers (config-driven).
+$brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
 
 $now   = gmdate('Y-m-d H:i:s');
 $nowTs = strtotime($now . ' UTC');
@@ -501,7 +515,7 @@ foreach ($rows as $row) {
         }
         $vendorName = doc_cron_vendor_name($pdo, $vendorId);
 
-        $ok = doc_cron_send($pdo, $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase);
+        $ok = doc_cron_send($pdo, $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase, $brandName, $tenantName);
         if ($ok) {
             if ($mode === 'expired') {
                 $pdo->prepare('UPDATE vendor_documents SET reminded_exp = 1 WHERE id = ?')->execute(array($id));

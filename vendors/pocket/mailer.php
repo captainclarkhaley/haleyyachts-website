@@ -78,6 +78,9 @@ if (!function_exists('pocket_notify_new_listing')) {
             $siteBase = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
             $notifyTo = suite_setting($pdo, 'pocket_notify_to', 'clark@mvroam.com');
             $mailFrom = suite_setting($pdo, 'mail_from_address', 'no-reply@haleyyachts.com');
+            // Product-first branding for titles/footers (config-driven).
+            $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+            $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
 
             // --- resolve the LISTING broker's contact (name, email, cell) ---
             // pocket_shape does NOT carry the broker email, so query users
@@ -188,7 +191,7 @@ if (!function_exists('pocket_notify_new_listing')) {
             $htmlBody = p_build_html_body(
                 $title, $length, $location, $year, $priceDisplay,
                 $description, $brokerName, $brokerPhoneFmt, $brokerEmail,
-                $heroAbs, $moreAbs, $suiteUrl, $siteBase
+                $heroAbs, $moreAbs, $suiteUrl, $siteBase, $brandName, $tenantName
             );
 
             // --- send via the shared authenticated-SMTP sender ---
@@ -319,17 +322,20 @@ if (!function_exists('pocket_notify_new_listing')) {
     }
 
     /**
-     * Build the HTML alternative: table-based, inline CSS, co-branded Haley
-     * Yachts + One Water, matching the tone of email-templates/general.html
-     * (navy masthead, cyan keyline, dark footer with both marks). Every
-     * user-supplied value is escaped with p_h().
+     * Build the HTML alternative: table-based, inline CSS, product/tenant
+     * branded (Yacht Broker Support / One Water Yacht Group), matching the tone
+     * of email-templates/general.html (navy masthead, cyan keyline, dark footer
+     * with the tenant mark). Every user-supplied value is escaped with p_h().
      */
     function p_build_html_body($title, $length, $location, $year, $priceDisplay,
-        $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $heroAbs, $moreAbs, $suiteUrl, $siteBase)
+        $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $heroAbs, $moreAbs, $suiteUrl, $siteBase,
+        $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group')
     {
         $eTitle = p_h($title);
         $ePrice = p_h($priceDisplay);
         $eBrokerName = p_h($brokerName);
+        $eBrand  = p_h($brandName);
+        $eTenant = p_h($tenantName);
 
         // Specs line (escaped, joined with a subtle separator).
         $specParts = array();
@@ -452,7 +458,7 @@ $descRow .
 // Listed by (the LISTING broker)
 '<tr><td bgcolor="#ffffff" style="background-color:#ffffff; padding:20px 40px 8px 40px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#5b7a96; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 6px 0;">Listed by</p>' .
-'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:18px; line-height:24px; color:#0a1628; font-weight:600; margin:0 0 8px 0;">' . ($eBrokerName !== '' ? $eBrokerName : 'A Haley Yachts broker') . '</p>' .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:18px; line-height:24px; color:#0a1628; font-weight:600; margin:0 0 8px 0;">' . ($eBrokerName !== '' ? $eBrokerName : ('A ' . $eTenant . ' broker')) . '</p>' .
 $contactRows .
 '</td></tr>' .
 
@@ -468,7 +474,7 @@ $contactRows .
 '<img src="' . p_h($siteBase) . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
-'&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .
+'&copy; 2026 ' . $eBrand . ' &nbsp;&middot;&nbsp; ' . $eTenant . '</p>' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.7); margin:0;">' .
 'Internal broker-network notification. Pocket listings are private and off-market - do not forward outside the network.</p>' .
 '</td></tr>' .

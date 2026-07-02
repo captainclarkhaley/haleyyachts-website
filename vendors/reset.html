@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password - Haley Yachts Vendor App</title>
+    <title>Reset Password - Yacht Broker Support</title>
     <meta name="robots" content="noindex, nofollow">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <style>
         :root { --navy:#0a1628; --cyan:#21cbea; --cyan-d:#1aa8c4; --ink:#333; --muted:#666; --line:#e5e5e5; --canvas:#f4f6f8; --danger:#c0392b; }
         * { box-sizing: border-box; }
@@ -22,6 +22,14 @@
         }
         .auth-head { background: var(--navy); color: #fff; text-align: center; padding: 32px 36px 26px; }
         .auth-logo { display: block; height: 42px; width: auto; max-width: 80%; margin: 0 auto 12px; }
+        /* Primary product wordmark (typographic), OWYG banner demoted to a small
+           secondary tenant mark beneath. */
+        .auth-wordmark { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 0 auto 10px; }
+        .auth-wordmark .auth-wm-name {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.75rem; line-height: 1; font-weight: 600; letter-spacing: 0.5px; color: #fff;
+        }
+        .auth-wordmark .auth-wm-tenant { display: block; height: 22px; width: auto; opacity: 0.82; }
         .auth-head h1 {
             font-size: 1.25rem; font-weight: 300; text-transform: uppercase;
             letter-spacing: 2.5px; margin: 0;
@@ -62,7 +70,10 @@
 
 <div class="auth-card">
     <div class="auth-head">
-        <img class="auth-logo" src="../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+        <div class="auth-wordmark">
+            <span class="auth-wm-name">Yacht Broker Support</span>
+            <img class="auth-wm-tenant" src="/images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+        </div>
         <div class="accent-line"></div>
         <p>Vendor App - set a new password</p>
     </div>

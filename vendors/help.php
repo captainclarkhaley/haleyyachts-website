@@ -14,7 +14,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
-$gateUser = current_user(vdb_connect());
+$pdo = vdb_connect();
+$gateUser = current_user($pdo);
 if ($gateUser === null) {
     header('Location: login.html');
     exit;
@@ -26,16 +27,21 @@ if ((int) $gateUser['must_change_password'] === 1) {
     header('Location: change-password.html');
     exit;
 }
+
+// Config-driven branding (product-first).
+$brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OneWater Vendor Database - Help</title>
+    <title>Vendor Database Help - <?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <style>
         :root {
             --navy:#0a1628; --cyan:#21cbea; --cyan-d:#1aa8c4;
@@ -57,6 +63,14 @@ if ((int) $gateUser['must_change_password'] === 1) {
             display: block; height: 44px; width: auto; max-width: 78%;
             margin: 0 auto 14px;
         }
+        /* Primary product wordmark (typographic), OWYG banner demoted to a small
+           secondary tenant mark beneath. */
+        .help-wordmark { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 0 auto 14px; }
+        .help-wordmark .help-wm-name {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.9rem; line-height: 1; font-weight: 600; letter-spacing: 0.5px; color: #fff;
+        }
+        .help-wordmark img { display: block; height: 24px; width: auto; opacity: 0.82; }
         .help-header h1 {
             font-size: 1.5rem; font-weight: 300; text-transform: uppercase;
             letter-spacing: 2.5px; margin: 0;
@@ -190,10 +204,13 @@ if ((int) $gateUser['must_change_password'] === 1) {
 <body>
 
 <header class="help-header">
-    <img class="help-logo" src="../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+    <div class="help-wordmark">
+        <span class="help-wm-name"><?php echo $h($brandName); ?></span>
+        <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+    </div>
     <h1>Vendor Database <strong>Help</strong></h1>
     <div class="accent-line"></div>
-    <p>OneWater Vendor Database - staff user guide</p>
+    <p>Vendor Database - staff user guide</p>
 </header>
 
 <div class="help-wrap">
@@ -204,7 +221,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
 
     <div class="help-card">
 
-        <p class="lead">The OneWater Vendor Database (the "Vendor App") is the OWYG staff directory of surveyors, mechanics, and trade vendors. Everyone on the team uses the same shared list, so when one person adds a good surveyor or rates a mechanic, the whole group sees it. This guide walks through signing in, finding a vendor, adding and editing records, rating vendors, and pulling vendor info into a client email. A shorter section at the end covers the admin tools for Clark and your Administrative Assistant.</p>
+        <p class="lead">The Vendor Database (the "Vendor App") is the OWYG staff directory of surveyors, mechanics, and trade vendors. Everyone on the team uses the same shared list, so when one person adds a good surveyor or rates a mechanic, the whole group sees it. This guide walks through signing in, finding a vendor, adding and editing records, rating vendors, and pulling vendor info into a client email. A shorter section at the end covers the admin tools for Clark and your Administrative Assistant.</p>
 
         <!-- IMG: main-screen -->
         <figure class="help-fig">

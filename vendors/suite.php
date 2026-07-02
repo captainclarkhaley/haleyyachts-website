@@ -18,7 +18,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 
 start_secure_session();
-$gateUser = current_user(vdb_connect());
+$pdo = vdb_connect();
+$gateUser = current_user($pdo);
 if ($gateUser === null) {
     header('Location: login.html');
     exit;
@@ -27,6 +28,11 @@ if ((int) $gateUser['must_change_password'] === 1) {
     header('Location: change-password.html');
     exit;
 }
+
+// Config-driven branding (product-first): the wordmark shown as the primary
+// identity, with the tenant/org as the secondary mark.
+$brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
 
 // --- derive display values from the logged-in user (server-side) ------------
 $fullName  = trim((string) $gateUser['name']);
@@ -65,16 +71,17 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Broker Suite - Haley Yachts</title>
+    <title>Broker Suite - <?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="icon" href="../favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ============================================================
-           HALEY YACHTS - BROKER SUITE - palette tokens
-           --accent is the Haley Yachts brand cyan (#23cbea).
+           YACHT BROKER SUPPORT - BROKER SUITE - palette tokens
+           --accent is the brand cyan (#23cbea). (Palette originated
+           with the Haley Yachts site; kept as-is for the product.)
            ============================================================ */
         :root {
             --navy: #0c1f2e;
@@ -121,13 +128,43 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             gap: 22px;
             min-width: 0;
         }
-        .bs-brand img { height: 40px; width: auto; display: block; object-fit: contain; }
+        .bs-brand img { height: 28px; width: auto; display: block; object-fit: contain; opacity: .92; }
         .bs-brand-divider { width: 1px; height: 32px; background: rgba(238,244,247,0.2); flex: none; }
         .bs-brand-label {
             font-size: 11px;
             letter-spacing: .42em;
             color: var(--accent);
             font-weight: 600;
+            white-space: nowrap;
+        }
+        /* Primary product wordmark (typographic - no logo image yet). */
+        .bs-wordmark {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .bs-wordmark .bs-wm-name {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 26px;
+            line-height: 1;
+            font-weight: 600;
+            letter-spacing: .01em;
+            color: var(--on-navy);
+            white-space: nowrap;
+        }
+        .bs-wordmark .bs-wm-name .bs-wm-accent { color: var(--accent); }
+        .bs-wordmark .bs-wm-tenant {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bs-wordmark .bs-wm-tenant img { height: 18px; width: auto; display: block; object-fit: contain; opacity: .85; }
+        .bs-wordmark .bs-wm-tenant .bs-wm-tenant-label {
+            font-size: 10px;
+            letter-spacing: .28em;
+            text-transform: uppercase;
+            color: rgba(238,244,247,0.6);
             white-space: nowrap;
         }
 
@@ -509,7 +546,13 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <!-- ===== Top bar ===== -->
 <header class="bs-topbar">
     <div class="bs-brand">
-        <img src="../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">
+        <div class="bs-wordmark">
+            <span class="bs-wm-name"><?php echo $h($brandName); ?></span>
+            <span class="bs-wm-tenant">
+                <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+                <span class="bs-wm-tenant-label"><?php echo $h($tenantName); ?></span>
+            </span>
+        </div>
         <span class="bs-brand-divider"></span>
         <span class="bs-brand-label">BROKER SUITE</span>
     </div>
@@ -634,7 +677,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <!-- ===== Footer ===== -->
 <footer class="bs-footer">
     <span class="aff">Yacht brokerage with <strong>One Water Yacht Group</strong></span>
-    <span class="copy">&copy; 2026 Haley Yachts &middot; Palm Beach Gardens, FL</span>
+    <span class="copy">&copy; 2026 <?php echo $h($brandName); ?> &middot; <?php echo $h($tenantName); ?></span>
 </footer>
 
 <!-- ===== My Profile modal (wired to the same auth.php endpoints as the vendor app) ===== -->

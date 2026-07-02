@@ -77,6 +77,9 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     $siteBase = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
     $notifyTo = suite_setting($pdo, 'pocket_notify_to', 'clark@mvroam.com');
     $mailFrom = suite_setting($pdo, 'mail_from_address', 'no-reply@haleyyachts.com');
+    // Product-first branding for the footer (config-driven).
+    $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+    $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
 
     // --- title: "Year Make Model", omitting any missing part ---
     $year  = (isset($row['year'])  && $row['year']  !== null && $row['year']  !== '') ? (string) $row['year']  : '';
@@ -139,7 +142,8 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     // $siteBase is threaded in for the masthead/footer banner image URLs.
     $htmlBody = pocket_cron_html_body(
         p_h($title), p_h($expiryDate), p_h($nWord),
-        p_h($priceDisplay), p_h($brokerName), p_h($suiteUrl), p_h($siteBase)
+        p_h($priceDisplay), p_h($brokerName), p_h($suiteUrl), p_h($siteBase),
+        p_h($brandName), p_h($tenantName)
     );
 
     $listingId = isset($row['id']) ? (int) $row['id'] : 0;
@@ -177,7 +181,8 @@ function pocket_cron_format_date($raw)
  * (p_h) from the caller. Kept in the same navy-masthead / cyan-keyline tone as
  * mailer.php's notification, but trimmed to a single "expiring" card.
  */
-function pocket_cron_html_body($eTitle, $eExpiryDate, $eNWord, $ePrice, $eBrokerName, $eSuite, $eSiteBase)
+function pocket_cron_html_body($eTitle, $eExpiryDate, $eNWord, $ePrice, $eBrokerName, $eSuite, $eSiteBase,
+    $eBrand = 'Yacht Broker Support', $eTenant = 'One Water Yacht Group')
 {
     $priceRow = ($ePrice !== '')
         ? '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:18px; line-height:24px; color:#0a1628; font-weight:700; margin:0 0 14px 0;">' . $ePrice . '</p>'
@@ -230,7 +235,7 @@ $brokerRow .
 '<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
-'&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .
+'&copy; 2026 ' . $eBrand . ' &nbsp;&middot;&nbsp; ' . $eTenant . '</p>' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.7); margin:0;">' .
 'Internal broker-network reminder. Pocket listings are private and off-market - do not forward outside the network.</p>' .
 '</td></tr>' .

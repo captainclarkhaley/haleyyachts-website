@@ -1,6 +1,6 @@
 /* ============================================================
    Pocket Listings - staff app styles (Broker Suite app #2)
-   Reuses the Haley Yachts / vendor-app palette:
+   Palette (originated with the Haley Yachts / vendor-app, kept for the product):
      navy #0a1628, cyan #21cbea, Open Sans, light #f4f6f8 canvas.
    ============================================================ */
 
@@ -37,6 +37,24 @@ body {
     text-align: center;
 }
 .pl-brand-logo { height: 34px; width: auto; margin-bottom: 18px; }
+/* Primary product wordmark (typographic - no logo image yet), OWYG banner
+   demoted to a small secondary tenant mark beneath it. */
+.pl-wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.pl-wordmark .pl-wm-name {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #fff;
+}
+.pl-wordmark .pl-wm-tenant img { display: block; height: 24px; width: auto; opacity: 0.82; }
 .pl-header h1 {
     margin: 0;
     font-size: 1.9rem;

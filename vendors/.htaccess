@@ -1,5 +1,5 @@
 # ============================================================
-# Haley Yachts Vendor Database - Staff password realm
+# Yacht Broker Support - Vendor Database - Staff password realm
 # ============================================================
 # Everything under /vendors/ is staff-only. Access is gated by a
 # cPanel Directory Privacy password realm SEPARATE from /admin/.
@@ -12,7 +12,7 @@
 #      Directories").
 #   2. Browse to the /vendors/ folder under public_html.
 #   3. Check "Password protect this directory" and name it something
-#      like "Haley Yachts Vendors".
+#      like "Yacht Broker Support Vendors".
 #   4. Add one user per staff member with a strong password. cPanel
 #      writes the .htpasswd file and appends the cp:ppd block below.
 #

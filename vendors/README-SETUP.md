@@ -1,5 +1,10 @@
 # Vendor Database - one-time setup (cPanel / GoDaddy)
 
+Product: **Yacht Broker Support** (the Broker Suite), tenant **One Water Yacht
+Group**. Display names are config-driven via the `brand_name` / `tenant_name`
+suite settings. The `haleyyachts.com` URLs below are the CURRENT deploy target;
+they move to the product's own subdomain at deploy time (a separate step).
+
 The Vendor Database is a small server-side app. The website is static, but this
 feature needs PHP and SQLite, both of which the GoDaddy cPanel server already
 provides. Everything is file-based, there is no external database to provision.
@@ -117,7 +122,7 @@ Privacy. If you do not see it in the folder browser, you have not pulled yet.
    the name to open the folder, not just the checkbox next to it).
 3. **Turn protection on** (first box, near the top): check
    **Password protect this directory**, type a label in the
-   "Name the protected directory" field (e.g. `Haley Yachts Vendors`), and click
+   "Name the protected directory" field (e.g. `Yacht Broker Support Vendors`), and click
    **Save**. This only switches protection ON. It does not create a login yet.
 4. **Create the username + password** (second box - scroll DOWN on the same page
    to **Create User**, sometimes titled "Create a User who can access this
