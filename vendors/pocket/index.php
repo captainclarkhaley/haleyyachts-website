@@ -60,6 +60,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <header class="pl-header">
     <div class="pl-topright">
         <a class="pl-navlink" href="../suite.php" title="Back to the Broker Suite launcher">&larr; Broker Suite</a>
+        <a class="pl-navlink" href="help.php" target="_blank" rel="noopener" title="Open the Pocket Listings help guide">Help</a>
         <span class="pl-user-info"><?php echo $h($fullName); ?></span>
     </div>
     <img class="pl-brand-logo" src="../../images/email/owyg-banner-reverse.png" alt="One Water Yacht Group">

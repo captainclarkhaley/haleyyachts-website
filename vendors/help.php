@@ -223,6 +223,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
                 <li><a href="#viewing-a-vendor">Viewing a vendor</a></li>
                 <li><a href="#adding-a-vendor">Adding a vendor</a></li>
                 <li><a href="#editing-a-vendor">Editing a vendor</a></li>
+                <li><a href="#documents">Documents</a></li>
                 <li><a href="#rating-a-vendor">Rating a vendor</a></li>
                 <li><a href="#deleting-a-vendor">Deleting a vendor</a></li>
                 <li><a href="#copying-vendors-into-an-email">Copying vendors into an email</a></li>
@@ -459,6 +460,64 @@ if ((int) $gateUser['must_change_password'] === 1) {
             <li>Change any fields, types, areas, or contacts.</li>
             <li>Click <strong>Save Vendor</strong>.</li>
         </ol>
+
+        <hr class="help-rule">
+
+        <!-- ===== Documents ===== -->
+        <h2 id="documents">Documents</h2>
+        <p>You can attach documents to a vendor, such as insurance certificates and other certificates, so the whole team can find them in one place. <strong>Everyone can view and download</strong> a vendor's documents. Only <strong>administrators</strong> can upload or delete them.</p>
+        <p>Documents live in the <strong>Documents</strong> section of a vendor's detail view. Open a vendor (click its name) and scroll to Documents.</p>
+
+        <?php if (file_exists(__DIR__ . '/help-img/documents-section.png')): ?>
+        <!-- IMG: documents-section -->
+        <figure class="help-fig">
+            <img src="help-img/documents-section.png?v=<?php echo @filemtime(__DIR__ . '/help-img/documents-section.png'); ?>" alt="Documents section on a vendor" loading="lazy">
+            <figcaption>the Documents section on a vendor's detail view</figcaption>
+        </figure>
+        <?php endif; ?>
+
+        <h3>Uploading a document (admins only)</h3>
+        <ol>
+            <li>Open the vendor and find the <strong>Documents</strong> section.</li>
+            <li><strong>Choose a file</strong>. Allowed formats are <strong>PDF, JPG, PNG, or WEBP</strong>, up to <strong>15 MB</strong>.</li>
+            <li>Pick a <strong>Purpose</strong>: <strong>Insurance</strong>, <strong>Certificate</strong>, or add a new purpose of your own.</li>
+            <li>Optionally add a short <strong>Description</strong> (up to 50 characters).</li>
+            <li>Optionally set an <strong>Expiration Date</strong>. Leave it blank if the document never expires.</li>
+            <li>Choose <strong>"Provided by"</strong>:
+                <ul>
+                    <li><strong>Vendor provides to us</strong> - a policy or certificate the vendor gives us to keep on file.</li>
+                    <li><strong>We provide to the vendor</strong> - a policy of ours that we give the vendor.</li>
+                </ul>
+            </li>
+            <li>Click <strong>Upload</strong>.</li>
+        </ol>
+
+        <?php if (file_exists(__DIR__ . '/help-img/document-upload.png')): ?>
+        <!-- IMG: document-upload -->
+        <figure class="help-fig">
+            <img src="help-img/document-upload.png?v=<?php echo @filemtime(__DIR__ . '/help-img/document-upload.png'); ?>" alt="Document upload form" loading="lazy">
+            <figcaption>the document upload form</figcaption>
+        </figure>
+        <?php endif; ?>
+
+        <h3>Viewing and downloading</h3>
+        <p>Click a document to download it. Documents are <strong>private</strong>: they are never public on the web and can only be reached by signed-in staff.</p>
+
+        <h3>Deleting a document (admins only)</h3>
+        <p>Administrators can delete a document from the Documents section. Non-admins can view and download but cannot delete.</p>
+
+        <h3>Expiration reminders</h3>
+        <p>When a document has an expiration date, the system watches it for you and sends reminder emails automatically. This runs <strong>once a day</strong>.</p>
+        <ul>
+            <li>A reminder goes out when the document is <strong>within 10 days</strong> of expiring.</li>
+            <li>Another reminder goes out <strong>on or after the expiration date</strong> if the document has not been replaced.</li>
+        </ul>
+        <p>Who gets the reminder depends on the "Provided by" setting:</p>
+        <ul>
+            <li>For a <strong>"Vendor provides to us"</strong> document, the reminder goes to the <strong>vendor</strong>, asking them to send an updated document to <strong>admin@OWYG.com</strong>.</li>
+            <li>For a <strong>"We provide to the vendor"</strong> document, the reminder goes to <strong>admin@OWYG.com</strong>, asking them to upload our renewed policy for that vendor.</li>
+        </ul>
+        <p>Documents with <strong>no expiration date never trigger reminders</strong>.</p>
 
         <hr class="help-rule">
 
