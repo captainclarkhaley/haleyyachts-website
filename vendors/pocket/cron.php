@@ -14,15 +14,19 @@
  *     actually succeeded, so a transient mail failure simply retries next run.
  *
  * ***** TEMPORARY - TESTING ONLY *****
- * Reminder emails go to POCKET_NOTIFY_TO (the single test inbox), exactly like
- * the new-listing notification. This is NOT the real audience. Later this goes to
- * the LISTING BROKER's own email. Flagged loudly on purpose.
+ * Reminder emails go to the pocket_notify_to setting (the single test inbox by
+ * default), exactly like the new-listing notification. This is NOT the real
+ * audience. Later this goes to the LISTING BROKER's own email. Flagged loudly on
+ * purpose. Going live is now a settings edit, not a code change.
  *
  * MAIL: this file NEVER edits the mail layer. It requires mailer.php (which pulls
- * in mail-smtp.php) purely to REUSE its constants (POCKET_NOTIFY_TO,
- * POCKET_SITE_BASE, POCKET_MAIL_FROM) and formatters (p_format_price,
+ * in mail-smtp.php) purely to REUSE its formatters (p_format_price,
  * p_format_phone, p_mail_header_safe, p_h) and to CALL mail_smtp_send. The
- * reminder email is built by a small helper defined HERE, not in mailer.php.
+ * environment values (site_base_url, pocket_notify_to, mail_from_address) now
+ * come from the DB-backed suite_settings table via suite_setting() - read here
+ * with the SAME hardcoded literals as fallbacks, so output is identical to
+ * before. The reminder email is built by a small helper defined HERE, not in
+ * mailer.php.
  *
  * TIME: everything is UTC. expires_at is stored UTC (datetime('now')); we compare
  * against gmdate('Y-m-d H:i:s').
@@ -51,12 +55,15 @@ require_once __DIR__ . '/mailer.php';
 
 /**
  * Build + send one expiry-reminder email for a listing row. Returns the boolean
- * mail_smtp_send result (never throws). To: POCKET_NOTIFY_TO (test inbox only).
- * From: default (the authenticated mailbox / POCKET_MAIL_FROM). Every listing
- * value is HTML-escaped in the HTML body; header values are CR/LF-stripped by
- * the mailer's p_mail_header_safe before they touch a header.
+ * mail_smtp_send result (never throws). To: the pocket_notify_to setting (test
+ * inbox by default). From: the mail_from_address setting (the authenticated
+ * mailbox). The absolute base for links/images is the site_base_url setting.
+ * Each setting falls back to its ORIGINAL hardcoded literal, so output is
+ * identical to before. Every listing value is HTML-escaped in the HTML body;
+ * header values are CR/LF-stripped by the mailer's p_mail_header_safe before
+ * they touch a header.
  *
- * @param PDO    $pdo         shared vendor DB (to look up the broker name)
+ * @param PDO    $pdo         shared vendor DB (settings + broker-name lookup)
  * @param array  $row         the raw pocket_listings row
  * @param int    $daysLeft    whole days until expiry (>= 0)
  * @param string $expiresAt   the stored UTC expires_at string
@@ -64,6 +71,13 @@ require_once __DIR__ . '/mailer.php';
  */
 function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
 {
+    // --- environment values from settings (Phase 1), each with the original
+    // hardcoded literal as its fallback so a missing/blank setting sends exactly
+    // as before. A $pdo is in scope, so read them here and thread through. ---
+    $siteBase = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
+    $notifyTo = suite_setting($pdo, 'pocket_notify_to', 'clark@mvroam.com');
+    $mailFrom = suite_setting($pdo, 'mail_from_address', 'no-reply@haleyyachts.com');
+
     // --- title: "Year Make Model", omitting any missing part ---
     $year  = (isset($row['year'])  && $row['year']  !== null && $row['year']  !== '') ? (string) $row['year']  : '';
     $make  = isset($row['make'])  ? (string) $row['make']  : '';
@@ -101,7 +115,7 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     $nWord    = $daysLeft . ' ' . $dayWord;
     $expiryDate = pocket_cron_format_date($expiresAt);
 
-    $suiteUrl = POCKET_SITE_BASE . '/vendors/pocket/';
+    $suiteUrl = $siteBase . '/vendors/pocket/';
 
     // --- subject (header-safe: strip any CR/LF a make/model could carry) ---
     $subject = p_mail_header_safe('Pocket Listing expiring in ' . $nWord . ': ' . $title);
@@ -122,15 +136,16 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     $textBody = implode("\r\n", $text);
 
     // --- HTML body (co-branded, short; every value escaped with p_h) ---
+    // $siteBase is threaded in for the masthead/footer banner image URLs.
     $htmlBody = pocket_cron_html_body(
         p_h($title), p_h($expiryDate), p_h($nWord),
-        p_h($priceDisplay), p_h($brokerName), p_h($suiteUrl)
+        p_h($priceDisplay), p_h($brokerName), p_h($suiteUrl), p_h($siteBase)
     );
 
     $listingId = isset($row['id']) ? (int) $row['id'] : 0;
-    $to = p_mail_header_safe(POCKET_NOTIFY_TO);
+    $to = p_mail_header_safe($notifyTo);
 
-    // From defaults to the authenticated mailbox (POCKET_MAIL_FROM). No Reply-To.
+    // From defaults to the authenticated mailbox (mail_from_address). No Reply-To.
     return mail_smtp_send(
         $to,
         $subject,
@@ -138,7 +153,7 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
         $htmlBody,
         'pocket-expiry:listing-' . $listingId,
         '',                 // Reply-To: none
-        POCKET_MAIL_FROM    // From: no-reply@haleyyachts.com
+        $mailFrom           // From: no-reply@haleyyachts.com
     );
 }
 
@@ -162,7 +177,7 @@ function pocket_cron_format_date($raw)
  * (p_h) from the caller. Kept in the same navy-masthead / cyan-keyline tone as
  * mailer.php's notification, but trimmed to a single "expiring" card.
  */
-function pocket_cron_html_body($eTitle, $eExpiryDate, $eNWord, $ePrice, $eBrokerName, $eSuite)
+function pocket_cron_html_body($eTitle, $eExpiryDate, $eNWord, $ePrice, $eBrokerName, $eSuite, $eSiteBase)
 {
     $priceRow = ($ePrice !== '')
         ? '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:18px; line-height:24px; color:#0a1628; font-weight:700; margin:0 0 14px 0;">' . $ePrice . '</p>'
@@ -187,7 +202,7 @@ function pocket_cron_html_body($eTitle, $eExpiryDate, $eNWord, $ePrice, $eBroker
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 'Pocket Listing Expiring</p>' .
-'<img src="' . POCKET_SITE_BASE . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#9fb8cf; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:14px 0 0 0; text-align:center;">Off-Market &middot; OWYG Broker Network</p>' .
 '</td></tr>' .
@@ -212,7 +227,7 @@ $brokerRow .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
-'<img src="' . POCKET_SITE_BASE . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
 '&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .

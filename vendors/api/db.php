@@ -66,7 +66,99 @@ if (!function_exists('vdb_connect')) {
         vdb_init_documents_schema($pdo);
         vdb_seed_document_purposes($pdo);
 
+        // Suite settings (Broker Suite platform config layer, Phase 1). A single
+        // key/value table of non-secret, environment/rollout knobs (base URL,
+        // from address, notification recipients, admin email). Additive +
+        // idempotent; seeded with today's hardcoded values via INSERT OR IGNORE
+        // so a later admin edit is never overwritten. SMTP secrets stay OUT of
+        // this table - they live in the untracked mail-secrets.php.
+        vdb_init_settings_schema($pdo);
+        vdb_seed_settings($pdo);
+
         return $pdo;
+    }
+
+    // =======================================================================
+    // SUITE SETTINGS (Broker Suite platform config layer, Phase 1)
+    //
+    // One flat key/value table of non-secret, environment/rollout knobs shared
+    // across the suite. Code reads a setting with the current hardcoded literal
+    // as the fallback default, so a missing OR blank row can never break a send.
+    // SECRETS (SMTP host/user/pass, from_name default) are NOT stored here -
+    // they stay in the untracked mail-secrets.php.
+    // =======================================================================
+
+    /**
+     * Create the suite_settings table if it does not already exist. Additive +
+     * idempotent. Double-quoted PHP string because the SQL carries a single-quote
+     * literal (DEFAULT '') - keeps the quote layers from colliding.
+     */
+    function vdb_init_settings_schema(PDO $pdo)
+    {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS suite_settings (
+                key   TEXT PRIMARY KEY,
+                value TEXT NOT NULL DEFAULT ''
+            )
+        ");
+    }
+
+    /**
+     * Seed the suite settings with today's hardcoded values, using INSERT OR
+     * IGNORE so an existing row (e.g. a later admin edit) is NEVER overwritten on
+     * a subsequent load. On a fresh DB these rows are created; on an existing DB
+     * any already-present key is left exactly as-is. The seeded values MUST equal
+     * the current hardcoded literals so behavior is unchanged - the setting only
+     * changes WHERE the value comes from, never WHAT it is.
+     */
+    function vdb_seed_settings(PDO $pdo)
+    {
+        $defaults = array(
+            'site_base_url'     => 'https://haleyyachts.com',
+            'mail_from_address' => 'no-reply@haleyyachts.com',
+            'pocket_notify_to'  => 'clark@mvroam.com',
+            'doc_admin_email'   => 'admin@OWYG.com',
+        );
+        $stmt = $pdo->prepare('INSERT OR IGNORE INTO suite_settings (key, value) VALUES (?, ?)');
+        foreach ($defaults as $key => $value) {
+            $stmt->execute(array($key, $value));
+        }
+    }
+
+    /**
+     * Read a single suite setting. Returns the stored value, or $default when the
+     * key is missing OR its stored value is '' (blank). All rows are loaded ONCE
+     * into a per-request static cache on the first call so repeated reads never
+     * re-query. Callers pass the current hardcoded literal as $default, so a
+     * missing/blank setting behaves identically to the old hardcoded constant.
+     *
+     * @param PDO    $pdo
+     * @param string $key
+     * @param string $default value returned when the key is absent or stored blank
+     * @return string
+     */
+    function suite_setting(PDO $pdo, $key, $default = '')
+    {
+        static $cache = null;
+        if ($cache === null) {
+            $cache = array();
+            // First call fills the cache from a single query. If the table does
+            // not exist yet for any reason, fall back to an empty cache so every
+            // lookup returns its $default (identical to the old hardcoded value).
+            try {
+                $rows = $pdo->query('SELECT key, value FROM suite_settings')->fetchAll();
+                foreach ($rows as $r) {
+                    $cache[(string) $r['key']] = (string) $r['value'];
+                }
+            } catch (Throwable $e) {
+                $cache = array();
+            }
+        }
+        if (!array_key_exists($key, $cache)) {
+            return $default;
+        }
+        $value = $cache[$key];
+        return ($value === '') ? $default : $value;
     }
 
     /**

@@ -28,26 +28,28 @@ require_once __DIR__ . '/../mail-smtp.php';
 if (!function_exists('pocket_notify_new_listing')) {
 
     // =======================================================================
-    // CONFIG
-    // =======================================================================
-
-    // ***** TEMPORARY - TESTING ONLY *****
-    // While the network email is under test, ALL notifications go to this ONE
-    // inbox. This is NOT the real audience. When the real recipient list is
-    // decided, replace this single address with a list (or a users-table query,
-    // e.g. every active broker's email) and loop the send. Flagged loudly on
-    // purpose - do not ship a real rollout with this hard-coded single To.
-    define('POCKET_NOTIFY_TO', 'clark@mvroam.com');
-
-    // The From address, sent over authenticated SMTP so SPF/DKIM authenticate
-    // it. The From DISPLAY NAME ("OneWater") comes from the shared secrets file
-    // (from_name), not from here, so both Broker Suite mailers stay consistent.
-    define('POCKET_MAIL_FROM', 'no-reply@haleyyachts.com');
-
-    // Absolute base for image URLs and the "view in Broker Suite" link. Email
-    // clients cannot resolve relative paths, so everything the email references
-    // must be absolute off this.
-    define('POCKET_SITE_BASE', 'https://haleyyachts.com');
+    // CONFIG (Broker Suite settings layer, Phase 1)
+    //
+    // These three environment values are no longer define()'d constants. They now
+    // live in the DB-backed suite_settings table and are read at CALL time (where
+    // a $pdo is in scope) via suite_setting(), each with its ORIGINAL hardcoded
+    // literal passed as the fallback default. A missing/blank setting therefore
+    // behaves identically to the old constant. The keys + fallbacks:
+    //   pocket_notify_to   -> 'clark@mvroam.com'
+    //     ***** TEMPORARY - TESTING ONLY ***** While the network email is under
+    //     test, ALL notifications go to this ONE inbox. This is NOT the real
+    //     audience. Going live is now a settings edit (or a users-table query +
+    //     send loop), not a code change. Do not ship a real rollout still pointed
+    //     at the single test inbox.
+    //   mail_from_address  -> 'no-reply@haleyyachts.com'
+    //     The From address, sent over authenticated SMTP so SPF/DKIM authenticate
+    //     it. The From DISPLAY NAME ("OneWater") still comes from the shared
+    //     secrets file (from_name), NOT from settings, so both Broker Suite
+    //     mailers stay consistent.
+    //   site_base_url      -> 'https://haleyyachts.com'
+    //     Absolute base for image URLs and the "view in Broker Suite" link. Email
+    //     clients cannot resolve relative paths, so everything the email
+    //     references must be absolute off this.
 
     // =======================================================================
     // PUBLIC ENTRY
@@ -67,6 +69,16 @@ if (!function_exists('pocket_notify_new_listing')) {
     function pocket_notify_new_listing(PDO $pdo, array $listing, array $authUser)
     {
         try {
+            // --- read the environment values from settings (Phase 1) ---
+            // Each falls back to its ORIGINAL hardcoded literal, so a missing or
+            // blank setting sends exactly as before. Read once here (a $pdo is in
+            // scope) into locals, then thread those locals through the header
+            // fields + body builders - the builders no longer reference any
+            // constant directly.
+            $siteBase = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
+            $notifyTo = suite_setting($pdo, 'pocket_notify_to', 'clark@mvroam.com');
+            $mailFrom = suite_setting($pdo, 'mail_from_address', 'no-reply@haleyyachts.com');
+
             // --- resolve the LISTING broker's contact (name, email, cell) ---
             // pocket_shape does NOT carry the broker email, so query users
             // directly by the listing's broker_id.
@@ -122,7 +134,7 @@ if (!function_exists('pocket_notify_new_listing')) {
             // shape is a relative "uploads/<encoded>" path.
             $heroAbs = '';
             if (isset($listing['hero_url']) && (string) $listing['hero_url'] !== '') {
-                $heroAbs = POCKET_SITE_BASE . '/vendors/pocket/' . ltrim((string) $listing['hero_url'], '/');
+                $heroAbs = $siteBase . '/vendors/pocket/' . ltrim((string) $listing['hero_url'], '/');
             }
 
             // Additional images (up to 4), absolute URLs, for the strip under the
@@ -135,12 +147,12 @@ if (!function_exists('pocket_notify_new_listing')) {
                     if ($u === '') { continue; }
                     if (!empty($im['is_hero'])) { continue; }
                     if ($heroRel !== '' && $u === $heroRel) { continue; }
-                    $moreAbs[] = POCKET_SITE_BASE . '/vendors/pocket/' . ltrim($u, '/');
+                    $moreAbs[] = $siteBase . '/vendors/pocket/' . ltrim($u, '/');
                     if (count($moreAbs) >= 4) { break; }
                 }
             }
 
-            $suiteUrl = POCKET_SITE_BASE . '/vendors/pocket/';
+            $suiteUrl = $siteBase . '/vendors/pocket/';
             $brokerPhoneFmt = p_format_phone($brokerCell);
 
             // --- subject ---
@@ -163,10 +175,12 @@ if (!function_exists('pocket_notify_new_listing')) {
             // From address + display name are handled by the shared sender
             // (From: no-reply@haleyyachts.com, display "OneWater" from the
             // secrets file). Here we only sanitize the To and the Reply-To.
-            $to      = p_mail_header_safe(POCKET_NOTIFY_TO);
+            $to      = p_mail_header_safe($notifyTo);
             $replyTo = p_mail_header_safe($brokerEmail); // may be '' -> omitted below
 
             // --- build both MIME parts ---
+            // $siteBase is threaded into the HTML builder for the masthead/footer
+            // banner image URLs (email clients need absolute URLs).
             $textBody = p_build_text_body(
                 $title, $length, $location, $year, $priceDisplay,
                 $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $suiteUrl
@@ -174,7 +188,7 @@ if (!function_exists('pocket_notify_new_listing')) {
             $htmlBody = p_build_html_body(
                 $title, $length, $location, $year, $priceDisplay,
                 $description, $brokerName, $brokerPhoneFmt, $brokerEmail,
-                $heroAbs, $moreAbs, $suiteUrl
+                $heroAbs, $moreAbs, $suiteUrl, $siteBase
             );
 
             // --- send via the shared authenticated-SMTP sender ---
@@ -193,7 +207,7 @@ if (!function_exists('pocket_notify_new_listing')) {
                 $htmlBody,
                 'pocket-mailer:listing-' . $listingId,
                 $replyTo,            // Reply-To: the listing broker (may be '')
-                POCKET_MAIL_FROM     // From: no-reply@haleyyachts.com
+                $mailFrom            // From: no-reply@haleyyachts.com
             );
             if (!$ok) {
                 error_log('pocket-mailer: notification not sent for listing ' . $listingId);
@@ -311,7 +325,7 @@ if (!function_exists('pocket_notify_new_listing')) {
      * user-supplied value is escaped with p_h().
      */
     function p_build_html_body($title, $length, $location, $year, $priceDisplay,
-        $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $heroAbs, $moreAbs, $suiteUrl)
+        $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $heroAbs, $moreAbs, $suiteUrl, $siteBase)
     {
         $eTitle = p_h($title);
         $ePrice = p_h($priceDisplay);
@@ -409,7 +423,7 @@ if (!function_exists('pocket_notify_new_listing')) {
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 'New Pocket Listing</p>' .
-'<img src="' . POCKET_SITE_BASE . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . p_h($siteBase) . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#9fb8cf; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:14px 0 0 0; text-align:center;">Off-Market &middot; OWYG Broker Network</p>' .
 '</td></tr>' .
@@ -451,7 +465,7 @@ $contactRows .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
-'<img src="' . POCKET_SITE_BASE . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . p_h($siteBase) . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
 '&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .

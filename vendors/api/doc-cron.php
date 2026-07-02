@@ -56,8 +56,12 @@ if (empty($_SERVER['DOCUMENT_ROOT'])) {
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendors/api/db.php';
 require_once __DIR__ . '/../mail-smtp.php';
 
-// Fixed reminder audience / branding (from Clark's spec).
-define('DOC_CRON_ADMIN_EMAIL', 'admin@OWYG.com');
+// Reminder branding. DOC_CRON_FROM_NAME is a FIXED contextual label (not an
+// environment value), so it stays a constant. The admin email + the absolute
+// site base are now DB-backed suite_settings (Phase 1): they are read ONCE in
+// MAIN after vdb_connect (each with its original hardcoded literal as fallback)
+// and threaded through, so a bad row can never change routing mid-run and a
+// missing/blank setting behaves identically to today.
 define('DOC_CRON_FROM_NAME',   'Admin at One Water Yacht Group');
 
 /** HTML-escape a value for safe inclusion in the HTML body. */
@@ -153,8 +157,12 @@ function doc_cron_provided_by(array $row)
  * From address. The document description is included in both variants when present.
  * Every value is HTML-escaped in the HTML body and CR/LF-stripped in headers.
  * Returns the boolean mail_smtp_send result (never throws).
+ *
+ * $adminEmail (the doc_admin_email setting) and $siteBase (the site_base_url
+ * setting) are read ONCE in MAIN and passed in, so routing cannot change
+ * mid-run. Both carry their original hardcoded literal as the fallback default.
  */
-function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
+function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase)
 {
     $purpose     = (string) $row['purpose'];
     $description = isset($row['description']) ? trim((string) $row['description']) : '';
@@ -199,17 +207,18 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
             doc_cron_h($vendorName),
             doc_cron_h($purpose),
             doc_cron_h($description),
-            doc_cron_h($expiryDate)
+            doc_cron_h($expiryDate),
+            $siteBase
         );
 
-        $to = doc_cron_header_safe($toEmail); // = admin@OWYG.com from the caller
+        $to = doc_cron_header_safe($toEmail); // = the admin email from the caller
         return mail_smtp_send(
             $to,
             $subject,
             $textBody,
             $htmlBody,
             'vendor-doc-expiry:doc-' . $docId,
-            DOC_CRON_ADMIN_EMAIL,   // Reply-To: admin@OWYG.com
+            $adminEmail,            // Reply-To: admin email
             '',                     // From address: default (no-reply@haleyyachts.com)
             '',                     // CC: none (internal)
             DOC_CRON_FROM_NAME      // From NAME: Admin at One Water Yacht Group
@@ -241,7 +250,7 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
         $text[] = ($expired ? 'Expired on: ' : 'Expires on: ') . $expiryDate;
     }
     $text[] = '';
-    $text[] = 'Please send an updated document to ' . DOC_CRON_ADMIN_EMAIL . ' so we can keep our records current.';
+    $text[] = 'Please send an updated document to ' . $adminEmail . ' so we can keep our records current.';
     $text[] = '';
     $text[] = 'Thank you,';
     $text[] = 'Admin at One Water Yacht Group';
@@ -254,7 +263,8 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
         doc_cron_h($purpose),
         doc_cron_h($description),
         doc_cron_h($expiryDate),
-        doc_cron_h(DOC_CRON_ADMIN_EMAIL)
+        doc_cron_h($adminEmail),
+        $siteBase
     );
 
     $to = doc_cron_header_safe($toEmail);
@@ -265,9 +275,9 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
         $textBody,
         $htmlBody,
         'vendor-doc-expiry:doc-' . $docId,
-        DOC_CRON_ADMIN_EMAIL,   // Reply-To: admin@OWYG.com
+        $adminEmail,            // Reply-To: admin email
         '',                     // From address: default (no-reply@haleyyachts.com)
-        DOC_CRON_ADMIN_EMAIL,   // CC: admin@OWYG.com
+        $adminEmail,            // CC: admin email
         DOC_CRON_FROM_NAME      // From NAME: Admin at One Water Yacht Group
     );
 }
@@ -276,8 +286,9 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
  * Short co-branded HTML body. All values arrive ALREADY escaped from the caller.
  * Same navy-masthead / cyan-keyline tone as the pocket reminders.
  */
-function doc_cron_html_body($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $eAdminEmail)
+function doc_cron_html_body($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $eAdminEmail, $siteBase)
 {
+    $eSiteBase = doc_cron_h($siteBase);
     $heading = $expired ? 'Document Expired' : 'Document Expiring';
     $lead = $expired
         ? ('A document we have on file for <strong>' . $eVendor . '</strong> has expired.')
@@ -306,7 +317,7 @@ function doc_cron_html_body($expired, $eVendor, $ePurpose, $eDescription, $eExpi
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 $heading . '</p>' .
-'<img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
 '</td></tr>' .
 
@@ -325,7 +336,7 @@ $dateRow .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
-'<img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0;">' .
 '&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .
@@ -342,8 +353,9 @@ $dateRow .
  * vendor, and it asks us to upload the renewal under the vendor's documents. All
  * values arrive ALREADY escaped from the caller.
  */
-function doc_cron_html_body_us($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate)
+function doc_cron_html_body_us($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $siteBase)
 {
+    $eSiteBase = doc_cron_h($siteBase);
     $heading = $expired ? 'Our Policy Expired' : 'Our Policy Expiring';
     $lead = $expired
         ? ('The policy we provide to <strong>' . $eVendor . '</strong> for ' . $ePurpose . ' has expired.')
@@ -372,7 +384,7 @@ function doc_cron_html_body_us($expired, $eVendor, $ePurpose, $eDescription, $eE
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 $heading . '</p>' .
-'<img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
 '</td></tr>' .
 
@@ -391,7 +403,7 @@ $dateRow .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
-'<img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0;">' .
 '&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .
@@ -417,6 +429,13 @@ try {
     fwrite(STDERR, 'doc-cron: DB open failed: ' . $e->getMessage() . "\n");
     exit(1);
 }
+
+// Read the environment values ONCE for the whole run (each with its original
+// hardcoded literal as the fallback). Reading them here, before the loop, means
+// a later bad/blank row can never change routing mid-run, and a missing setting
+// behaves exactly like the old constant.
+$adminEmail = suite_setting($pdo, 'doc_admin_email', 'admin@OWYG.com');
+$siteBase   = suite_setting($pdo, 'site_base_url', 'https://haleyyachts.com');
 
 $now   = gmdate('Y-m-d H:i:s');
 $nowTs = strtotime($now . ' UTC');
@@ -466,9 +485,10 @@ foreach ($rows as $row) {
         $direction = doc_cron_provided_by($row);
 
         if ($direction === 'us') {
-            // WE provide this policy: the audience is internal, so admin@OWYG.com is
-            // always the recipient. This case never skips for a missing vendor email.
-            $toEmail = DOC_CRON_ADMIN_EMAIL;
+            // WE provide this policy: the audience is internal, so the admin email
+            // is always the recipient. This case never skips for a missing vendor
+            // email.
+            $toEmail = $adminEmail;
         } else {
             // The vendor provides this to us: email the vendor's primary address.
             $toEmail = doc_cron_vendor_email($pdo, $vendorId);
@@ -481,7 +501,7 @@ foreach ($rows as $row) {
         }
         $vendorName = doc_cron_vendor_name($pdo, $vendorId);
 
-        $ok = doc_cron_send($pdo, $row, $toEmail, $vendorName, $mode);
+        $ok = doc_cron_send($pdo, $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase);
         if ($ok) {
             if ($mode === 'expired') {
                 $pdo->prepare('UPDATE vendor_documents SET reminded_exp = 1 WHERE id = ?')->execute(array($id));
