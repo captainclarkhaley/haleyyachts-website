@@ -1076,8 +1076,8 @@
                 '</div>' +
                 '<div>' +
                     '<label for="docDescription">Description</label>' +
-                    '<input type="text" id="docDescription" maxlength="50" placeholder="Short note (optional)">' +
-                    '<div class="vdb-doc-hint">Optional, 50 characters max</div>' +
+                    '<input type="text" id="docDescription" maxlength="150" placeholder="Short note (optional)">' +
+                    '<div class="vdb-doc-hint">Optional, 150 characters max</div>' +
                 '</div>' +
             '</div>' +
             '<div class="vdb-doc-uprow">' +
@@ -1111,7 +1111,7 @@
         var providedBy = $('docProvidedBy') ? $('docProvidedBy').value : 'vendor';
 
         if (!purpose) { docUploadError('Choose a purpose.'); return; }
-        if (description.length > 50) { docUploadError('Description is too long (50 characters max).'); return; }
+        if (description.length > 150) { docUploadError('Description is too long (150 characters max).'); return; }
         if (!fileInput || !fileInput.files || !fileInput.files.length) {
             docUploadError('Choose a file to upload.');
             return;

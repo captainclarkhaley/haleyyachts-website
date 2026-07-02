@@ -1104,9 +1104,9 @@ function doc_upload(PDO $pdo, array $authUser)
     if (mb_strlen($purpose) > 60) {
         fail('Purpose is too long (60 characters max).');
     }
-    // Description is optional but capped at 50 characters.
-    if (mb_strlen($description) > 50) {
-        fail('Description is too long (50 characters max).');
+    // Description is optional but capped at 150 characters.
+    if (mb_strlen($description) > 150) {
+        fail('Description is too long (150 characters max).');
     }
     // An expires_at that was supplied but did not parse is a client error.
     if (isset($_POST['expires_at']) && trim((string) $_POST['expires_at']) !== '' && $expires === null) {

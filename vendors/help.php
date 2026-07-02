@@ -481,7 +481,7 @@ if ((int) $gateUser['must_change_password'] === 1) {
             <li>Open the vendor and find the <strong>Documents</strong> section.</li>
             <li><strong>Choose a file</strong>. Allowed formats are <strong>PDF, JPG, PNG, or WEBP</strong>, up to <strong>15 MB</strong>.</li>
             <li>Pick a <strong>Purpose</strong>: <strong>Insurance</strong>, <strong>Certificate</strong>, or add a new purpose of your own.</li>
-            <li>Optionally add a short <strong>Description</strong> (up to 50 characters).</li>
+            <li>Optionally add a short <strong>Description</strong> (up to 150 characters).</li>
             <li>Optionally set an <strong>Expiration Date</strong>. Leave it blank if the document never expires.</li>
             <li>Choose <strong>"Provided by"</strong>:
                 <ul>
