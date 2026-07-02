@@ -12,21 +12,24 @@ provides. Everything is file-based, there is no external database to provision.
 
 ## What it is
 
-- Staff app: `https://haleyyachts.com/vendors/` (password realm: staff)
-- Admin lists page: `https://haleyyachts.com/admin/vendor-lists.html` (password realm: admin, already set up)
+- Staff app: `https://haleyyachts.com/vendors/` (Broker Suite login)
+- Admin console (staff accounts + predefined lists): inside the Broker Suite,
+  reached from the launcher's account menu > Admin (gated by the in-app
+  `is_admin` login, NOT the `/admin/` folder password)
 - Data: a single SQLite file at `public_html/vendors/api/data/vendors.sqlite`
 
-The staff app and the admin lists page write to the SAME SQLite file. The split
-is by password realm: staff users (in `/vendors/`) can use the directory but can
-never reach the admin lists endpoint, because that lives in `/admin/`, a
-separate realm with its own users.
+The staff app and the admin console write to the SAME SQLite file. The split is
+by role: every staff member signs in with their Broker Suite account, but only
+those flagged `is_admin` see the Admin menu and can reach the account and list
+management screens.
 
 ## Staff login (in-app auth)
 
 The app authenticates staff itself, against the same SQLite database:
 
-- **Accounts** are created by you (admin) at `admin/users.html`, which is behind
-  the `/admin/` cPanel password. There is NO public self-signup.
+- **Accounts** are created by you (admin) in the Broker Suite admin console
+  (launcher > account menu > Admin > Staff Accounts), gated by the in-app
+  `is_admin` login. There is NO public self-signup.
 - **Login page:** `vendors/login.html` (Account ID + password, plus "Forgot
   password?").
 - **App page:** `vendors/index.php` (was `index.html`). It now checks for a valid
@@ -41,8 +44,9 @@ The app authenticates staff itself, against the same SQLite database:
      enters their email, and gets a one-time link (`reset.html?token=...`) that
      expires in 1 hour. For anti-enumeration the page always says "if that email
      is on file, a link has been sent," whether or not the email matched.
-  2. Admin: in `admin/users.html`, "Reset PW" sets a new password directly. This
-     is the fallback if email delivery is a problem.
+  2. Admin: in the Broker Suite admin console (Admin > Staff Accounts),
+     "Reset PW" sets a new password directly. This is the fallback if email
+     delivery is a problem.
 
 How passwords are stored: only as a bcrypt hash (`password_hash`). Plain-text
 passwords are never stored, logged, or shown. The admin page never displays a
@@ -65,11 +69,13 @@ the cPanel popup is still active, then remove it. Order:
 
 1. **Pull** the new files to the server (cPanel Git pull, as usual). This brings
    down `index.php`, `login.html`, `reset.html`, `auth.php`, `api/auth-lib.php`,
-   `admin/users.html`, and `admin/users-api.php`, and removes the old
+   and the Broker Suite admin console (`vendors/suite.php`,
+   `vendors/admin/users.php`, `vendors/admin/users-api.php`), and removes the old
    `vendors/index.html`.
-2. **Create your own account(s)** at `admin/users.html` (behind the `/admin/`
-   password). Give yourself an Account ID, email, home office, and an initial
-   password. Add the rest of the staff now or later.
+2. **Create your own account(s)** in the Broker Suite admin console (launcher >
+   account menu > Admin > Staff Accounts), gated by the in-app `is_admin` login.
+   Give yourself an Account ID, email, home office, and an initial password. Add
+   the rest of the staff now or later.
 3. **Test the new login** at `https://haleyyachts.com/vendors/`. The cPanel
    popup will still appear first (that is fine for now) - clear it with your
    existing cPanel staff credentials, then you should land on `login.html`. Sign
@@ -128,8 +134,10 @@ cPanel writes the `.htpasswd` file and appends its managed `cp:ppd` block to
 `vendors/.htaccess`. Do not hand-edit that block. Until this step is done, the
 `/vendors/` area is unprotected if it is live on the web.
 
-(The `/admin/` realm that protects `admin/vendor-lists.html` is already set up,
-the same way the other admin tools are protected. Nothing new to do there.)
+(Staff accounts and the predefined lists are NOT protected by the `/admin/`
+folder password anymore - they live in the Broker Suite admin console, gated by
+the in-app `is_admin` login. The `/admin/` password realm still protects the
+separate website admin tools, unchanged.)
 
 ### 2. Confirm PHP has the SQLite driver (`pdo_sqlite`)
 
@@ -143,7 +151,7 @@ GoDaddy cPanel ships with this enabled by default, but to be sure:
 ### 3. The database auto-creates on first load
 
 There is nothing to import. The first time any authenticated user opens the
-staff app or the admin lists page, `vendors/api/db.php` creates
+staff app or the Broker Suite admin console, `vendors/api/db.php` creates
 `vendors/api/data/vendors.sqlite`, builds the tables, and seeds the starter
 Vendor Types and Coverage Areas. From then on it just opens the existing file.
 
@@ -170,12 +178,15 @@ Back it up separately:
 Only `.htaccess` is tracked under `data/`. The `.sqlite` file (and any
 `-journal`, `-wal`, `-shm` siblings) are ignored on purpose.
 
-### 5. The admin realm already protects the lists page
+### 5. The Broker Suite admin console gates the lists page
 
-`admin/vendor-lists.html` and `admin/vendor-lists-api.php` sit inside `/admin/`,
-which already has its own Directory Privacy password from when the other admin
-tools were set up. No extra step. Just confirm you can reach
-`admin/vendor-lists.html` and that it prompts for the admin login.
+Staff accounts and the predefined lists now live inside the Broker Suite
+(`vendors/admin/users.php` and `vendors/admin/vendor-lists.php`, reached from the
+launcher's account menu > Admin). They are gated by the in-app `is_admin` login,
+NOT the `/admin/` folder password. No cPanel realm step for them. Just sign in to
+the Broker Suite as an admin account and confirm the Admin menu shows
+**Staff Accounts** and **Predefined Lists**. The `/admin/` password realm still
+protects the separate website admin tools.
 
 ## Security notes (already handled in code, no action needed)
 
@@ -195,6 +206,6 @@ tools were set up. No extra step. Just confirm you can reach
 2. Click **+ Add Vendor**, fill in a name, tick a type and an area, add a contact
    marked Primary, Save. It should appear in the table with the primary phone or
    email derived from that contact.
-3. Open `https://haleyyachts.com/admin/vendor-lists.html`, log in with the admin
-   user, rename or add a list item, then reload the staff app and confirm the
-   change shows up in the filters.
+3. In the Broker Suite, open the account menu > Admin > Predefined Lists (as an
+   admin account), rename or add a list item, then reload the staff app and
+   confirm the change shows up in the filters.

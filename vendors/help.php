@@ -602,10 +602,10 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
 
         <!-- ===== For Administrators ===== -->
         <h2 id="for-administrators">For Administrators</h2>
-        <p>This section is for Clark and your Administrative Assistant. The admin tools live in the password-protected admin area, separate from the staff app.</p>
+        <p>This section is for Clark and your Administrative Assistant. The admin tools now live inside the Broker Suite. To reach them, open the account menu on the Broker Suite launcher and choose <strong>Admin</strong>. These tools are admin only and use your Broker Suite login, with no separate password.</p>
 
         <h3>Managing staff accounts</h3>
-        <p>Open <strong>Staff Accounts</strong> (<code>admin/users.html</code>).</p>
+        <p>Open the account menu on the Broker Suite launcher, choose <strong>Admin</strong>, then <strong>Staff Accounts</strong>.</p>
         <p><strong>Create an account:</strong></p>
         <ol>
             <li>Click <strong>+ New Account</strong>.</li>
@@ -641,7 +641,7 @@ Contact: Dana Reyes, (954) 555-0147, dana@baysidesurvey.com</div>
         </ul>
 
         <h3>Managing the predefined lists</h3>
-        <p>Open <strong>Vendor Lists</strong> (<code>admin/vendor-lists.html</code>). These two lists are what staff choose from in the app; staff cannot edit them.</p>
+        <p>Open the account menu on the Broker Suite launcher, choose <strong>Admin</strong>, then <strong>Predefined Lists</strong>. These two lists are what staff choose from in the app; staff cannot edit them.</p>
 
         <!-- IMG: vendor-lists -->
         <figure class="help-fig">
