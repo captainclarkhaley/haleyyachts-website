@@ -1,0 +1,503 @@
+<?php
+/**
+ * users.php (Broker Suite admin copy) - Staff Accounts management page.
+ *
+ * RELOCATED from /admin/users.html as part of Phase 2b. The gate below replaces
+ * the old /admin/ Directory Privacy realm with the shared in-app admin guard: a
+ * non-admin (or an unauthenticated visitor) is redirected BEFORE any markup, so
+ * the page cannot be reached by disabling JavaScript. admin-guard.php exposes
+ * $pdo and $gateUser once we fall through. The page's data calls hit
+ * users-api.php in this same folder (the relocated, admin-gated API).
+ *
+ * The original /admin/users.html is untouched and keeps working until 2d.
+ */
+require_once __DIR__ . '/admin-guard.php';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Accounts - Haley Yachts Admin</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="../../favicon.ico" sizes="any">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: #f4f6f8; margin: 0; padding: 40px 20px 60px; color: #333; line-height: 1.6;
+        }
+        .admin-container { max-width: 1000px; margin: 0 auto; }
+        .admin-header {
+            background: #0a1628; color: #fff; padding: 36px 48px; border-radius: 6px 6px 0 0; text-align: center;
+        }
+        .admin-header h1 {
+            font-size: 1.7rem; font-weight: 300; text-transform: uppercase; letter-spacing: 3px; margin: 0;
+        }
+        .admin-header h1 strong { font-weight: 700; color: #21cbea; }
+        .admin-header .accent-line { width: 60px; height: 3px; background: #21cbea; margin: 12px auto 14px; }
+        .admin-header p { margin: 0; font-size: 0.92rem; color: rgba(255,255,255,0.75); font-style: italic; }
+        .admin-body {
+            background: #fff; padding: 36px 48px; border-radius: 0 0 6px 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .security-notice {
+            background: #fff7e6; border-left: 4px solid #e89c20; padding: 14px 18px;
+            border-radius: 3px; margin-bottom: 24px; font-size: 0.85rem; color: #5a4a20;
+        }
+        .security-notice strong {
+            display: block; text-transform: uppercase; letter-spacing: 1px;
+            font-size: 0.74rem; color: #8a6820; margin-bottom: 5px;
+        }
+        .notice { padding: 10px 14px; border-radius: 4px; font-size: 0.84rem; margin-bottom: 16px; display: none; }
+        .notice.show { display: block; }
+        .notice.error { background: #fdecea; border-left: 4px solid #c0392b; color: #7a241c; }
+        .notice.ok { background: #e8f7ea; border-left: 4px solid #1b6e2e; color: #1b5e2a; }
+
+        .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .bar h2 {
+            font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;
+            color: #555; margin: 0;
+        }
+        .btn {
+            font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer;
+            border: 1px solid transparent; border-radius: 4px; padding: 8px 14px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .btn-primary { background: #21cbea; color: #fff; }
+        .btn-primary:hover { background: #1aa8c4; }
+        .btn-ghost { background: #fff; color: #666; border-color: #e5e5e5; }
+        .btn-ghost:hover { border-color: #21cbea; color: #21cbea; }
+        .btn-sm { font-size: 0.7rem; padding: 5px 10px; }
+
+        table.users { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+        table.users th {
+            text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px;
+            color: #888; border-bottom: 2px solid #e5e5e5; padding: 8px 10px;
+        }
+        table.users td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        table.users tr.disabled td { opacity: 0.55; }
+        .status-pill {
+            font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px;
+            padding: 2px 8px; border-radius: 10px;
+        }
+        .status-pill.on { background: #e8f7ea; color: #1b6e2e; }
+        .status-pill.off { background: #fdecea; color: #9c3a30; }
+        .admin-badge {
+            display: inline-block; margin-left: 6px; font-size: 0.6rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.6px; padding: 2px 7px; border-radius: 10px;
+            background: #e6f7fb; color: #0e7c93;
+        }
+        /* Grouped panel for admin-only privileges, sized to grow as we add more. */
+        .admin-privs {
+            border: 1px solid #e5e5e5; border-radius: 5px; background: #fafbfc;
+            padding: 10px 12px; display: flex; flex-direction: column; gap: 9px;
+        }
+        .admin-check {
+            display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+            color: #333; font-weight: 400; cursor: pointer; margin: 0;
+        }
+        /* Specific enough to beat the general ".field input { width: 100% }" rule,
+           which would otherwise stretch the checkbox full-width and push the label
+           off the panel. */
+        .admin-privs .admin-check input {
+            width: 17px; height: 17px; margin: 0; flex: none; accent-color: #21cbea;
+        }
+        .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .icon-btn {
+            border: 1px solid #e5e5e5; background: #fff; color: #666; border-radius: 3px; cursor: pointer;
+            font-size: 0.7rem; padding: 4px 9px; font-family: inherit; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .icon-btn:hover { border-color: #21cbea; color: #21cbea; }
+        .icon-btn.danger:hover { border-color: #c0392b; color: #c0392b; }
+        .empty { font-size: 0.85rem; color: #999; font-style: italic; padding: 14px 2px; }
+
+        /* Modal */
+        .overlay {
+            position: fixed; inset: 0; background: rgba(10,22,40,0.55); display: none;
+            align-items: flex-start; justify-content: center; padding: 50px 16px; overflow-y: auto; z-index: 50;
+        }
+        .overlay.open { display: flex; }
+        .modal { background: #fff; border-radius: 6px; width: 100%; max-width: 480px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
+        .modal-head {
+            background: #0a1628; color: #fff; padding: 16px 22px; border-radius: 6px 6px 0 0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-head h3 { margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+        .modal-close { background: none; border: none; color: #fff; font-size: 1.4rem; cursor: pointer; line-height: 1; }
+        .modal-body { padding: 22px; }
+        .modal-foot { padding: 16px 22px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; }
+        .field { margin-bottom: 14px; }
+        label.fl {
+            display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1px; color: #666; margin-bottom: 5px;
+        }
+        .field input, .field select {
+            width: 100%; font-family: inherit; font-size: 0.9rem; color: #333;
+            border: 1px solid #e5e5e5; border-radius: 4px; padding: 9px 11px; background: #fff;
+        }
+        .field input:focus, .field select:focus {
+            outline: none; border-color: #21cbea; box-shadow: 0 0 0 2px rgba(33,203,234,0.18);
+        }
+        .field .hint { font-size: 0.74rem; color: #999; margin-top: 4px; }
+        .footer-link { text-align: center; margin-top: 26px; font-size: 0.85rem; }
+        .footer-link a { color: #21cbea; text-decoration: none; }
+        .footer-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>STAFF <strong>ACCOUNTS</strong></h1>
+        <div class="accent-line"></div>
+        <p>Login accounts for the Broker Suite at /vendors/</p>
+    </div>
+
+    <div class="admin-body">
+        <div class="security-notice">
+            <strong>Admin only</strong>
+            These accounts log staff into the Broker Suite at <code>/vendors/</code>. Passwords are stored hashed (never in plain text) and are never shown here. Create an account for each staff member, set an initial password, and share it securely. Disabling an account blocks login immediately. Deleting an account is permanent.
+        </div>
+
+        <div class="notice error" id="notice"></div>
+        <div class="notice ok" id="okNotice"></div>
+
+        <div class="bar">
+            <h2>Accounts</h2>
+            <button class="btn btn-primary" id="btnNew">+ New Account</button>
+        </div>
+
+        <table class="users">
+            <thead>
+                <tr>
+                    <th>Account ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Cell</th>
+                    <th>Home Office</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="userRows">
+                <tr><td colspan="7" class="empty">Loading...</td></tr>
+            </tbody>
+        </table>
+
+        <div class="footer-link">
+            <a href="../suite.php">&larr; Back to Broker Suite</a> &nbsp;|&nbsp;
+            <a href="../index.php" target="_blank">Open Vendor Management &rarr;</a>
+        </div>
+    </div>
+</div>
+
+<!-- Create / Edit modal -->
+<div class="overlay" id="editOverlay">
+    <div class="modal">
+        <div class="modal-head">
+            <h3 id="editTitle">New Account</h3>
+            <button type="button" class="modal-close" id="editClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="notice error" id="editError"></div>
+            <input type="hidden" id="fId">
+            <div class="field">
+                <label class="fl" for="fAccount">Account ID *</label>
+                <input type="text" id="fAccount" autocomplete="off">
+                <div class="hint">Account ID should match your OWYG email.</div>
+            </div>
+            <div class="field">
+                <label class="fl" for="fName">Name</label>
+                <input type="text" id="fName" autocomplete="off">
+            </div>
+            <div class="field">
+                <label class="fl" for="fEmail">Email *</label>
+                <input type="email" id="fEmail" autocomplete="off">
+                <div class="hint">Used for self-service password resets.</div>
+            </div>
+            <div class="field">
+                <label class="fl" for="fCell">Cell</label>
+                <input type="text" id="fCell" autocomplete="off">
+            </div>
+            <div class="field">
+                <label class="fl" for="fOffice">Home Office</label>
+                <select id="fOffice"></select>
+            </div>
+            <div class="field">
+                <label class="fl">Admin privileges</label>
+                <div class="admin-privs">
+                    <label class="admin-check"><input type="checkbox" id="fAdmin"> <span>Administrator - can delete vendors</span></label>
+                    <!-- Room for more admin-only privilege toggles here as they come up. -->
+                </div>
+                <div class="hint">Admins can delete vendors directly in the Vendor App. Non-admins can only request a delete (an admin is notified).</div>
+            </div>
+            <div class="field" id="passwordField">
+                <label class="fl" for="fPassword">Initial Password *</label>
+                <input type="text" id="fPassword" autocomplete="off">
+                <div class="hint">Minimum 8 characters. The user is emailed this temporary password and is required to change it the first time they sign in.</div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-ghost" id="editCancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="editSave">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- Reset password modal -->
+<div class="overlay" id="resetOverlay">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>Reset Password</h3>
+            <button type="button" class="modal-close" id="resetClose">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="notice error" id="resetError"></div>
+            <p style="font-size:0.86rem;color:#666;margin:0 0 14px;">Set a new password for <strong id="resetWho"></strong>. This takes effect immediately and cancels any pending email-reset links.</p>
+            <input type="hidden" id="rId">
+            <div class="field">
+                <label class="fl" for="rPassword">New Password *</label>
+                <input type="text" id="rPassword" autocomplete="off">
+                <div class="hint">Minimum 8 characters. The user is emailed this temporary password and is required to change it the next time they sign in.</div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button type="button" class="btn btn-ghost" id="resetCancel">Cancel</button>
+            <button type="button" class="btn btn-primary" id="resetSave">Set Password</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var API = 'users-api.php';
+    var offices = [];
+
+    function $(id) { return document.getElementById(id); }
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function notice(msg, kind) {
+        var ok = $('okNotice'), err = $('notice');
+        if (kind === 'ok') {
+            err.className = 'notice error';
+            ok.textContent = msg; ok.className = 'notice ok show';
+            setTimeout(function () { ok.className = 'notice ok'; }, 2800);
+        } else {
+            ok.className = 'notice ok';
+            err.textContent = msg; err.className = 'notice error show';
+        }
+    }
+
+    function call(action, opts) {
+        opts = opts || {};
+        var url = API + '?action=' + action + (opts.query ? '&' + opts.query : '');
+        var init = { headers: { 'Accept': 'application/json' } };
+        if (opts.body) {
+            init.method = 'POST';
+            init.headers['Content-Type'] = 'application/json';
+            init.body = JSON.stringify(opts.body);
+        }
+        return fetch(url, init).then(function (res) {
+            return res.text().then(function (t) {
+                var d;
+                try { d = t ? JSON.parse(t) : {}; } catch (e) { d = { ok: false, error: 'Bad server response.' }; }
+                d._status = res.status;
+                if (res.status === 401) { window.location.href = '../login.html'; }
+                return d;
+            });
+        });
+    }
+
+    function renderOffices(selectEl, selected) {
+        var html = '<option value="">- none -</option>';
+        for (var i = 0; i < offices.length; i++) {
+            var o = offices[i];
+            html += '<option value="' + esc(o) + '"' + (o === selected ? ' selected' : '') + '>' + esc(o) + '</option>';
+        }
+        selectEl.innerHTML = html;
+    }
+
+    function render(users) {
+        var tb = $('userRows');
+        if (!users.length) {
+            tb.innerHTML = '<tr><td colspan="7" class="empty">No accounts yet. Create one to get started.</td></tr>';
+            return;
+        }
+        var html = '';
+        for (var i = 0; i < users.length; i++) {
+            var u = users[i];
+            html += '<tr class="' + (u.active ? '' : 'disabled') + '">' +
+                '<td>' + esc(u.account_id) + '</td>' +
+                '<td>' + esc(u.name) +
+                    (u.is_admin ? '<span class="admin-badge">Admin</span>' : '') + '</td>' +
+                '<td>' + esc(u.email) + '</td>' +
+                '<td>' + esc(u.cell) + '</td>' +
+                '<td>' + esc(u.home_office) + '</td>' +
+                '<td><span class="status-pill ' + (u.active ? 'on' : 'off') + '">' +
+                    (u.active ? 'Active' : 'Disabled') + '</span></td>' +
+                '<td><div class="row-actions">' +
+                    '<button class="icon-btn" data-edit="' + u.id + '">Edit</button>' +
+                    '<button class="icon-btn" data-reset="' + u.id + '">Reset PW</button>' +
+                    '<button class="icon-btn" data-toggle="' + u.id + '" data-active="' + (u.active ? 1 : 0) + '">' +
+                        (u.active ? 'Disable' : 'Enable') + '</button>' +
+                    '<button class="icon-btn danger" data-del="' + u.id + '">Delete</button>' +
+                '</div></td>' +
+            '</tr>';
+        }
+        tb.innerHTML = html;
+    }
+
+    var USERS = [];
+
+    function load() {
+        return call('list').then(function (d) {
+            if (!d.ok) { notice(d.error || 'Could not load accounts.'); return; }
+            USERS = d.users || [];
+            offices = d.home_offices || [];
+            render(USERS);
+        });
+    }
+
+    function findUser(id) {
+        for (var i = 0; i < USERS.length; i++) { if (USERS[i].id == id) { return USERS[i]; } }
+        return null;
+    }
+
+    // ---- create / edit modal ----
+    function openEdit(user) {
+        $('editError').className = 'notice error';
+        if (user) {
+            $('editTitle').textContent = 'Edit Account';
+            $('fId').value = user.id;
+            $('fAccount').value = user.account_id;
+            $('fName').value = user.name;
+            $('fEmail').value = user.email;
+            $('fCell').value = user.cell;
+            renderOffices($('fOffice'), user.home_office);
+            $('fAdmin').checked = !!user.is_admin;
+            $('passwordField').style.display = 'none'; // password via Reset PW only
+        } else {
+            $('editTitle').textContent = 'New Account';
+            $('fId').value = '';
+            $('fAccount').value = '';
+            $('fName').value = '';
+            $('fEmail').value = '';
+            $('fCell').value = '';
+            renderOffices($('fOffice'), '');
+            $('fAdmin').checked = false;
+            $('fPassword').value = '';
+            $('passwordField').style.display = '';
+        }
+        $('editOverlay').classList.add('open');
+    }
+    function closeEdit() { $('editOverlay').classList.remove('open'); }
+
+    function saveEdit() {
+        var err = $('editError');
+        err.className = 'notice error';
+        var id = $('fId').value;
+        var body = {
+            account_id: $('fAccount').value.trim(),
+            name: $('fName').value.trim(),
+            email: $('fEmail').value.trim(),
+            cell: $('fCell').value.trim(),
+            home_office: $('fOffice').value,
+            is_admin: $('fAdmin').checked ? 1 : 0
+        };
+        var action;
+        if (id) {
+            body.id = parseInt(id, 10);
+            action = 'update';
+        } else {
+            body.password = $('fPassword').value;
+            action = 'create';
+        }
+        $('editSave').disabled = true;
+        call(action, { body: body }).then(function (d) {
+            $('editSave').disabled = false;
+            if (!d.ok) { err.textContent = d.error || 'Save failed.'; err.className = 'notice error show'; return; }
+            USERS = d.users; offices = offices; render(USERS);
+            closeEdit();
+            notice(id ? 'Account updated.' : 'Account created.', 'ok');
+        }).catch(function () {
+            $('editSave').disabled = false;
+            err.textContent = 'Network error.'; err.className = 'notice error show';
+        });
+    }
+
+    // ---- reset password modal ----
+    function openReset(user) {
+        $('resetError').className = 'notice error';
+        $('rId').value = user.id;
+        $('rPassword').value = '';
+        $('resetWho').textContent = (user.name || user.account_id);
+        $('resetOverlay').classList.add('open');
+    }
+    function closeReset() { $('resetOverlay').classList.remove('open'); }
+
+    function saveReset() {
+        var err = $('resetError');
+        err.className = 'notice error';
+        var body = { id: parseInt($('rId').value, 10), password: $('rPassword').value };
+        $('resetSave').disabled = true;
+        call('reset-password', { body: body }).then(function (d) {
+            $('resetSave').disabled = false;
+            if (!d.ok) { err.textContent = d.error || 'Reset failed.'; err.className = 'notice error show'; return; }
+            USERS = d.users; render(USERS);
+            closeReset();
+            notice('Password reset.', 'ok');
+        }).catch(function () {
+            $('resetSave').disabled = false;
+            err.textContent = 'Network error.'; err.className = 'notice error show';
+        });
+    }
+
+    function toggle(id, active) {
+        call('toggle', { body: { id: parseInt(id, 10), active: active ? 0 : 1 } }).then(function (d) {
+            if (!d.ok) { notice(d.error || 'Update failed.'); return; }
+            USERS = d.users; render(USERS);
+            notice(active ? 'Account disabled.' : 'Account enabled.', 'ok');
+        });
+    }
+
+    function del(id) {
+        var u = findUser(id);
+        if (!confirm('Delete account "' + (u ? (u.account_id) : id) + '"? This is permanent.')) { return; }
+        call('delete', { query: 'id=' + id }).then(function (d) {
+            if (!d.ok) { notice(d.error || 'Delete failed.'); return; }
+            USERS = d.users; render(USERS);
+            notice('Account deleted.', 'ok');
+        });
+    }
+
+    // ---- wiring ----
+    $('btnNew').addEventListener('click', function () { openEdit(null); });
+    $('editClose').addEventListener('click', closeEdit);
+    $('editCancel').addEventListener('click', closeEdit);
+    $('editSave').addEventListener('click', saveEdit);
+    $('resetClose').addEventListener('click', closeReset);
+    $('resetCancel').addEventListener('click', closeReset);
+    $('resetSave').addEventListener('click', saveReset);
+    $('editOverlay').addEventListener('click', function (e) { if (e.target === this) { closeEdit(); } });
+    $('resetOverlay').addEventListener('click', function (e) { if (e.target === this) { closeReset(); } });
+
+    $('userRows').addEventListener('click', function (e) {
+        var t = e.target;
+        if (t.dataset.edit) { openEdit(findUser(t.dataset.edit)); }
+        else if (t.dataset.reset) { openReset(findUser(t.dataset.reset)); }
+        else if (t.dataset.toggle) { toggle(t.dataset.toggle, parseInt(t.dataset.active, 10) === 1); }
+        else if (t.dataset.del) { del(t.dataset.del); }
+    });
+
+    load();
+})();
+</script>
+</body>
+</html>
