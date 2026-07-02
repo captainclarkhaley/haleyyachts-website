@@ -47,8 +47,8 @@ $FIELD_META = array(
         'type'  => 'email',
     ),
     'pocket_notify_to' => array(
-        'label' => 'Pocket Listings notification recipient',
-        'hint'  => 'GO-LIVE SWITCH. New-listing and expiry-reminder emails from Pocket Listings go here. Right now it points to the single test inbox - changing this address is how you widen the audience or go live. One email address for now.',
+        'label' => 'Pocket Listings notification recipient (single address)',
+        'hint'  => 'Every Pocket Listings new-listing and expiry-reminder email is sent to this ONE address. It does not fan out to the whole network on its own. To reach all brokers, set this to an OWYG broker distribution-list address (one address that forwards to the group). Left blank, it falls back to the built-in test inbox, NOT the network. Go live by swapping the test inbox for the real list address.',
         'type'  => 'email',
     ),
     'doc_admin_email' => array(
