@@ -198,6 +198,30 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         .bs-dropdown button:hover { background: var(--bg); }
         .bs-dropdown .bs-menu-profile { border-bottom: 1px solid var(--hair); }
         .bs-dropdown .bs-menu-logout { color: var(--logout-red); }
+        /* Admin section inside the account dropdown (admin only). A labeled
+           group of links to the Broker Suite admin pages, set off from the
+           personal-account items above it by a top border + a small caption. */
+        .bs-dropdown .bs-menu-admin-head {
+            padding: 10px 16px 4px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            border-top: 1px solid var(--hair);
+            background: var(--card);
+        }
+        .bs-dropdown a.bs-menu-link {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            font-family: inherit;
+            font-size: 13.5px;
+            text-decoration: none;
+            color: var(--ink);
+        }
+        .bs-dropdown a.bs-menu-link:hover { background: var(--bg); }
 
         /* ----- Main ----- */
         .bs-main {
@@ -503,6 +527,18 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         <div class="bs-dropdown" id="accountDropdown" role="menu">
             <button type="button" class="bs-menu-profile" id="menuProfile" role="menuitem">Profile</button>
             <button type="button" class="bs-menu-logout" id="menuLogout" role="menuitem">Logout</button>
+            <?php if ($isAdmin): ?>
+            <!--
+                ADMIN section. Server-side gated on $isAdmin: a non-admin never
+                receives this markup at all (not merely hidden with CSS), and the
+                admin pages themselves re-gate via admin/admin-guard.php.
+                Phase 2a ships one item (Settings). Staff Accounts and Predefined
+                Lists land in 2b / 2c - add them here as sibling bs-menu-link
+                anchors when built.
+            -->
+            <div class="bs-menu-admin-head">Admin</div>
+            <a class="bs-menu-link" href="admin/settings.php" role="menuitem">Settings</a>
+            <?php endif; ?>
         </div>
     </div>
 </header>
