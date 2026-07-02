@@ -707,6 +707,8 @@ if (!function_exists('vdb_connect')) {
                 filename      TEXT NOT NULL,
                 original_name TEXT NOT NULL DEFAULT '',
                 purpose       TEXT NOT NULL DEFAULT '',
+                description   TEXT NOT NULL DEFAULT '',
+                provided_by   TEXT NOT NULL DEFAULT 'vendor',
                 expires_at    TEXT NULL,
                 reminded_10d  INTEGER NOT NULL DEFAULT 0,
                 reminded_exp  INTEGER NOT NULL DEFAULT 0,
@@ -717,6 +719,22 @@ if (!function_exists('vdb_connect')) {
         ");
 
         $pdo->exec('CREATE INDEX IF NOT EXISTS idx_docs_vendor ON vendor_documents(vendor_id)');
+
+        // ---- Additive columns for an already-existing table (idempotent) ----
+        // On a live server the vendor_documents table may predate these two
+        // columns, and CREATE TABLE IF NOT EXISTS never adds a column to an
+        // existing table. Each is guarded by vdb_column_exists and ALTERed in only
+        // when missing. No data is dropped or rewritten:
+        //   description  - optional short note (<= 50 chars), back-fills to ''.
+        //   provided_by  - direction of the policy, 'vendor' (vendor provides it to
+        //                  us) or 'us' (we provide it to the vendor). Existing rows
+        //                  back-fill to 'vendor', preserving today's behavior.
+        if (!vdb_column_exists($pdo, 'vendor_documents', 'description')) {
+            $pdo->exec("ALTER TABLE vendor_documents ADD COLUMN description TEXT NOT NULL DEFAULT ''");
+        }
+        if (!vdb_column_exists($pdo, 'vendor_documents', 'provided_by')) {
+            $pdo->exec("ALTER TABLE vendor_documents ADD COLUMN provided_by TEXT NOT NULL DEFAULT 'vendor'");
+        }
     }
 
     /**

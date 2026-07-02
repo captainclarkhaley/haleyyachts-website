@@ -1015,9 +1015,16 @@
                 ? '<span class="vdb-doc-expiry">Expires ' + formatDate(d.expires_at) + '</span>'
                 : '<span class="vdb-doc-expiry none">No expiration</span>';
             var dl = 'api/doc-download.php?id=' + encodeURIComponent(d.id);
+            var dir = (d.provided_by === 'us')
+                ? '<span class="vdb-doc-dir ours">Our policy</span>'
+                : '<span class="vdb-doc-dir vendor">Vendor policy</span>';
+            var desc = d.description
+                ? '<div class="vdb-doc-desc">' + esc(d.description) + '</div>'
+                : '';
             html += '<div class="vdb-doc-entry">' +
                 '<div class="vdb-doc-main">' +
-                    '<div class="vdb-doc-purpose">' + esc(d.purpose) + ' ' + docBadge(d.status) + '</div>' +
+                    '<div class="vdb-doc-purpose">' + esc(d.purpose) + ' ' + docBadge(d.status) + ' ' + dir + '</div>' +
+                    desc +
                     '<div class="vdb-doc-file">' + esc(d.original_name || 'document') + '</div>' +
                     expiry +
                 '</div>' +
@@ -1061,6 +1068,20 @@
             '</div>' +
             '<div class="vdb-doc-uprow">' +
                 '<div>' +
+                    '<label for="docProvidedBy">Provided by</label>' +
+                    '<select id="docProvidedBy">' +
+                        '<option value="vendor" selected>Vendor provides to us</option>' +
+                        '<option value="us">We provide to the vendor</option>' +
+                    '</select>' +
+                '</div>' +
+                '<div>' +
+                    '<label for="docDescription">Description</label>' +
+                    '<input type="text" id="docDescription" maxlength="50" placeholder="Short note (optional)">' +
+                    '<div class="vdb-doc-hint">Optional, 50 characters max</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="vdb-doc-uprow">' +
+                '<div>' +
                     '<label for="docFile">File (PDF or image, max ' + DOC_MAX_MB + ' MB)</label>' +
                     '<input type="file" id="docFile" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp">' +
                 '</div>' +
@@ -1086,8 +1107,11 @@
         var fileInput = $('docFile');
         var purpose = $('docPurpose') ? $('docPurpose').value : '';
         var expires = $('docExpires') ? $('docExpires').value : '';
+        var description = $('docDescription') ? $('docDescription').value.trim() : '';
+        var providedBy = $('docProvidedBy') ? $('docProvidedBy').value : 'vendor';
 
         if (!purpose) { docUploadError('Choose a purpose.'); return; }
+        if (description.length > 50) { docUploadError('Description is too long (50 characters max).'); return; }
         if (!fileInput || !fileInput.files || !fileInput.files.length) {
             docUploadError('Choose a file to upload.');
             return;
@@ -1101,6 +1125,8 @@
         var fd = new FormData();
         fd.append('vendor_id', String(detailVendorId));
         fd.append('purpose', purpose);
+        fd.append('description', description || '');
+        fd.append('provided_by', providedBy || 'vendor');
         fd.append('expires_at', expires || '');
         fd.append('file', file);
 

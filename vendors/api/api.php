@@ -1037,7 +1037,7 @@ function doc_list(PDO $pdo)
         fail('Missing vendor_id.');
     }
     $stmt = $pdo->prepare('
-        SELECT id, purpose, expires_at, original_name, created_at
+        SELECT id, purpose, description, provided_by, expires_at, original_name, created_at
         FROM vendor_documents
         WHERE vendor_id = ?
         ORDER BY created_at DESC, id DESC
@@ -1050,6 +1050,8 @@ function doc_list(PDO $pdo)
         $out[] = array(
             'id'            => (int) $row['id'],
             'purpose'       => $row['purpose'],
+            'description'   => isset($row['description']) ? (string) $row['description'] : '',
+            'provided_by'   => doc_normalize_provided_by(isset($row['provided_by']) ? $row['provided_by'] : 'vendor'),
             'expires_at'    => $row['expires_at'],
             'original_name' => $row['original_name'],
             'created_at'    => $row['created_at'],
@@ -1081,9 +1083,12 @@ function doc_upload(PDO $pdo, array $authUser)
         fail('The upload is larger than the server allows. Use a smaller file, then try again.', 413);
     }
 
-    $vendorId = isset($_POST['vendor_id']) ? (int) $_POST['vendor_id'] : 0;
-    $purpose  = isset($_POST['purpose']) ? trim((string) $_POST['purpose']) : '';
-    $expires  = doc_valid_date(isset($_POST['expires_at']) ? $_POST['expires_at'] : '');
+    $vendorId    = isset($_POST['vendor_id']) ? (int) $_POST['vendor_id'] : 0;
+    $purpose     = isset($_POST['purpose']) ? trim((string) $_POST['purpose']) : '';
+    $description = isset($_POST['description']) ? trim((string) $_POST['description']) : '';
+    // Whitelist the direction to exactly 'vendor' or 'us'; anything else -> 'vendor'.
+    $providedBy  = doc_normalize_provided_by(isset($_POST['provided_by']) ? $_POST['provided_by'] : 'vendor');
+    $expires     = doc_valid_date(isset($_POST['expires_at']) ? $_POST['expires_at'] : '');
 
     if ($vendorId <= 0) {
         fail('Missing vendor_id.');
@@ -1098,6 +1103,10 @@ function doc_upload(PDO $pdo, array $authUser)
     }
     if (mb_strlen($purpose) > 60) {
         fail('Purpose is too long (60 characters max).');
+    }
+    // Description is optional but capped at 50 characters.
+    if (mb_strlen($description) > 50) {
+        fail('Description is too long (50 characters max).');
     }
     // An expires_at that was supplied but did not parse is a client error.
     if (isset($_POST['expires_at']) && trim((string) $_POST['expires_at']) !== '' && $expires === null) {
@@ -1128,11 +1137,11 @@ function doc_upload(PDO $pdo, array $authUser)
 
     $ins = $pdo->prepare('
         INSERT INTO vendor_documents
-            (vendor_id, filename, original_name, purpose, expires_at, uploaded_by)
-        VALUES (?, ?, ?, ?, ?, ?)
+            (vendor_id, filename, original_name, purpose, description, provided_by, expires_at, uploaded_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ');
     try {
-        $ins->execute(array($vendorId, $storedName, $originalName, $purpose, $expires, $uploadedBy));
+        $ins->execute(array($vendorId, $storedName, $originalName, $purpose, $description, $providedBy, $expires, $uploadedBy));
     } catch (Throwable $e) {
         // Roll back the just-written file so we never orphan bytes on disk.
         $path = docs_dir() . '/' . $storedName;
@@ -1146,12 +1155,24 @@ function doc_upload(PDO $pdo, array $authUser)
         'document' => array(
             'id'            => $id,
             'purpose'       => $purpose,
+            'description'   => $description,
+            'provided_by'   => $providedBy,
             'expires_at'    => $expires,
             'original_name' => $originalName,
             'created_at'    => gmdate('Y-m-d H:i:s'),
             'status'        => doc_status($expires),
         ),
     ));
+}
+
+/**
+ * Whitelist the document direction. Only 'vendor' (the vendor provides this policy
+ * to us) or 'us' (we provide this policy to the vendor) are valid; anything else
+ * falls back to 'vendor' so existing/unknown values stay vendor-provided.
+ */
+function doc_normalize_provided_by($raw)
+{
+    return ((string) $raw === 'us') ? 'us' : 'vendor';
 }
 
 /**

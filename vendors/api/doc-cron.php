@@ -13,15 +13,26 @@
  *   Expiry takes priority. A flag is set ONLY after the send actually succeeded,
  *   so a transient mail failure simply retries on the next daily run.
  *
- * RECIPIENT: the vendor's PRIMARY email - the vendors.email column if set, else
- * the primary contact's email, else the first contact's email. If none exists we
- * cannot remind, so the row is skipped and logged.
+ * DIRECTION (provided_by): each document is either provided BY THE VENDOR to us
+ * ('vendor', the default and original behavior) or provided BY US to the vendor
+ * ('us'). The cadence + flags (reminded_10d / reminded_exp) are identical for both;
+ * only the recipient and message differ.
  *
- * MAIL: To = vendor primary email. CC = admin@OWYG.com. Reply-To = admin@OWYG.com.
- * From address = default (no-reply@haleyyachts.com). From NAME = "Admin at One
- * Water Yacht Group". The body asks the vendor to email an updated document to
- * admin@OWYG.com. Every value is HTML-escaped in the HTML body; header values are
- * CR/LF-stripped before they touch a header.
+ * RECIPIENT + MAIL by direction:
+ *   - 'vendor': To = the vendor's PRIMARY email (vendors.email if set, else the
+ *     primary contact's email, else the first contact's email). CC = admin@OWYG.com.
+ *     Reply-To = admin@OWYG.com. From NAME = "Admin at One Water Yacht Group". The
+ *     body asks the vendor to email an updated document to admin@OWYG.com. If the
+ *     vendor has NO resolvable email we cannot remind, so the row is skipped and
+ *     logged (flags stay unset so a later address addition still reminds).
+ *   - 'us': the audience is INTERNAL. To = admin@OWYG.com (the vendor is NOT
+ *     emailed). No CC. Reply-To = admin@OWYG.com. From NAME = "Admin at One Water
+ *     Yacht Group". The body tells us OUR policy for that vendor is expiring/expired
+ *     and to upload the renewed policy under that vendor's documents. There is always
+ *     a recipient, so this case never skips for a missing vendor email.
+ *
+ * From address = default (no-reply@haleyyachts.com). Every value is HTML-escaped in
+ * the HTML body; header values are CR/LF-stripped before they touch a header.
  *
  * TIME: everything is UTC. expires_at is a plain YYYY-MM-DD date; we compare it
  * against gmdate('Y-m-d H:i:s').
@@ -122,17 +133,90 @@ function doc_cron_vendor_name(PDO $pdo, $vendorId)
 }
 
 /**
+ * Whitelist the stored direction to 'vendor' or 'us' (anything else -> 'vendor'),
+ * so a bad/legacy value can never route an email the wrong way.
+ */
+function doc_cron_provided_by(array $row)
+{
+    $v = isset($row['provided_by']) ? (string) $row['provided_by'] : 'vendor';
+    return ($v === 'us') ? 'us' : 'vendor';
+}
+
+/**
  * Build + send one reminder for a document row. $mode is 'expired' or 'expiring'.
- * Returns the boolean mail_smtp_send result (never throws). To = vendor primary
- * email; CC + Reply-To = admin; From name = "Admin at One Water Yacht Group";
- * From address = default (no-reply).
+ * Branches on the document direction:
+ *   - 'vendor' (default): To = vendor primary email ($toEmail); CC + Reply-To =
+ *     admin; asks the VENDOR to send us an updated document.
+ *   - 'us': To = admin@OWYG.com (internal); no CC; Reply-To = admin; tells US that
+ *     OUR policy for this vendor is expiring/expired and to upload the renewal.
+ * Both use From name "Admin at One Water Yacht Group" and the default (no-reply)
+ * From address. The document description is included in both variants when present.
+ * Every value is HTML-escaped in the HTML body and CR/LF-stripped in headers.
+ * Returns the boolean mail_smtp_send result (never throws).
  */
 function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
 {
-    $purpose    = (string) $row['purpose'];
-    $expiryDate = doc_cron_format_date($row['expires_at']);
-    $expired    = ($mode === 'expired');
+    $purpose     = (string) $row['purpose'];
+    $description = isset($row['description']) ? trim((string) $row['description']) : '';
+    $expiryDate  = doc_cron_format_date($row['expires_at']);
+    $expired     = ($mode === 'expired');
+    $direction   = doc_cron_provided_by($row);
+    $docId       = isset($row['id']) ? (int) $row['id'] : 0;
 
+    if ($direction === 'us') {
+        // ---- INTERNAL variant: WE provide this policy to the vendor. ----
+        $subject = doc_cron_header_safe(
+            ($expired ? 'Our policy expired: ' : 'Our policy expiring: ')
+            . $vendorName . ' - ' . $purpose
+        );
+
+        $lead = $expired
+            ? ('The policy we provide to ' . $vendorName . ' for ' . $purpose . ' has expired'
+                . ($expiryDate !== '' ? ' (expired ' . $expiryDate . ')' : '') . '.')
+            : ('The policy we provide to ' . $vendorName . ' for ' . $purpose . ' is expiring soon'
+                . ($expiryDate !== '' ? ' (expires ' . $expiryDate . ')' : '') . '.');
+
+        $text = array();
+        $text[] = $expired ? 'OUR POLICY EXPIRED' : 'OUR POLICY EXPIRING';
+        $text[] = '';
+        $text[] = $lead;
+        $text[] = 'Vendor: ' . $vendorName;
+        $text[] = 'Document: ' . $purpose;
+        if ($description !== '') {
+            $text[] = 'Note: ' . $description;
+        }
+        if ($expiryDate !== '') {
+            $text[] = ($expired ? 'Expired on: ' : 'Expires on: ') . $expiryDate;
+        }
+        $text[] = '';
+        $text[] = 'Please upload the renewed policy under this vendor\'s documents so our records stay current.';
+        $text[] = '';
+        $text[] = 'Admin at One Water Yacht Group';
+        $textBody = implode("\r\n", $text);
+
+        $htmlBody = doc_cron_html_body_us(
+            $expired,
+            doc_cron_h($vendorName),
+            doc_cron_h($purpose),
+            doc_cron_h($description),
+            doc_cron_h($expiryDate)
+        );
+
+        $to = doc_cron_header_safe($toEmail); // = admin@OWYG.com from the caller
+        return mail_smtp_send(
+            $to,
+            $subject,
+            $textBody,
+            $htmlBody,
+            'vendor-doc-expiry:doc-' . $docId,
+            DOC_CRON_ADMIN_EMAIL,   // Reply-To: admin@OWYG.com
+            '',                     // From address: default (no-reply@haleyyachts.com)
+            '',                     // CC: none (internal)
+            DOC_CRON_FROM_NAME      // From NAME: Admin at One Water Yacht Group
+        );
+    }
+
+    // ---- VENDOR variant (unchanged behavior): the vendor provides this to us. ----
     $subject = doc_cron_header_safe(
         ($expired ? 'Document expired: ' : 'Document expiring: ')
         . $vendorName . ' - ' . $purpose
@@ -150,6 +234,9 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
     $text[] = '';
     $text[] = $lead;
     $text[] = 'Document: ' . $purpose;
+    if ($description !== '') {
+        $text[] = 'Note: ' . $description;
+    }
     if ($expiryDate !== '') {
         $text[] = ($expired ? 'Expired on: ' : 'Expires on: ') . $expiryDate;
     }
@@ -165,12 +252,12 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
         $expired,
         doc_cron_h($vendorName),
         doc_cron_h($purpose),
+        doc_cron_h($description),
         doc_cron_h($expiryDate),
         doc_cron_h(DOC_CRON_ADMIN_EMAIL)
     );
 
     $to = doc_cron_header_safe($toEmail);
-    $docId = isset($row['id']) ? (int) $row['id'] : 0;
 
     return mail_smtp_send(
         $to,
@@ -189,12 +276,15 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode)
  * Short co-branded HTML body. All values arrive ALREADY escaped from the caller.
  * Same navy-masthead / cyan-keyline tone as the pocket reminders.
  */
-function doc_cron_html_body($expired, $eVendor, $ePurpose, $eExpiryDate, $eAdminEmail)
+function doc_cron_html_body($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $eAdminEmail)
 {
     $heading = $expired ? 'Document Expired' : 'Document Expiring';
     $lead = $expired
         ? ('A document we have on file for <strong>' . $eVendor . '</strong> has expired.')
         : ('A document we have on file for <strong>' . $eVendor . '</strong> is expiring soon.');
+    $descRow = ($eDescription !== '')
+        ? '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:14px; line-height:20px; color:#5b7a96; margin:0 0 4px 0;">' . $eDescription . '</p>'
+        : '';
     $dateLabel = $expired ? 'Expired on' : 'Expires on';
     $dateRow = ($eExpiryDate !== '')
         ? '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:14px; line-height:20px; color:#5b7a96; margin:0 0 4px 0;">' . $dateLabel . ' ' . $eExpiryDate . '</p>'
@@ -227,9 +317,76 @@ $heading . '</p>' .
 '<tr><td bgcolor="#ffffff" style="background-color:#ffffff; padding:28px 40px 8px 40px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:16px; line-height:24px; color:#0a1628; margin:0 0 14px 0;">' . $lead . '</p>' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:15px; line-height:22px; color:#0a1628; font-weight:700; margin:0 0 4px 0;">Document: ' . $ePurpose . '</p>' .
+$descRow .
 $dateRow .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:15px; line-height:22px; color:#0a1628; margin:18px 0 0 0;">Please send an updated document to ' .
 '<a href="mailto:' . $eAdminEmail . '" style="color:#134a6e; font-weight:700; text-decoration:none;">' . $eAdminEmail . '</a> so we can keep our records current.</p>' .
+'</td></tr>' .
+
+// Footer
+'<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
+'<img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0;">' .
+'&copy; 2026 Haley Yachts &nbsp;|&nbsp; One Water Yacht Group &nbsp;|&nbsp; Palm Beach Gardens, Florida</p>' .
+'</td></tr>' .
+
+'</table>' .
+'</td></tr></table>' .
+'</body></html>';
+}
+
+/**
+ * INTERNAL variant of the HTML body, for a policy WE provide to the vendor
+ * (provided_by = 'us'). Same co-branded shell; the copy is aimed at us, not the
+ * vendor, and it asks us to upload the renewal under the vendor's documents. All
+ * values arrive ALREADY escaped from the caller.
+ */
+function doc_cron_html_body_us($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate)
+{
+    $heading = $expired ? 'Our Policy Expired' : 'Our Policy Expiring';
+    $lead = $expired
+        ? ('The policy we provide to <strong>' . $eVendor . '</strong> for ' . $ePurpose . ' has expired.')
+        : ('The policy we provide to <strong>' . $eVendor . '</strong> for ' . $ePurpose . ' is expiring soon.');
+    $descRow = ($eDescription !== '')
+        ? '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:14px; line-height:20px; color:#5b7a96; margin:0 0 4px 0;">' . $eDescription . '</p>'
+        : '';
+    $dateLabel = $expired ? 'Expired on' : 'Expires on';
+    $dateRow = ($eExpiryDate !== '')
+        ? '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:14px; line-height:20px; color:#5b7a96; margin:0 0 4px 0;">' . $dateLabel . ' ' . $eExpiryDate . '</p>'
+        : '';
+
+    return '<!DOCTYPE html>' .
+'<html lang="en"><head><meta charset="UTF-8" />' .
+'<meta name="viewport" content="width=device-width, initial-scale=1" />' .
+'<title>' . $heading . '</title></head>' .
+'<body style="margin:0; padding:0; width:100%; background-color:#f4f6f8;" bgcolor="#f4f6f8">' .
+
+'<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#f4f6f8" style="background-color:#f4f6f8;">' .
+'<tr><td align="center" style="padding:24px 12px;">' .
+
+'<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="width:600px; max-width:600px; background-color:#ffffff;" bgcolor="#ffffff">' .
+
+// Masthead
+'<tr><td align="center" valign="middle" bgcolor="#0d2847" ' .
+'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
+$heading . '</p>' .
+'<img src="https://haleyyachts.com/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
+'</td></tr>' .
+
+// Cyan keyline
+'<tr><td bgcolor="#21cbea" height="3" style="background-color:#21cbea; height:3px; line-height:3px; font-size:0; padding:0;">&nbsp;</td></tr>' .
+
+// Body
+'<tr><td bgcolor="#ffffff" style="background-color:#ffffff; padding:28px 40px 8px 40px;">' .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:16px; line-height:24px; color:#0a1628; margin:0 0 14px 0;">' . $lead . '</p>' .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:15px; line-height:22px; color:#0a1628; font-weight:700; margin:0 0 4px 0;">Vendor: ' . $eVendor . '</p>' .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:15px; line-height:22px; color:#0a1628; font-weight:700; margin:0 0 4px 0;">Document: ' . $ePurpose . '</p>' .
+$descRow .
+$dateRow .
+'<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:15px; line-height:22px; color:#0a1628; margin:18px 0 0 0;">Please upload the renewed policy under this vendor\'s documents so our records stay current.</p>' .
 '</td></tr>' .
 
 // Footer
@@ -305,13 +462,22 @@ foreach ($rows as $row) {
             continue;
         }
 
-        $vendorId = (int) $row['vendor_id'];
-        $toEmail  = doc_cron_vendor_email($pdo, $vendorId);
-        if ($toEmail === '') {
-            // Cannot remind without an address. Log + skip; flags stay unset so a
-            // later address addition still gets a reminder.
-            error_log('doc-cron: no email for vendor ' . $vendorId . ' (document ' . $id . '); skipped.');
-            continue;
+        $vendorId  = (int) $row['vendor_id'];
+        $direction = doc_cron_provided_by($row);
+
+        if ($direction === 'us') {
+            // WE provide this policy: the audience is internal, so admin@OWYG.com is
+            // always the recipient. This case never skips for a missing vendor email.
+            $toEmail = DOC_CRON_ADMIN_EMAIL;
+        } else {
+            // The vendor provides this to us: email the vendor's primary address.
+            $toEmail = doc_cron_vendor_email($pdo, $vendorId);
+            if ($toEmail === '') {
+                // Cannot remind without an address. Log + skip; flags stay unset so a
+                // later address addition still gets a reminder.
+                error_log('doc-cron: no email for vendor ' . $vendorId . ' (document ' . $id . '); skipped.');
+                continue;
+            }
         }
         $vendorName = doc_cron_vendor_name($pdo, $vendorId);
 
