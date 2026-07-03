@@ -80,6 +80,9 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     // Product-first branding for the footer (config-driven).
     $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
     $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+    // Config-driven logo (ABSOLUTE URL for email) + company contact block.
+    $logoAbs      = suite_logo_abs($pdo);
+    $contactLines = suite_contact_lines($pdo);
 
     // --- title: "Year Make Model", omitting any missing part ---
     $year  = (isset($row['year'])  && $row['year']  !== null && $row['year']  !== '') ? (string) $row['year']  : '';
@@ -136,14 +139,22 @@ function pocket_cron_send_reminder(PDO $pdo, array $row, $daysLeft, $expiresAt)
     $text[] = $suiteUrl;
     $text[] = '';
     $text[] = '(Reminder sent to the test inbox during rollout.)';
+    // Config-driven company contact block (signature). Omitted when unset.
+    if (!empty($contactLines)) {
+        $text[] = '';
+        foreach ($contactLines as $cl) { $text[] = $cl; }
+    }
     $textBody = implode("\r\n", $text);
 
     // --- HTML body (co-branded, short; every value escaped with p_h) ---
     // $siteBase is threaded in for the masthead/footer banner image URLs.
+    // $logoAbs / $contactLines carry the config-driven logo + footer contact.
+    $eContact = array();
+    foreach ($contactLines as $cl) { $eContact[] = p_h($cl); }
     $htmlBody = pocket_cron_html_body(
         p_h($title), p_h($expiryDate), p_h($nWord),
         p_h($priceDisplay), p_h($brokerName), p_h($suiteUrl), p_h($siteBase),
-        p_h($brandName), p_h($tenantName)
+        p_h($brandName), p_h($tenantName), p_h($logoAbs), $eContact
     );
 
     $listingId = isset($row['id']) ? (int) $row['id'] : 0;
@@ -182,8 +193,19 @@ function pocket_cron_format_date($raw)
  * mailer.php's notification, but trimmed to a single "expiring" card.
  */
 function pocket_cron_html_body($eTitle, $eExpiryDate, $eNWord, $ePrice, $eBrokerName, $eSuite, $eSiteBase,
-    $eBrand = 'Yacht Broker Support', $eTenant = 'One Water Yacht Group')
+    $eBrand = 'Yacht Broker Support', $eTenant = 'One Water Yacht Group',
+    $eLogoAbs = '', $eContactLines = array())
 {
+    // Config-driven logo (absolute, pre-escaped). Fall back to the OWYG banner.
+    $eLogoSrc = ($eLogoAbs !== '') ? $eLogoAbs : ($eSiteBase . '/images/email/owyg-banner-reverse.png');
+    // Config-driven company contact block for the footer (values pre-escaped).
+    $eContactFooter = '';
+    if (!empty($eContactLines)) {
+        $eContactFooter =
+            '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
+            implode(' &nbsp;&middot;&nbsp; ', $eContactLines) . '</p>';
+    }
+
     $priceRow = ($ePrice !== '')
         ? '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:18px; line-height:24px; color:#0a1628; font-weight:700; margin:0 0 14px 0;">' . $ePrice . '</p>'
         : '';
@@ -207,7 +229,7 @@ function pocket_cron_html_body($eTitle, $eExpiryDate, $eNWord, $ePrice, $eBroker
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 'Pocket Listing Expiring</p>' .
-'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eLogoSrc . '" width="200" height="52" alt="' . $eTenant . '" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#9fb8cf; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:14px 0 0 0; text-align:center;">Off-Market &middot; OWYG Broker Network</p>' .
 '</td></tr>' .
@@ -232,8 +254,9 @@ $brokerRow .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
-'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eLogoSrc . '" width="200" height="52" alt="' . $eTenant . '" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
+$eContactFooter .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
 '&copy; 2026 ' . $eBrand . ' &nbsp;&middot;&nbsp; ' . $eTenant . '</p>' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.7); margin:0;">' .

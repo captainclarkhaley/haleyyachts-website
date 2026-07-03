@@ -24,6 +24,9 @@
 // Shared authenticated-SMTP sender + config loader. Both Yacht Broker Support mailers
 // route through this so there is one transport and one secrets file.
 require_once __DIR__ . '/../mail-smtp.php';
+// Config-driven branding (logo URL + company contact block). Guarded by
+// function_exists inside, so a double include from the caller is harmless.
+require_once __DIR__ . '/../api/branding.php';
 
 if (!function_exists('pocket_notify_new_listing')) {
 
@@ -81,6 +84,10 @@ if (!function_exists('pocket_notify_new_listing')) {
             // Product-first branding for titles/footers (config-driven).
             $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
             $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+            // Config-driven logo (ABSOLUTE URL - mail clients cannot resolve a
+            // site-relative path) and the company contact block for the footer.
+            $logoAbs      = suite_logo_abs($pdo);
+            $contactLines = suite_contact_lines($pdo);
 
             // --- resolve the LISTING broker's contact (name, email, cell) ---
             // pocket_shape does NOT carry the broker email, so query users
@@ -186,12 +193,14 @@ if (!function_exists('pocket_notify_new_listing')) {
             // banner image URLs (email clients need absolute URLs).
             $textBody = p_build_text_body(
                 $title, $length, $location, $year, $priceDisplay,
-                $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $suiteUrl
+                $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $suiteUrl,
+                $contactLines
             );
             $htmlBody = p_build_html_body(
                 $title, $length, $location, $year, $priceDisplay,
                 $description, $brokerName, $brokerPhoneFmt, $brokerEmail,
-                $heroAbs, $moreAbs, $suiteUrl, $siteBase, $brandName, $tenantName
+                $heroAbs, $moreAbs, $suiteUrl, $siteBase, $brandName, $tenantName,
+                $logoAbs, $contactLines
             );
 
             // --- send via the shared authenticated-SMTP sender ---
@@ -286,7 +295,8 @@ if (!function_exists('pocket_notify_new_listing')) {
      * literal text.
      */
     function p_build_text_body($title, $length, $location, $year, $priceDisplay,
-        $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $suiteUrl)
+        $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $suiteUrl,
+        $contactLines = array())
     {
         $lines = array();
         $lines[] = 'NEW POCKET LISTING';
@@ -318,6 +328,12 @@ if (!function_exists('pocket_notify_new_listing')) {
         $lines[] = 'For a customer friendly version of this listing, click below:';
         $lines[] = 'View Pocket Listings: ' . $suiteUrl;
 
+        // Config-driven company contact block (signature). Omitted when unset.
+        if (!empty($contactLines)) {
+            $lines[] = '';
+            foreach ($contactLines as $cl) { $lines[] = $cl; }
+        }
+
         return implode("\r\n", $lines);
     }
 
@@ -329,13 +345,30 @@ if (!function_exists('pocket_notify_new_listing')) {
      */
     function p_build_html_body($title, $length, $location, $year, $priceDisplay,
         $description, $brokerName, $brokerPhoneFmt, $brokerEmail, $heroAbs, $moreAbs, $suiteUrl, $siteBase,
-        $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group')
+        $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group',
+        $logoAbs = '', $contactLines = array())
     {
         $eTitle = p_h($title);
         $ePrice = p_h($priceDisplay);
         $eBrokerName = p_h($brokerName);
         $eBrand  = p_h($brandName);
         $eTenant = p_h($tenantName);
+
+        // Config-driven logo (absolute URL). Fall back to the OWYG banner so an
+        // un-branded instance sends exactly as before.
+        $logoSrc = ($logoAbs !== '') ? $logoAbs : (p_h($siteBase) . '/images/email/owyg-banner-reverse.png');
+        $eLogoSrc = p_h($logoSrc);
+
+        // Config-driven company contact block for the footer (name/address/
+        // phone/email). Empty when nothing is set, so the footer is unchanged.
+        $contactFooter = '';
+        if (!empty($contactLines)) {
+            $safe = array();
+            foreach ($contactLines as $cl) { $safe[] = p_h($cl); }
+            $contactFooter =
+                '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
+                implode(' &nbsp;&middot;&nbsp; ', $safe) . '</p>';
+        }
 
         // Specs line (escaped, joined with a subtle separator).
         $specParts = array();
@@ -429,7 +462,7 @@ if (!function_exists('pocket_notify_new_listing')) {
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 'New Pocket Listing</p>' .
-'<img src="' . p_h($siteBase) . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eLogoSrc . '" width="200" height="52" alt="' . $eTenant . '" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:11px; line-height:16px; color:#9fb8cf; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:14px 0 0 0; text-align:center;">Off-Market &middot; OWYG Broker Network</p>' .
 '</td></tr>' .
@@ -471,8 +504,9 @@ $contactRows .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
-'<img src="' . p_h($siteBase) . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eLogoSrc . '" width="200" height="52" alt="' . $eTenant . '" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
+$contactFooter .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
 '&copy; 2026 ' . $eBrand . ' &nbsp;&middot;&nbsp; ' . $eTenant . '</p>' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.7); margin:0;">' .

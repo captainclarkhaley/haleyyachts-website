@@ -55,13 +55,16 @@ if (empty($_SERVER['DOCUMENT_ROOT'])) {
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 require_once __DIR__ . '/../mail-smtp.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
 
-// Reminder branding. DOC_CRON_FROM_NAME is a FIXED contextual label (not an
-// environment value), so it stays a constant. The admin email + the absolute
-// site base are now DB-backed suite_settings (Phase 1): they are read ONCE in
-// MAIN after vdb_connect (each with its original hardcoded literal as fallback)
-// and threaded through, so a bad row can never change routing mid-run and a
-// missing/blank setting behaves identically to today.
+// Reminder branding. The From NAME is now config-driven: doc_cron_send builds
+// "Admin at <tenant_name>" from settings, so it follows the tenant's identity.
+// DOC_CRON_FROM_NAME is retained only as the OWYG fallback label. The admin
+// email, absolute site base, brand/tenant names, logo, and company contact
+// block are all DB-backed suite_settings (each with its original hardcoded
+// literal as the fallback), read ONCE in MAIN after vdb_connect and threaded
+// through, so a bad/blank row can never change routing mid-run and a missing
+// setting behaves identically to today.
 define('DOC_CRON_FROM_NAME',   'Admin at One Water Yacht Group');
 
 /** HTML-escape a value for safe inclusion in the HTML body. */
@@ -163,7 +166,8 @@ function doc_cron_provided_by(array $row)
  * mid-run. Both carry their original hardcoded literal as the fallback default.
  */
 function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase,
-    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group')
+    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group',
+    $logoAbs = '', $contactLines = array())
 {
     $purpose     = (string) $row['purpose'];
     $description = isset($row['description']) ? trim((string) $row['description']) : '';
@@ -171,6 +175,13 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
     $expired     = ($mode === 'expired');
     $direction   = doc_cron_provided_by($row);
     $docId       = isset($row['id']) ? (int) $row['id'] : 0;
+
+    // Config-driven From name + text signature (were hardcoded to OWYG). Falls
+    // back to the OWYG label when tenant_name is the default.
+    $fromName = 'Admin at ' . $tenantName;
+    // Pre-escaped contact block for the HTML builders.
+    $eContact = array();
+    foreach ($contactLines as $cl) { $eContact[] = doc_cron_h($cl); }
 
     if ($direction === 'us') {
         // ---- INTERNAL variant: WE provide this policy to the vendor. ----
@@ -200,7 +211,10 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
         $text[] = '';
         $text[] = 'Please upload the renewed policy under this vendor\'s documents so our records stay current.';
         $text[] = '';
-        $text[] = 'Admin at One Water Yacht Group';
+        $text[] = $fromName;
+        if (!empty($contactLines)) {
+            foreach ($contactLines as $cl) { $text[] = $cl; }
+        }
         $textBody = implode("\r\n", $text);
 
         $htmlBody = doc_cron_html_body_us(
@@ -211,7 +225,9 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
             doc_cron_h($expiryDate),
             $siteBase,
             $brandName,
-            $tenantName
+            $tenantName,
+            doc_cron_h($logoAbs),
+            $eContact
         );
 
         $to = doc_cron_header_safe($toEmail); // = the admin email from the caller
@@ -224,7 +240,7 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
             $adminEmail,            // Reply-To: admin email
             '',                     // From address: default (no-reply@owyg.yachtbrokersupport.com)
             '',                     // CC: none (internal)
-            DOC_CRON_FROM_NAME      // From NAME: Admin at One Water Yacht Group
+            $fromName               // From NAME: Admin at <tenant>
         );
     }
 
@@ -256,7 +272,10 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
     $text[] = 'Please send an updated document to ' . $adminEmail . ' so we can keep our records current.';
     $text[] = '';
     $text[] = 'Thank you,';
-    $text[] = 'Admin at One Water Yacht Group';
+    $text[] = $fromName;
+    if (!empty($contactLines)) {
+        foreach ($contactLines as $cl) { $text[] = $cl; }
+    }
     $textBody = implode("\r\n", $text);
 
     // --- HTML body (every value escaped) ---
@@ -269,7 +288,9 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
         doc_cron_h($adminEmail),
         $siteBase,
         $brandName,
-        $tenantName
+        $tenantName,
+        doc_cron_h($logoAbs),
+        $eContact
     );
 
     $to = doc_cron_header_safe($toEmail);
@@ -283,7 +304,7 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
         $adminEmail,            // Reply-To: admin email
         '',                     // From address: default (no-reply@owyg.yachtbrokersupport.com)
         $adminEmail,            // CC: admin email
-        DOC_CRON_FROM_NAME      // From NAME: Admin at One Water Yacht Group
+        $fromName               // From NAME: Admin at <tenant>
     );
 }
 
@@ -292,11 +313,20 @@ function doc_cron_send(PDO $pdo, array $row, $toEmail, $vendorName, $mode, $admi
  * Same navy-masthead / cyan-keyline tone as the pocket reminders.
  */
 function doc_cron_html_body($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $eAdminEmail, $siteBase,
-    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group')
+    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group',
+    $eLogoAbs = '', $eContactLines = array())
 {
     $eSiteBase = doc_cron_h($siteBase);
     $eBrand    = doc_cron_h($brandName);
     $eTenant   = doc_cron_h($tenantName);
+    // Config-driven logo (absolute, pre-escaped) + footer contact block.
+    $eLogoSrc = ($eLogoAbs !== '') ? $eLogoAbs : ($eSiteBase . '/images/email/owyg-banner-reverse.png');
+    $eContactFooter = '';
+    if (!empty($eContactLines)) {
+        $eContactFooter =
+            '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
+            implode(' &nbsp;&middot;&nbsp; ', $eContactLines) . '</p>';
+    }
     $heading = $expired ? 'Document Expired' : 'Document Expiring';
     $lead = $expired
         ? ('A document we have on file for <strong>' . $eVendor . '</strong> has expired.')
@@ -325,7 +355,7 @@ function doc_cron_html_body($expired, $eVendor, $ePurpose, $eDescription, $eExpi
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 $heading . '</p>' .
-'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eLogoSrc . '" width="200" height="52" alt="' . $eTenant . '" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
 '</td></tr>' .
 
@@ -344,8 +374,9 @@ $dateRow .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
-'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eLogoSrc . '" width="200" height="52" alt="' . $eTenant . '" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
+$eContactFooter .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0;">' .
 '&copy; 2026 ' . $eBrand . ' &nbsp;&middot;&nbsp; ' . $eTenant . '</p>' .
 '</td></tr>' .
@@ -362,11 +393,20 @@ $dateRow .
  * values arrive ALREADY escaped from the caller.
  */
 function doc_cron_html_body_us($expired, $eVendor, $ePurpose, $eDescription, $eExpiryDate, $siteBase,
-    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group')
+    $brandName = 'Yacht Broker Support', $tenantName = 'One Water Yacht Group',
+    $eLogoAbs = '', $eContactLines = array())
 {
     $eSiteBase = doc_cron_h($siteBase);
     $eBrand    = doc_cron_h($brandName);
     $eTenant   = doc_cron_h($tenantName);
+    // Config-driven logo (absolute, pre-escaped) + footer contact block.
+    $eLogoSrc = ($eLogoAbs !== '') ? $eLogoAbs : ($eSiteBase . '/images/email/owyg-banner-reverse.png');
+    $eContactFooter = '';
+    if (!empty($eContactLines)) {
+        $eContactFooter =
+            '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0 0 8px 0;">' .
+            implode(' &nbsp;&middot;&nbsp; ', $eContactLines) . '</p>';
+    }
     $heading = $expired ? 'Our Policy Expired' : 'Our Policy Expiring';
     $lead = $expired
         ? ('The policy we provide to <strong>' . $eVendor . '</strong> for ' . $ePurpose . ' has expired.')
@@ -395,7 +435,7 @@ function doc_cron_html_body_us($expired, $eVendor, $ePurpose, $eDescription, $eE
 'style="background-color:#0d2847; background-image: linear-gradient(135deg, #0a1628 0%, #0d2847 50%, #134a6e 100%); padding:30px 32px;">' .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; color:#e8eef5; font-weight:600; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px 0; text-align:center;">' .
 $heading . '</p>' .
-'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eLogoSrc . '" width="200" height="52" alt="' . $eTenant . '" ' .
 'style="display:block; width:200px; max-width:200px; height:auto; border:0; outline:none; margin:0 auto;" />' .
 '</td></tr>' .
 
@@ -414,8 +454,9 @@ $dateRow .
 
 // Footer
 '<tr><td bgcolor="#070e1a" style="background-color:#070e1a; padding:30px 32px 26px 32px;" align="center">' .
-'<img src="' . $eSiteBase . '/images/email/owyg-banner-reverse.png" width="200" height="52" alt="One Water Yacht Group" ' .
+'<img src="' . $eLogoSrc . '" width="200" height="52" alt="' . $eTenant . '" ' .
 'style="display:block; width:200px; max-width:200px; height:52px; border:0; outline:none; margin:0 auto 16px auto;" />' .
+$eContactFooter .
 '<p style="font-family:\'Open Sans\', Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:rgba(255,255,255,0.55); margin:0;">' .
 '&copy; 2026 ' . $eBrand . ' &nbsp;&middot;&nbsp; ' . $eTenant . '</p>' .
 '</td></tr>' .
@@ -450,6 +491,10 @@ $siteBase   = suite_setting($pdo, 'site_base_url', 'https://owyg.yachtbrokersupp
 // Product-first branding for the email footers (config-driven).
 $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
 $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+// Config-driven logo (ABSOLUTE URL for email) + company contact block, read
+// once for the whole run and threaded through the sender/builders.
+$logoAbs      = suite_logo_abs($pdo);
+$contactLines = suite_contact_lines($pdo);
 
 $now   = gmdate('Y-m-d H:i:s');
 $nowTs = strtotime($now . ' UTC');
@@ -515,7 +560,7 @@ foreach ($rows as $row) {
         }
         $vendorName = doc_cron_vendor_name($pdo, $vendorId);
 
-        $ok = doc_cron_send($pdo, $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase, $brandName, $tenantName);
+        $ok = doc_cron_send($pdo, $row, $toEmail, $vendorName, $mode, $adminEmail, $siteBase, $brandName, $tenantName, $logoAbs, $contactLines);
         if ($ok) {
             if ($mode === 'expired') {
                 $pdo->prepare('UPDATE vendor_documents SET reminded_exp = 1 WHERE id = ?')->execute(array($id));
