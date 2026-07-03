@@ -1,0 +1,15 @@
+---
+deployment:
+  tasks:
+    # Deploy the Yacht Broker Support suite (vendors/) into a web-served
+    # folder with correct permissions. The git checkout in ~/repositories
+    # is created with a locked-down umask that Apache can't read, so we copy
+    # the suite into ~/public_html/owyg and normalize permissions on every
+    # deploy (dirs 755, files 644). Uploaded data (sqlite, docs, images,
+    # mail-secrets.php) lives in the deploy target and is NOT in the repo,
+    # so cp never clobbers it and it survives redeploys.
+    - export DEPLOYPATH="$HOME/public_html/owyg"
+    - /bin/mkdir -p "$DEPLOYPATH"
+    - /bin/cp -R vendors/. "$DEPLOYPATH/"
+    - /bin/find "$DEPLOYPATH" -type d -exec /bin/chmod 755 {} +
+    - /bin/find "$DEPLOYPATH" -type f -exec /bin/chmod 644 {} +
