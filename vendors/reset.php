@@ -1,0 +1,207 @@
+<?php
+/**
+ * reset.php - complete a forgot-password reset from an emailed link
+ * (config-driven / white-label).
+ *
+ * Replaces the old static reset.html. Server-rendered so identity, logo,
+ * favicon, and colors come from suite_settings (branding.php), each falling back
+ * to today's OWYG value. Reached logged-OUT via the emailed link
+ * (reset.php?token=...), so it is NOT behind the auth gate. The old reset.html
+ * is kept as a thin redirect shim that PRESERVES the ?token= query string, so
+ * any reset email sent before this rename still works.
+ *
+ * The token is read client-side from the query string (unchanged), and the
+ * reset POST goes to auth.php?action=reset exactly as before.
+ */
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
+
+$pdo = vdb_connect();
+
+$brandName   = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName  = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$loginTitle  = suite_setting($pdo, 'login_title', $brandName);
+$logoUrl     = suite_logo_url($pdo);
+$faviconUrl  = suite_favicon_url($pdo);
+
+$h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - <?php echo $h($brandName); ?></title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="<?php echo $h($faviconUrl); ?>" sizes="any">
+    <style>
+        :root { --navy:#0a1628; --cyan:#21cbea; --cyan-d:#1aa8c4; --ink:#333; --muted:#666; --line:#e5e5e5; --canvas:#f4f6f8; --danger:#c0392b; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: var(--canvas); margin: 0; color: var(--ink); line-height: 1.6;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 40px 20px;
+        }
+        .auth-card {
+            width: 100%; max-width: 420px; background: #fff;
+            border-radius: 8px; overflow: hidden; box-shadow: 0 6px 28px rgba(0,0,0,0.10);
+        }
+        .auth-head { background: var(--navy); color: #fff; text-align: center; padding: 32px 36px 26px; }
+        .auth-logo { display: block; height: 42px; width: auto; max-width: 80%; margin: 0 auto 12px; }
+        /* Primary product wordmark (typographic), tenant banner demoted to a small
+           secondary tenant mark beneath. */
+        .auth-wordmark { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 0 auto 10px; }
+        .auth-wordmark .auth-wm-name {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.75rem; line-height: 1; font-weight: 600; letter-spacing: 0.5px; color: #fff;
+        }
+        .auth-wordmark .auth-wm-tenant { display: block; height: 22px; width: auto; opacity: 0.82; }
+        .auth-head h1 {
+            font-size: 1.25rem; font-weight: 300; text-transform: uppercase;
+            letter-spacing: 2.5px; margin: 0;
+        }
+        .auth-head h1 strong { font-weight: 700; color: var(--cyan); }
+        .auth-head .accent-line { width: 50px; height: 3px; background: var(--cyan); margin: 12px auto 12px; }
+        .auth-head p { margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.72); font-style: italic; }
+        .auth-body { padding: 30px 36px 34px; }
+        label {
+            display: block; font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1.2px; color: var(--muted); margin-bottom: 6px;
+        }
+        input[type="password"] {
+            width: 100%; font-family: inherit; font-size: 0.95rem; color: var(--ink);
+            border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; background: #fff;
+        }
+        input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(33,203,234,0.18); }
+        .field { margin-bottom: 18px; }
+        .hint { font-size: 0.76rem; color: var(--muted); margin: -10px 0 18px; }
+        .btn {
+            font-family: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            border: 1px solid transparent; border-radius: 4px; padding: 11px 16px;
+            text-transform: uppercase; letter-spacing: 0.6px; width: 100%;
+        }
+        .btn-primary { background: var(--cyan); color: #fff; }
+        .btn-primary:hover { background: var(--cyan-d); }
+        .btn-primary:disabled { opacity: 0.6; cursor: default; }
+        .notice { padding: 10px 14px; border-radius: 4px; font-size: 0.84rem; margin-bottom: 18px; display: none; }
+        .notice.show { display: block; }
+        .notice.error { background: #fdecea; border-left: 4px solid var(--danger); color: #7a241c; }
+        .notice.ok { background: #e8f7ea; border-left: 4px solid #1b6e2e; color: #1b5e2a; }
+        .link-row { text-align: center; margin-top: 18px; font-size: 0.84rem; }
+        .link-row a { color: var(--cyan-d); text-decoration: none; }
+        .link-row a:hover { text-decoration: underline; }
+    </style>
+    <?php suite_theme_head($pdo); // config-driven :root color override, must follow the page style block ?>
+</head>
+<body>
+
+<div class="auth-card">
+    <div class="auth-head">
+        <div class="auth-wordmark">
+            <span class="auth-wm-name"><?php echo $h($loginTitle); ?></span>
+            <img class="auth-wm-tenant" src="<?php echo $h($logoUrl); ?>" alt="<?php echo $h($tenantName); ?>">
+        </div>
+        <div class="accent-line"></div>
+        <p><?php echo $h($brandName); ?> - set a new password</p>
+    </div>
+    <div class="auth-body">
+
+        <div class="notice error" id="notice"></div>
+        <div class="notice ok" id="okNotice"></div>
+
+        <form id="resetForm" autocomplete="on">
+            <div class="field">
+                <label for="pw1">New Password</label>
+                <input type="password" id="pw1" name="new-password" autocomplete="new-password">
+            </div>
+            <div class="hint">At least 8 characters.</div>
+            <div class="field">
+                <label for="pw2">Confirm New Password</label>
+                <input type="password" id="pw2" name="new-password" autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary" id="btnReset">Set New Password</button>
+        </form>
+
+        <div class="link-row">
+            <a href="login.php">&larr; Back to sign in</a>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    function $(id) { return document.getElementById(id); }
+
+    var notice = $('notice');
+    var okNotice = $('okNotice');
+
+    function showError(msg) {
+        okNotice.className = 'notice ok';
+        notice.textContent = msg;
+        notice.className = 'notice error show';
+    }
+    function showOk(msg) {
+        notice.className = 'notice error';
+        okNotice.textContent = msg;
+        okNotice.className = 'notice ok show';
+    }
+
+    // Pull the raw token out of the query string.
+    function getToken() {
+        var m = window.location.search.match(/[?&]token=([^&]+)/);
+        return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    var token = getToken();
+    if (!token) {
+        showError('This reset link is missing its token. Request a new link from the sign-in page.');
+        $('resetForm').style.display = 'none';
+    }
+
+    $('resetForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        notice.className = 'notice error';
+        okNotice.className = 'notice ok';
+
+        var pw1 = $('pw1').value;
+        var pw2 = $('pw2').value;
+        if (pw1.length < 8) {
+            showError('Password must be at least 8 characters.');
+            return;
+        }
+        if (pw1 !== pw2) {
+            showError('The two passwords do not match.');
+            return;
+        }
+
+        $('btnReset').disabled = true;
+        fetch('auth.php?action=reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ token: token, password: pw1 })
+        }).then(function (res) {
+            return res.text().then(function (t) {
+                var d;
+                try { d = t ? JSON.parse(t) : {}; } catch (e2) { d = { ok: false, error: 'Bad server response.' }; }
+                return d;
+            });
+        }).then(function (d) {
+            $('btnReset').disabled = false;
+            if (!d.ok) {
+                showError(d.error || 'Could not reset password.');
+                return;
+            }
+            $('resetForm').style.display = 'none';
+            showOk((d.message || 'Your password has been reset.') + ' You can now sign in.');
+        }).catch(function () {
+            $('btnReset').disabled = false;
+            showError('Network error. Try again.');
+        });
+    });
+})();
+</script>
+</body>
+</html>

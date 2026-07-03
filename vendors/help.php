@@ -3,8 +3,8 @@
  * help.php - in-app Help / user manual for the staff Vendor app.
  *
  * Login-gated behind the SAME server-side auth gate as index.php: an
- * unauthenticated visitor is redirected to login.html BEFORE any markup, and a
- * user who still owes a forced password change is sent to change-password.html.
+ * unauthenticated visitor is redirected to login.php BEFORE any markup, and a
+ * user who still owes a forced password change is sent to change-password.php.
  *
  * This page is the LIVING user manual. The source draft lives at
  * docs/vendor-app-manual.md (blocked from the public site); future copy edits can
@@ -18,14 +18,14 @@ start_secure_session();
 $pdo = vdb_connect();
 $gateUser = current_user($pdo);
 if ($gateUser === null) {
-    header('Location: login.html');
+    header('Location: login.php');
     exit;
 }
 // Forced first-login password change: an account flagged must_change_password
 // (new account or admin reset) cannot reach the app until it sets its own
 // password. Redirect BEFORE any markup, exactly as index.php does.
 if ((int) $gateUser['must_change_password'] === 1) {
-    header('Location: change-password.html');
+    header('Location: change-password.php');
     exit;
 }
 

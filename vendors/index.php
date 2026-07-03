@@ -15,14 +15,14 @@ start_secure_session();
 $pdo = vdb_connect();
 $gateUser = current_user($pdo);
 if ($gateUser === null) {
-    header('Location: login.html');
+    header('Location: login.php');
     exit;
 }
 // Forced first-login password change: an account flagged must_change_password
 // (new account or admin reset) cannot reach the app until it sets its own
 // password. Redirect BEFORE any markup. The API enforces the same independently.
 if ((int) $gateUser['must_change_password'] === 1) {
-    header('Location: change-password.html');
+    header('Location: change-password.php');
     exit;
 }
 

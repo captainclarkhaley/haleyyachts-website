@@ -20,14 +20,15 @@
 # Privacy tool. Do NOT hand-edit it. Re-running Directory Privacy
 # regenerates it.
 #
-# CUTOVER NOTE: the in-app login (login.html, auth.php, reset.html) now gates
+# CUTOVER NOTE: the in-app login (login.php, auth.php, reset.php) now gates
 # this area at the application layer. The app page (index.php) redirects
-# unauthenticated visitors to login.html server-side, and the data API
+# unauthenticated visitors to login.php server-side, and the data API
 # (api/api.php) returns 401 to anyone without a session. Once you remove the
 # cPanel Directory Privacy realm from /vendors/ (the documented final step in
-# README-SETUP.md), login.html / auth.php / reset.html become publicly
-# reachable ON PURPOSE - they have to be, so a logged-out user can sign in or
-# reset a password. Do NOT re-add a directory-wide password on top of them.
+# README-SETUP.md), login.php / auth.php / reset.php (and the legacy .html
+# redirect shims) become publicly reachable ON PURPOSE - they have to be, so a
+# logged-out user can sign in or reset a password. Do NOT re-add a directory-wide
+# password on top of them.
 # Until that removal, the cp:ppd block below still password-gates everything.
 # ============================================================
 

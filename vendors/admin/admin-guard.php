@@ -12,8 +12,8 @@
  *     // $pdo and $gateUser are now available; a non-admin never gets here.
  *
  * The gate, in order:
- *   1. Not logged in                  -> ../login.html
- *   2. Owes a forced password change  -> ../change-password.html
+ *   1. Not logged in                  -> ../login.php
+ *   2. Owes a forced password change  -> ../change-password.php
  *   3. Logged in but NOT an admin     -> ../suite.php
  * Only an authenticated admin who has completed any required password change
  * falls through to the page body. All redirects happen before markup, so the
@@ -39,13 +39,13 @@ $gateUser = current_user($pdo);
 
 // 1. Not authenticated -> shared /vendors/ login (one level up from /admin/).
 if ($gateUser === null) {
-    header('Location: ../login.html');
+    header('Location: ../login.php');
     exit;
 }
 
 // 2. Still owes a forced password change -> finish that first.
 if ((int) $gateUser['must_change_password'] === 1) {
-    header('Location: ../change-password.html');
+    header('Location: ../change-password.php');
     exit;
 }
 

@@ -55,7 +55,7 @@ function fail($message, $status = 400)
 }
 
 /** Block a user who still owes a forced password change. Carries must_change so
- *  the front end can redirect to change-password.html. */
+ *  the front end can redirect to change-password.php. */
 function fail_must_change()
 {
     respond(array(
@@ -102,7 +102,7 @@ try {
     // Forced-change gate (defense in depth alongside the index.php redirect): a
     // user flagged must_change_password must not pull data through the API until
     // they set their own password. The 403 carries must_change so the front end
-    // can route them to change-password.html.
+    // can route them to change-password.php.
     if ((int) $authUser['must_change_password'] === 1) {
         fail_must_change();
     }

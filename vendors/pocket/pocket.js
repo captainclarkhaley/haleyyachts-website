@@ -116,11 +116,11 @@
             if (!res.ok && data.ok !== false) { data.ok = false; }
             data._status = res.status;
             if (res.status === 401) {
-                window.location.href = '../login.html';
+                window.location.href = '../login.php';
                 return new Promise(function () {});
             }
             if (res.status === 403 && data && data.must_change) {
-                window.location.href = '../change-password.html';
+                window.location.href = '../change-password.php';
                 return new Promise(function () {});
             }
             return data;
@@ -175,7 +175,7 @@
             xhr.onload = function () {
                 var status = xhr.status;
                 if (status === 401) {
-                    window.location.href = '../login.html';
+                    window.location.href = '../login.php';
                     return; // leave the promise pending; navigation takes over
                 }
                 var data;
@@ -183,7 +183,7 @@
                 catch (e) { data = null; }
 
                 if (status === 403 && data && data.must_change) {
-                    window.location.href = '../change-password.html';
+                    window.location.href = '../change-password.php';
                     return;
                 }
                 if (data === null) {

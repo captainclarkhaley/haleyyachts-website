@@ -154,7 +154,7 @@
             // authenticated.") on the way out.
             if (res.status === 401) {
                 sessionEnding = true;
-                window.location.href = 'login.html';
+                window.location.href = 'login.php';
                 return new Promise(function () {});
             }
             // Forced first-login password change: the API returns 403 with
@@ -162,7 +162,7 @@
             // the chain. (The server-side index.php redirect is the primary gate.)
             if (res.status === 403 && data && data.must_change) {
                 sessionEnding = true;
-                window.location.href = 'change-password.html';
+                window.location.href = 'change-password.php';
                 return new Promise(function () {});
             }
             return data;
@@ -183,7 +183,7 @@
     function loadUserBar() {
         fetch('auth.php?action=me', { headers: { 'Accept': 'application/json' } })
             .then(function (res) {
-                if (res.status === 401) { window.location.href = 'login.html'; return null; }
+                if (res.status === 401) { window.location.href = 'login.php'; return null; }
                 return res.json();
             })
             .then(function (data) {
@@ -206,9 +206,9 @@
             method: 'POST',
             headers: { 'Accept': 'application/json' }
         }).then(function () {
-            window.location.href = 'login.html';
+            window.location.href = 'login.php';
         }).catch(function () {
-            window.location.href = 'login.html';
+            window.location.href = 'login.php';
         });
     }
 
@@ -273,7 +273,7 @@
         if (sessionEnding) { return; }
         sessionEnding = true;
         if (idleCheckTimer) { clearInterval(idleCheckTimer); idleCheckTimer = null; }
-        logout(); // clears the server session and redirects to login.html
+        logout(); // clears the server session and redirects to login.php
     }
 
     // Wall-clock idle check, run every second AND whenever the tab regains focus.
@@ -353,7 +353,7 @@
                 try { data = t ? JSON.parse(t) : {}; } catch (e) { data = { ok: false, error: 'Bad server response.' }; }
                 if (!res.ok && data.ok !== false) { data.ok = false; }
                 data._status = res.status;
-                if (res.status === 401) { window.location.href = 'login.html'; }
+                if (res.status === 401) { window.location.href = 'login.php'; }
                 return data;
             });
         });
@@ -391,7 +391,7 @@
         // Always pull fresh from the server so the form reflects the saved state.
         fetch('auth.php?action=me', { headers: { 'Accept': 'application/json' } })
             .then(function (res) {
-                if (res.status === 401) { window.location.href = 'login.html'; return null; }
+                if (res.status === 401) { window.location.href = 'login.php'; return null; }
                 return res.json();
             })
             .then(function (data) {

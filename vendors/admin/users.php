@@ -318,7 +318,7 @@ require_once __DIR__ . '/admin-guard.php';
                 var d;
                 try { d = t ? JSON.parse(t) : {}; } catch (e) { d = { ok: false, error: 'Bad server response.' }; }
                 d._status = res.status;
-                if (res.status === 401) { window.location.href = '../login.html'; }
+                if (res.status === 401) { window.location.href = '../login.php'; }
                 return d;
             });
         });

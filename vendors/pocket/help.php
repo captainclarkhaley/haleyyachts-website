@@ -5,7 +5,7 @@
  * Login-gated behind the SAME server-side auth gate as pocket/index.php: an
  * unauthenticated visitor is redirected to the shared /vendors/ login BEFORE any
  * markup, and a user who still owes a forced password change is sent to
- * change-password.html. Both live one level up in /vendors/.
+ * change-password.php. Both live one level up in /vendors/.
  *
  * Same look, CSS, and structure as /vendors/help.php. Figures load from
  * pocket/help-img/. Every figure is guarded with file_exists so the page renders
@@ -19,11 +19,11 @@ start_secure_session();
 $pdo = vdb_connect();
 $gateUser = current_user($pdo);
 if ($gateUser === null) {
-    header('Location: ../login.html');
+    header('Location: ../login.php');
     exit;
 }
 if ((int) $gateUser['must_change_password'] === 1) {
-    header('Location: ../change-password.html');
+    header('Location: ../change-password.php');
     exit;
 }
 

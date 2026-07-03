@@ -294,7 +294,7 @@ require_once __DIR__ . '/admin-guard.php';
                 d._status = res.status;
                 // Session expired or lost: bounce to the shared /vendors/ login,
                 // mirroring the Staff Accounts page. One level up from /admin/.
-                if (res.status === 401) { window.location.href = '../login.html'; }
+                if (res.status === 401) { window.location.href = '../login.php'; }
                 return d;
             });
         });

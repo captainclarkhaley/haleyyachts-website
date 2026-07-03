@@ -1,0 +1,280 @@
+<?php
+/**
+ * login.php - staff sign-in (config-driven / white-label).
+ *
+ * Replaces the old static login.html. It is server-rendered so the product
+ * name, login title, login tagline, logo, favicon, and colors all come from
+ * suite_settings (branding.php), each falling back to today's OWYG value, so an
+ * un-branded instance looks exactly as it did before. The old login.html is kept
+ * as a thin redirect shim to this file so any stale bookmark still works.
+ *
+ * This page must be reachable while logged OUT (it is how you sign in), so it is
+ * NOT behind the auth gate. If a visitor is ALREADY signed in, we bounce them to
+ * the suite launcher rather than show the form again.
+ *
+ * The form + JS behavior is unchanged from login.html; only the identity/theme
+ * markup is now settings-driven, and post-login/redirect targets point at .php.
+ */
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
+
+start_secure_session();
+$pdo = vdb_connect();
+
+// Already signed in? Skip the form.
+$already = current_user($pdo);
+if ($already !== null) {
+    if ((int) $already['must_change_password'] === 1) {
+        header('Location: change-password.php');
+    } else {
+        header('Location: suite.php');
+    }
+    exit;
+}
+
+$brandName   = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName  = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$loginTitle  = suite_setting($pdo, 'login_title', $brandName);
+$loginTagln  = suite_setting($pdo, 'login_tagline', 'Yacht Broker Support - staff sign in');
+$logoUrl     = suite_logo_url($pdo);
+$faviconUrl  = suite_favicon_url($pdo);
+
+$h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login - <?php echo $h($brandName); ?></title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="<?php echo $h($faviconUrl); ?>" sizes="any">
+    <style>
+        :root { --navy:#0a1628; --cyan:#21cbea; --cyan-d:#1aa8c4; --ink:#333; --muted:#666; --line:#e5e5e5; --canvas:#f4f6f8; --danger:#c0392b; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: var(--canvas); margin: 0; color: var(--ink); line-height: 1.6;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 40px 20px;
+        }
+        .auth-card {
+            width: 100%; max-width: 420px; background: #fff;
+            border-radius: 8px; overflow: hidden; box-shadow: 0 6px 28px rgba(0,0,0,0.10);
+        }
+        .auth-head { background: var(--navy); color: #fff; text-align: center; padding: 32px 36px 26px; }
+        .auth-logo { display: block; height: 42px; width: auto; max-width: 80%; margin: 0 auto 12px; }
+        /* Primary product wordmark (typographic), tenant banner demoted to a small
+           secondary tenant mark beneath. */
+        .auth-wordmark { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 0 auto 10px; }
+        .auth-wordmark .auth-wm-name {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.75rem; line-height: 1; font-weight: 600; letter-spacing: 0.5px; color: #fff;
+        }
+        .auth-wordmark .auth-wm-tenant { display: block; height: 22px; width: auto; opacity: 0.82; }
+        .auth-head h1 {
+            font-size: 1.25rem; font-weight: 300; text-transform: uppercase;
+            letter-spacing: 2.5px; margin: 0;
+        }
+        .auth-head h1 strong { font-weight: 700; color: var(--cyan); }
+        .auth-head .accent-line { width: 50px; height: 3px; background: var(--cyan); margin: 12px auto 12px; }
+        .auth-head p { margin: 0; font-size: 0.84rem; color: rgba(255,255,255,0.72); font-style: italic; }
+        .auth-body { padding: 30px 36px 34px; }
+        label {
+            display: block; font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 1.2px; color: var(--muted); margin-bottom: 6px;
+        }
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%; font-family: inherit; font-size: 0.95rem; color: var(--ink);
+            border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; background: #fff;
+        }
+        input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(33,203,234,0.18); }
+        .field { margin-bottom: 18px; }
+        .btn {
+            font-family: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            border: 1px solid transparent; border-radius: 4px; padding: 11px 16px;
+            text-transform: uppercase; letter-spacing: 0.6px; width: 100%;
+        }
+        .btn-primary { background: var(--cyan); color: #fff; }
+        .btn-primary:hover { background: var(--cyan-d); }
+        .btn-primary:disabled { opacity: 0.6; cursor: default; }
+        .notice { padding: 10px 14px; border-radius: 4px; font-size: 0.84rem; margin-bottom: 18px; display: none; }
+        .notice.show { display: block; }
+        .notice.error { background: #fdecea; border-left: 4px solid var(--danger); color: #7a241c; }
+        .notice.ok { background: #e8f7ea; border-left: 4px solid #1b6e2e; color: #1b5e2a; }
+        .link-row { text-align: center; margin-top: 18px; font-size: 0.84rem; }
+        .link-row a, .text-link {
+            color: var(--cyan-d); text-decoration: none; background: none; border: none;
+            font-family: inherit; font-size: 0.84rem; cursor: pointer; padding: 0;
+        }
+        .link-row a:hover, .text-link:hover { text-decoration: underline; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .panel-title { font-size: 0.95rem; font-weight: 600; color: var(--navy); margin: 0 0 4px; }
+        .panel-sub { font-size: 0.82rem; color: var(--muted); margin: 0 0 18px; }
+        .foot-link { text-align: center; margin-top: 22px; font-size: 0.8rem; }
+        .foot-link a { color: var(--muted); text-decoration: none; }
+        .foot-link a:hover { color: var(--cyan-d); }
+    </style>
+    <?php suite_theme_head($pdo); // config-driven :root color override, must follow the page style block ?>
+</head>
+<body>
+
+<div class="auth-card">
+    <div class="auth-head">
+        <div class="auth-wordmark">
+            <span class="auth-wm-name"><?php echo $h($loginTitle); ?></span>
+            <img class="auth-wm-tenant" src="<?php echo $h($logoUrl); ?>" alt="<?php echo $h($tenantName); ?>">
+        </div>
+        <div class="accent-line"></div>
+        <p><?php echo $h($loginTagln); ?></p>
+    </div>
+    <div class="auth-body">
+
+        <div class="notice error" id="notice"></div>
+        <div class="notice ok" id="okNotice"></div>
+
+        <!-- Login panel -->
+        <div class="panel active" id="loginPanel">
+            <form id="loginForm" autocomplete="on">
+                <div class="field">
+                    <label for="accountId">Account ID</label>
+                    <input type="text" id="accountId" name="username" autocomplete="username" autofocus>
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary" id="btnLogin">Sign In</button>
+            </form>
+            <div class="link-row">
+                <button type="button" class="text-link" id="showForgot">Forgot password?</button>
+            </div>
+        </div>
+
+        <!-- Forgot-password panel -->
+        <div class="panel" id="forgotPanel">
+            <p class="panel-title">Reset your password</p>
+            <p class="panel-sub">Enter the email on your account. If it matches, we will send a reset link.</p>
+            <form id="forgotForm" autocomplete="on">
+                <div class="field">
+                    <label for="forgotEmail">Email</label>
+                    <input type="email" id="forgotEmail" name="email" autocomplete="email">
+                </div>
+                <button type="submit" class="btn btn-primary" id="btnForgot">Send Reset Link</button>
+            </form>
+            <div class="link-row">
+                <button type="button" class="text-link" id="backToLogin">&larr; Back to sign in</button>
+            </div>
+        </div>
+
+        <div class="foot-link">
+            <a href="../index.html">Return to public site</a>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    function $(id) { return document.getElementById(id); }
+
+    var notice = $('notice');
+    var okNotice = $('okNotice');
+
+    function showError(msg) {
+        okNotice.className = 'notice ok';
+        notice.textContent = msg;
+        notice.className = 'notice error show';
+    }
+    function showOk(msg) {
+        notice.className = 'notice error';
+        okNotice.textContent = msg;
+        okNotice.className = 'notice ok show';
+    }
+    function clearNotices() {
+        notice.className = 'notice error';
+        okNotice.className = 'notice ok';
+    }
+
+    function post(action, body) {
+        return fetch('auth.php?action=' + action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(body || {})
+        }).then(function (res) {
+            return res.text().then(function (t) {
+                var d;
+                try { d = t ? JSON.parse(t) : {}; } catch (e) { d = { ok: false, error: 'Bad server response.' }; }
+                d._status = res.status;
+                return d;
+            });
+        });
+    }
+
+    // Panel switching.
+    $('showForgot').addEventListener('click', function () {
+        clearNotices();
+        $('loginPanel').classList.remove('active');
+        $('forgotPanel').classList.add('active');
+        $('forgotEmail').focus();
+    });
+    $('backToLogin').addEventListener('click', function () {
+        clearNotices();
+        $('forgotPanel').classList.remove('active');
+        $('loginPanel').classList.add('active');
+        $('accountId').focus();
+    });
+
+    // Login.
+    $('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearNotices();
+        var accountId = $('accountId').value.trim();
+        var password = $('password').value;
+        if (!accountId || !password) {
+            showError('Enter your Account ID and password.');
+            return;
+        }
+        $('btnLogin').disabled = true;
+        post('login', { account_id: accountId, password: password }).then(function (d) {
+            $('btnLogin').disabled = false;
+            if (!d.ok) {
+                showError(d.error || 'Invalid credentials.');
+                return;
+            }
+            // New and admin-reset accounts must set their own password before
+            // reaching the app. index.php enforces this too; routing here avoids
+            // a redirect bounce.
+            if (d.user && d.user.must_change_password) {
+                window.location.href = 'change-password.php';
+                return;
+            }
+            // Post-login landing is the Yacht Broker Support launcher, not the vendor app.
+            window.location.href = 'suite.php';
+        }).catch(function () {
+            $('btnLogin').disabled = false;
+            showError('Network error. Try again.');
+        });
+    });
+
+    // Forgot password (anti-enumeration: server always returns the same message).
+    $('forgotForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        clearNotices();
+        var email = $('forgotEmail').value.trim();
+        $('btnForgot').disabled = true;
+        post('forgot', { email: email }).then(function (d) {
+            $('btnForgot').disabled = false;
+            showOk(d.message || 'If that email is on file, a reset link has been sent.');
+        }).catch(function () {
+            $('btnForgot').disabled = false;
+            showError('Network error. Try again.');
+        });
+    });
+})();
+</script>
+</body>
+</html>

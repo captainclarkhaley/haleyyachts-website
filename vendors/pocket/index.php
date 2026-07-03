@@ -22,12 +22,12 @@ start_secure_session();
 $pdo = vdb_connect();
 $gateUser = current_user($pdo);
 if ($gateUser === null) {
-    // login.html lives one level up in /vendors/.
-    header('Location: ../login.html');
+    // login.php lives one level up in /vendors/.
+    header('Location: ../login.php');
     exit;
 }
 if ((int) $gateUser['must_change_password'] === 1) {
-    header('Location: ../change-password.html');
+    header('Location: ../change-password.php');
     exit;
 }
 

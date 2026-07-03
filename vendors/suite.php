@@ -7,8 +7,8 @@
  * the broker open one, edit their profile, or log out.
  *
  * Login-gated behind the SAME server-side auth gate as index.php / help.php: an
- * unauthenticated visitor is redirected to login.html BEFORE any markup, and a
- * user who still owes a forced password change is sent to change-password.html.
+ * unauthenticated visitor is redirected to login.php BEFORE any markup, and a
+ * user who still owes a forced password change is sent to change-password.php.
  * The gate cannot be bypassed by disabling JavaScript.
  *
  * The session cookie is path-scoped to /vendors/, which is exactly why this file
@@ -22,11 +22,11 @@ start_secure_session();
 $pdo = vdb_connect();
 $gateUser = current_user($pdo);
 if ($gateUser === null) {
-    header('Location: login.html');
+    header('Location: login.php');
     exit;
 }
 if ((int) $gateUser['must_change_password'] === 1) {
-    header('Location: change-password.html');
+    header('Location: change-password.php');
     exit;
 }
 
@@ -819,7 +819,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
                 try { data = t ? JSON.parse(t) : {}; } catch (e) { data = { ok: false, error: 'Bad server response.' }; }
                 if (!res.ok && data.ok !== false) { data.ok = false; }
                 data._status = res.status;
-                if (res.status === 401) { window.location.href = 'login.html'; }
+                if (res.status === 401) { window.location.href = 'login.php'; }
                 return data;
             });
         });
@@ -831,9 +831,9 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             method: 'POST',
             headers: { 'Accept': 'application/json' }
         }).then(function () {
-            window.location.href = 'login.html';
+            window.location.href = 'login.php';
         }).catch(function () {
-            window.location.href = 'login.html';
+            window.location.href = 'login.php';
         });
     }
     $('menuLogout').addEventListener('click', logout);
@@ -862,7 +862,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         // Always pull fresh from the server so the form reflects saved state.
         fetch('auth.php?action=me', { headers: { 'Accept': 'application/json' } })
             .then(function (res) {
-                if (res.status === 401) { window.location.href = 'login.html'; return null; }
+                if (res.status === 401) { window.location.href = 'login.php'; return null; }
                 return res.json();
             })
             .then(function (data) {

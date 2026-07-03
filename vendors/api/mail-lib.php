@@ -51,7 +51,7 @@ if (!function_exists('vmail_login_url')) {
     {
         $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'owyg.yachtbrokersupport.com';
         $host = preg_replace('/[^A-Za-z0-9.\-:]/', '', $host);
-        return 'https://' . $host . '/login.html';
+        return 'https://' . $host . '/login.php';
     }
 
     /**
@@ -175,7 +175,7 @@ if (!function_exists('vmail_login_url')) {
     {
         $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'owyg.yachtbrokersupport.com';
         $host = preg_replace('/[^A-Za-z0-9.\-:]/', '', $host);
-        $link = 'https://' . $host . '/reset.html?token=' . $rawToken;
+        $link = 'https://' . $host . '/reset.php?token=' . $rawToken;
 
         $subject = 'OneWater Vendor App - password reset';
         $body =
