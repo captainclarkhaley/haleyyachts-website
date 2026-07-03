@@ -31,6 +31,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
 
 start_secure_session();
 $pdo      = vdb_connect();
@@ -56,8 +57,12 @@ if (!$gateIsAdmin) {
     exit;
 }
 
-// Config-driven branding (product-first), available to every admin page.
+// Config-driven branding (product-first), available to every admin page. The
+// logo/favicon are resolved here too so admin pages emit the settings-driven
+// mark and can drop suite_theme_head($pdo) in their <head>.
 $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
 $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$logoUrl    = suite_logo_url($pdo);
+$faviconUrl = suite_favicon_url($pdo);
 
 // From here down the including page runs with $pdo + $gateUser, guaranteed admin.

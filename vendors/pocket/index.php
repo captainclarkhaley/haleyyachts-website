@@ -16,6 +16,7 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
 
 start_secure_session();
 $pdo = vdb_connect();
@@ -39,6 +40,8 @@ $isAdmin = isset($gateUser['is_admin']) && (int) $gateUser['is_admin'] === 1;
 // Config-driven branding (product-first).
 $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
 $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$logoUrl    = suite_logo_url($pdo);
+$faviconUrl = suite_favicon_url($pdo);
 
 // The controlled builder list for the Make dropdowns (filter + form).
 $makes = $pdo->query('SELECT name FROM pocket_makes ORDER BY name COLLATE NOCASE')->fetchAll(PDO::FETCH_COLUMN);
@@ -53,8 +56,9 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     <title>Pocket Listings - <?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="<?php echo $h($faviconUrl); ?>" sizes="any">
     <link rel="stylesheet" href="pocket.css?v=<?php echo @filemtime(__DIR__ . '/pocket.css'); ?>">
+    <?php suite_theme_head($pdo); // config-driven :root color override, must follow the stylesheet ?>
 </head>
 <body
     data-user-id="<?php echo $h($currentUserId); ?>"
@@ -70,7 +74,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     <div class="pl-wordmark">
         <span class="pl-wm-name"><?php echo $h($brandName); ?></span>
         <span class="pl-wm-tenant">
-            <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+            <img src="<?php echo $h($logoUrl); ?>" alt="<?php echo $h($tenantName); ?>">
         </span>
     </div>
     <h1>Pocket Listings</h1>

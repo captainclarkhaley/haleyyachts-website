@@ -16,6 +16,7 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
 
 start_secure_session();
 $pdo = vdb_connect();
@@ -33,6 +34,8 @@ if ((int) $gateUser['must_change_password'] === 1) {
 // identity, with the tenant/org as the secondary mark.
 $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
 $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$logoUrl    = suite_logo_url($pdo);
+$faviconUrl = suite_favicon_url($pdo);
 
 // --- derive display values from the logged-in user (server-side) ------------
 $fullName  = trim((string) $gateUser['name']);
@@ -73,7 +76,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="<?php echo $h($faviconUrl); ?>" sizes="any">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -532,6 +535,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             .bs-form .row-2 { grid-template-columns: 1fr; }
         }
     </style>
+    <?php suite_theme_head($pdo); // config-driven :root color override, must follow the page style block ?>
 </head>
 <body>
 
@@ -541,7 +545,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         <div class="bs-wordmark">
             <span class="bs-wm-name"><?php echo $h($brandName); ?></span>
             <span class="bs-wm-tenant">
-                <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+                <img src="<?php echo $h($logoUrl); ?>" alt="<?php echo $h($tenantName); ?>">
                 <span class="bs-wm-tenant-label"><?php echo $h($tenantName); ?></span>
             </span>
         </div>
@@ -666,7 +670,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 
 <!-- ===== Footer ===== -->
 <footer class="bs-footer">
-    <span class="aff">Yacht brokerage with <strong>One Water Yacht Group</strong></span>
+    <span class="aff">Yacht brokerage with <strong><?php echo $h($tenantName); ?></strong></span>
     <span class="copy">&copy; 2026 <?php echo $h($brandName); ?> &middot; <?php echo $h($tenantName); ?></span>
 </footer>
 

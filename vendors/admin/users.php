@@ -21,7 +21,7 @@ require_once __DIR__ . '/admin-guard.php';
     <title>Staff Accounts - Admin - <?php echo htmlspecialchars((string) $brandName, ENT_QUOTES, 'UTF-8'); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="<?php echo htmlspecialchars((string) $faviconUrl, ENT_QUOTES, 'UTF-8'); ?>" sizes="any">
     <style>
         * { box-sizing: border-box; }
         body {
@@ -30,7 +30,7 @@ require_once __DIR__ . '/admin-guard.php';
         }
         .admin-container { max-width: 1000px; margin: 0 auto; }
         .admin-header {
-            background: #0a1628; color: #fff; padding: 36px 48px; border-radius: 6px 6px 0 0; text-align: center;
+            background: var(--navy, #0a1628); color: #fff; padding: 36px 48px; border-radius: 6px 6px 0 0; text-align: center;
             position: relative;
         }
         .admin-back {
@@ -38,12 +38,12 @@ require_once __DIR__ . '/admin-guard.php';
             color: #cfe9f1; text-decoration: none; font-size: 0.82rem;
             border: 1px solid rgba(255,255,255,0.22); padding: 6px 12px; border-radius: 999px;
         }
-        .admin-back:hover { border-color: #21cbea; color: #fff; }
+        .admin-back:hover { border-color: var(--cyan, #21cbea); color: #fff; }
         .admin-header h1 {
             font-size: 1.7rem; font-weight: 300; text-transform: uppercase; letter-spacing: 3px; margin: 0;
         }
-        .admin-header h1 strong { font-weight: 700; color: #21cbea; }
-        .admin-header .accent-line { width: 60px; height: 3px; background: #21cbea; margin: 12px auto 14px; }
+        .admin-header h1 strong { font-weight: 700; color: var(--cyan, #21cbea); }
+        .admin-header .accent-line { width: 60px; height: 3px; background: var(--cyan, #21cbea); margin: 12px auto 14px; }
         .admin-header p { margin: 0; font-size: 0.92rem; color: rgba(255,255,255,0.75); font-style: italic; }
         .admin-body {
             background: #fff; padding: 36px 48px; border-radius: 0 0 6px 6px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
@@ -71,10 +71,10 @@ require_once __DIR__ . '/admin-guard.php';
             border: 1px solid transparent; border-radius: 4px; padding: 8px 14px;
             text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .btn-primary { background: #21cbea; color: #fff; }
-        .btn-primary:hover { background: #1aa8c4; }
+        .btn-primary { background: var(--cyan, #21cbea); color: #fff; }
+        .btn-primary:hover { background: var(--cyan-d, #1aa8c4); }
         .btn-ghost { background: #fff; color: #666; border-color: #e5e5e5; }
-        .btn-ghost:hover { border-color: #21cbea; color: #21cbea; }
+        .btn-ghost:hover { border-color: var(--cyan, #21cbea); color: var(--cyan, #21cbea); }
         .btn-sm { font-size: 0.7rem; padding: 5px 10px; }
 
         table.users { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
@@ -108,7 +108,7 @@ require_once __DIR__ . '/admin-guard.php';
            which would otherwise stretch the checkbox full-width and push the label
            off the panel. */
         .admin-privs .admin-check input {
-            width: 17px; height: 17px; margin: 0; flex: none; accent-color: #21cbea;
+            width: 17px; height: 17px; margin: 0; flex: none; accent-color: var(--cyan, #21cbea);
         }
         .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
         .icon-btn {
@@ -116,7 +116,7 @@ require_once __DIR__ . '/admin-guard.php';
             font-size: 0.7rem; padding: 4px 9px; font-family: inherit; font-weight: 600;
             text-transform: uppercase; letter-spacing: 0.4px;
         }
-        .icon-btn:hover { border-color: #21cbea; color: #21cbea; }
+        .icon-btn:hover { border-color: var(--cyan, #21cbea); color: var(--cyan, #21cbea); }
         .icon-btn.danger:hover { border-color: #c0392b; color: #c0392b; }
         .empty { font-size: 0.85rem; color: #999; font-style: italic; padding: 14px 2px; }
 
@@ -128,7 +128,7 @@ require_once __DIR__ . '/admin-guard.php';
         .overlay.open { display: flex; }
         .modal { background: #fff; border-radius: 6px; width: 100%; max-width: 480px; box-shadow: 0 10px 40px rgba(0,0,0,0.25); }
         .modal-head {
-            background: #0a1628; color: #fff; padding: 16px 22px; border-radius: 6px 6px 0 0;
+            background: var(--navy, #0a1628); color: #fff; padding: 16px 22px; border-radius: 6px 6px 0 0;
             display: flex; justify-content: space-between; align-items: center;
         }
         .modal-head h3 { margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
@@ -145,13 +145,14 @@ require_once __DIR__ . '/admin-guard.php';
             border: 1px solid #e5e5e5; border-radius: 4px; padding: 9px 11px; background: #fff;
         }
         .field input:focus, .field select:focus {
-            outline: none; border-color: #21cbea; box-shadow: 0 0 0 2px rgba(33,203,234,0.18);
+            outline: none; border-color: var(--cyan, #21cbea); box-shadow: 0 0 0 2px rgba(33,203,234,0.18);
         }
         .field .hint { font-size: 0.74rem; color: #999; margin-top: 4px; }
         .footer-link { text-align: center; margin-top: 26px; font-size: 0.85rem; }
-        .footer-link a { color: #21cbea; text-decoration: none; }
+        .footer-link a { color: var(--cyan, #21cbea); text-decoration: none; }
         .footer-link a:hover { text-decoration: underline; }
     </style>
+    <?php suite_theme_head($pdo); // config-driven :root color override, must follow the page style block ?>
 </head>
 <body>
 

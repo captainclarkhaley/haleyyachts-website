@@ -15,6 +15,7 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
 
 start_secure_session();
 $pdo = vdb_connect();
@@ -122,8 +123,14 @@ $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $listing = ($id > 0) ? pr_load_listing($pdo, $id) : null;
 
 // Config-driven branding (product-first).
-$brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
-$tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$brandName    = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
+$tenantName   = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$logoUrl      = suite_logo_url($pdo);
+$faviconUrl   = suite_favicon_url($pdo);
+// Company contact block for the sheet footer (name, address, phone, email).
+// Blank components are omitted, so an un-branded OWYG sheet shows only what is
+// set today and never a "phone:" with nothing after it.
+$contactLines = suite_contact_lines($pdo);
 
 // A clean tab/title (Year Make Model), not a product-name suffix.
 $pageTitle = 'Listing';
@@ -149,7 +156,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
     <title><?php echo $h($pageTitle); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="<?php echo $h($faviconUrl); ?>" sizes="any">
     <style>
         :root {
             --navy:   #0a1628;
@@ -344,6 +351,13 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         .pr-caption {
             font-size: .74rem; color: var(--muted); margin: 0; text-align: center;
         }
+        /* Config-driven company contact line above the caption. Only rendered
+           when the branding contact block has any content. */
+        .pr-company {
+            font-size: .82rem; color: var(--navy); margin: 0 0 6px; text-align: center;
+            font-weight: 600;
+        }
+        .pr-company .pr-company-sep { color: var(--muted); font-weight: 400; margin: 0 6px; }
 
         /* Narrow screen: stack the two columns (print stays two-column). */
         @media screen and (max-width: 560px) {
@@ -416,6 +430,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
             @page { margin: 0; }
         }
     </style>
+    <?php suite_theme_head($pdo); // config-driven :root color override, must follow the page style block ?>
 </head>
 <body>
 
@@ -460,7 +475,7 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         <div class="pr-head">
             <div class="pr-wordmark">
                 <span class="pr-wm-name"><?php echo $h($brandName); ?></span>
-                <img class="pr-owyg" src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+                <img class="pr-owyg" src="<?php echo $h($logoUrl); ?>" alt="<?php echo $h($tenantName); ?>">
             </div>
             <div class="pr-tag">Private Listing &middot; Off-Market</div>
         </div>
@@ -536,6 +551,13 @@ $presenterEmail = isset($gateUser['email']) ? (string) $gateUser['email'] : '';
         </div>
 
         <div class="pr-footer">
+            <?php if (!empty($contactLines)): ?>
+            <p class="pr-company"><?php
+                $parts = array();
+                foreach ($contactLines as $line) { $parts[] = $h($line); }
+                echo implode('<span class="pr-company-sep">&middot;</span>', $parts);
+            ?></p>
+            <?php endif; ?>
             <p class="pr-caption">This listing is presented by <?php echo $h($presenterName); ?> of <?php echo $h($tenantName); ?>. Private, off-market - please do not distribute publicly.</p>
         </div>
     </div>

@@ -22,7 +22,7 @@ require_once __DIR__ . '/admin-guard.php';
     <title>Vendor Lists - Admin - <?php echo htmlspecialchars((string) $brandName, ENT_QUOTES, 'UTF-8'); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="<?php echo htmlspecialchars((string) $faviconUrl, ENT_QUOTES, 'UTF-8'); ?>" sizes="any">
     <style>
         * { box-sizing: border-box; }
         body {
@@ -35,7 +35,7 @@ require_once __DIR__ . '/admin-guard.php';
         }
         .admin-container { max-width: 900px; margin: 0 auto; }
         .admin-header {
-            background: #0a1628; color: #fff;
+            background: var(--navy, #0a1628); color: #fff;
             padding: 36px 48px; border-radius: 6px 6px 0 0; text-align: center;
             position: relative;
         }
@@ -44,13 +44,13 @@ require_once __DIR__ . '/admin-guard.php';
             color: #cfe9f1; text-decoration: none; font-size: 0.82rem;
             border: 1px solid rgba(255,255,255,0.22); padding: 6px 12px; border-radius: 999px;
         }
-        .admin-back:hover { border-color: #21cbea; color: #fff; }
+        .admin-back:hover { border-color: var(--cyan, #21cbea); color: #fff; }
         .admin-header h1 {
             font-size: 1.7rem; font-weight: 300; text-transform: uppercase;
             letter-spacing: 3px; margin: 0;
         }
-        .admin-header h1 strong { font-weight: 700; color: #21cbea; }
-        .admin-header .accent-line { width: 60px; height: 3px; background: #21cbea; margin: 12px auto 14px; }
+        .admin-header h1 strong { font-weight: 700; color: var(--cyan, #21cbea); }
+        .admin-header .accent-line { width: 60px; height: 3px; background: var(--cyan, #21cbea); margin: 12px auto 14px; }
         .admin-header p { margin: 0; font-size: 0.92rem; color: rgba(255,255,255,0.75); font-style: italic; }
         .admin-body {
             background: #fff; padding: 36px 48px; border-radius: 0 0 6px 6px;
@@ -70,7 +70,7 @@ require_once __DIR__ . '/admin-guard.php';
             border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden;
         }
         .list-panel h2 {
-            margin: 0; background: #0a1628; color: #fff; padding: 14px 18px;
+            margin: 0; background: var(--navy, #0a1628); color: #fff; padding: 14px 18px;
             font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
         }
         .list-body { padding: 14px 18px 18px; }
@@ -80,7 +80,7 @@ require_once __DIR__ . '/admin-guard.php';
             padding: 8px 10px; border: 1px solid #e5e5e5; border-radius: 4px;
             margin-bottom: 7px; background: #fff;
         }
-        ul.items li .name { flex: 1; font-size: 0.9rem; color: #0a1628; }
+        ul.items li .name { flex: 1; font-size: 0.9rem; color: var(--navy, #0a1628); }
         ul.items li .usage {
             font-size: 0.68rem; color: #888; background: #f0f2f5;
             border-radius: 3px; padding: 1px 7px; white-space: nowrap;
@@ -90,23 +90,23 @@ require_once __DIR__ . '/admin-guard.php';
             border-radius: 3px; cursor: pointer; font-size: 0.72rem;
             padding: 2px 7px; line-height: 1.2;
         }
-        .icon-btn:hover:not(:disabled) { border-color: #21cbea; color: #21cbea; }
+        .icon-btn:hover:not(:disabled) { border-color: var(--cyan, #21cbea); color: var(--cyan, #21cbea); }
         .icon-btn:disabled { opacity: 0.35; cursor: default; }
         .add-row { display: flex; gap: 8px; margin: 0 0 14px; }
         .add-row input {
             flex: 1; font-family: inherit; font-size: 0.88rem; padding: 8px 10px;
             border: 1px solid #e5e5e5; border-radius: 4px;
         }
-        .add-row input:focus { outline: none; border-color: #21cbea; box-shadow: 0 0 0 2px rgba(33,203,234,0.18); }
+        .add-row input:focus { outline: none; border-color: var(--cyan, #21cbea); box-shadow: 0 0 0 2px rgba(33,203,234,0.18); }
         .btn {
             font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer;
             border: 1px solid transparent; border-radius: 4px; padding: 8px 14px;
             text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .btn-primary { background: #21cbea; color: #fff; }
-        .btn-primary:hover { background: #1aa8c4; }
+        .btn-primary { background: var(--cyan, #21cbea); color: #fff; }
+        .btn-primary:hover { background: var(--cyan-d, #1aa8c4); }
         .btn-ghost { background: #fff; color: #666; border-color: #e5e5e5; }
-        .btn-ghost:hover { border-color: #21cbea; color: #21cbea; }
+        .btn-ghost:hover { border-color: var(--cyan, #21cbea); color: var(--cyan, #21cbea); }
         .btn-danger-text {
             background: none; border: none; color: #c0392b; cursor: pointer;
             font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
@@ -119,7 +119,7 @@ require_once __DIR__ . '/admin-guard.php';
         .notice.error { background: #fdecea; border-left: 4px solid #c0392b; color: #7a241c; }
         .notice.ok { background: #e8f7ea; border-left: 4px solid #1b6e2e; color: #1b5e2a; }
         .footer-link { text-align: center; margin-top: 26px; font-size: 0.85rem; }
-        .footer-link a { color: #21cbea; text-decoration: none; }
+        .footer-link a { color: var(--cyan, #21cbea); text-decoration: none; }
         .footer-link a:hover { text-decoration: underline; }
         .empty { font-size: 0.85rem; color: #999; font-style: italic; padding: 6px 2px; }
 
@@ -130,21 +130,21 @@ require_once __DIR__ . '/admin-guard.php';
             padding: 7px 10px; border: 1px solid #e5e5e5; border-radius: 4px;
             margin-bottom: 6px; background: #fff;
         }
-        ul.tree li .name { flex: 1; font-size: 0.88rem; color: #0a1628; }
+        ul.tree li .name { flex: 1; font-size: 0.88rem; color: var(--navy, #0a1628); }
         ul.tree li.depth-1 { margin-left: 18px; }
         ul.tree li.depth-2 { margin-left: 36px; }
         ul.tree li.depth-3 { margin-left: 54px; }
         ul.tree li.kind-nationwide { border-left: 3px solid #6b46c1; }
-        ul.tree li.kind-state { border-left: 3px solid #0a1628; }
-        ul.tree li.kind-region { border-left: 3px solid #21cbea; }
+        ul.tree li.kind-state { border-left: 3px solid var(--navy, #0a1628); }
+        ul.tree li.kind-region { border-left: 3px solid var(--cyan, #21cbea); }
         ul.tree li.kind-county { border-left: 3px solid #c4ccd6; }
         .kind-badge {
             font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.7px;
             font-weight: 700; border-radius: 3px; padding: 1px 6px; white-space: nowrap;
         }
         .kind-badge.nationwide { background: #efe7fb; color: #6b46c1; }
-        .kind-badge.state { background: #e6eaf0; color: #0a1628; }
-        .kind-badge.region { background: #def6fb; color: #1aa8c4; }
+        .kind-badge.state { background: #e6eaf0; color: var(--navy, #0a1628); }
+        .kind-badge.region { background: #def6fb; color: var(--cyan-d, #1aa8c4); }
         .kind-badge.county { background: #f0f2f5; color: #5a6472; }
 
         .area-add {
@@ -161,7 +161,7 @@ require_once __DIR__ . '/admin-guard.php';
             border: 1px solid #e5e5e5; border-radius: 4px; background: #fff;
         }
         .area-add input:focus, .area-add select:focus {
-            outline: none; border-color: #21cbea; box-shadow: 0 0 0 2px rgba(33,203,234,0.18);
+            outline: none; border-color: var(--cyan, #21cbea); box-shadow: 0 0 0 2px rgba(33,203,234,0.18);
         }
         .area-add .area-add-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
@@ -169,15 +169,16 @@ require_once __DIR__ . '/admin-guard.php';
             margin-top: 24px; border: 1px solid #e5e5e5; border-radius: 6px; overflow: hidden;
         }
         .audit-panel h2 {
-            margin: 0; background: #0a1628; color: #fff; padding: 14px 18px;
+            margin: 0; background: var(--navy, #0a1628); color: #fff; padding: 14px 18px;
             font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
         }
         .audit-body { padding: 14px 18px 18px; }
-        .audit-summary { font-size: 0.9rem; color: #0a1628; margin-bottom: 10px; }
+        .audit-summary { font-size: 0.9rem; color: var(--navy, #0a1628); margin-bottom: 10px; }
         .audit-summary strong { color: #c0392b; }
         ul.audit-list { list-style: none; margin: 0; padding: 0; column-gap: 24px; }
         ul.audit-list li { font-size: 0.86rem; color: #333; padding: 3px 0; }
     </style>
+    <?php suite_theme_head($pdo); // config-driven :root color override, must follow the page style block ?>
 </head>
 <body>
 

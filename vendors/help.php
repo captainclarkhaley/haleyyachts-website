@@ -12,6 +12,7 @@
  */
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
 
 start_secure_session();
 $pdo = vdb_connect();
@@ -31,6 +32,8 @@ if ((int) $gateUser['must_change_password'] === 1) {
 // Config-driven branding (product-first).
 $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
 $tenantName = suite_setting($pdo, 'tenant_name', 'One Water Yacht Group');
+$logoUrl    = suite_logo_url($pdo);
+$faviconUrl = suite_favicon_url($pdo);
 $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
 ?>
 <!DOCTYPE html>
@@ -41,7 +44,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     <title>Vendor Database Help - <?php echo $h($brandName); ?></title>
     <meta name="robots" content="noindex, nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="<?php echo $h($faviconUrl); ?>" sizes="any">
     <style>
         :root {
             --navy:#0a1628; --cyan:#21cbea; --cyan-d:#1aa8c4;
@@ -200,13 +203,14 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             .help-card h2 { font-size: 1.15rem; }
         }
     </style>
+    <?php suite_theme_head($pdo); // config-driven :root color override, must follow the page style block ?>
 </head>
 <body>
 
 <header class="help-header">
     <div class="help-wordmark">
         <span class="help-wm-name"><?php echo $h($brandName); ?></span>
-        <img src="/images/email/owyg-banner-reverse.png" alt="<?php echo $h($tenantName); ?>">
+        <img src="<?php echo $h($logoUrl); ?>" alt="<?php echo $h($tenantName); ?>">
     </div>
     <h1>Vendor Database <strong>Help</strong></h1>
     <div class="accent-line"></div>
