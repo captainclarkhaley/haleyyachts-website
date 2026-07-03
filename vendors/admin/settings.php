@@ -1,60 +1,161 @@
 <?php
 /**
- * admin/settings.php - Yacht Broker Support Settings editor (Phase 2a).
+ * admin/settings.php - Yacht Broker Support Settings editor.
  *
- * View + edit the four non-secret suite_settings values from Phase 1
- * (site_base_url, mail_from_address, pocket_notify_to, doc_admin_email). These
- * are the environment / rollout knobs read at call time by the Pocket mailer,
- * the Pocket cron, and the vendor-document cron, each with the old hardcoded
- * literal as a fallback - so a blank value here can never break a send.
+ * Two concerns on one admin-gated screen:
+ *   1. ENVIRONMENT (Phase 1/2a): the non-secret rollout knobs (site_base_url,
+ *      mail_from_address, pocket_notify_to, doc_admin_email) read at call time by
+ *      the mailers/crons, each with the old hardcoded literal as a fallback.
+ *   2. BRANDING (white-label phase): identity (brand/tenant/login copy), colors
+ *      (emitted as CSS custom properties by branding.php), the company contact
+ *      block (used on print sheets, email footers, and page footers), and the
+ *      uploaded logo / footer logo / favicon.
+ *
+ * Every branding value is seeded in db.php with today's OWYG value, so a blank
+ * row falls back to the current look and nothing changes for OWYG.
  *
  * SECURITY MODEL
  *   - Page + POST are gated by admin-guard.php: authenticated, password-current,
- *     is_admin === 1. A non-admin is redirected before any output and can never
- *     reach the save handler. The POST branch RE-CHECKS is_admin as defense in
- *     depth.
- *   - Only the four KNOWN keys are writable. The handler ignores any other
- *     field, so no arbitrary suite_settings key can be created from this form.
- *   - SMTP secrets are NOT in suite_settings and are never read, shown, or
- *     touched here - they live only in the untracked mail-secrets.php.
- *   - CSRF: a per-session token is issued and required on POST. Combined with the
- *     SameSite=Lax session cookie and the admin gate, this is a same-origin,
- *     admin-only write. (The rest of the suite relies on SameSite=Lax alone for
- *     its JSON POSTs; the token here is an added belt-and-suspenders for a
- *     browser form POST.)
+ *     is_admin === 1. The POST branch RE-CHECKS is_admin as defense in depth.
+ *   - Only the KNOWN keys are writable (a strict whitelist). Any other field is
+ *     ignored, so no arbitrary suite_settings key can be created from this form.
+ *   - Uploads are validated by ACTUAL image content (getimagesize), stored under
+ *     a random name in the gitignored uploads/branding dir, and only the
+ *     resulting site-relative path is written to settings.
+ *   - SMTP secrets are NOT in suite_settings and are never shown or touched here.
+ *   - CSRF: a per-session token is required on POST.
  *   - Every value is escaped with htmlspecialchars on output.
  */
 
 require_once __DIR__ . '/admin-guard.php';
-// $pdo and $gateUser are now in scope, and $gateUser is guaranteed admin.
+// $pdo, $gateUser (admin), $brandName, $tenantName, $logoUrl, $faviconUrl in scope.
 
 // ---------------------------------------------------------------------------
-// The only keys this page is allowed to read or write. Anything not in this
-// whitelist is ignored on save - no arbitrary suite_settings key can be added.
-// The order here is the order the fields render.
+// Text/URL/email/color settings this page may read or write. The order here is
+// the render order within each section. Uploads (logo/favicon) are handled
+// separately, below, because they are files, not text fields.
 // ---------------------------------------------------------------------------
-$SETTING_KEYS = array('site_base_url', 'mail_from_address', 'pocket_notify_to', 'doc_admin_email');
-
 $FIELD_META = array(
+    // --- Environment ---
     'site_base_url' => array(
-        'label' => 'Site base URL',
-        'hint'  => 'Absolute base for links in emails and print sheets, e.g. https://owyg.yachtbrokersupport.com. No trailing slash. This is the portability lever - it is what changes when the suite moves to its own domain.',
-        'type'  => 'url',
+        'section' => 'env',
+        'label'   => 'Site base URL',
+        'hint'    => 'Absolute base for links in emails and print sheets, e.g. https://owyg.yachtbrokersupport.com. No trailing slash. This is the portability lever, it is what changes when the suite moves to its own domain.',
+        'type'    => 'url',
     ),
     'mail_from_address' => array(
-        'label' => 'Email From address',
-        'hint'  => 'The From address suite emails are sent as, e.g. no-reply@owyg.yachtbrokersupport.com.',
-        'type'  => 'email',
+        'section' => 'env',
+        'label'   => 'Email From address',
+        'hint'    => 'The From address suite emails are sent as, e.g. no-reply@owyg.yachtbrokersupport.com.',
+        'type'    => 'email',
     ),
     'pocket_notify_to' => array(
-        'label' => 'Pocket Listings notification recipient (single address)',
-        'hint'  => 'Every Pocket Listings new-listing and expiry-reminder email is sent to this ONE address. It does not fan out to the whole network on its own. To reach all brokers, set this to an OWYG broker distribution-list address (one address that forwards to the group). Left blank, it falls back to the built-in test inbox, NOT the network. Go live by swapping the test inbox for the real list address.',
-        'type'  => 'email',
+        'section' => 'env',
+        'label'   => 'Pocket Listings notification recipient (single address)',
+        'hint'    => 'Every Pocket Listings new-listing and expiry-reminder email is sent to this ONE address. To reach all brokers, set this to a distribution-list address that forwards to the group. Left blank, it falls back to the built-in test inbox, not the network.',
+        'type'    => 'email',
     ),
     'doc_admin_email' => array(
-        'label' => 'Vendor document admin email',
-        'hint'  => 'Recipient for vendor-document expiration reminders, e.g. admin@OWYG.com.',
-        'type'  => 'email',
+        'section' => 'env',
+        'label'   => 'Vendor document admin email',
+        'hint'    => 'Recipient for vendor-document expiration reminders, e.g. admin@OWYG.com.',
+        'type'    => 'email',
+    ),
+
+    // --- Identity ---
+    'brand_name' => array(
+        'section' => 'identity',
+        'label'   => 'Product / suite display name',
+        'hint'    => 'The product-first wordmark shown across the suite, e.g. Yacht Broker Support.',
+        'type'    => 'text',
+    ),
+    'tenant_name' => array(
+        'section' => 'identity',
+        'label'   => 'Tenant / organization name',
+        'hint'    => 'The organization shown as the secondary mark and in footers, e.g. One Water Yacht Group.',
+        'type'    => 'text',
+    ),
+    'login_title' => array(
+        'section' => 'identity',
+        'label'   => 'Login screen title',
+        'hint'    => 'Heading shown on the sign-in screen. Falls back to the product name when blank.',
+        'type'    => 'text',
+    ),
+    'login_tagline' => array(
+        'section' => 'identity',
+        'label'   => 'Login screen tagline',
+        'hint'    => 'A short line under the login title, e.g. "Yacht Broker Support - staff sign in".',
+        'type'    => 'text',
+    ),
+
+    // --- Colors ---
+    'header_color' => array(
+        'section' => 'colors',
+        'label'   => 'Header color',
+        'hint'    => 'The masthead / navy base color.',
+        'type'    => 'color',
+        'default' => '#0a1628',
+    ),
+    'brand_color' => array(
+        'section' => 'colors',
+        'label'   => 'Brand / accent color',
+        'hint'    => 'The primary accent (buttons, keylines, highlights).',
+        'type'    => 'color',
+        'default' => '#21cbea',
+    ),
+    'accent_color' => array(
+        'section' => 'colors',
+        'label'   => 'Accent (dark) color',
+        'hint'    => 'The darker accent used for hovers and links.',
+        'type'    => 'color',
+        'default' => '#1aa8c4',
+    ),
+
+    // --- Company contact block ---
+    'company_name' => array(
+        'section' => 'contact',
+        'label'   => 'Company name',
+        'hint'    => 'Shown on print sheets, email footers, and page footers.',
+        'type'    => 'text',
+    ),
+    'company_address' => array(
+        'section' => 'contact',
+        'label'   => 'Company address',
+        'hint'    => 'Optional. One line, e.g. 123 Marina Way, Fort Lauderdale, FL 33316.',
+        'type'    => 'text',
+    ),
+    'company_phone' => array(
+        'section' => 'contact',
+        'label'   => 'Company phone',
+        'hint'    => 'Optional. Shown in the contact block.',
+        'type'    => 'text',
+    ),
+    'company_email' => array(
+        'section' => 'contact',
+        'label'   => 'Company email',
+        'hint'    => 'Optional. Shown in the contact block.',
+        'type'    => 'email',
+    ),
+);
+$SETTING_KEYS = array_keys($FIELD_META);
+
+// Upload fields: key => [label, hint, default path]. Each stores a site-relative
+// path in the named setting; blank falls back to the committed OWYG banner.
+$UPLOAD_META = array(
+    'logo_path' => array(
+        'label'   => 'Header logo',
+        'hint'    => 'PNG, JPG, or WEBP. Shown on the masthead of every page and at the top of emails. Ideally a reverse (light-on-dark) logo, since it sits on the navy header.',
+        'default' => '/images/email/owyg-banner-reverse.png',
+    ),
+    'footer_logo_path' => array(
+        'label'   => 'Footer logo',
+        'hint'    => 'PNG, JPG, or WEBP. Shown in email footers. Leave unset to reuse the header logo look.',
+        'default' => '/images/email/owyg-banner-reverse.png',
+    ),
+    'favicon_path' => array(
+        'label'   => 'Favicon',
+        'hint'    => 'ICO, PNG, or SVG. The little icon in the browser tab.',
+        'default' => '/favicon.ico',
     ),
 );
 
@@ -64,14 +165,13 @@ if (empty($_SESSION['suite_admin_csrf'])) {
 }
 $csrf = $_SESSION['suite_admin_csrf'];
 
-$errors  = array();   // key => message (field-level validation errors)
-$notice  = '';        // top-level error banner text
-$saved   = false;     // true after a successful save (drives the success banner)
+$errors = array();   // key => message (field-level validation errors)
+$notice = '';        // top-level error banner text
+$saved  = false;     // true after a successful save
 
 /**
- * Read the four settings straight from the table (not suite_setting(), so blank
- * saved values show as blank in the form rather than resolving to a fallback).
- * Returns key => stored string, with '' for any missing key.
+ * Read the settings straight from the table (not suite_setting(), so a blank
+ * saved value shows as blank in the form rather than resolving to a fallback).
  */
 $loadValues = function (PDO $pdo, array $keys) {
     $vals = array();
@@ -86,27 +186,94 @@ $loadValues = function (PDO $pdo, array $keys) {
     return $vals;
 };
 
+/**
+ * Validate + store one uploaded brand image. Returns the site-relative path on
+ * success, throws RuntimeException (message shown to the admin) on any problem.
+ * Type is decided by actual content, not the client name/MIME. ICO is accepted
+ * for the favicon (validated by extension + a light signature check, since
+ * getimagesize does not read .ico on all builds); images go through getimagesize.
+ */
+$storeBrandImage = function (array $file, $allowIco) {
+    if (!isset($file['error']) || $file['error'] === UPLOAD_ERR_NO_FILE) {
+        return null; // no file chosen for this field
+    }
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('Upload failed. Please try a smaller file.');
+    }
+    if ($file['size'] <= 0) {
+        throw new RuntimeException('The file was empty.');
+    }
+    if ($file['size'] > 4 * 1024 * 1024) {
+        throw new RuntimeException('The file is too large (max 4 MB).');
+    }
+    if (!is_uploaded_file($file['tmp_name'])) {
+        throw new RuntimeException('Invalid upload.');
+    }
+
+    $ext  = strtolower((string) pathinfo((string) $file['name'], PATHINFO_EXTENSION));
+    $info = @getimagesize($file['tmp_name']);
+
+    if ($info !== false) {
+        $type = $info[2];
+        switch ($type) {
+            case IMAGETYPE_JPEG: $ext = 'jpg';  break;
+            case IMAGETYPE_PNG:  $ext = 'png';  break;
+            case IMAGETYPE_WEBP: $ext = 'webp'; break;
+            case IMAGETYPE_GIF:  $ext = 'gif';  break;
+            default:
+                // getimagesize recognized something we do not allow.
+                throw new RuntimeException('Use a PNG, JPG, WEBP, SVG, or ICO file.');
+        }
+    } else {
+        // getimagesize could not read it: allow SVG (text) and, for the favicon,
+        // ICO, validated by extension. Everything else is rejected.
+        if ($ext === 'svg') {
+            $head = (string) @file_get_contents($file['tmp_name'], false, null, 0, 512);
+            if (stripos($head, '<svg') === false) {
+                throw new RuntimeException('That does not look like a valid SVG.');
+            }
+        } elseif ($allowIco && ($ext === 'ico')) {
+            // .ico header: 00 00 01 00 (reserved + type=icon).
+            $sig = (string) @file_get_contents($file['tmp_name'], false, null, 0, 4);
+            if (strlen($sig) < 4 || $sig[0] !== "\x00" || $sig[1] !== "\x00" || $sig[2] !== "\x01") {
+                throw new RuntimeException('That does not look like a valid .ico file.');
+            }
+            $ext = 'ico';
+        } else {
+            throw new RuntimeException('Use a PNG, JPG, WEBP, SVG, or ICO file.');
+        }
+    }
+
+    $dir = $_SERVER['DOCUMENT_ROOT'] . '/uploads/branding';
+    if (!is_dir($dir)) { @mkdir($dir, 0755, true); }
+
+    $name = bin2hex(random_bytes(16)) . '.' . $ext;
+    $dest = $dir . '/' . $name;
+    if (!move_uploaded_file($file['tmp_name'], $dest)) {
+        throw new RuntimeException('Could not store the uploaded file.');
+    }
+    @chmod($dest, 0644);
+    return '/uploads/branding/' . $name;
+};
+
 // ===========================================================================
 // SAVE HANDLER (POST)
 // ===========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // Defense in depth: re-verify admin inside the POST branch even though the
-    // page prologue already gated. A non-admin session can never write here.
+    // Defense in depth: re-verify admin inside the POST branch.
     $postIsAdmin = isset($gateUser['is_admin']) && (int) $gateUser['is_admin'] === 1;
     if (!$postIsAdmin) {
         header('Location: ../suite.php');
         exit;
     }
 
-    // CSRF check: constant-time compare against the session token.
     $sent = isset($_POST['csrf']) ? (string) $_POST['csrf'] : '';
     if ($sent === '' || !hash_equals($csrf, $sent)) {
         $notice = 'Your session token did not match. Please reload the page and try again.';
     } else {
 
-        // Collect + validate ONLY the whitelisted keys. Anything else in $_POST
-        // is ignored - no arbitrary key can be introduced.
+        // --- text/url/email/color fields (whitelist only) ---
         $clean = array();
         foreach ($SETTING_KEYS as $key) {
             $raw  = isset($_POST[$key]) ? (string) $_POST[$key] : '';
@@ -114,8 +281,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $type = $FIELD_META[$key]['type'];
 
             if ($type === 'email') {
-                // Emails may be blank (a blank value falls back to the hardcoded
-                // default at read time). If non-empty it must be a valid address.
                 if ($val !== '' && !filter_var($val, FILTER_VALIDATE_EMAIL)) {
                     $errors[$key] = 'Enter a valid email address, or leave blank to use the default.';
                     continue;
@@ -123,27 +288,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $clean[$key] = $val;
             } elseif ($type === 'url') {
                 if ($val !== '') {
-                    // Must be an absolute http(s) URL. Strip a single trailing slash.
                     if (stripos($val, 'http://') !== 0 && stripos($val, 'https://') !== 0) {
                         $errors[$key] = 'Must start with http:// or https://.';
                         continue;
                     }
                     $val = rtrim($val, '/');
-                    // Belt-and-suspenders structural check on the trimmed URL.
                     if (!filter_var($val, FILTER_VALIDATE_URL)) {
                         $errors[$key] = 'That does not look like a valid URL.';
                         continue;
                     }
                 }
                 $clean[$key] = $val;
+            } elseif ($type === 'color') {
+                // A native color input always sends #rrggbb, but validate anyway so
+                // a crafted POST cannot store junk that lands in the :root block.
+                if ($val !== '' && !preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $val)) {
+                    $errors[$key] = 'Enter a hex color like #21cbea, or leave blank for the default.';
+                    continue;
+                }
+                $clean[$key] = ($val === '') ? '' : strtolower($val);
+            } else { // text
+                $clean[$key] = $val;
             }
         }
 
+        // --- uploads (logo, footer logo, favicon) ---
+        // A "reset to default" checkbox per upload blanks the stored path so the
+        // fallback applies. Otherwise a newly uploaded file replaces the path; if
+        // neither is set, the existing stored value is kept untouched.
+        $uploadClean = array();   // key => new path OR '' (reset), missing = keep
+        foreach ($UPLOAD_META as $key => $meta) {
+            $resetFlag = isset($_POST['reset_' . $key]);
+            $file = isset($_FILES[$key]) ? $_FILES[$key] : null;
+            $hasFile = $file && isset($file['error']) && $file['error'] !== UPLOAD_ERR_NO_FILE;
+
+            if ($resetFlag && !$hasFile) {
+                $uploadClean[$key] = ''; // blank -> fall back to default
+                continue;
+            }
+            if ($hasFile) {
+                try {
+                    $path = $storeBrandImage($file, $key === 'favicon_path');
+                    if ($path !== null) { $uploadClean[$key] = $path; }
+                } catch (RuntimeException $e) {
+                    $errors[$key] = $e->getMessage();
+                }
+            }
+            // else: no file + no reset -> leave the stored value as-is.
+        }
+
         if (empty($errors)) {
-            // UPSERT each whitelisted key. INSERT ... ON CONFLICT(key) DO UPDATE
-            // keeps this to one statement per key and can never touch a
-            // non-whitelisted row. suite_settings.key is the PRIMARY KEY, so the
-            // conflict target is valid.
             $stmt = $pdo->prepare(
                 'INSERT INTO suite_settings (key, value) VALUES (:k, :v)
                  ON CONFLICT(key) DO UPDATE SET value = excluded.value'
@@ -151,6 +345,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->beginTransaction();
             try {
                 foreach ($clean as $key => $value) {
+                    $stmt->execute(array(':k' => $key, ':v' => $value));
+                }
+                foreach ($uploadClean as $key => $value) {
                     $stmt->execute(array(':k' => $key, ':v' => $value));
                 }
                 $pdo->commit();
@@ -165,24 +362,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Values to render: the freshly-saved/attempted POST values on a POST (so the
-// form keeps what the admin typed), otherwise the stored values.
+// Values to render.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $values = array();
     foreach ($SETTING_KEYS as $key) {
-        // On a successful save, prefer the cleaned (trailing-slash-stripped)
-        // value so the form reflects exactly what was stored.
         if ($saved && isset($clean[$key])) {
             $values[$key] = $clean[$key];
         } else {
             $values[$key] = isset($_POST[$key]) ? trim((string) $_POST[$key]) : '';
         }
     }
+    $uploadValues = $loadValues($pdo, array_keys($UPLOAD_META));
+    if ($saved) {
+        foreach ($uploadClean as $k => $v) { $uploadValues[$k] = $v; }
+    }
 } else {
-    $values = $loadValues($pdo, $SETTING_KEYS);
+    $values       = $loadValues($pdo, $SETTING_KEYS);
+    $uploadValues = $loadValues($pdo, array_keys($UPLOAD_META));
 }
 
 $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); };
+
+// Resolve each upload's effective preview src (stored value or its default).
+$uploadPreview = function ($key) use ($uploadValues, $UPLOAD_META) {
+    $v = isset($uploadValues[$key]) ? trim((string) $uploadValues[$key]) : '';
+    return ($v !== '') ? $v : $UPLOAD_META[$key]['default'];
+};
+
+$sectionOrder = array(
+    'identity' => 'Identity',
+    'colors'   => 'Colors',
+    'contact'  => 'Company contact',
+    'env'      => 'Environment',
+);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -194,7 +406,6 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
     <link rel="icon" href="<?php echo $h($faviconUrl); ?>" sizes="any">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Palette mirrors the suite launcher: navy #0a1628-ish + brand cyan. */
         :root {
             --navy: #0a1628;
             --navy-soft: #0c1f2e;
@@ -227,14 +438,8 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
             background: var(--navy);
             color: #eef4f7;
         }
-        .adm-topbar .brand {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
+        .adm-topbar .brand { display: flex; align-items: center; gap: 18px; }
         .adm-topbar img { height: 34px; width: auto; display: block; }
-        /* Primary product wordmark (typographic), OWYG banner demoted to a small
-           secondary tenant mark beneath. */
         .adm-topbar .wordmark { display: flex; flex-direction: column; gap: 4px; }
         .adm-topbar .wordmark .wm-name {
             font-family: 'Cormorant Garamond', Georgia, serif;
@@ -243,120 +448,104 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         .adm-topbar .wordmark img { height: 16px; opacity: .82; }
         .adm-topbar .divider { width: 1px; height: 26px; background: rgba(238,244,247,0.2); }
         .adm-topbar .label {
-            font-size: 11px;
-            letter-spacing: .34em;
-            color: var(--accent);
-            font-weight: 600;
+            font-size: 11px; letter-spacing: .34em; color: var(--accent); font-weight: 600;
         }
         .adm-back {
-            color: #cdd9e1;
-            text-decoration: none;
-            font-size: 13px;
-            padding: 7px 14px;
-            border: 1px solid rgba(238,244,247,0.18);
-            border-radius: 999px;
+            color: #cdd9e1; text-decoration: none; font-size: 13px;
+            padding: 7px 14px; border: 1px solid rgba(238,244,247,0.18); border-radius: 999px;
         }
         .adm-back:hover { border-color: rgba(238,244,247,0.4); color: #fff; }
 
-        .adm-wrap {
-            max-width: 760px;
-            margin: 0 auto;
-            padding: 44px 24px 64px;
-        }
-        .adm-head h1 {
-            margin: 0 0 6px;
-            font-size: 30px;
-            font-weight: 700;
-            color: var(--navy);
-        }
+        .adm-wrap { max-width: 760px; margin: 0 auto; padding: 44px 24px 64px; }
+        .adm-head h1 { margin: 0 0 6px; font-size: 30px; font-weight: 700; color: var(--navy); }
         .adm-head p { margin: 0 0 28px; color: var(--muted); font-size: 15px; max-width: 620px; }
 
-        .adm-banner {
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-bottom: 22px;
-        }
+        .adm-banner { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 22px; }
         .adm-banner.ok { background: #e8f7ea; border-left: 4px solid var(--ok); color: #14531f; }
         .adm-banner.err { background: #fdecea; border-left: 4px solid var(--danger); color: #7a241c; }
 
         .adm-card {
-            background: var(--card);
-            border: 1px solid var(--hair);
-            border-radius: 14px;
-            padding: 28px 28px 24px;
+            background: var(--card); border: 1px solid var(--hair);
+            border-radius: 14px; padding: 24px 28px 20px; margin-bottom: 20px;
         }
-        .adm-field { margin-bottom: 24px; }
-        .adm-field:last-of-type { margin-bottom: 8px; }
+        .adm-card > h2 {
+            margin: 0 0 4px; font-size: 13px; font-weight: 700; letter-spacing: .12em;
+            text-transform: uppercase; color: var(--accent-text);
+        }
+        .adm-card > .adm-card-sub { margin: 0 0 20px; font-size: 13px; color: var(--muted); }
+
+        .adm-field { margin-bottom: 22px; }
+        .adm-field:last-child { margin-bottom: 4px; }
         .adm-field label {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            color: var(--navy);
-            margin-bottom: 7px;
+            display: block; font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .06em; color: var(--navy); margin-bottom: 7px;
         }
-        .adm-field input[type="text"] {
-            width: 100%;
-            font-family: inherit;
-            font-size: 15px;
-            color: var(--ink);
-            border: 1px solid var(--hair);
-            border-radius: 8px;
-            padding: 11px 13px;
-            background: #fff;
+        .adm-field input[type="text"],
+        .adm-field input[type="url"],
+        .adm-field input[type="email"] {
+            width: 100%; font-family: inherit; font-size: 15px; color: var(--ink);
+            border: 1px solid var(--hair); border-radius: 8px; padding: 11px 13px; background: #fff;
         }
-        .adm-field input[type="text"]:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px var(--accent-soft);
+        .adm-field input:focus {
+            outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
         }
         .adm-field input.has-error { border-color: var(--danger); }
         .adm-hint { margin: 7px 0 0; font-size: 12.5px; color: var(--muted); }
-        .adm-hint.switch { color: var(--accent-text); font-weight: 600; }
         .adm-err { margin: 6px 0 0; font-size: 12.5px; color: var(--danger); font-weight: 600; }
 
+        /* Color rows */
+        .adm-color-row { display: flex; align-items: center; gap: 12px; }
+        .adm-color-row input[type="color"] {
+            width: 48px; height: 40px; padding: 0; border: 1px solid var(--hair);
+            border-radius: 8px; background: #fff; cursor: pointer;
+        }
+        .adm-color-row .adm-color-hex {
+            font-family: 'Open Sans', monospace; font-size: 14px; color: var(--muted);
+            border: 1px solid var(--hair); border-radius: 8px; padding: 9px 12px; width: 120px;
+        }
+        .adm-color-row .adm-reset {
+            font-size: 12px; color: var(--accent-text); background: none; border: none;
+            cursor: pointer; text-decoration: underline; padding: 0;
+        }
+
+        /* Upload rows */
+        .adm-upload { display: flex; gap: 18px; align-items: flex-start; }
+        .adm-upload .adm-preview {
+            flex: none; width: 200px; min-height: 60px; border: 1px solid var(--hair);
+            border-radius: 8px; background: var(--navy); display: grid; place-items: center;
+            padding: 12px; overflow: hidden;
+        }
+        .adm-upload .adm-preview.favicon { background: var(--bg); width: 92px; }
+        .adm-upload .adm-preview img { max-width: 100%; max-height: 52px; display: block; }
+        .adm-upload .adm-preview.favicon img { max-height: 40px; }
+        .adm-upload .adm-upload-controls { flex: 1; min-width: 0; }
+        .adm-upload input[type="file"] { font-size: 13px; }
+        .adm-upload .adm-reset-line { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+        .adm-upload .adm-reset-line input { margin-right: 6px; }
+
         .adm-actions {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-top: 26px;
-            padding-top: 22px;
-            border-top: 1px solid var(--hair);
+            display: flex; align-items: center; gap: 14px; margin-top: 6px;
+            padding: 20px 0 4px;
         }
         .adm-btn {
-            font-family: inherit;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid transparent;
-            border-radius: 8px;
-            padding: 11px 22px;
+            font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+            border: 1px solid transparent; border-radius: 8px; padding: 11px 22px;
         }
         .adm-btn-primary { background: var(--accent); color: var(--navy); }
         .adm-btn-primary:hover { background: #17b6d4; }
         .adm-btn-ghost {
-            background: transparent;
-            color: var(--muted);
-            border-color: var(--hair);
-            text-decoration: none;
-            display: inline-block;
+            background: transparent; color: var(--muted); border-color: var(--hair);
+            text-decoration: none; display: inline-block;
         }
         .adm-btn-ghost:hover { border-color: var(--muted); color: var(--ink); }
         .adm-secret-note {
-            margin-top: 22px;
-            font-size: 12.5px;
-            color: var(--muted);
-            background: var(--bg);
-            border: 1px solid var(--hair);
-            border-radius: 8px;
-            padding: 12px 14px;
+            margin-top: 8px; font-size: 12.5px; color: var(--muted); background: var(--bg);
+            border: 1px solid var(--hair); border-radius: 8px; padding: 12px 14px;
         }
         @media (max-width: 640px) {
             .adm-topbar { padding: 16px 20px; }
-            .adm-topbar .brand { gap: 12px; }
             .adm-wrap { padding: 32px 18px 52px; }
+            .adm-upload { flex-direction: column; }
         }
     </style>
     <?php suite_theme_head($pdo); // config-driven :root color override, must follow the page style block ?>
@@ -378,7 +567,7 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 <main class="adm-wrap">
     <div class="adm-head">
         <h1>Settings</h1>
-        <p>Non-secret configuration for the suite. Blank a value to fall back to its built-in default. SMTP credentials are not stored here and cannot be edited from this screen.</p>
+        <p>Branding and non-secret configuration for the suite. Blank a value to fall back to its built-in default. SMTP credentials are not stored here and cannot be edited from this screen.</p>
     </div>
 
     <?php if ($saved): ?>
@@ -387,41 +576,138 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
         <div class="adm-banner err"><?php echo $h($notice); ?></div>
     <?php endif; ?>
 
-    <form method="post" action="settings.php" autocomplete="off" novalidate>
+    <form method="post" action="settings.php" autocomplete="off" enctype="multipart/form-data" novalidate>
         <input type="hidden" name="csrf" value="<?php echo $h($csrf); ?>">
 
+        <?php foreach ($sectionOrder as $sectionKey => $sectionLabel):
+            $keysInSection = array();
+            foreach ($SETTING_KEYS as $k) {
+                if ($FIELD_META[$k]['section'] === $sectionKey) { $keysInSection[] = $k; }
+            }
+        ?>
         <div class="adm-card">
-            <?php foreach ($SETTING_KEYS as $key):
+            <h2><?php echo $h($sectionLabel); ?></h2>
+            <?php foreach ($keysInSection as $key):
                 $meta   = $FIELD_META[$key];
                 $val    = isset($values[$key]) ? $values[$key] : '';
                 $errMsg = isset($errors[$key]) ? $errors[$key] : '';
-                $isSwitch = ($key === 'pocket_notify_to');
+                $type   = $meta['type'];
             ?>
             <div class="adm-field">
                 <label for="f_<?php echo $h($key); ?>"><?php echo $h($meta['label']); ?></label>
-                <input type="text"
-                       id="f_<?php echo $h($key); ?>"
-                       name="<?php echo $h($key); ?>"
-                       value="<?php echo $h($val); ?>"
-                       class="<?php echo $errMsg !== '' ? 'has-error' : ''; ?>"
-                       spellcheck="false"
-                       autocapitalize="off">
+                <?php if ($type === 'color'):
+                    $def = isset($meta['default']) ? $meta['default'] : '#000000';
+                    $current = ($val !== '') ? $val : $def;
+                ?>
+                    <div class="adm-color-row">
+                        <input type="color"
+                               id="f_<?php echo $h($key); ?>"
+                               value="<?php echo $h($current); ?>"
+                               data-target="hex_<?php echo $h($key); ?>"
+                               data-default="<?php echo $h($def); ?>">
+                        <input type="text"
+                               id="hex_<?php echo $h($key); ?>"
+                               name="<?php echo $h($key); ?>"
+                               class="adm-color-hex<?php echo $errMsg !== '' ? ' has-error' : ''; ?>"
+                               value="<?php echo $h($val); ?>"
+                               placeholder="<?php echo $h($def); ?>"
+                               spellcheck="false" autocapitalize="off">
+                        <button type="button" class="adm-reset" data-reset-color="<?php echo $h($key); ?>" data-default="<?php echo $h($def); ?>">Reset to default</button>
+                    </div>
+                <?php else: ?>
+                    <input type="<?php echo $type === 'url' ? 'url' : ($type === 'email' ? 'email' : 'text'); ?>"
+                           id="f_<?php echo $h($key); ?>"
+                           name="<?php echo $h($key); ?>"
+                           value="<?php echo $h($val); ?>"
+                           class="<?php echo $errMsg !== '' ? 'has-error' : ''; ?>"
+                           spellcheck="false" autocapitalize="off">
+                <?php endif; ?>
                 <?php if ($errMsg !== ''): ?>
                     <p class="adm-err"><?php echo $h($errMsg); ?></p>
                 <?php endif; ?>
-                <p class="adm-hint<?php echo $isSwitch ? ' switch' : ''; ?>"><?php echo $h($meta['hint']); ?></p>
+                <p class="adm-hint"><?php echo $h($meta['hint']); ?></p>
             </div>
             <?php endforeach; ?>
-
-            <div class="adm-actions">
-                <button type="submit" class="adm-btn adm-btn-primary">Save settings</button>
-                <a class="adm-btn adm-btn-ghost" href="../suite.php">Cancel</a>
-            </div>
-
-            <p class="adm-secret-note">SMTP host, port, username, and password are secrets. They live in the untracked mail-secrets.php and are never shown or editable here.</p>
         </div>
+        <?php endforeach; ?>
+
+        <!-- ===== Logo & favicon uploads ===== -->
+        <div class="adm-card">
+            <h2>Logo &amp; favicon</h2>
+            <p class="adm-card-sub">Upload the tenant's brand images. Leave a field empty to keep the current image; tick "reset to default" to fall back to the built-in mark.</p>
+            <?php foreach ($UPLOAD_META as $key => $meta):
+                $errMsg = isset($errors[$key]) ? $errors[$key] : '';
+                $isFav  = ($key === 'favicon_path');
+                $accept = $isFav ? 'image/png,image/x-icon,image/vnd.microsoft.icon,.ico,image/svg+xml'
+                                 : 'image/png,image/jpeg,image/webp,image/svg+xml';
+            ?>
+            <div class="adm-field">
+                <label><?php echo $h($meta['label']); ?></label>
+                <div class="adm-upload">
+                    <div class="adm-preview<?php echo $isFav ? ' favicon' : ''; ?>">
+                        <img src="<?php echo $h($uploadPreview($key)); ?>" alt="Current <?php echo $h($meta['label']); ?>">
+                    </div>
+                    <div class="adm-upload-controls">
+                        <input type="file" name="<?php echo $h($key); ?>" accept="<?php echo $h($accept); ?>">
+                        <?php if ($errMsg !== ''): ?>
+                            <p class="adm-err"><?php echo $h($errMsg); ?></p>
+                        <?php endif; ?>
+                        <p class="adm-hint"><?php echo $h($meta['hint']); ?></p>
+                        <label class="adm-reset-line">
+                            <input type="checkbox" name="reset_<?php echo $h($key); ?>" value="1">
+                            Reset to the built-in default
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="adm-actions">
+            <button type="submit" class="adm-btn adm-btn-primary">Save settings</button>
+            <a class="adm-btn adm-btn-ghost" href="../suite.php">Cancel</a>
+        </div>
+
+        <p class="adm-secret-note">SMTP host, port, username, and password are secrets. They live in the untracked mail-secrets.php and are never shown or editable here.</p>
     </form>
 </main>
+
+<script>
+(function () {
+    'use strict';
+    // Keep the color picker and its hex text field in sync, both directions.
+    var pickers = document.querySelectorAll('input[type="color"][data-target]');
+    for (var i = 0; i < pickers.length; i++) {
+        (function (picker) {
+            var hex = document.getElementById(picker.getAttribute('data-target'));
+            picker.addEventListener('input', function () {
+                if (hex) { hex.value = picker.value; }
+            });
+            if (hex) {
+                hex.addEventListener('input', function () {
+                    var v = hex.value.trim();
+                    if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v)) { picker.value = v; }
+                });
+            }
+        })(pickers[i]);
+    }
+    // "Reset to default" for a color blanks the hex field (so the fallback
+    // applies on save) and shows the default in the swatch.
+    var resets = document.querySelectorAll('[data-reset-color]');
+    for (var j = 0; j < resets.length; j++) {
+        (function (btn) {
+            btn.addEventListener('click', function () {
+                var key = btn.getAttribute('data-reset-color');
+                var def = btn.getAttribute('data-default') || '#000000';
+                var hex = document.getElementById('hex_' + key);
+                var picker = document.getElementById('f_' + key);
+                if (hex) { hex.value = ''; }
+                if (picker) { picker.value = def; }
+            });
+        })(resets[j]);
+    }
+})();
+</script>
 
 </body>
 </html>
