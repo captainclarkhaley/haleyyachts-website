@@ -16,6 +16,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/modules.php';
 
 start_secure_session();
 $pdo = vdb_connect();
@@ -29,6 +30,12 @@ if ((int) $gateUser['must_change_password'] === 1) {
     header('Location: ../change-password.php');
     exit;
 }
+
+// Module enablement: the print sheet is part of Pocket Listings, so it follows
+// the Pocket module's state. Anyone not permitted is bounced to the launcher.
+// Default state is 'admin', matching today's Pocket access.
+$isAdmin = isset($gateUser['is_admin']) && (int) $gateUser['is_admin'] === 1;
+module_guard($pdo, 'pocket', $isAdmin, '../suite.php');
 
 // NOTE: we do NOT include api.php - its top-level code runs require_auth + an
 // action switch + p_respond()/exit on include, which would hijack this page.

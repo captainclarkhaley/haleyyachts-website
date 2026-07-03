@@ -20,6 +20,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/modules.php';
 
 start_secure_session();
 
@@ -93,6 +94,16 @@ try {
     // Forced-change gate (defense in depth alongside the index.php redirect).
     if ((int) $authUser['must_change_password'] === 1) {
         p_fail_must_change();
+    }
+
+    // Module enablement gate (defense in depth alongside the page-level
+    // module_guard in pocket/index.php). A user who is not permitted to use the
+    // Pocket module gets 403 and NONE of the handlers run, so the state cannot be
+    // bypassed by calling the API directly. Default state is 'admin', matching
+    // today's Pocket access.
+    $authIsAdmin = isset($authUser['is_admin']) && (int) $authUser['is_admin'] === 1;
+    if (!module_can_use($pdo, 'pocket', $authIsAdmin)) {
+        p_fail('This module is not available for your account.', 403);
     }
 
     $action = isset($_GET['action']) ? $_GET['action'] : '';

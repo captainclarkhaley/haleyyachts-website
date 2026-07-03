@@ -17,6 +17,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/modules.php';
 
 start_secure_session();
 $pdo = vdb_connect();
@@ -598,36 +599,15 @@ $h = function ($s) { return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8'); 
 
     <div class="bs-grid" id="appGrid">
         <?php
-        // App registry: a simple hardcoded list for now (name, monogram,
-        // description, href, status). When a real app-registry backend exists,
-        // this array is what it feeds. The "{N} available" count = number of
-        // visible app tiles (excludes the add-application tile).
-        $apps = array(
-            array(
-                'name'     => 'Vendor Management',
-                'monogram' => 'VM',
-                'desc'     => 'Access, manage, and search vendors by type, coverage area, and broker ratings.',
-                'href'     => 'index.php',
-                'status'   => 'live',
-            ),
-            array(
-                'name'     => 'Pocket Listings',
-                'monogram' => 'PL',
-                'desc'     => 'Enter private off-market listings and let OWYG brokers search the network.',
-                // LIVE for admins (navigable link to the app); coming-soon for
-                // everyone else. Gated server-side on the resolved session user so
-                // a non-admin cannot reach it by tampering with the client.
-                'href'     => $isAdmin ? 'pocket/' : '#',
-                'status'   => $isAdmin ? 'live' : 'soon',
-            ),
-            array(
-                'name'     => 'Broker Looking For...',
-                'monogram' => 'BL',
-                'desc'     => 'Post what your client is searching for and let OWYG brokers surface a match.',
-                'href'     => '#',
-                'status'   => 'soon',
-            ),
-        );
+        // App tiles come from the module-enablement layer (vendors/api/modules.php),
+        // resolved per the tenant's per-module state settings AND this viewer's
+        // admin flag. This is the ONLY place tile presentation is decided; the same
+        // states are ENFORCED on each module's own entry page via module_guard(), so
+        // a coming-soon/hidden/admin-only module cannot be reached by URL either.
+        // Defaults match today's behavior (Vendor live, Pocket admin-only, Broker
+        // Looking For coming-soon). The "{N} available" count = number of visible
+        // app tiles (excludes the add-application tile).
+        $apps = module_tiles($pdo, $isAdmin);
 
         foreach ($apps as $app) {
             $isLive = ($app['status'] === 'live');

@@ -28,6 +28,7 @@
  */
 
 require_once __DIR__ . '/admin-guard.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/modules.php';
 // $pdo, $gateUser (admin), $brandName, $tenantName, $logoUrl, $faviconUrl in scope.
 
 // ---------------------------------------------------------------------------
@@ -337,6 +338,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // else: no file + no reset -> leave the stored value as-is.
         }
 
+        // --- module enablement (whitelist from the registry) ---
+        // Each module posts <setting_key> = one of live|admin|soon|hidden. An
+        // unknown key or an invalid value is rejected (defense against a crafted
+        // POST); a valid value is stored verbatim.
+        $moduleClean = array();   // setting_key => state
+        $validStates = array_keys(module_states());
+        foreach (module_registry() as $mKey => $mMeta) {
+            $sk = $mMeta['setting_key'];
+            if (!isset($_POST[$sk])) { continue; }
+            $mv = strtolower(trim((string) $_POST[$sk]));
+            if (!in_array($mv, $validStates, true)) {
+                $errors[$sk] = 'Choose a valid module state.';
+                continue;
+            }
+            $moduleClean[$sk] = $mv;
+        }
+
         if (empty($errors)) {
             $stmt = $pdo->prepare(
                 'INSERT INTO suite_settings (key, value) VALUES (:k, :v)
@@ -348,6 +366,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute(array(':k' => $key, ':v' => $value));
                 }
                 foreach ($uploadClean as $key => $value) {
+                    $stmt->execute(array(':k' => $key, ':v' => $value));
+                }
+                foreach ($moduleClean as $key => $value) {
                     $stmt->execute(array(':k' => $key, ':v' => $value));
                 }
                 $pdo->commit();
@@ -388,6 +409,28 @@ $uploadPreview = function ($key) use ($uploadValues, $UPLOAD_META) {
     $v = isset($uploadValues[$key]) ? trim((string) $uploadValues[$key]) : '';
     return ($v !== '') ? $v : $UPLOAD_META[$key]['default'];
 };
+
+// Effective selected state per module for rendering the dropdowns. On a failed
+// POST we echo back what the admin picked (from $_POST) so their selection is
+// preserved; otherwise we show the currently resolved state (module_state()
+// already falls back to the registry default for a blank/invalid row).
+$moduleRegistry = module_registry();
+$moduleStateOptions = module_states();
+$moduleSelected = array();
+foreach ($moduleRegistry as $mKey => $mMeta) {
+    $sk = $mMeta['setting_key'];
+    if ($saved && isset($moduleClean[$sk])) {
+        // Just-saved value (the per-request suite_setting cache is stale here).
+        $moduleSelected[$mKey] = $moduleClean[$sk];
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && !$saved && isset($_POST[$sk])) {
+        // Failed POST: echo back the admin's pick so it is not lost.
+        $sel = strtolower(trim((string) $_POST[$sk]));
+        $moduleSelected[$mKey] = array_key_exists($sel, $moduleStateOptions)
+            ? $sel : module_state($pdo, $mKey);
+    } else {
+        $moduleSelected[$mKey] = module_state($pdo, $mKey);
+    }
+}
 
 $sectionOrder = array(
     'identity' => 'Identity',
@@ -486,10 +529,14 @@ $sectionOrder = array(
             width: 100%; font-family: inherit; font-size: 15px; color: var(--ink);
             border: 1px solid var(--hair); border-radius: 8px; padding: 11px 13px; background: #fff;
         }
-        .adm-field input:focus {
+        .adm-field select.adm-select {
+            width: 100%; font-family: inherit; font-size: 15px; color: var(--ink);
+            border: 1px solid var(--hair); border-radius: 8px; padding: 11px 13px; background: #fff;
+        }
+        .adm-field input:focus, .adm-field select.adm-select:focus {
             outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
         }
-        .adm-field input.has-error { border-color: var(--danger); }
+        .adm-field input.has-error, .adm-field select.has-error { border-color: var(--danger); }
         .adm-hint { margin: 7px 0 0; font-size: 12.5px; color: var(--muted); }
         .adm-err { margin: 6px 0 0; font-size: 12.5px; color: var(--danger); font-weight: 600; }
 
@@ -630,6 +677,33 @@ $sectionOrder = array(
             <?php endforeach; ?>
         </div>
         <?php endforeach; ?>
+
+        <!-- ===== Modules ===== -->
+        <div class="adm-card">
+            <h2>Modules</h2>
+            <p class="adm-card-sub">Control which apps appear on the launcher and who can open them. Each state is enforced on the launcher tile AND on the module's own page, so a user who is not permitted cannot reach it by typing the URL. Live: everyone. Admin only: only in-app admins (others see it as coming soon). Coming soon: shown but disabled for everyone. Hidden: no tile at all.</p>
+            <?php foreach ($moduleRegistry as $mKey => $mMeta):
+                $sk     = $mMeta['setting_key'];
+                $selVal = isset($moduleSelected[$mKey]) ? $moduleSelected[$mKey] : $mMeta['default_state'];
+                $errMsg = isset($errors[$sk]) ? $errors[$sk] : '';
+            ?>
+            <div class="adm-field">
+                <label for="f_<?php echo $h($sk); ?>"><?php echo $h($mMeta['name']); ?></label>
+                <select id="f_<?php echo $h($sk); ?>" name="<?php echo $h($sk); ?>"
+                        class="adm-select<?php echo $errMsg !== '' ? ' has-error' : ''; ?>">
+                    <?php foreach ($moduleStateOptions as $stateKey => $stateLabel): ?>
+                    <option value="<?php echo $h($stateKey); ?>"<?php echo $selVal === $stateKey ? ' selected' : ''; ?>>
+                        <?php echo $h($stateLabel); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if ($errMsg !== ''): ?>
+                    <p class="adm-err"><?php echo $h($errMsg); ?></p>
+                <?php endif; ?>
+                <p class="adm-hint"><?php echo $h($mMeta['desc']); ?></p>
+            </div>
+            <?php endforeach; ?>
+        </div>
 
         <!-- ===== Logo & favicon uploads ===== -->
         <div class="adm-card">

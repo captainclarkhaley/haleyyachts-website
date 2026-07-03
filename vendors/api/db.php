@@ -153,6 +153,20 @@ if (!function_exists('vdb_connect')) {
             'company_address'   => '',
             'company_phone'     => '',
             'company_email'     => '',
+
+            // --- Module enablement (per-tenant white-label) -----------------
+            // Each module's state: live | admin | soon | hidden. Seeded to match
+            // TODAY's behavior EXACTLY so nothing changes for OWYG:
+            //   Vendor Management        -> live  (open to all staff today)
+            //   Pocket Listings          -> admin (admin-only tile today)
+            //   Broker Looking For...    -> soon  (placeholder tile today)
+            // The canonical registry (keys, defaults, presentation) lives in
+            // vendors/api/modules.php; these three rows must stay in sync with the
+            // registry's default_state values. Blank a row and the fallback (the
+            // registry default, passed at the read site) takes over.
+            'module_vendor_state'         => 'live',
+            'module_pocket_state'         => 'admin',
+            'module_broker_looking_state' => 'soon',
         );
         $stmt = $pdo->prepare('INSERT OR IGNORE INTO suite_settings (key, value) VALUES (?, ?)');
         foreach ($defaults as $key => $value) {

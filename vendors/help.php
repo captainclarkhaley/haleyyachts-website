@@ -13,6 +13,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/modules.php';
 
 start_secure_session();
 $pdo = vdb_connect();
@@ -28,6 +29,12 @@ if ((int) $gateUser['must_change_password'] === 1) {
     header('Location: change-password.php');
     exit;
 }
+
+// Module enablement: this is the Vendor Management help page, so it follows the
+// Vendor module's state. Anyone not permitted is bounced to the launcher. Default
+// state is 'live', so this is behavior-neutral for OWYG.
+$isAdmin = isset($gateUser['is_admin']) && (int) $gateUser['is_admin'] === 1;
+module_guard($pdo, 'vendor', $isAdmin, 'suite.php');
 
 // Config-driven branding (product-first).
 $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');

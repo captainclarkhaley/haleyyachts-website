@@ -16,6 +16,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/modules.php';
 // mail-lib provides send_delete_request_email() for the non-admin delete path.
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/mail-lib.php';
 
@@ -105,6 +106,15 @@ try {
     // can route them to change-password.php.
     if ((int) $authUser['must_change_password'] === 1) {
         fail_must_change();
+    }
+
+    // Module enablement gate (defense in depth alongside the page-level
+    // module_guard in index.php). A user who is not permitted to use the Vendor
+    // Management module gets 403 and no handler runs. Default state is 'live', so
+    // this is behavior-neutral for OWYG.
+    $authIsAdmin = isset($authUser['is_admin']) && (int) $authUser['is_admin'] === 1;
+    if (!module_can_use($pdo, 'vendor', $authIsAdmin)) {
+        fail('This module is not available for your account.', 403);
     }
 
     $r      = isset($_GET['r']) ? $_GET['r'] : '';

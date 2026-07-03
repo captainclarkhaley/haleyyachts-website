@@ -17,6 +17,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/auth-lib.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/db.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/api/branding.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/api/modules.php';
 
 start_secure_session();
 $pdo = vdb_connect();
@@ -36,6 +37,12 @@ $fullName = trim((string) $gateUser['name']);
 if ($fullName === '') { $fullName = (string) $gateUser['account_id']; }
 $currentUserId = (int) $gateUser['id'];
 $isAdmin = isset($gateUser['is_admin']) && (int) $gateUser['is_admin'] === 1;
+
+// Module enablement: bounce anyone not permitted to use Pocket Listings back to
+// the launcher BEFORE any markup, so the state cannot be bypassed by URL. Default
+// state is 'admin' (admin-only), which matches today's tile behavior AND closes
+// the prior gap where a non-admin could reach this page by typing the URL.
+module_guard($pdo, 'pocket', $isAdmin, '../suite.php');
 
 // Config-driven branding (product-first).
 $brandName  = suite_setting($pdo, 'brand_name', 'Yacht Broker Support');
