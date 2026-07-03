@@ -47,6 +47,15 @@ vendors/pocket/uploads/*
 !vendors/pocket/uploads/.htaccess
 !vendors/pocket/uploads/.gitkeep
 
+# Suite branding uploads - admin-uploaded logo / favicon per instance (white-
+# label). Server-side live brand assets, NOT code. Kept out of git so a cPanel
+# deploy pull never clobbers a tenant's uploaded brand. The committed OWYG logo
+# in /images/email is the fallback when nothing is uploaded. Only the .htaccess
+# + .gitkeep in that dir are tracked. Back the folder up separately.
+vendors/uploads/branding/*
+!vendors/uploads/branding/.htaccess
+!vendors/uploads/branding/.gitkeep
+
 # Vendor documents - SENSITIVE uploaded files (insurance certs, etc.). Server-side
 # live data, NOT code. Never web-served directly (see vendors/api/docs/.htaccess);
 # fetched only through the authenticated doc-download.php endpoint. Keep the files

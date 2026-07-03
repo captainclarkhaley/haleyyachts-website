@@ -1,0 +1,41 @@
+# ============================================================
+# Suite branding - uploaded logo / favicon directory
+# ============================================================
+# Holds an admin-uploaded logo, footer logo, and favicon for this
+# instance (per-tenant white-label). Served back over the web via
+# normal <img src> / <link rel="icon">, so it is intentionally
+# web-readable, UNLIKE api/data. Same two safeguards as the Pocket
+# uploads dir:
+#   1. No directory listing.
+#   2. Never execute anything here as a script (defeats a polyglot
+#      "image" named shell.php.png).
+# The uploaded files are .gitignored (only this .htaccess + .gitkeep
+# are tracked) so a cPanel deploy pull never clobbers a tenant's brand
+# assets. BACK THESE UP separately, like the sqlite DB.
+# ============================================================
+
+Options -Indexes -ExecCGI
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .pl .py .cgi .asp .aspx
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .php8
+
+# Only allow image / icon types to be requested at all.
+<FilesMatch "(?i)\.(jpe?g|png|webp|svg|gif|ico)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>

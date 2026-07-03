@@ -120,6 +120,39 @@ if (!function_exists('vdb_connect')) {
             'doc_admin_email'   => 'admin@OWYG.com',
             'brand_name'        => 'Yacht Broker Support',
             'tenant_name'       => 'One Water Yacht Group',
+
+            // --- Branding phase (per-tenant white-label) ---------------------
+            // All seeded with TODAY's OWYG values so a fresh or un-branded
+            // instance renders exactly as it does now. Blank a row and the
+            // suite_setting() fallback (the same literal, passed at the call
+            // site) takes over, so behavior is identical either way.
+            //
+            // Logo + favicon are stored SITE-RELATIVE. The committed OWYG banner
+            // is the default. An uploaded logo/favicon is written to the
+            // gitignored uploads/branding folder and its path stored here.
+            'logo_path'         => '/images/email/owyg-banner-reverse.png',
+            'footer_logo_path'  => '/images/email/owyg-banner-reverse.png',
+            'favicon_path'      => '/favicon.ico',
+            // Login screen copy (the static auth pages read these via a tiny
+            // PHP bootstrap; see vendors/branding-bootstrap.php).
+            'login_title'       => 'Yacht Broker Support',
+            'login_tagline'     => 'Yacht Broker Support - staff sign in',
+            // Colors. These three drive the whole look. They are seeded with the
+            // hex the suite CSS uses today (navy header + brand cyan + darker
+            // cyan for hovers/links) and emitted as CSS custom properties in each
+            // page head, so refactoring the CSS to var()s changes nothing for
+            // OWYG. header_color = masthead navy, brand_color = accent cyan,
+            // accent_color = darker cyan (hovers, links, keylines).
+            'header_color'      => '#0a1628',
+            'brand_color'       => '#21cbea',
+            'accent_color'      => '#1aa8c4',
+            // Company contact block: used on the print sheet footer, the email
+            // footer/signature, and the app page footers. Free text, one field
+            // per line component so it reads naturally everywhere.
+            'company_name'      => 'One Water Yacht Group',
+            'company_address'   => '',
+            'company_phone'     => '',
+            'company_email'     => '',
         );
         $stmt = $pdo->prepare('INSERT OR IGNORE INTO suite_settings (key, value) VALUES (?, ?)');
         foreach ($defaults as $key => $value) {
