@@ -108,6 +108,17 @@ Priority order Clark set the night of the migration:
    work (each spawned subdomain is a config, not a code fork). Builds on the
    existing `suite_settings` layer. Keep in mind during all development; not a
    high priority today.
+   - STATUS (2026-07): Phase 1, Branding + Identity, LANDED on the
+     `brokersuite` branch. Brand/tenant/login names, header/brand/accent colors
+     (emitted as CSS custom properties by `vendors/api/branding.php`, no build
+     step), the company contact block (print sheet + email footers + page
+     footers), and uploaded logo/footer-logo/favicon are all menu-editable from
+     the admin Settings screen. Uploaded brand images live in the gitignored
+     `vendors/uploads/branding/`. Everything defaults to the current OWYG
+     values, so OWYG is visually and functionally unchanged. Remaining in this
+     phase: the static auth pages (login/change-password/reset) still carry the
+     name/tagline/logo in HTML; converting them to read `login_title`/
+     `login_tagline`/logo settings is the next slice.
 4. **Stack standardization review** - Clark wants to review the languages/styles
    used and standardize. NOTE for the discussion: he assumed everything beyond
    HTML was React; the actual stack is plain HTML/CSS + vanilla JS on the front
