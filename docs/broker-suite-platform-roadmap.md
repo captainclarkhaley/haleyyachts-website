@@ -87,3 +87,38 @@ Copy the module skeleton (page, js, css, api, help, help-img, own uploads if
 needed), register it in the suite app registry, reuse `core/` services and the
 settings layer. "Broker Looking For..." is the current placeholder tile (Coming
 Soon) and will be the first module built on the finished skeleton.
+
+## Next phase - post-migration priorities (Clark, 2026-07-02)
+
+**Sequencing:** get everything TESTED and working on the OWYG subdomain first,
+THEN clean up structure BEFORE OWYG goes live. Go-live is ~2 weeks out, so there
+is time to work these items. On Clark's return we review these and build a
+next-phase plan together.
+
+Priority order Clark set the night of the migration:
+1. **Printing** - get the Pocket customer print sheet fully sorted and working
+   on owyg.
+2. **Source / template system** - a master instance (possibly at the
+   `yachtbrokersupport.com` root) used to SPAWN new groups/companies if Clark
+   decides to sell the product. Envisioned flow: provision a new subdomain, copy
+   the source files down, configure for the new company. This is the multi-tenant
+   / white-label direction - bring architecture options to the discussion.
+3. **Per-tenant config layer** - config files that change look & behavior per
+   subdomain: color schemes, logos, email formats, etc. This is what makes #2
+   work (each spawned subdomain is a config, not a code fork). Builds on the
+   existing `suite_settings` layer. Keep in mind during all development; not a
+   high priority today.
+4. **Stack standardization review** - Clark wants to review the languages/styles
+   used and standardize. NOTE for the discussion: he assumed everything beyond
+   HTML was React; the actual stack is plain HTML/CSS + vanilla JS on the front
+   end and PHP + SQLite on the back end, no framework and no build step
+   (deliberate, so it runs on basic cPanel). Explain the current stack, then
+   discuss whether/how to standardize.
+
+**Structure cleanup (before go-live):**
+- **Eliminate the shared repo.** Extract the suite into its OWN git repo (e.g.
+  `yacht-broker-support`), suite files at the repo root, and point the OWYG
+  server's Git deployment at that repo. Drops the Haley public-site files and the
+  `haleyyachts-website` folder name from the OWYG hosting - makes the hosting as
+  cleanly separated as the branding now is. Not a tomorrow project, but do it
+  before OWYG goes live.
