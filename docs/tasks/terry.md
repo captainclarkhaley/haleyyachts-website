@@ -7,6 +7,12 @@
 
 ## OPEN
 
+### BROKER SUITE - shrink launcher tiles so all module cards fit on a laptop screen - LOW / LATER (Clark raised 2026-07-06 via William, "just a thought to look at later")
+Not urgent. Pure CSS/layout, no functional change. NOTE: a separate build of the Survey Management module is actively in progress in the `yacht-broker-support` repo right now - this backlog item is only a note here in terry.md and touches NO code; do not edit yacht-broker-support.
+- [ ] The suite launcher tiles (rendered by `module_tiles()` in `app/api/modules.php`, displayed in `app/suite.php` via the `bs-tile` / `bs-tile-soon` markup) may overflow a typical laptop viewport now that more modules exist - the new "Survey Management" coming-soon card plus the existing Vendor, Pocket, Broker Requests, and View Brokers tiles.
+- [ ] Reduce tile size / spacing so the full set fits without vertical scrolling on a standard laptop screen.
+- [ ] Verify responsive behavior still holds: phone = stacked cards, desktop = full grid. Layout-only change, no functional impact.
+
 ### POCKET LISTINGS - customer print sheet - RESOLVED 2026-07-06 (Clark confirmed via William)
 Post-migration priority #1 in the yacht-broker-support repo (`docs/platform-roadmap.md`). Converted to server-side PDF generation; now fully sorted and working on owyg.
 - [x] **Print sheet resolved 2026-07-06.** Clark confirmed the Pocket customer print sheet is fully sorted and working on owyg. Annotated as done in the yacht-broker-support `docs/platform-roadmap.md` (priority #1).
