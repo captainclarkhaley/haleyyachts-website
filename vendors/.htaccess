@@ -39,9 +39,26 @@
 # ----- No directory listing -----
 Options -Indexes
 
-# ----- Default page for /vendors/ is the Broker Suite launcher -----
-# So haleyyachts.com/vendors lands on the Suite menu (the front door), falling
-# back to the vendor app (index.php) if suite.php is ever missing. The vendor app
-# itself stays reachable at /vendors/index.php (the Suite's Vendor Management tile
-# links there).
-DirectoryIndex suite.php index.php
+# ============================================================
+# "WE HAVE MOVED" NOTICE (added 2026-07)
+# ============================================================
+# This is the OLD pre-migration deployment. The app has moved to
+# owyg.yachtbrokersupport.com. Rather than delete this app or its data (a
+# staff member may still have data here), we serve a friendly notice page
+# (moved.html) at the ENTRY POINTS so anyone landing here is pointed at the
+# new app. The underlying app files, the SQLite database, and uploads/docs
+# are LEFT IN PLACE and untouched - only the entry pages are intercepted.
+#
+# The directory index now shows the notice, and the app entry pages
+# (login/index/suite/change-password/reset, both .php and legacy .html) are
+# rewritten to moved.html. Data paths (api/, pocket/uploads/, *.sqlite) are
+# NOT matched, so nothing about the stored data is affected.
+DirectoryIndex moved.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Never rewrite the notice page itself (prevents a loop).
+    RewriteCond %{REQUEST_URI} !/moved\.html$ [NC]
+    # Intercept only the app entry pages, at this directory level only.
+    RewriteRule ^(login|index|suite|change-password|reset)\.(php|html)$ moved.html [L]
+</IfModule>
