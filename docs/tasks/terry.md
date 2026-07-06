@@ -7,6 +7,10 @@
 
 ## OPEN
 
+### POCKET LISTINGS - customer print sheet - RESOLVED 2026-07-06 (Clark confirmed via William)
+Post-migration priority #1 in the yacht-broker-support repo (`docs/platform-roadmap.md`). Converted to server-side PDF generation; now fully sorted and working on owyg.
+- [x] **Print sheet resolved 2026-07-06.** Clark confirmed the Pocket customer print sheet is fully sorted and working on owyg. Annotated as done in the yacht-broker-support `docs/platform-roadmap.md` (priority #1).
+
 ### POCKET LISTINGS - Commit progress bar on the New Listing flow - BUILT 2026-07-01 (Clark via William), needs pull
 Clicking Commit used to just disable the button and hang 10-30s (image upload + server-side resize) with no feedback, so it felt broken. Added a visible progress bar in the review overlay. Touched `vendors/pocket/index.php`, `vendors/pocket/pocket.js`, `vendors/pocket/pocket.css`. No server change, no change to draft building / validation / client-side compression. Vanilla JS. `git fetch` first. No browser here; verified by reading + tracing.
 - [x] **Commit now uploads via XMLHttpRequest (not fetch):** new `apiPostFormXhr(qs, formData, onProgress)` posts the SAME FormData to `api.php?action=save`. `xhr.upload.onprogress` drives a determinate 0-100% bar from `event.loaded / event.total`. `apiPostForm` is left in place for any other caller; only the commit path was rerouted.
