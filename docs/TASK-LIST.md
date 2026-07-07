@@ -5,6 +5,8 @@
 > Single-writer rule: **Terry** writes only `tasks/terry.md`. **Patrick** writes only `tasks/patrick.md`. **William** owns and regenerates this master. Ask William to regenerate after either owner file changes.
 >
 > This is a concise digest of OPEN items only, ordered by priority. For full detail, history, and completed-work logs, see the two source files.
+>
+> See [`WISH-LIST.md`](WISH-LIST.md) for candidate features not yet committed (ideas to consider before building).
 
 *Last regenerated: July 7, 2026 (William rollup). This pass folds in Terry's engineering-state reconciliation (commit `161b197`, origin/main): the Yacht Broker Support / Broker Suite platform work now leads the list. Top of the stack is the DKIM blocker for yachtbrokersupport.com (the Friday-send gate) and the Survey Management module go-live. Patrick's marketing items are unchanged from the June cadence. Added one STRATEGIC / PARKED item at the bottom: the YBS monetization direction (Clark's call, on hold).*
 
