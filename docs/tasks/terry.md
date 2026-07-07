@@ -42,6 +42,11 @@ Not urgent. Pure CSS/layout, no functional change. NOTE: a separate build of the
 - [ ] Reduce tile size / spacing so the full set fits without vertical scrolling on a standard laptop screen.
 - [ ] Verify responsive behavior still holds: phone = stacked cards, desktop = full grid. Layout-only change, no functional impact.
 
+### BROKER SUITE - launcher "what's new" notice linking to the Change Log - LOW / LATER (Clark raised 2026-07-07 via William, "note for later once the product is more mature")
+Explicitly deferred by Clark - do NOT build until he asks. This is a proactive login-time notice layered on top of the in-app Change Log page, which already exists (built 2026-07-07, commit c9734aa in the yacht-broker-support repo, with an account-menu link). This backlog item touches NO code; it lives only in terry.md. When built, work happens in the yacht-broker-support repo, not here.
+- [ ] When a user first logs in after new Change Log entries have been added, show a notice on the launcher / menu screen (`suite.php`) telling them changes were made, with a direct link to the in-app Change Log (`app/changelog.php`).
+- [ ] Likely approach for later: track the latest change-log entry date (from `app/changelog-data.php`) against a per-user "last seen changelog" value (a user setting or cookie); show a dismissible banner on the launcher when there is something newer, linking to `changelog.php`. Dismiss updates the last-seen marker.
+
 ### POCKET LISTINGS - customer print sheet - RESOLVED 2026-07-06 (Clark confirmed via William)
 Post-migration priority #1 in the yacht-broker-support repo (`docs/platform-roadmap.md`). Converted to server-side PDF generation; now fully sorted and working on owyg.
 - [x] **Print sheet resolved 2026-07-06.** Clark confirmed the Pocket customer print sheet is fully sorted and working on owyg. Annotated as done in the yacht-broker-support `docs/platform-roadmap.md` (priority #1).
