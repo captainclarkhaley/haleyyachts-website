@@ -31,3 +31,11 @@ When an item is approved to build, move it out of this file and onto the owner t
 - **Why parked now:** Clark decided 2026-07-07 NOT to build this yet. Normal brokers each have a single login, so this is an edge case. Clark only hit it because he personally has several logins.
 - **Why worth considering later:** Would also cover reassigning a departing broker's surveys to someone else.
 - **Likely shape if built:** an admin-only "Assign to broker" dropdown on the survey.
+
+### Off Market Deals "all active users" send - revisit at scale (BCC batching + send-progress UX)
+- **Raised:** 2026-07-09
+- **Status:** Parked / consider later (triggered by scale, not needed at the ~15-user test size)
+- **Detail:** The Off Market Deals listing announcement now sends to all active users via a single BCC email when the notification-recipient setting is blank (built 2026-07-09, in `yacht-broker-support`). Two things will need rethinking once the active-user count grows large (hundreds across multiple offices): (1) a single very large BCC can trip mail-provider per-send recipient limits, so the send should move to CHUNKED BCC BATCHES; (2) the in-flight progress UX is currently an indeterminate "Sending emails..." bar, which is fine for a quick 15-user send but not for a large multi-batch send - it should show real progress or move to a background/queued job so the broker is not blocked waiting on a spinner.
+- **Why parked now:** At the ~15-user OWYG test scale a single BCC + a simple progress bar work fine. This only becomes necessary as usage scales to many offices / hundreds of users.
+- **Why worth considering later:** Directly gates scaling the product beyond the first office. Both items (batching + progress) are one connected piece of work.
+- **Likely shape if built:** chunked BCC send loop with per-batch throttling, plus either a real progress indicator driven by batch completion or an async/queued send with a "sending in the background" notice.
