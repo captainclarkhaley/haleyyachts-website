@@ -42,16 +42,6 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "images/yachts/featured/riviera-465suv.jpg",
-        name: "2024 Riviera 465 SUV - $1,574,000",
-        description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/featured/2024-riviera-465-suv.pdf",
-        kuula: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/2022 Sunseeker 68 Manhattan",
         name: "2022 Sunseeker 68 Manhattan",
         description: "This 2022 Sunseeker 68 Manhattan represents a rare opportunity to acquire the only 4 cabin layout currently availableon the market. Well maintained with approximately 900 hours on the MAN V8 1200 engines and full service records up to date.",
@@ -69,6 +59,17 @@ const featuredYachts = [
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2018-absolute-60-fly.pdf",
         kuula: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
         page: ""
     },
     {
