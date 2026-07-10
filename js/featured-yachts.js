@@ -50,8 +50,7 @@ const featuredYachts = [
         pdf: "documents/yachts/featured/2024-Sunseeker-Manhattan_68.pdf",
         kuula: "",
         page: "yachts/offshore-48-island-girl.html",
-        youtube: ""
-    },
+        youtube: ""},
     {
         image: "images/yachts/featured/riviera-465suv.jpg",
         name: "2024 Riviera 465 SUV - $1,574,000",
