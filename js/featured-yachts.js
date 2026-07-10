@@ -42,16 +42,6 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "images/yachts/featured/riviera-465suv.jpg",
-        name: "2024 Riviera 465 SUV - $1,574,000",
-        description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/featured/2024-riviera-465-suv.pdf",
-        kuula: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/islandgirl-2.jpg",
         name: "1997 Offshore 48 - ISLAND GIRL $330,000",
         description: "ISLAND GIRL is a classic 48' Offshore Sedan offering the comfortable ride, practical layout, and quality construction that have made Offshore Yachts so well respected. Her semi-displacement hull and wide 15'6\" beam provide a comfortable living space.",
@@ -60,6 +50,16 @@ const featuredYachts = [
         pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan (1).pdf",
         kuula: "",
         page: "yachts/offshore-48-island-girl.html"
+    },
+    {
+        image: "images/yachts/featured/riviera-465suv.jpg",
+        name: "2024 Riviera 465 SUV - $1,574,000",
+        description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/featured/2024-riviera-465-suv.pdf",
+        kuula: "",
+        page: ""
     },
     {
         image: "images/yachts/featured/2022 Sunseeker 68 Manhattan",
