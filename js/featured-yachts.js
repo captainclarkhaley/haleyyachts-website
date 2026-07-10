@@ -42,16 +42,6 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "images/yachts/featured/sunseeker-68-hero.jpeg",
-        name: "2024 Sunseeker 68 Manhattan -NEW- w/ Warranty CALL for Price",
-        description: "This brand new Sunseeker 68 Manhattan is brand new and carries a full warranty and is a screaming good deal. Since we brought her in to our inventory, she has been proffesionally maintained by our service department. Don't miss this opportunity.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/featured/2024-Sunseeker-Manhattan_68.pdf",
-        kuula: "",
-        page: "yachts/offshore-48-island-girl.html",
-        youtube: ""},
-    {
         image: "images/yachts/featured/riviera-465suv.jpg",
         name: "2024 Riviera 465 SUV - $1,574,000",
         description: "Picture life on board your brilliant new Riviera SUV adventure yacht, surrounded in luxury, totally relaxed and taking every opportunity to create precious memories your friends and loved ones.",
@@ -79,6 +69,17 @@ const featuredYachts = [
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2018-absolute-60-fly.pdf",
         kuula: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
         page: ""
     }
 ];
