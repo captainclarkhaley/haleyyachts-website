@@ -42,14 +42,15 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "images/yachts/featured/islandgirl-2.jpg",
-        name: "1997 Offshore 48 - ISLAND GIRL $330,000",
-        description: "ISLAND GIRL is a classic 48' Offshore Sedan offering the comfortable ride, practical layout, and quality construction that have made Offshore Yachts so well respected. Her semi-displacement hull and wide 15'6\" beam provide a comfortable living space.",
+        image: "images/yachts/featured/sunseeker-68-hero.jpeg",
+        name: "2024 Sunseeker 68 Manhattan -NEW- w/ Warranty CALL for Price",
+        description: "This brand new Sunseeker 68 Manhattan is brand new and carries a full warranty and is a screaming good deal. Since we brought her in to our inventory, she has been proffesionally maintained by our service department. Don't miss this opportunity.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/1997-Offshore_Yachts-Sedan (1).pdf",
+        pdf: "documents/yachts/featured/2024-Sunseeker-Manhattan_68.pdf",
         kuula: "",
-        page: "yachts/offshore-48-island-girl.html"
+        page: "yachts/offshore-48-island-girl.html",
+        youtube: ""
     },
     {
         image: "images/yachts/featured/riviera-465suv.jpg",
