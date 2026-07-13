@@ -42,7 +42,7 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "images/yachts/featured/2022 Sunseeker 68 Manhattan",
+        image: "images/yachts/featured/2024-sunseeker-manhattan-68-power-10205500-20260710104638103-1.jpg",
         name: "2024 Sunseeker 68 Manhattan - $3,995,000 *NEW*",
         description: "This is a \"demo\" model and provides a unique opportunity to own a new Sunseeker Manhattan 68 at used boat prices, but with full Manufacturers warranty. Includes Twin MAN V8 1200 hp engines, Marex OS 3D Docking System and so much more!",
         link: "contact.html",
