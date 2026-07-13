@@ -30,38 +30,3 @@ ziuSKY1z
 .env.local
 *.key
 credentials.json
-
-# Vendor Database live data - the SQLite file is server-side state, NOT code.
-# Keep it out of git so the cPanel deploy pull never clobbers real records.
-# Only vendors/api/data/.htaccess is tracked. Back the .sqlite up separately.
-vendors/api/data/*.sqlite
-vendors/api/data/*.sqlite-journal
-vendors/api/data/*.sqlite-wal
-vendors/api/data/*.sqlite-shm
-
-# Pocket Listings uploaded images - broker-uploaded photos are server-side live
-# data, NOT code. Keep them out of git so a cPanel deploy pull never clobbers
-# real uploads. Only the .htaccess + .gitkeep in that dir are tracked. Back the
-# uploads folder up separately, like the .sqlite file.
-vendors/pocket/uploads/*
-!vendors/pocket/uploads/.htaccess
-!vendors/pocket/uploads/.gitkeep
-
-# Vendor documents - SENSITIVE uploaded files (insurance certs, etc.). Server-side
-# live data, NOT code. Never web-served directly (see vendors/api/docs/.htaccess);
-# fetched only through the authenticated doc-download.php endpoint. Keep the files
-# out of git so a cPanel deploy pull never clobbers real uploads. Only the
-# .htaccess + .gitkeep in that dir are tracked. Back this folder up separately.
-vendors/api/docs/*
-!vendors/api/docs/.htaccess
-!vendors/api/docs/.gitkeep
-
-# Broker Suite SMTP credentials (server-side only, never commit). One shared
-# secrets file feeds BOTH mailers (Vendor app auth mail + Pocket notification).
-# Copy vendors/mail-secrets.sample.php -> vendors/mail-secrets.php on the server
-# and set the real mailbox password there; it must never enter git.
-vendors/mail-secrets.php
-
-# Legacy per-app Pocket credentials file (kept ignored for backward compat;
-# the consolidated vendors/mail-secrets.php above supersedes it).
-vendors/pocket/mail-config.php
