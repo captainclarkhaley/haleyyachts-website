@@ -420,6 +420,41 @@
     const youtubePreviewBox = document.getElementById('youtubePreviewBox');
     const saveBtn = document.getElementById('saveBtn');
 
+    // ===== Blank-slot compaction + position labels =====
+    // The homepage renders ONLY filled slots (blanks hidden), but this editor
+    // maps "Position N" to raw array index N-1 including blanks. If a blank sits
+    // BETWEEN filled entries the two views drift, and reorder/delete then operate
+    // on a stranded blank and silently no-op. Fix: keep blanks pushed to the END,
+    // both in the on-disk file (see the patchers) and in this in-memory workingData.
+
+    // Reorder workingData so every filled slot precedes every blank one, keeping
+    // relative order within each group, then re-pad/trim to exactly 6 slots.
+    function compactWorkingDataFilledFirst() {
+        const filled = [], blanks = [];
+        workingData.forEach(y => (isFilledYacht(y) ? filled : blanks).push(y));
+        workingData = filled.concat(blanks).slice(0, 6);
+        while (workingData.length < 6) {
+            workingData.push({
+                image: '', name: 'Featured Listing',
+                description: 'Details about this featured yacht will appear here.',
+                link: 'contact.html', linkText: 'Inquire', pdf: '', kuula: '', youtube: '', page: ''
+            });
+        }
+    }
+
+    // Relabel the Position dropdown so each option shows the slot's current yacht
+    // name (or "(empty)"), so Clark can see what each position actually holds.
+    function relabelPositionOptions() {
+        Array.from(posSel.options).forEach(opt => {
+            const v = parseInt(opt.value);
+            if (!v) return; // leave the "-- Select --" placeholder alone
+            const y = workingData[v - 1];
+            opt.textContent = v + ' - ' + (isFilledYacht(y) ? y.name : '(empty)');
+        });
+    }
+
+    relabelPositionOptions();
+
     // ===== Save-state visual feedback =====
     function markSaved() {
         saveBtn.classList.add('saved');
@@ -1111,6 +1146,8 @@
                 pdfPreviewRow.style.display = 'none';
             }
             markSaved();
+            // Refresh dropdown labels in case this save renamed/filled the slot.
+            relabelPositionOptions();
             if (useGitHub) {
                 showStatus(`Saved! Position ${pos} updated and committed to GitHub. Clark runs the cPanel pull to deploy.`, 'success');
             } else {
@@ -1134,6 +1171,13 @@
 
         const fromIdx = fromPos - 1;
         const toIdx = toPos - 1;
+
+        // Empty-slot guard: refuse to move a blank slot. Blanks are hidden on the
+        // homepage, so "moving" one is always an accidental no-op.
+        if (!isFilledYacht(workingData[fromIdx])) {
+            showStatus('Position ' + fromPos + ' is an empty slot - there is nothing to move.', 'error');
+            return;
+        }
 
         // Pull current form edits into the source entry first, so an unsaved title
         // edit isn't lost when we re-order.
@@ -1173,6 +1217,9 @@
             if (typeof y.kuula === 'undefined') y.kuula = '';
             if (typeof y.youtube === 'undefined') y.youtube = '';
         });
+        // Mirror the file-side compaction: blanks sink to the end so the two
+        // representations stop drifting.
+        compactWorkingDataFilledFirst();
 
         // Targeted reorder of the data file: only the data array is rewritten;
         // the renderer code and all helpers in js/featured-yachts.js are left
@@ -1208,8 +1255,12 @@
                 }
             }
 
-            // Reload form on the moved entry's new position so Clark sees the result
-            posSel.value = String(toPos);
+            // Reload the form on the moved entry's REAL new position (compaction
+            // may have shifted it if blanks were pulled to the end) so Clark sees
+            // the result. Refresh the dropdown labels too.
+            const movedIdx = workingData.indexOf(moved);
+            posSel.value = String(movedIdx >= 0 ? movedIdx + 1 : toPos);
+            relabelPositionOptions();
             loadCurrent();
             document.getElementById('movePosition').value = '';
             if (useGitHub) {
@@ -1315,6 +1366,14 @@
             return;
         }
         const entry = workingData[pos - 1];
+
+        // Empty-slot guard: refuse to delete a blank slot. Blanks are hidden on
+        // the homepage, so "deleting" one is always an accidental no-op.
+        if (!isFilledYacht(entry)) {
+            showStatus('Position ' + pos + ' is an empty slot - there is nothing to delete.', 'error');
+            return;
+        }
+
         const name = (entry.name && entry.name !== 'Featured Listing') ? entry.name : '(empty slot)';
 
         // Gather this entry's own assets: the image, and the PDF only if it is a
@@ -1461,6 +1520,10 @@
                 });
             }
             workingData = workingData.slice(0, 6);
+            // Mirror the file-side compaction so blanks sink to the end and the
+            // two representations stop drifting; refresh the dropdown labels.
+            compactWorkingDataFilledFirst();
+            relabelPositionOptions();
 
             // Reload the now-empty slot so the form clears.
             loadCurrent();
@@ -1671,6 +1734,30 @@
         return fileText.slice(0, arrRange.start + 1) + newArrText + fileText.slice(arrRange.end);
     }
 
+    // Text-level version of isFilledYacht: parse the image + name string literals
+    // out of a single entry's source text to decide whether that slot is blank.
+    // All values in this data file are double-quoted, so a double-quote match is
+    // sufficient and robust against embedded escapes.
+    function fyEntryTextIsFilled(entryText) {
+        const grab = (field) => {
+            const m = entryText.match(new RegExp('\\b' + field + '\\s*:\\s*"((?:\\\\.|[^"])*)"'));
+            return m ? m[1] : '';
+        };
+        const image = grab('image');
+        const name = grab('name');
+        if (image && image.trim()) return true;
+        if (name && name !== 'Featured Listing') return true;
+        return false;
+    }
+
+    // Push every blank entry-text to the end, keeping filled order stable. Mirror
+    // of compactWorkingDataFilledFirst but operating on raw entry source strings.
+    function compactEntryTextsFilledFirst(entryTexts) {
+        const filled = [], blanks = [];
+        entryTexts.forEach(t => (fyEntryTextIsFilled(t) ? filled : blanks).push(t));
+        return filled.concat(blanks);
+    }
+
     // Reorder entries inside the array region. Used by MOVE. Preserves the
     // renderer code outside the array entirely; only the array body is rewritten.
     function patchFeaturedYachtsReorder(fileText, fromIdx, toIdx) {
@@ -1683,7 +1770,10 @@
         const entryTexts = entries.map(e => arrText.slice(e.start, e.end + 1));
         const [moved] = entryTexts.splice(fromIdx, 1);
         entryTexts.splice(toIdx, 0, moved);
-        const newArrText = '\n    ' + entryTexts.join(',\n    ') + '\n';
+        // Blanks always sink to the end so filled cards stay contiguous from
+        // Position 1 and the file agrees with the in-memory workingData.
+        const compacted = compactEntryTextsFilledFirst(entryTexts);
+        const newArrText = '\n    ' + compacted.join(',\n    ') + '\n';
         return fileText.slice(0, arrRange.start + 1) + newArrText + fileText.slice(arrRange.end);
     }
 
@@ -1700,7 +1790,10 @@
         }
         const entryTexts = entries.map(e => arrText.slice(e.start, e.end + 1));
         entryTexts.splice(idx, 1);
-        // Re-pad to 6 blank slots so positions stay stable.
+        // Push any remaining blank slots to the end so filled cards stay
+        // contiguous from Position 1, then re-pad to 6 blank slots so positions
+        // stay stable.
+        let compactedTexts = compactEntryTextsFilledFirst(entryTexts);
         const blank = `{
         image: "",
         name: "Featured Listing",
@@ -1712,8 +1805,8 @@
         youtube: "",
         page: ""
     }`;
-        while (entryTexts.length < 6) entryTexts.push(blank);
-        const newArrText = '\n    ' + entryTexts.join(',\n    ') + '\n';
+        while (compactedTexts.length < 6) compactedTexts.push(blank);
+        const newArrText = '\n    ' + compactedTexts.join(',\n    ') + '\n';
         return fileText.slice(0, arrRange.start + 1) + newArrText + fileText.slice(arrRange.end);
     }
 
