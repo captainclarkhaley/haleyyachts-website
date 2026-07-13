@@ -43,13 +43,14 @@ const featuredYachts = [
     },
     {
         image: "images/yachts/featured/2022 Sunseeker 68 Manhattan",
-        name: "2022 Sunseeker 68 Manhattan",
-        description: "This 2022 Sunseeker 68 Manhattan represents a rare opportunity to acquire the only 4 cabin layout currently availableon the market. Well maintained with approximately 900 hours on the MAN V8 1200 engines and full service records up to date.",
+        name: "2024 Sunseeker 68 Manhattan - $3,995,000 *NEW*",
+        description: "This is a \"demo\" model and provides a unique opportunity to own a new Sunseeker Manhattan 68 at used boat prices, but with full Manufacturers warranty. Includes Twin MAN V8 1200 hp engines, Marex OS 3D Docking System and so much more!",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2022-sunseeker-manhattan_68.pdf",
+        pdf: "documents/yachts/featured/2024-Sunseeker-Manhattan_68.pdf",
         kuula: "",
-        page: ""
+        page: "",
+        youtube: ""
     },
     {
         image: "",
