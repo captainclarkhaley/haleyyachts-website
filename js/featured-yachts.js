@@ -42,17 +42,6 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "",
-        name: "Featured Listing",
-        description: "Details about this featured yacht will appear here.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "",
-        kuula: "",
-        youtube: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/2022 Sunseeker 68 Manhattan",
         name: "2022 Sunseeker 68 Manhattan",
         description: "This 2022 Sunseeker 68 Manhattan represents a rare opportunity to acquire the only 4 cabin layout currently availableon the market. Well maintained with approximately 900 hours on the MAN V8 1200 engines and full service records up to date.",
@@ -70,6 +59,17 @@ const featuredYachts = [
         linkText: "Inquire",
         pdf: "documents/yachts/featured/2018-absolute-60-fly.pdf",
         kuula: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
         page: ""
     },
     {
