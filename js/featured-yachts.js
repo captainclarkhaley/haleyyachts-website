@@ -50,8 +50,7 @@ const featuredYachts = [
         pdf: "documents/yachts/featured/2024-Sunseeker-Manhattan_68.pdf",
         kuula: "",
         page: "",
-        youtube: ""
-    },
+        youtube: ""},
     {
         image: "",
         name: "Featured Listing",
