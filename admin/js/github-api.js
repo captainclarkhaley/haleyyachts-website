@@ -101,16 +101,23 @@ async function ghPutFile(path, base64Content, message, sha) {
     return res.json();
 }
 
+// Deletes a file via the Contents API. A file that is already absent is treated
+// as already-deleted and never throws: 404 on the sha lookup, or 404 on the
+// DELETE itself (the file vanished between lookup and delete). Returns true if
+// this call removed the file, false if it was already gone. Callers that don't
+// care about the distinction can ignore the return value.
 async function ghDeleteFile(path, message) {
     const existing = await ghGetFile(path, false);
-    if (!existing) return;
+    if (!existing) return false;
     const url = GH_API + '/repos/' + GH_OWNER + '/' + GH_REPO + '/contents/' + encodeApiPath(path);
     const res = await fetch(url, {
         method: 'DELETE', headers: ghHeaders(),
         body: JSON.stringify({ message: message, sha: existing.sha, branch: GH_BRANCH })
     });
     if (res.status === 401) throw ghAuthError();
+    if (res.status === 404) return false;
     if (!res.ok) throw new Error('GitHub DELETE ' + path + ' failed: ' + res.status);
+    return true;
 }
 
 async function ghListDir(path) {

@@ -925,6 +925,8 @@
     // Delete a file under the site root (no-token fallback). repoPath is a
     // repo-relative path like images/yachts/featured/foo.jpg. Silently ignores
     // a missing file so the flow matches GitHub mode (ghDeleteFile no-ops on 404).
+    // Returns true if a file was removed, false if it was already absent, so the
+    // caller can report an accurate count without treating "already gone" as an error.
     async function deleteFileLocal(repoPath) {
         const root = await getSiteRoot();
         const parts = repoPath.split('/');
@@ -932,10 +934,10 @@
         let dir = root;
         for (const seg of parts) {
             try { dir = await dir.getDirectoryHandle(seg); }
-            catch (e) { return; } // directory gone -> nothing to delete
+            catch (e) { return false; } // directory gone -> nothing to delete
         }
-        try { await dir.removeEntry(fileName); }
-        catch (e) { /* file already absent */ }
+        try { await dir.removeEntry(fileName); return true; }
+        catch (e) { return false; /* file already absent */ }
     }
 
     // ===== GitHub-mode binary upload (used when a token is set) =====
@@ -1481,14 +1483,19 @@
             // in-memory below); the toDelete list was computed against the full
             // set including this entry, so count > 1 correctly meant "another
             // entry also uses it".
+            // Asset cleanup is best-effort and NEVER fatal: the card is already
+            // out of the data file (Step 1 committed + read-back verified above).
+            // A missing asset (404 / no sha) is treated as already-deleted - it is
+            // skipped, counted separately, and never recorded as a failure. Only a
+            // real API/IO error lands in `failures` as a leftover-file note.
             const failures = [];
+            let assetsRemoved = 0, assetsAlreadyGone = 0;
             for (const c of toDelete) {
                 try {
-                    if (useGitHub) {
-                        await ghDeleteFile(c.path, 'Featured yacht: delete asset ' + c.path);
-                    } else {
-                        await deleteFileLocal(c.path);
-                    }
+                    const removed = useGitHub
+                        ? await ghDeleteFile(c.path, 'Featured yacht: delete asset ' + c.path)
+                        : await deleteFileLocal(c.path);
+                    if (removed === false) assetsAlreadyGone++; else assetsRemoved++;
                 } catch (e) {
                     failures.push(c.path + ' (' + e.message + ')');
                 }
@@ -1496,15 +1503,13 @@
 
             // Step 2b: delete the linked detail page, if any. Same Contents API /
             // local-folder split as the asset deletes; both no-op on a missing file.
-            let pageDeleted = false;
+            let pageDeleted = false, pageAlreadyGone = false;
             if (detailPage) {
                 try {
-                    if (useGitHub) {
-                        await ghDeleteFile(detailPage, 'Featured yacht: delete detail page ' + detailPage);
-                    } else {
-                        await deleteFileLocal(detailPage);
-                    }
-                    pageDeleted = true;
+                    const removed = useGitHub
+                        ? await ghDeleteFile(detailPage, 'Featured yacht: delete detail page ' + detailPage)
+                        : await deleteFileLocal(detailPage);
+                    if (removed === false) pageAlreadyGone = true; else pageDeleted = true;
                 } catch (e) {
                     failures.push(detailPage + ' (' + e.message + ')');
                 }
@@ -1528,19 +1533,29 @@
             // Reload the now-empty slot so the form clears.
             loadCurrent();
 
+            // The card is already removed from the data file (Step 1 committed and
+            // read-back verified). Asset/page cleanup is secondary, so the banner
+            // always reads SUCCESS - a leftover file is a note, not a failed delete.
+            // This is the fix for "the card I most want gone won't delete": a card
+            // whose image/PDF were already deleted no longer shows a red error.
             let msg = 'Deleted "' + name + '" from Position ' + pos + '. ' +
-                      toDelete.length + ' asset file(s) removed';
+                      assetsRemoved + ' asset file(s) removed';
+            if (assetsAlreadyGone) msg += ', ' + assetsAlreadyGone + ' already gone';
             if (pageDeleted) msg += ', detail page ' + detailPage + ' removed';
+            else if (pageAlreadyGone) msg += ', detail page ' + detailPage + ' was already gone';
             if (kept.length) msg += ', ' + kept.length + ' shared file(s) kept';
-            if (pageDeleted && inboundLinks.length) {
+            if ((pageDeleted || pageAlreadyGone) && inboundLinks.length) {
                 msg += '. Note: ' + inboundLinks.length + ' page(s) still link to it (' +
                        inboundLinks.join(', ') + ') - clean up those links manually';
             }
-            if (failures.length) msg += '. Delete issues: ' + failures.join('; ');
+            if (failures.length) {
+                msg += '. The card was removed, but some leftover files could not be ' +
+                       'auto-deleted - remove them manually if needed: ' + failures.join('; ');
+            }
             msg += useGitHub
                 ? '. Committed to GitHub. Clark runs the cPanel pull to deploy.'
                 : '. Saved to the local folder. Commit + push + pull to deploy.';
-            showStatus(msg, failures.length ? 'error' : 'success');
+            showStatus(msg, 'success');
         } catch (err) {
             if (err.name === 'AbortError') {
                 showStatus('Delete canceled.', 'error');
