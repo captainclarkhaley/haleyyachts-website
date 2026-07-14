@@ -42,12 +42,12 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "images/yachts/featured/2024 Sunseeker 68 Manhattan",
-        name: "2024 Riviera 68 Manhattan *NEW* - $3,995,000",
-        description: "This is a NEW 68 Manhattan that has been lightly used as a demo. She can be purchased at far below her retail value. Twin MAN V8 1200 hp engines, Hardtop Flybridge, Marex OS 3D Joy Stick docking system, dual station, Upgraded interior.",
+        image: "images/yachts/featured/2024-sunseeker-manhattan-68-power-10205500-20260710104638123-7.jpg",
+        name: "2024 Riviera 68 Manhattan *NEW* - $3,995",
+        description: "This is a NEW Sunseeker 68 Manhattan, built in 2024. Comes with full manufacturer warranty and many upgrades, including twin MAN 1400 hp engines, Joy Stick docking, upgraded interiors, hardtop Flybridge and so much more. Call to get full details.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "",
+        pdf: "documents/yachts/featured/2024-Sunseeker-Manhattan_68.pdf",
         kuula: "",
         youtube: "",
         page: ""
