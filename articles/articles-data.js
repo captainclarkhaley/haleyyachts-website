@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "how-to",
+        "title": "How to Buy a Yacht: The Step-by-Step Timeline",
+        "excerpt": "From accepted offer to handing you the keys, here is exactly how a yacht purchase unfolds, how long each stage really takes, and where deals stall so you can keep yours moving.",
+        "date": "2026-06-18",
+        "author": "Clark Haley",
+        "slug": "how-to-buy-a-yacht-the-step-by-step-timeline",
+        "fileName": "2026-06-18-how-to-buy-a-yacht-the-step-by-step-timeline.html",
+        "heroImage": "broker2.jpeg",
+        "keywords": "how to buy a yacht, yacht buying process, yacht purchase timeline, boat offer and acceptance, yacht survey and sea trial, yacht closing process, buying a yacht in Florida, Haley Yachts buyer guide"
+    },
+    {
         "type": "travel",
         "title": "Cruising the Exuma Cays Land and Sea Park: What We Get for Our Trouble",
         "excerpt": "Years ago my family sailed our boat through the Exuma Cays Land and Sea Park, the Bahamas, and the place never let go of me. Here is what makes Shroud Cay, Warderick Wells, and Pipe Creek worth every mile it takes to get there, from a captain who has actually run these waters.",
