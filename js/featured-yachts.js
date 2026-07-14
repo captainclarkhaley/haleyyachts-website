@@ -75,12 +75,12 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "",
-        name: "Featured Listing",
-        description: "Details about this featured yacht will appear here.",
+        image: "images/yachts/featured/screenshot-2026-07-13-at-9-06-00-pm.png",
+        name: "2023 Riviera 64 Sports Motor Yacht",
+        description: "This exceptional 2023 Riviera 64 Sport Motor Yacht is a highly optioned example that has been thoughtfully equipped for luxury cruising, entertaining, and extended adventures. Twin MAN 1150 hp engines, Seakeeper 18. Call for full details.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "",
+        pdf: "documents/yachts/featured/2023-Riviera-64_Sports_Motor_Yacht.pdf",
         kuula: "",
         youtube: "",
         page: ""
