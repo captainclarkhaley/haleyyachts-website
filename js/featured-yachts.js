@@ -43,7 +43,7 @@ const featuredYachts = [
     },
     {
         image: "images/yachts/featured/2024-sunseeker-manhattan-68-power-10205500-20260710104638123-7.jpg",
-        name: "2024 Riviera 68 Manhattan *NEW* - $3,995",
+        name: "2024 Sunseeker Manhattan 68 *NEW* - $3,995,000",
         description: "This is a NEW Sunseeker 68 Manhattan, built in 2024. Comes with full manufacturer warranty and many upgrades, including twin MAN 1400 hp engines, Joy Stick docking, upgraded interiors, hardtop Flybridge and so much more. Call to get full details.",
         link: "contact.html",
         linkText: "Inquire",
