@@ -64,17 +64,6 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/screenshot-2026-07-13-at-9-06-00-pm.png",
-        name: "2023 Riviera 64 Sports Motor Yacht",
-        description: "This exceptional 2023 Riviera 64 Sport Motor Yacht is a highly optioned example that has been thoughtfully equipped for luxury cruising, entertaining, and extended adventures. Twin MAN 1150 hp engines, Seakeeper 18. Call for full details.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/featured/2023-Riviera-64_Sports_Motor_Yacht.pdf",
-        kuula: "",
-        youtube: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/screenshot-2026-07-13-at-8-28-19-pm.png",
         name: "2026 HCB 56 Suenos GIX $2,985,000 w/Quint Merc 600's",
         description: "This is a new HBC Suenos 56 with 5 Merc 600 engines, custom hul color, Split-Sit Mezzaninie layout, Seakeeper 10, Starlink WiFi, 15KW Fisher Panda generator, upgraded Garmin electronics, helm A/c w 2nd A/C in cockpit. Call for complete information.",
@@ -83,6 +72,17 @@ const featuredYachts = [
         pdf: "documents/yachts/featured/2026-HCB-56_SUENOS_GIX.pdf",
         kuula: "",
         youtube: "asIe1cVN4IE",
+        page: ""
+    },
+    {
+        image: "images/yachts/featured/screenshot-2026-07-13-at-9-06-00-pm.png",
+        name: "2023 Riviera 64 Sports Motor Yacht",
+        description: "This exceptional 2023 Riviera 64 Sport Motor Yacht is a highly optioned example that has been thoughtfully equipped for luxury cruising, entertaining, and extended adventures. Twin MAN 1150 hp engines, Seakeeper 18. Call for full details.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/featured/2023-Riviera-64_Sports_Motor_Yacht.pdf",
+        kuula: "",
+        youtube: "",
         page: ""
     }
 ];
