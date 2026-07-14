@@ -547,6 +547,56 @@
         .drafts-row .d-meta { font-size: 0.78rem; color: #888; }
         .drafts-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
+        /* ----- Library picker modal ----- */
+        .lib-btn {
+            background: #fff; color: #0a1628; border: 1px solid #21cbea;
+            padding: 9px 16px; border-radius: 3px; font-size: 0.85rem;
+            font-weight: 600; cursor: pointer; font-family: inherit;
+        }
+        .lib-btn:hover { background: #eafaff; }
+        .lib-overlay {
+            position: fixed; inset: 0; background: rgba(10,22,40,0.6);
+            display: none; align-items: flex-start; justify-content: center;
+            z-index: 4000; padding: 40px 16px; overflow-y: auto;
+        }
+        .lib-overlay.open { display: flex; }
+        .lib-modal {
+            background: #fff; border-radius: 6px; width: 100%; max-width: 900px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3); display: flex; flex-direction: column;
+            max-height: calc(100vh - 80px);
+        }
+        .lib-modal-head {
+            background: #0a1628; color: #fff; padding: 18px 24px;
+            border-radius: 6px 6px 0 0; display: flex; align-items: center; justify-content: space-between;
+        }
+        .lib-modal-head h3 { margin: 0; font-size: 1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
+        .lib-modal-head h3 span { color: #21cbea; }
+        .lib-close { background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; line-height: 1; padding: 0 4px; }
+        .lib-close:hover { color: #21cbea; }
+        .lib-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 16px 24px 8px; }
+        .lib-toolbar input[type=text], .lib-toolbar select {
+            padding: 8px 10px; border: 1px solid #d0d0d0; border-radius: 3px; font-size: 0.85rem; font-family: inherit;
+        }
+        .lib-toolbar input[type=text] { flex: 1; min-width: 180px; }
+        .lib-count { font-size: 0.8rem; color: #888; }
+        .lib-body { padding: 8px 24px 24px; overflow-y: auto; }
+        .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+        .lib-thumb {
+            border: 1px solid #e5e5e5; border-radius: 4px; overflow: hidden;
+            background: #fff; cursor: pointer; transition: all 0.15s;
+        }
+        .lib-thumb:hover { border-color: #21cbea; box-shadow: 0 4px 14px rgba(33,203,234,0.18); }
+        .lib-thumb .lib-imgwrap {
+            height: 110px; background: #f0f2f5;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .lib-thumb .lib-imgwrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .lib-thumb .lib-meta { padding: 7px 9px; }
+        .lib-thumb .lib-fname { font-size: 0.7rem; color: #333; word-break: break-all; line-height: 1.35; font-family: 'Courier New', monospace; }
+        .lib-thumb .lib-dir { font-size: 0.64rem; color: #999; margin-top: 3px; }
+        .lib-note { font-size: 0.82rem; color: #888; padding: 8px 24px 0; }
+        .lib-note.err { color: #b3261e; }
+
         /* Responsive */
         @media (max-width: 600px) {
             .admin-container { padding: 24px 20px; }
@@ -650,7 +700,8 @@
                     <button type="button" data-cmd="formatBlock" data-arg="BLOCKQUOTE" title="Pull quote">&ldquo;Quote&rdquo;</button>
                     <button type="button" id="clearFmtBtn" title="Clear formatting">Clear</button>
                     <span class="sep"></span>
-                    <button type="button" id="insertImageBtn" title="Insert image at cursor">Insert Image</button>
+                    <button type="button" id="insertImageBtn" title="Insert image (upload from disk) at cursor">Insert Image</button>
+                    <button type="button" id="insertLibraryBtn" title="Insert an existing repo image at cursor">Insert from Library</button>
                 </div>
                 <div id="bodyEditor" contenteditable="true" spellcheck="true"></div>
                 <input type="file" id="inlineImageFile" accept="image/*" style="display:none;">
@@ -697,6 +748,10 @@
                     <strong>Click to browse</strong> or drag your hero image here
                 </div>
                 <div class="file-name" id="heroFileName"></div>
+            </div>
+            <div style="margin-top:10px;">
+                <button type="button" class="lib-btn" id="heroLibraryBtn" title="Reuse an image already in the repo as the hero">Choose from Library</button>
+                <span class="hint" style="margin-left:8px;">Reuse an image already on the site (no re-upload)</span>
             </div>
             <div class="image-previews" id="heroPreview"></div>
         </div>
@@ -861,7 +916,10 @@
 // ===== State =====
 let docHtml = '';         // Converted HTML from Word doc
 let docParagraphs = [];   // Parsed paragraph list for position targeting
-let heroFile = null;      // Hero image File object
+let heroFile = null;      // Hero image File object (upload-from-disk path)
+let heroLibraryPath = null; // Hero chosen from the existing repo library: a root-relative
+                            // path like "/images/foo.jpg". Mutually exclusive with heroFile.
+                            // When set, publish references this path and uploads NOTHING.
 let extraFiles = [];      // Additional image File objects with placement data
                           // Each entry: { file, align: 'left'|'right'|'center', afterPara: N, alt: '', caption: '' }
 let siteRootHandle = null; // Directory handle for the site root
@@ -870,6 +928,9 @@ let siteRootHandle = null; // Directory handle for the site root
 let currentMode = 'write';   // 'write' or 'upload'
 let inlineUploads = [];      // Images inserted via the write-mode editor:
                              // { filename, blob (resized), blobUrl } - filed on publish
+let inlineLibrary = [];      // Inline body images chosen from the existing repo library:
+                             // { path, alignClass }. Referenced by path, never uploaded.
+                             // Used only to re-derive alignment if a figure is drag-orphaned.
 let savedSelectionRange = null; // Caret range captured before toolbar clicks steal focus
 let draftsCache = [];        // Last-loaded draft list from drafts/
 let currentDraftSlug = null; // Slug (filename minus .json) of the draft currently loaded
@@ -922,6 +983,16 @@ document.addEventListener('DOMContentLoaded', () => {
     setupWriteEditor();
     initGhToken();
     setMode('write');
+
+    // Library picker wiring
+    document.getElementById('heroLibraryBtn').addEventListener('click', () => openLibraryPicker('hero'));
+    document.getElementById('insertLibraryBtn').addEventListener('click', () => openLibraryPicker('body'));
+    document.getElementById('libOverlay').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('libOverlay')) closeLibraryPicker();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('libOverlay').classList.contains('open')) closeLibraryPicker();
+    });
 });
 
 // ===== Mode toggle =====
@@ -963,6 +1034,25 @@ function normalizeInlineFigures(editor) {
         figure.className = 'article-figure ' + alignClass;
         if (fname) figure.setAttribute('data-inline-src', fname);
         // Put the figure where the img currently sits, then move the img in.
+        img.parentNode.insertBefore(figure, img);
+        figure.appendChild(img);
+        changed = true;
+    });
+
+    // Re-wrap orphaned library images (referenced by path, not uploaded). Align
+    // is recovered from the img's data-lib-align, falling back to the registry.
+    editor.querySelectorAll('img[data-library-src]').forEach(img => {
+        const parent = img.parentElement;
+        if (parent && parent.tagName === 'FIGURE' && parent.classList.contains('article-figure')) {
+            return; // already well-formed
+        }
+        const libSrc = img.getAttribute('data-library-src');
+        let alignClass = img.getAttribute('data-lib-align') || 'float-left';
+        const rec = inlineLibrary.find(r => r.path === libSrc);
+        if (rec && rec.alignClass) alignClass = rec.alignClass;
+        const figure = document.createElement('figure');
+        figure.className = 'article-figure ' + alignClass;
+        figure.setAttribute('data-library-src', libSrc);
         img.parentNode.insertBefore(figure, img);
         figure.appendChild(img);
         changed = true;
@@ -1669,6 +1759,250 @@ async function ensureDraftsDeny() {
         'Add drafts/ deny rule (block from public site)', null);
 }
 
+// ============================================================
+// LIBRARY IMAGE PICKER
+// Reuses the SAME enumeration source as admin/image-library.html:
+// a recursive Contents-API walk of the images/ and articles/ roots,
+// keeping image files and skipping non-content folders. Selecting an
+// image references its EXISTING repo path (no upload, no resize, no
+// duplicate commit) for both the hero and inline body images.
+// ============================================================
+const LIB_IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'avif'];
+const LIB_IMAGE_ROOTS = ['images', 'articles'];  // articles/<cat>/images/* found by recursion
+const LIB_SKIP_DIRS = ['admin', 'docs', 'drafts', '.git', 'node_modules', 'documents', 'email-templates', 'social-media'];
+
+let libraryImages = [];       // { path, name, dir, download_url } - cached across opens
+let libraryTarget = null;     // 'hero' | 'body' - where the next selection goes
+
+function libExtOf(name) { const i = name.lastIndexOf('.'); return i < 0 ? '' : name.slice(i + 1).toLowerCase(); }
+function libIsImage(name) { return LIB_IMAGE_EXTS.indexOf(libExtOf(name)) !== -1; }
+function libBaseName(p) { return p.split('/').pop(); }
+
+// Recursively collect image files under a root via the Contents API.
+async function walkLibrary(dir, acc) {
+    let items;
+    try { items = await ghListDir(dir); }
+    catch (e) { if (e && e.isGhAuthError) throw e; return acc; }
+    for (const it of items) {
+        if (it.type === 'dir') {
+            if (LIB_SKIP_DIRS.indexOf(libBaseName(it.path)) !== -1) continue;
+            await walkLibrary(it.path, acc);
+        } else if (it.type === 'file' && libIsImage(it.name)) {
+            acc.push({ path: it.path, download_url: it.download_url });
+        }
+    }
+    return acc;
+}
+
+async function loadLibraryImages(force) {
+    if (!hasGhToken()) { setLibNote('Set a GitHub token above first, then reopen the library.', true); return; }
+    if (libraryImages.length && !force) { renderLibraryGrid(); return; }
+    setLibNote('Loading images from the repo...', false);
+    try {
+        const found = [];
+        for (const root of LIB_IMAGE_ROOTS) await walkLibrary(root, found);
+        libraryImages = found.map(f => {
+            const dir = f.path.slice(0, f.path.lastIndexOf('/'));
+            return { path: f.path, name: libBaseName(f.path), dir, download_url: f.download_url };
+        }).sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
+        populateLibraryFolders();
+        setLibNote('Select an image to insert its existing path. No new upload is made.', false);
+        renderLibraryGrid();
+    } catch (e) {
+        setLibNote('Could not load images: ' + e.message, true);
+    }
+}
+
+function setLibNote(msg, isErr) {
+    const el = document.getElementById('libNote');
+    el.textContent = msg;
+    el.className = 'lib-note' + (isErr ? ' err' : '');
+}
+
+function populateLibraryFolders() {
+    const sel = document.getElementById('libFolderFilter');
+    const dirs = {};
+    libraryImages.forEach(im => { dirs[im.dir] = true; });
+    const keys = Object.keys(dirs).sort();
+    sel.innerHTML = '<option value="">All folders (' + libraryImages.length + ')</option>';
+    keys.forEach(d => {
+        const n = libraryImages.filter(im => im.dir === d).length;
+        const o = document.createElement('option');
+        o.value = d; o.textContent = d + ' (' + n + ')';
+        sel.appendChild(o);
+    });
+}
+
+function renderLibraryGrid() {
+    const grid = document.getElementById('libGrid');
+    const q = (document.getElementById('libFilter').value || '').toLowerCase();
+    const folder = document.getElementById('libFolderFilter').value;
+    const list = libraryImages.filter(im => {
+        if (folder && im.dir !== folder) return false;
+        if (q && im.name.toLowerCase().indexOf(q) === -1) return false;
+        return true;
+    });
+    document.getElementById('libCount').textContent = list.length + ' of ' + libraryImages.length + ' shown';
+    grid.innerHTML = '';
+    list.forEach(im => {
+        const card = document.createElement('div');
+        card.className = 'lib-thumb';
+        card.title = 'Insert ' + im.path;
+        const imgwrap = document.createElement('div'); imgwrap.className = 'lib-imgwrap';
+        const img = document.createElement('img');
+        img.loading = 'lazy'; img.alt = im.name; img.src = im.download_url;
+        img.onerror = () => { imgwrap.innerHTML = '<span class="hint" style="font-size:0.7rem;">no preview</span>'; };
+        imgwrap.appendChild(img);
+        const meta = document.createElement('div'); meta.className = 'lib-meta';
+        const fn = document.createElement('div'); fn.className = 'lib-fname'; fn.textContent = im.name;
+        const dd = document.createElement('div'); dd.className = 'lib-dir'; dd.textContent = im.dir + '/';
+        meta.appendChild(fn); meta.appendChild(dd);
+        card.appendChild(imgwrap); card.appendChild(meta);
+        card.onclick = () => selectLibraryImage(im);
+        grid.appendChild(card);
+    });
+}
+
+function openLibraryPicker(target) {
+    libraryTarget = target;
+    document.getElementById('libTitle').innerHTML = target === 'hero'
+        ? 'Hero from <span>Library</span>'
+        : 'Insert from <span>Library</span>';
+    // The editor's selectionchange handler already keeps savedSelectionRange
+    // pinned to the last in-editor caret, and the modal's own inputs never
+    // overwrite it (the handler ignores selections outside #bodyEditor). So a
+    // body insert lands at the cursor via restoreSelection(), like the upload path.
+    document.getElementById('libOverlay').classList.add('open');
+    document.getElementById('libFilter').value = '';
+    loadLibraryImages(false);
+}
+
+function closeLibraryPicker() {
+    document.getElementById('libOverlay').classList.remove('open');
+    libraryTarget = null;
+}
+
+// A repo path (e.g. "images/foo.jpg") -> root-relative site path ("/images/foo.jpg").
+function libPathToSrc(repoPath) { return '/' + repoPath.replace(/^\/+/, ''); }
+
+function selectLibraryImage(im) {
+    const target = libraryTarget;
+    closeLibraryPicker();
+    if (target === 'hero') setHeroLibrary(im);
+    else insertLibraryInline(im);
+}
+
+// ----- Hero from library -----
+function setHeroLibrary(im) {
+    const src = libPathToSrc(im.path);
+    heroLibraryPath = src;
+    heroFile = null;   // library ref and file upload are mutually exclusive
+    const zone = document.getElementById('heroUploadZone');
+    zone.classList.add('has-file');
+    document.getElementById('heroFileName').textContent = 'Library: ' + im.path;
+    const previewContainer = document.getElementById('heroPreview');
+    previewContainer.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'image-preview';
+    const img = document.createElement('img');
+    img.src = im.download_url;   // authenticated raw URL for a reliable in-tool preview
+    div.appendChild(img);
+    const label = document.createElement('div');
+    label.className = 'img-label';
+    label.textContent = 'Hero (library)';
+    div.appendChild(label);
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = 'X';
+    removeBtn.onclick = () => {
+        heroLibraryPath = null;
+        previewContainer.innerHTML = '';
+        zone.classList.remove('has-file');
+        document.getElementById('heroFileName').textContent = '';
+    };
+    div.appendChild(removeBtn);
+    previewContainer.appendChild(div);
+    showStatus('Hero set to library image ' + im.path + ' (no upload).', 'success');
+}
+
+// Rebuild the library-hero state + preview from just a stored path (draft recall).
+// No download_url on hand, so the preview uses the root-relative path, which
+// resolves against the deployed site the admin tool is served from.
+function restoreHeroLibraryFromPath(path) {
+    heroLibraryPath = path;
+    heroFile = null;
+    const zone = document.getElementById('heroUploadZone');
+    zone.classList.add('has-file');
+    document.getElementById('heroFileName').textContent = 'Library: ' + path;
+    const previewContainer = document.getElementById('heroPreview');
+    previewContainer.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'image-preview';
+    const img = document.createElement('img');
+    img.src = path;
+    div.appendChild(img);
+    const label = document.createElement('div');
+    label.className = 'img-label';
+    label.textContent = 'Hero (library)';
+    div.appendChild(label);
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = 'X';
+    removeBtn.onclick = () => {
+        heroLibraryPath = null;
+        previewContainer.innerHTML = '';
+        zone.classList.remove('has-file');
+        document.getElementById('heroFileName').textContent = '';
+    };
+    div.appendChild(removeBtn);
+    previewContainer.appendChild(div);
+}
+
+// ----- Inline body image from library -----
+function insertLibraryInline(im) {
+    const src = libPathToSrc(im.path);
+    const size = (prompt('Image size and placement:\n  L = Large, floats left\n  R = Large, floats right\n  C = Centered, full width\n(default L)', 'L') || 'L').trim().toUpperCase();
+    let alignClass = 'float-left';
+    if (size === 'R') alignClass = 'float-right';
+    else if (size === 'C') alignClass = 'centered';
+    const alt = (prompt('Alt text (describe the image for accessibility and SEO):', '') || '').trim();
+
+    inlineLibrary.push({ path: src, alignClass });
+
+    // Same figure markup as an uploaded inline image, so the in-editor figure
+    // controls (align / move / delete) work identically. The difference: the
+    // img src is the EXISTING repo path, and a data-library-src marker (scrubbed
+    // by the publish sanitizer) tags it so it is never treated as an upload.
+    const editor = document.getElementById('bodyEditor');
+    editor.focus();
+    restoreSelection();
+    const figure = document.createElement('figure');
+    figure.className = 'article-figure ' + alignClass;
+    figure.setAttribute('data-library-src', src);
+    const imgEl = document.createElement('img');
+    imgEl.src = src;
+    imgEl.setAttribute('data-library-src', src);
+    imgEl.setAttribute('data-lib-align', alignClass);
+    if (alt) imgEl.alt = alt;
+    imgEl.setAttribute('loading', 'lazy');
+    figure.appendChild(imgEl);
+
+    const sel = window.getSelection();
+    if (sel.rangeCount && editor.contains(sel.anchorNode)) {
+        const range = sel.getRangeAt(0);
+        range.collapse(false);
+        range.insertNode(figure);
+        range.setStartAfter(figure);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        savedSelectionRange = range.cloneRange();
+    } else {
+        editor.appendChild(figure);
+    }
+    showStatus('Library image inserted from ' + im.path + ' (no upload).', 'success');
+}
+
 function toggleCategoryFields() {
     document.querySelectorAll('.category-fields').forEach(el => el.classList.remove('visible'));
     const type = document.getElementById('articleType').value;
@@ -2046,11 +2380,12 @@ function previewArticle() {
     const heroLayout = document.getElementById('heroLayout').value;
 
     let heroHtml = '';
-    if (heroFile) {
+    if (heroFile || heroLibraryPath) {
         let heroStyle = 'max-width:25%;height:auto;display:block;border-radius:4px;margin-bottom:16px;';
         if (heroLayout === 'centered') heroStyle = 'max-width:50%;height:auto;display:block;margin:0 auto 16px;border-radius:4px;';
         else if (heroLayout === 'full-width') heroStyle = 'width:100%;max-height:300px;object-fit:cover;border-radius:4px;margin-bottom:16px;';
-        heroHtml = `<img src="${URL.createObjectURL(heroFile)}" style="${heroStyle}">`;
+        const heroSrc = heroFile ? URL.createObjectURL(heroFile) : heroLibraryPath;
+        heroHtml = `<img src="${heroSrc}" style="${heroStyle}">`;
     }
 
     // Build body. Write-mode already has inline figures (blob URLs) baked in,
@@ -2204,7 +2539,7 @@ async function publishArticle() {
     if (!title) { showStatus('Please enter an article title.', 'error'); return; }
     if (!hasBody()) { showStatus(currentMode === 'write' ? 'Please write some article body.' : 'Please upload a Word document.', 'error'); return; }
     if (!excerpt) { showStatus('Please enter an excerpt.', 'error'); return; }
-    if (!heroFile) { showStatus('Please upload a hero image.', 'error'); return; }
+    if (!heroFile && !heroLibraryPath) { showStatus('Please add a hero image (upload one or choose from the library).', 'error'); return; }
 
     // Guard against staged body images that the current mode will silently drop.
     if (!confirmNoStrandedImages()) {
@@ -2261,12 +2596,16 @@ async function publishArticle() {
         const categoryDir = await getOrCreateDir(articlesDir, type);
         const imagesDir = await getOrCreateDir(categoryDir, 'images');
 
-        // Normalize hero filename
-        const heroFileName = normalizeFilename(heroFile.name);
-        const heroFileHandle = await imagesDir.getFileHandle(heroFileName, { create: true });
-        const heroWritable = await heroFileHandle.createWritable();
-        await heroWritable.write(heroFile);
-        await heroWritable.close();
+        // Hero: an uploaded file is copied into the article images folder; a
+        // library-referenced hero already exists in the repo, so it is NOT copied
+        // and the article HTML references its existing path directly.
+        const heroFileName = heroFile ? normalizeFilename(heroFile.name) : null;
+        if (heroFile) {
+            const heroFileHandle = await imagesDir.getFileHandle(heroFileName, { create: true });
+            const heroWritable = await heroFileHandle.createWritable();
+            await heroWritable.write(heroFile);
+            await heroWritable.close();
+        }
         showProgress(45);
 
         // Save additional images
@@ -2301,7 +2640,7 @@ async function publishArticle() {
         await updateManifest(articlesDir, {
             type, title, excerpt, date, author, slug,
             fileName: articleFileName,
-            heroImage: heroFileName,
+            heroImage: heroLibraryPath || heroFileName,
             keywords
         });
         showProgress(100);
@@ -2330,17 +2669,24 @@ async function publishViaGitHub(meta) {
     try {
         const slug = buildSlug(title);
         const articleFileName = date + '-' + slug + '.html';
-        const heroFileName = normalizeFilename(heroFile.name);
+        // Uploaded hero -> a filename to file into the article images folder.
+        // Library hero -> null here; the existing repo path is used as-is and
+        // NOTHING is uploaded or committed for the binary.
+        const heroFileName = heroFile ? normalizeFilename(heroFile.name) : null;
 
-        showStatus('Filing hero image...', 'info');
-        showProgress(15);
-        // Hero image
-        await ghPutFile(
-            'articles/' + type + '/images/' + heroFileName,
-            await blobToBase64(heroFile),
-            'Add hero image for ' + title,
-            (await ghGetFile('articles/' + type + '/images/' + heroFileName, false))?.sha
-        );
+        if (heroFile) {
+            showStatus('Filing hero image...', 'info');
+            showProgress(15);
+            await ghPutFile(
+                'articles/' + type + '/images/' + heroFileName,
+                await blobToBase64(heroFile),
+                'Add hero image for ' + title,
+                (await ghGetFile('articles/' + type + '/images/' + heroFileName, false))?.sha
+            );
+        } else {
+            showStatus('Using library hero image (no upload)...', 'info');
+            showProgress(15);
+        }
         showProgress(35);
 
         // Inline images (write-mode) or distributed extras (upload-mode)
@@ -2369,7 +2715,7 @@ async function publishViaGitHub(meta) {
 
         // Patch articles-data.js
         showStatus('Updating article listings...', 'info');
-        await updateManifestViaGitHub({ type, title, excerpt, date, author, slug, fileName: articleFileName, heroImage: heroFileName, keywords });
+        await updateManifestViaGitHub({ type, title, excerpt, date, author, slug, fileName: articleFileName, heroImage: heroLibraryPath || heroFileName, keywords });
         showProgress(90);
 
         // Remove the draft(s) this article came from. Delete both the title-derived
@@ -2442,6 +2788,9 @@ function collectDraftPayload() {
         keywords: document.getElementById('articleKeywords').value,
         heroAlt: document.getElementById('heroAlt').value,
         heroLayout: document.getElementById('heroLayout').value,
+        // A library hero is just a path, so it CAN be saved and restored in a draft
+        // (unlike an uploaded File, which cannot be serialized).
+        heroLibraryPath: heroLibraryPath || '',
         bodyHtml: currentMode === 'write' ? captureEditorBodyHtml() : docHtml,
         category: {
             yachtMake: (document.getElementById('yachtMake')||{}).value || '',
@@ -2556,6 +2905,13 @@ async function recallDraft(path) {
         document.getElementById('articleKeywords').value = d.keywords || '';
         document.getElementById('heroAlt').value = d.heroAlt || '';
         document.getElementById('heroLayout').value = d.heroLayout || 'default';
+        // Restore a library hero (path-based, so it survives the draft round-trip).
+        heroLibraryPath = null;
+        heroFile = null;
+        document.getElementById('heroPreview').innerHTML = '';
+        document.getElementById('heroUploadZone').classList.remove('has-file');
+        document.getElementById('heroFileName').textContent = '';
+        if (d.heroLibraryPath) restoreHeroLibraryFromPath(d.heroLibraryPath);
         if (d.mode === 'upload') { docHtml = d.bodyHtml || ''; parseParagraphs(); }
         else { document.getElementById('bodyEditor').innerHTML = d.bodyHtml || ''; }
         if (d.category) {
@@ -2655,6 +3011,14 @@ function buildArticleHtml(data) {
     const isoDate = date + 'T12:00:00';
     const displayDate = new Date(isoDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
+    // Hero source resolution. Uploaded hero: filed at articles/<type>/images/<file>,
+    // referenced relatively as images/<file>. Library hero: an existing repo path
+    // (root-relative, e.g. /images/foo.jpg) referenced as-is from the article page.
+    const heroImgSrc = heroLibraryPath ? heroLibraryPath : ('images/' + heroFileName);
+    const heroOgUrl = heroLibraryPath
+        ? ('https://haleyyachts.com' + heroLibraryPath)
+        : ('https://haleyyachts.com/articles/' + type + '/images/' + heroFileName);
+
     // Source body from the active mode
     const sourceBody = getBodyHtml();
 
@@ -2731,7 +3095,7 @@ function buildArticleHtml(data) {
     <meta property="og:title" content="${escAttr(title)}">
     <meta property="og:description" content="${escAttr(excerpt)}">
     <meta property="og:url" content="https://haleyyachts.com/articles/${type}/${articleFileName}">
-    <meta property="og:image" content="https://haleyyachts.com/articles/${type}/images/${heroFileName}">
+    <meta property="og:image" content="${heroOgUrl}">
     <meta property="og:image:alt" content="${escAttr(heroAlt || title)}">
     <meta property="article:author" content="${escAttr(author)}">
     <meta property="article:published_time" content="${isoDate}">
@@ -2741,7 +3105,7 @@ function buildArticleHtml(data) {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escAttr(title)}">
     <meta name="twitter:description" content="${escAttr(excerpt)}">
-    <meta name="twitter:image" content="https://haleyyachts.com/articles/${type}/images/${heroFileName}">
+    <meta name="twitter:image" content="${heroOgUrl}">
 
     <!-- FONTS, FAVICON, STYLES -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -2756,7 +3120,7 @@ function buildArticleHtml(data) {
       "@type": "Article",
       "headline": ${JSON.stringify(title)},
       "description": ${JSON.stringify(excerpt)},
-      "image": "https://haleyyachts.com/articles/${type}/images/${heroFileName}",
+      "image": "${heroOgUrl}",
       "datePublished": "${isoDate}",
       "dateModified": "${isoDate}",
       "author": {
@@ -2850,7 +3214,7 @@ function buildArticleHtml(data) {
 
     <!-- Hero Image -->
     <figure class="${heroClass}">
-        <img src="images/${heroFileName}" alt="${escAttr(heroAlt || title)}" loading="eager" fetchpriority="high">
+        <img src="${heroImgSrc}" alt="${escAttr(heroAlt || title)}" loading="eager" fetchpriority="high">
     </figure>
 
     <!-- Body -->
@@ -3050,9 +3414,11 @@ function clearForm() {
     docHtml = '';
     docParagraphs = [];
     heroFile = null;
+    heroLibraryPath = null;
     extraFiles = [];
     inlineUploads.forEach(u => { try { URL.revokeObjectURL(u.blobUrl); } catch (e) {} });
     inlineUploads = [];
+    inlineLibrary = [];
     savedSelectionRange = null;
     currentDraftSlug = null; // No longer editing a recalled draft.
     const ed = document.getElementById('bodyEditor');
@@ -3225,6 +3591,26 @@ async function removeArticle(index, title) {
     }
 }
 </script>
+
+<!-- ===== Library image picker modal ===== -->
+<div class="lib-overlay" id="libOverlay" role="dialog" aria-modal="true" aria-labelledby="libTitle">
+    <div class="lib-modal">
+        <div class="lib-modal-head">
+            <h3 id="libTitle">Insert from <span>Library</span></h3>
+            <button type="button" class="lib-close" onclick="closeLibraryPicker()" aria-label="Close">&times;</button>
+        </div>
+        <div class="lib-toolbar">
+            <input type="text" id="libFilter" placeholder="Filter by filename..." oninput="renderLibraryGrid()">
+            <select id="libFolderFilter" onchange="renderLibraryGrid()"><option value="">All folders</option></select>
+            <button type="button" class="lib-btn" id="libReloadBtn" onclick="loadLibraryImages(true)">Reload</button>
+            <span class="lib-count" id="libCount"></span>
+        </div>
+        <div class="lib-note" id="libNote">Select an image to insert its existing path. No new upload is made.</div>
+        <div class="lib-body">
+            <div class="lib-grid" id="libGrid"></div>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

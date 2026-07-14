@@ -289,8 +289,13 @@ function renderArticles(searchTerm) {
         var meta = CATEGORY_META[article.type] || { tag: article.type };
         var date = new Date(article.date + 'T12:00:00');
         var displayDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        // heroImage is normally a bare filename filed under the article's own
+        // images folder. A library-referenced hero is stored as a full site path
+        // (contains a "/", e.g. "/images/foo.jpg") and is used as-is.
         var heroSrc = article.heroImage
-            ? 'articles/' + article.type + '/images/' + article.heroImage
+            ? (article.heroImage.indexOf('/') !== -1
+                ? article.heroImage
+                : 'articles/' + article.type + '/images/' + article.heroImage)
             : '';
         var articleUrl = 'articles/' + article.type + '/' + article.fileName;
 
