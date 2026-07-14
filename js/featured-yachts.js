@@ -53,8 +53,8 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "",
-        name: "Featured Listing",
+        image: "images/yachts/featured/2024 Sunseeker Superhawk 55 - $1,975,000",
+        name: "2024 Sunseeker Superhawk 55 - $1,975,000",
         description: "Details about this featured yacht will appear here.",
         link: "contact.html",
         linkText: "Inquire",
