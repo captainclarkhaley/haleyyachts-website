@@ -5,6 +5,17 @@
 const publishedArticles = [
     {
         "type": "how-to",
+        "title": "Insuring a Yacht in Florida: What to Know",
+        "excerpt": "Florida yacht insurance has its own rules, named-storm clauses, agreed value versus actual cash value, and a survey that can make or break your premium. Here is what every buyer should understand before binding a policy.",
+        "date": "2026-06-25",
+        "author": "Clark Haley",
+        "slug": "insuring-a-yacht-in-florida-what-to-know",
+        "fileName": "2026-06-25-insuring-a-yacht-in-florida-what-to-know.html",
+        "heroImage": "insurance-policy.webp",
+        "keywords": "yacht insurance Florida, boat insurance Florida hurricane, named storm clause boat insurance, agreed value vs actual cash value, hurricane haul out plan, yacht survey insurance premium, insuring a yacht in Florida, Haley Yachts"
+    },
+    {
+        "type": "how-to",
         "title": "How to Buy a Yacht: The Step-by-Step Timeline",
         "excerpt": "From accepted offer to handing you the keys, here is exactly how a yacht purchase unfolds, how long each stage really takes, and where deals stall so you can keep yours moving.",
         "date": "2026-06-18",
