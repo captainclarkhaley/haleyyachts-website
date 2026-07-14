@@ -37,6 +37,17 @@ const publishedArticles = [
         "keywords": "marine financing, boat loans, yacht financing, how to finance a yacht, boat loan down payment, yacht loan rates, marine lender requirements, financing a boat in Florida, Haley Yachts, One Water Yacht Group, OWYG"
     },
     {
+        "type": "boat-reviews",
+        "title": "A First-Time Buyer's Guide to Riviera",
+        "excerpt": "Riviera builds some of the most sought-after motor yachts on the water, but the lineup can be confusing the first time you look at it. Here is the Sport Yacht, SUV, and Motor Yacht ranges explained, and who each one fits.",
+        "date": "2026-06-11",
+        "author": "Clark Haley",
+        "slug": "a-first-time-buyers-guide-to-riviera",
+        "fileName": "2026-06-11-a-first-time-buyers-guide-to-riviera.html",
+        "heroImage": "08-riviera-6200-sype-foredeck-3.jpg",
+        "keywords": "Riviera yachts guide, Riviera for sale Florida, Riviera Sport Yacht, Riviera SUV, Riviera Motor Yacht, new Riviera dealer Florida, Riviera 4300 Sports Express, first time Riviera buyer, Haley Yachts"
+    },
+    {
         "type": "how-to",
         "title": "What a Survey Really Covers (and Why it Protects You)",
         "excerpt": "A marine survey is the single best money you spend before buying a yacht. Here is what a pre-purchase survey actually covers, how the sea trial and haul-out fit in, and how the findings turn into real negotiating leverage.",
