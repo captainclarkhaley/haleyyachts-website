@@ -53,7 +53,7 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/2024 Sunseeker Superhawk 55 - $1,975,000",
+        image: "images/yachts/featured/screenshot-2026-07-13-at-8-11-40-pm.png",
         name: "2024 Sunseeker Superhawk 55 - $1,975,000",
         description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
         link: "contact.html",
