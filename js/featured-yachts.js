@@ -64,14 +64,14 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "",
-        name: "Featured Listing",
-        description: "Details about this featured yacht will appear here.",
+        image: "images/yachts/featured/screenshot-2026-07-13-at-8-28-19-pm.png",
+        name: "2026 HCB 56 Suenos GIX $2,985,000 w/Quint Merc 600's",
+        description: "This is a new HBC Suenos 56 with 5 Merc 600 engines, custom hul color, Split-Sit Mezzaninie layout, Seakeeper 10, Starlink WiFi, 15KW Fisher Panda generator, upgraded Garmin electronics, helm A/c w 2nd A/C in cockpit. Call for complete information.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "",
+        pdf: "documents/yachts/featured/2026-HCB-56_SUENOS_GIX.pdf",
         kuula: "",
-        youtube: "",
+        youtube: "asIe1cVN4IE",
         page: ""
     },
     {
