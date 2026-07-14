@@ -135,6 +135,7 @@
         }
         .status.success { background: #e8f7ea; color: #1b6e2e; display: block; }
         .status.error { background: #fbeaea; color: #a82020; display: block; }
+        .status.info { background: #eaf2fb; color: #1f4e8f; display: block; }
         .preview-box {
             background: #f9fafb;
             border: 1px solid #e5e5e5;
@@ -342,7 +343,7 @@
                 <option value="5">5</option>
                 <option value="6">6</option>
             </select>
-            <button type="button" class="btn btn-secondary" onclick="moveToPosition()">MOVE</button>
+            <button type="button" id="moveBtn" class="btn btn-secondary" onclick="moveToPosition()">MOVE</button>
         </div>
 
         <div style="margin-top:32px; padding-top:24px; border-top:1px solid #e5e5e5;">
@@ -353,7 +354,7 @@
                 never deleted. This is permanent. You will get a confirmation listing exactly what
                 will be removed before anything happens.
             </p>
-            <button type="button" class="btn btn-delete" onclick="deleteLoaded()">DELETE THIS YACHT</button>
+            <button type="button" id="deleteBtn" class="btn btn-delete" onclick="deleteLoaded()">DELETE THIS YACHT</button>
         </div>
     </form>
 
@@ -695,10 +696,40 @@
         showStatus(`Loaded current values for position ${pos}.`, 'success');
     }
 
+    let _statusTimer = null;
     function showStatus(msg, type) {
         statusEl.textContent = msg;
         statusEl.className = 'status ' + type;
-        setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+        statusEl.style.display = '';
+        // Clear any pending auto-hide so a follow-up banner (e.g. "Saved!" after
+        // "Saving...") gets its full display time instead of the earlier timer
+        // hiding it early.
+        if (_statusTimer) clearTimeout(_statusTimer);
+        _statusTimer = setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
+    }
+
+    // ===== Committing-action button lock =====
+    // Every action that writes to the repo (Save, Move, Delete) locks its button
+    // and shows an in-progress banner the instant it is pressed, then re-enables
+    // when the commit finishes. This is the fix for the silent-button multi-click
+    // that produced duplicate reorder commits: with no feedback, a press looked
+    // like nothing happened, so the button got tapped again and each tap
+    // committed. A second tap now lands on a disabled button and does nothing.
+    function lockActionBtn(btn, busyLabel) {
+        if (!btn) return null;
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = busyLabel;
+        btn.style.opacity = '0.6';
+        btn.style.cursor = 'wait';
+        return original;
+    }
+    function unlockActionBtn(btn, originalLabel) {
+        if (!btn) return;
+        btn.disabled = false;
+        if (originalLabel != null) btn.textContent = originalLabel;
+        btn.style.opacity = '';
+        btn.style.cursor = '';
     }
 
     // ===== GitHub token box UI (thin wiring over shared github-api.js) =====
@@ -968,7 +999,28 @@
         } catch (e) { /* ignore - user will be prompted on first save */ }
     })();
 
+    // Public entry point: locks the SAVE button and shows in-progress feedback,
+    // then runs the real save. The lock is what stops a second tap on a silent
+    // button from firing a duplicate commit while the first is still in flight.
     async function saveFile() {
+        if (saveBtn.disabled) return;
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+        saveBtn.style.opacity = '0.6';
+        saveBtn.style.cursor = 'wait';
+        try {
+            await saveFileImpl();
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.style.opacity = '';
+            saveBtn.style.cursor = '';
+            // markSaved() sets the 'saved' class + 'SAVED ✓' on success; leave that
+            // in place. Otherwise (validation/error) restore the plain SAVE label.
+            if (!saveBtn.classList.contains('saved')) saveBtn.textContent = 'SAVE';
+        }
+    }
+
+    async function saveFileImpl() {
         const pos = parseInt(posSel.value);
         if (!pos) {
             showStatus('Please select a Featured Yacht Position (1-6).', 'error');
@@ -1013,6 +1065,9 @@
             showStatus('No GitHub token set and this browser does not support the local-folder fallback. Set a token above, or use Chrome or Edge.', 'error');
             return;
         }
+
+        // In-progress feedback so the press is visibly registered.
+        showStatus('Saving position ' + pos + '...', 'info');
 
         // Step 1a: if a Browse-selected image is pending, write it into the featured folder first.
         if (pendingImageFile) {
@@ -1164,7 +1219,23 @@
         }
     }
 
+    // Public entry point: locks the MOVE button and shows in-progress feedback,
+    // then runs the real reorder. This is the primary fix for the duplicate
+    // reorder commits - a silent button got tapped repeatedly, and each tap
+    // committed a swap, cancelling the previous one out. A second tap now lands
+    // on a disabled button and does nothing.
     async function moveToPosition() {
+        const btn = document.getElementById('moveBtn');
+        if (btn && btn.disabled) return;
+        const orig = lockActionBtn(btn, 'Moving...');
+        try {
+            await moveToPositionImpl();
+        } finally {
+            unlockActionBtn(btn, orig);
+        }
+    }
+
+    async function moveToPositionImpl() {
         const fromPos = parseInt(posSel.value);
         const toPos = parseInt(document.getElementById('movePosition').value);
         if (!fromPos) { showStatus('Pick the current Position first, then click Load Current Values.', 'error'); return; }
@@ -1180,6 +1251,9 @@
             showStatus('Position ' + fromPos + ' is an empty slot - there is nothing to move.', 'error');
             return;
         }
+
+        // In-progress feedback so the press is visibly registered.
+        showStatus('Moving position ' + fromPos + ' to position ' + toPos + '...', 'info');
 
         // Pull current form edits into the source entry first, so an unsaved title
         // edit isn't lost when we re-order.
@@ -1361,7 +1435,21 @@
         return hits;
     }
 
+    // Public entry point: locks the DELETE button and shows in-progress feedback,
+    // then runs the real delete. Prevents a second tap from firing a duplicate
+    // delete/commit while the first is still in flight.
     async function deleteLoaded() {
+        const btn = document.getElementById('deleteBtn');
+        if (btn && btn.disabled) return;
+        const orig = lockActionBtn(btn, 'Deleting...');
+        try {
+            await deleteLoadedImpl();
+        } finally {
+            unlockActionBtn(btn, orig);
+        }
+    }
+
+    async function deleteLoadedImpl() {
         const pos = parseInt(posSel.value);
         if (!pos) {
             showStatus('Pick a Position first, then click Load Current Values.', 'error');
@@ -1447,6 +1535,9 @@
             showStatus('Delete canceled.', 'info');
             return;
         }
+
+        // In-progress feedback so the press is visibly registered.
+        showStatus('Deleting "' + name + '"...', 'info');
 
         try {
             // Step 1: remove the entry from the data file FIRST. Doing the data
