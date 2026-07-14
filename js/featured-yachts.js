@@ -17,7 +17,7 @@
 //                 badge + link. Empty/missing = no video badge, no video link.
 //   page        - optional. Relative path to a dedicated listing page (e.g. yachts/fringe-benefits.html).
 //                 When present, the card image + title + primary action link to this page.
-//                 Empty/missing = primary action is the standard mailto Inquire.
+//                 Empty/missing = primary action is the Inquire link to contact.html.
 
 const featuredYachts = [
     {
@@ -99,9 +99,12 @@ function isFilledYacht(y) {
 function _fyStripPrice(name) {
     return (name || '').replace(/[\s,\-]*\$[\d,\.]+.*$/, '').trim();
 }
-function _fyInquireMailto(name) {
-    const subject = encodeURIComponent(_fyStripPrice(name) + ' Inquiry');
-    return `mailto:clark@haleyyachts.com?subject=${subject}`;
+// Build the primary "Inquire" link. Cards without a dedicated listing page send
+// the visitor to the contact page, carrying the (price-stripped) yacht name as a
+// query param so the contact form arrives pre-filled with which boat they want.
+function _fyInquireLink(name) {
+    const yacht = encodeURIComponent(_fyStripPrice(name));
+    return `contact.html?yacht=${yacht}`;
 }
 
 // Re-sanitize the stored Kuula iframe at render time as a defense-in-depth check.
@@ -447,7 +450,7 @@ function renderFeaturedYachts(containerId) {
         const pdfLink = (y.pdf && y.pdf.trim())
             ? `<a href="${y.pdf}" class="card-link card-link-secondary" target="_blank" rel="noopener">Spec Sheet (PDF)</a>`
             : '';
-        const inquireHref = _fyInquireMailto(y.name);
+        const inquireHref = _fyInquireLink(y.name);
         const kuulaClean = _fySanitizeKuula(y.kuula);
         const kuulaDataAttr = kuulaClean
             ? ` data-kuula="${_fyEscapeAttr(kuulaClean)}"`
@@ -474,7 +477,7 @@ function renderFeaturedYachts(containerId) {
 
         // If a dedicated listing page exists, image + title + primary action
         // all point at it. Otherwise the image and title are plain (no anchor)
-        // and the primary action falls back to the standard mailto Inquire.
+        // and the primary action falls back to the Inquire link to contact.html.
         const hasPage = !!(y.page && y.page.trim());
         const pageHref = hasPage ? y.page : '';
         const imgEl = `<div class="card-img" style="${imgStyle}">${imgLabel}</div>`;

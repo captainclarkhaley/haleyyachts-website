@@ -223,6 +223,21 @@
 
 <script src="js/main.js"></script>
 <script>
+    // Pre-fill from a ?yacht=<name> query param (used by the featured-yacht
+    // "Inquire" buttons) so the contact form arrives tagged with which boat.
+    (function prefillFromYacht() {
+        const yacht = new URLSearchParams(window.location.search).get('yacht');
+        if (!yacht) return;
+        const messageField = document.getElementById('message');
+        if (messageField && !messageField.value) {
+            messageField.value = `I'm interested in the ${yacht}. Please send me more information.`;
+        }
+        const interestField = document.getElementById('interest');
+        if (interestField && !interestField.value) {
+            interestField.value = 'Buying a Yacht';
+        }
+    })();
+
     document.getElementById('contactForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
