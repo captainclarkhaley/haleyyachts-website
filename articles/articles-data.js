@@ -71,6 +71,17 @@ const publishedArticles = [
     },
     {
         "type": "how-to",
+        "title": "Trading Up: When to Move to a Bigger Yacht",
+        "excerpt": "If you keep wishing your boat were a few feet longer, you probably already know it. Here is how to tell when it is time to trade up, and how to time the sell-and-buy so you are not carrying two boats at once.",
+        "date": "2026-06-11",
+        "author": "Clark Haley",
+        "slug": "trading-up-when-to-move-to-a-bigger-yacht",
+        "fileName": "2026-06-11-trading-up-when-to-move-to-a-bigger-yacht.html",
+        "heroImage": "/articles/how-to/images/how-to-sale-your-yacht-sold.jpeg",
+        "keywords": "trading up to a bigger yacht, when to upgrade my boat, sell and buy a yacht, yacht trade-in Florida, yacht valuation, upgrading from a 40 to a 50 foot yacht, Haley Yachts, One Water Yacht Group"
+    },
+    {
+        "type": "how-to",
         "title": "What a Survey Really Covers (and Why it Protects You)",
         "excerpt": "A marine survey is the single best money you spend before buying a yacht. Here is what a pre-purchase survey actually covers, how the sea trial and haul-out fit in, and how the findings turn into real negotiating leverage.",
         "date": "2026-06-06",
