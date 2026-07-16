@@ -38,6 +38,17 @@ const publishedArticles = [
     },
     {
         "type": "newsletters",
+        "title": "The Logbook | July 2026",
+        "excerpt": "The July issue of The Logbook: a note from Clark on a stacked summer board, featured listings (Sunseeker Manhattan 68, HCB 56 Suenos, Riviera 545 Fringe Benefits), a buyer-education reading list, and recent sales.",
+        "date": "2026-07-16",
+        "author": "Clark Haley",
+        "slug": "the-logbook-july-2026",
+        "fileName": "2026-07-16-the-logbook-july-2026.html",
+        "heroImage": "logbook-2026-07-hero.jpg",
+        "keywords": "Haley Yachts newsletter, The Logbook, July 2026, yacht broker newsletter, Clark Haley, Florida yacht broker, Sunseeker Manhattan 68, HCB 56 Suenos, Riviera 545 SUV Fringe Benefits, first-time Riviera buyer, how to buy a yacht, yacht insurance Florida, trading up to a bigger yacht, recent yacht sales"
+    },
+    {
+        "type": "newsletters",
         "title": "The Logbook | June 2026",
         "excerpt": "The June issue of The Logbook: a note from Clark on the OWYG Bahamas Rendezvous (July 16-19, Freeport), featured listings (Riviera 545 Fringe Benefits, Southern Wind 72 Fortunato, Offshore 48 Island Girl), Bahamas-bound reading, and recent sales.",
         "date": "2026-06-16",
