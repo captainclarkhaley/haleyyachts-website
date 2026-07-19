@@ -1,9 +1,10 @@
-# Patrick - Marketing / Social / Content Task List
+# Patrick - Haley Yachts Marketing / Social / Content Task List
 
 > **Owner / sole writer: Patrick.** This is the only task file Patrick edits.
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
+> **Scope: Haley Yachts brokerage marketing ONLY.** Per Clark's 2026-07-17 project-separation rule, Yacht Broker Support (YBS) marketing now lives in the YBS repo (`yacht-broker-support/docs/tasks/patrick.md`). Keep the two projects from commingling here.
 
-*Last updated: June 16, 2026*
+*Last updated: July 18, 2026*
 
 ## OPEN
 
