@@ -8,9 +8,15 @@ in the thumb zone. Same V3-email-template design language:
   - Open Sans 300 uppercase headline + 60x3 cyan accent line
   - brand cyan (#21cbea) CTA chip with white text
 
+Also renders the email hero cards Constant Contact pulls by URL, into
+images/email/hero/. Optional full-width banner (banner_text) for a headline
+claim like "Major Price Reduction" that sits under the header block.
+
 Outputs:
   social-media/cta-cards/fringe-benefits-360-1080x1920.png
   social-media/cta-cards/fortunato-360-1080x1920.png
+  social-media/cta-cards/*-1080x1350.png (4:5 in-feed variants)
+  images/email/hero/fortunato-major-price-reduction-2026-07-21.png
 """
 
 import os
@@ -20,6 +26,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 # which machine the repo is cloned to (repo root is two levels up from here).
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT_DIR = os.path.join(_REPO_ROOT, "social-media", "cta-cards")
+# Email hero cards are the same design at 9:16, but they live with the other
+# email assets because Constant Contact pulls them by absolute URL.
+EMAIL_HERO_DIR = os.path.join(_REPO_ROOT, "images", "email", "hero")
 LOGO_PATH = os.path.join(_REPO_ROOT, "images", "brand", "haleyyachtslogo-reverse.png")
 PHOTO_DIR = os.path.join(_REPO_ROOT, "images", "yachts", "featured")
 
@@ -317,8 +326,29 @@ def autosize_font(weight, text, max_width, start_size, min_size=40, letterspacin
     return load_font(weight, min_size)
 
 
+def draw_full_width_banner(canvas, draw, y_top, text, height=None, fill=REDUCED,
+                           text_fill=WHITE, size=40, letterspacing_px=5):
+    """Full-bleed horizontal band with centered uppercase text. Unlike the small
+    PRICE REDUCED pill, this spans edge to edge so it reads as a banner across
+    the card rather than a badge attached to a line. Returns the band's bottom y
+    so the caller can flow the rest of the layout beneath it."""
+    label = text.upper()
+    font = load_font("bold", size)
+    # Shrink to fit if the headline text is long for the canvas.
+    while size > 24 and text_width(font, label, letterspacing_px) > W - (MARGIN_X * 2):
+        size -= 2
+        font = load_font("bold", size)
+    band_h = height if height is not None else font.size + 44
+    draw.rectangle([0, y_top, W, y_top + band_h], fill=fill)
+    y_text = y_top + (band_h - font.size) // 2 - 2   # optical centering for caps
+    draw_text_centered(draw, label, font, y_text, text_fill,
+                       letterspacing_px=letterspacing_px)
+    return y_top + band_h
+
+
 def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
-                cta_label, cta_url, canvas_h=1920, price_reduced=False):
+                cta_label, cta_url, canvas_h=1920, price_reduced=False,
+                banner_text=None, out_dir=None):
     """Render a single 1080-wide CTA card. canvas_h controls the aspect:
        - 1920 -> 9:16 portrait (default; FB/IG Reels, Stories)
        - 1350 -> 4:5 portrait (FB/IG in-feed image posts, no scroll-crop)
@@ -360,9 +390,19 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
         accent_y = y_name + name_h + int(38 * scale)
         draw_accent_line(draw, accent_y, width=60, thickness=3)
 
+        # ---- Optional full-width banner, sitting directly under the header
+        # block (photo + eyebrow + hull name + accent rule) and immediately
+        # above the price it refers to, so the claim and the number read as one.
+        y_after_header = accent_y + int(34 * scale)
+        if banner_text:
+            y_after_header = draw_full_width_banner(
+                img, draw, y_after_header, banner_text,
+                height=int(96 * scale), size=int(44 * scale),
+            ) + int(30 * scale)
+
         # ---- Sub line (year/builder/price line, on navy base) - auto-size
         sub_font = autosize_font("semibold", sub_line, text_max_w, 46, 32)
-        y_sub = accent_y + int(64 * scale)
+        y_sub = y_after_header + int(30 * scale) if banner_text else accent_y + int(64 * scale)
         draw_text_centered(draw, sub_line, sub_font, y_sub, WHITE)
 
         # ---- PRICE REDUCED badge (under the price/sub line) when applicable
@@ -411,7 +451,7 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
             line2="+1 561-817-1547",
         )
 
-        out = os.path.join(OUT_DIR, out_filename)
+        out = os.path.join(out_dir or OUT_DIR, out_filename)
         img.save(out, "PNG", optimize=True)
         print("Wrote:", out)
     finally:
@@ -442,6 +482,23 @@ if __name__ == "__main__":
         sub_line="Bruce Farr Fast 72  |  $329,000",
         cta_label="Take the 360 Tour",
         cta_url="360.haleyyachts.com/fortunato",
+    )
+
+    # ---- EMAIL HERO (Constant Contact) -----------------------------------
+    # Same 9:16 design, written into images/email/hero/ because sent email pulls
+    # its hero by absolute URL off the live site. NEVER overwrite a hero that has
+    # already been sent - a new campaign gets a new filename, so the image in an
+    # already-delivered email keeps showing what the recipient originally saw.
+    render_card(
+        out_filename="fortunato-major-price-reduction-2026-07-21.png",
+        photo_filename="fortunato-alongside.jpg",
+        eyebrow="1991 Southern Wind 72",
+        hull_name="Fortunato",
+        sub_line="Bruce Farr Fast 72  |  $329,000",
+        cta_label="Take the 360 Tour",
+        cta_url="360.haleyyachts.com/fortunato",
+        banner_text="Major Price Reduction",
+        out_dir=EMAIL_HERO_DIR,
     )
 
     # ---- 4:5 image-post variants (1080x1350) -----------------------------
