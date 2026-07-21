@@ -91,6 +91,23 @@ NOT DONE, needs Clark: Island Girl is not in `js/featured-yachts.js` - all 6 fea
 
 **(4)** ~3MB of byte-identical duplicates left in place by decision - `articles/newsletters/images/` keeping its own copies of site photos is deliberate isolation, so a future site-image cleanup cannot break a sent issue.
 
+### Fortunato price-reduction EMAIL built + masthead co-brand restacked - DONE 2026-07-21 (needs cPanel pull)
+Clark asked to update "the HTML version that included the original card" with the new card, restack the header co-brand, and fix the price in the copy below the card.
+
+**There was no HTML version to update.** Searched the repo: nothing references the original May hero (`2026-05-26-2054-take-the-360-tour-of-fortunato.png`) and `email-templates/issues/` holds only the three Logbooks and the two Riviera features. That send was composed in the Email Composer and pasted straight into Constant Contact, so no copy was ever saved here. Built it properly this time instead, as a filled issue that lives in the repo.
+
+**1. `email-templates/general.html` masthead restacked.** The two marks were side by side (Haley 201x36 left, One Water 177x46 right, 24px spacer). Now stacked, **One Water above Haley Yachts and slightly the larger** (210x55 over 190x34) - the same arrangement this template already used in its own footer, and what the site footer and the social/email cards do. Built as two table rows, not flex/float, so it holds in Outlook; the responsive block lost the now-pointless `.logo-spacer` rule and gained `.logo-cell-top` for the gap. **This improves every future send off this template, not just this one.**
+
+**2. New `email-templates/issues/fortunato-major-price-reduction.html`** - fully resolved from the template (zero `{{...}}` left), carrying the rev-3 card, a "Major Price Reduction" headline block, body copy at **$329,000**, a Take the 360 Tour button, and links to the listing page + the current brochure.
+
+**3. Hero geometry corrected for a portrait card.** The hero slot is authored `width="600" height="315"` for a 1200x630 landscape photo. Our card is 1080x1920 (9:16). The inline style says `height:auto`, but **Outlook honours the HTML attributes**, so it would have letterboxed a portrait card into a 600x315 slot and squashed it. The issue file sets `height="1067"`, the true 600-wide height. Only the issue was changed - `general.html` keeps 600x315, which is right for the landscape heroes it is normally used with.
+
+Verified: no unfilled placeholders, 4x `$329,000` and zero stale prices, `<table>`/`</table>` and `<td>`/`</td>` balanced, One Water precedes Haley in the masthead source order, no `<script>`.
+
+FLAGGED, not changed: `email-templates/logbook.html` needs nothing here - its masthead is a single pre-baked composite image with the logo already inside it, not a live logo lockup. And the dated issues already sent (the Logbooks, the two Riviera features) keep their old side-by-side masthead, as sent.
+
+FOR CLARK: the body copy is my draft - his voice, his call. Also worth a look before sending: a full 9:16 card renders about 1067px tall in a 600px email column, so it is a big opening image. Fine if that is the intent (it is what the May send did), but a 1200x630 landscape crop would be a lighter open.
+
 ### Fortunato email hero, revision 2 (Clark's layout notes) - DONE 2026-07-21 (needs cPanel pull)
 Four changes off Clark's marked-up screenshot, all in `social-media/cta-cards/render-360-cards.py` as reusable options rather than one-off tweaks:
 1. **Title pinned to the top** (`title_at_top=True`). Eyebrow + hull name move to y150/y222; the accent rule stays welded under the headline. Everything below (banner, price, teaser, chip) now flows from the BOTTOM OF THE PHOTO rather than from the headline, otherwise it would land on the boat.
