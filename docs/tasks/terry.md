@@ -59,6 +59,25 @@ So the hazard was worse than the original diagnosis: it was not only the brochur
 
 Part 3 (the canonical-document convention) is BUILT too - see the next entry.
 
+### Island Girl listing page BUILT + tidiness decisions applied - DONE 2026-07-21 (needs cPanel pull)
+Clark's four calls on the audit: (1) build the Island Girl page, (2) delete the test email heroes, (3) commit the brand-archive deletions, (4) leave the newsletter/site image duplicates alone.
+
+**(1) `yachts/offshore-48-island-girl.html` now exists.** This closes TWO live dead links, not one - `sitemap.xml` was advertising the page to Google, and the **published June 2026 Logbook archive links straight to it** (`href="../../yachts/offshore-48-island-girl.html"`), as does the June email issue. So we had been sending both Google and newsletter readers to a 404 since June 16.
+Built from `yachts/fringe-benefits.html` (the only detail page with a real multi-photo gallery + lightbox), then adapted:
+- All 15 `images/yachts/island-girl/gallery/*.jpg` wired into the grid, `islandgirl-hero.jpg` as hero and OG/Twitter image. These assets were already in the repo, unreferenced - now they earn their keep.
+- Specs and narrative written from the actual brochure: twin Caterpillar 3126-TA 420hp (installed 2006, ~2,000 hrs), 15'6" beam, 4'2" draft, 2 staterooms / 2 heads, 600 gal fuel / 240 gal water, new batteries + Victron inverter/charger 2026, 8kw Northern Lights genset, Sleipner bow thruster, Garmin electronics. Asking $330,000, lying Palm Beach Gardens.
+- Title/meta/canonical/OG/Twitter/Product JSON-LD all rewritten for this boat; price `330000` in both the OG product tag and the JSON-LD offer.
+- Removed the inherited 360 Walkthrough section (no Kuula tour for this boat) and the Watch Video lightbox + its button (no video), so there are no dead controls.
+- Renamed the copied `fb-*` / `fbGallery*` CSS classes and JS handlers to `gal-*` / `galClose` / `galStep` so nothing in this page reads as another boat's markup.
+**Verified:** every local asset ref resolves, the single inline JS block parses (bun), both JSON-LD blocks parse and validate as Product + LocalBusiness, every `onclick` handler has a matching definition, and site-wide there are now **0 broken internal page links and 0 dead sitemap URLs**.
+NOT DONE, needs Clark: Island Girl is not in `js/featured-yachts.js` - all 6 featured slots are full, so adding her means displacing another boat. His call.
+
+**(2) Test email heroes deleted.** `2026-05-25-2231/2232-test-of-the-subject-line.jpg` removed. **HELD BACK the other two** in `images/email/hero/` - `2026-05-26-2054-take-the-360-tour-of-fortunato.png` and `2026-05-26-2119-virtual-tour-2020-riviera-545-suv.png`. They are named for real campaigns, and `admin/email-composer.html` sets `HERO_URL_BASE = 'https://haleyyachts.com/images/email/hero/'` - composed emails reference their hero by ABSOLUTE URL and go out through Constant Contact. If those two sends happened, deleting the files breaks the hero image in mail already sitting in inboxes. Same failure mode as the Sangaris brochure. Asked Clark to confirm before removing; my "junk" framing when I first flagged them was wrong.
+
+**(3)** The 8 archived logo concepts/monograms under `images/brand/archive/` committed as deletions (they had been sitting deleted-but-unstaged in the working tree since before this session; recoverable from history). Working tree is finally clean.
+
+**(4)** ~3MB of byte-identical duplicates left in place by decision - `articles/newsletters/images/` keeping its own copies of site photos is deliberate isolation, so a future site-image cleanup cannot break a sent issue.
+
 ### Repo tidiness pass - part 1 (safe renames) - DONE 2026-07-21 (needs cPanel pull)
 Clark: "make sure we're as organized as we can be with folders." Ran a full repo audit (549 tracked files, 426 assets); findings and the open decisions are in the entry below this one. This entry is what was safe to just fix.
 
