@@ -91,6 +91,25 @@ NOT DONE, needs Clark: Island Girl is not in `js/featured-yachts.js` - all 6 fea
 
 **(4)** ~3MB of byte-identical duplicates left in place by decision - `articles/newsletters/images/` keeping its own copies of site photos is deliberate isolation, so a future site-image cleanup cannot break a sent issue.
 
+### ROOT CAUSE FOUND for "the first email didn't look right" + Email Composer fixed - DONE 2026-07-21 (needs cPanel pull)
+Clark sent the original May Fortunato email (Dropbox) after mentioning he had had reports it rendered wrong for some recipients, while it looked fine to him in Gmail. Diffed it against the current template. **Confirmed, and it is the exact defect predicted before reading the file.**
+
+The original's hero tag:
+`<img src=".../2026-05-26-2054-take-the-360-tour-of-fortunato.png" width="600" height="315" ... style="...height:auto;">`
+
+The card is **1080x1920**. At 600 wide its true height is **1067px**. The email declared **315**. Gmail, Apple Mail and most modern clients honour the `height:auto` in the inline style and scale correctly - which is why it looked right to Clark. **Outlook on Windows uses the Word rendering engine, which obeys the HTML width/height ATTRIBUTES and ignores that style**, so those recipients got the card crushed to 600x315 - **3.4x flatter than reality**, boat squashed, type illegible. Rendered the squash to confirm visually. "Fine in Gmail, complaints from a subset" is precisely this bug's signature.
+
+**Fixed the generator, not just the symptom.** `admin/email-composer.html` previously emitted the template's authored `height="315"` no matter what was uploaded, so every portrait or square hero would have repeated this. Now:
+- `measureHero()` reads the chosen file's natural dimensions client-side (object URL + `Image.onload`, nothing uploaded to measure).
+- `heroHeightAttr()` returns `round(600 * h / w)`, falling back to 315 when nothing has been measured (e.g. a filename typed in rather than a fresh upload).
+- The fill rewrites the hero tag's height attribute before substituting the URL, so the declared box always matches the real image.
+- Selecting a hero re-renders the preview once the measurement resolves.
+Verified: composer JS parses (bun), and the substitution regex was run against the real `general.html` for 1067 / 315 / 800 - exactly one substitution each, correct attribute out.
+
+Also worth noting from the diff: **the original had no One Water logo at all** - masthead was the Haley reverse mark alone at 240x43. Everything else was already sound in the original (preheader, 4 MSO conditionals, VML gradient fallback, alt text on every image, responsive block), so the process really had improved; this hero attribute was the one thing still broken, and it was invisible unless you opened it in Outlook.
+
+The original is NOT added to the repo - it is a sent record, and its replacement `email-templates/issues/fortunato-major-price-reduction.html` already carries the corrected `height="1067"`.
+
 ### Fortunato price-reduction EMAIL built + masthead co-brand restacked - DONE 2026-07-21 (needs cPanel pull)
 Clark asked to update "the HTML version that included the original card" with the new card, restack the header co-brand, and fix the price in the copy below the card.
 

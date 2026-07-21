@@ -374,6 +374,13 @@ const HERO_URL_BASE = 'https://haleyyachts.com/images/email/hero/';
 
 let templateSource = null;     // Raw template HTML once fetched
 let pendingHeroFile = null;    // File object from <input type=file>
+// Natural pixel size of the chosen hero. The template's hero <img> ships with
+// width="600" height="315" because it is authored for a 1200x630 landscape
+// photo. Outlook on Windows honours those HTML ATTRIBUTES and ignores the
+// height:auto in the inline style, so a portrait or square hero used to be
+// squashed into a 600x315 letterbox - fine in Gmail, wrong in Outlook. We
+// measure the image and write the true 600-wide height instead.
+let pendingHeroSize = null;    // { w, h }
 let savedHeroFilename = null;  // Filename actually written to disk this session
 
 const $ = (id) => document.getElementById(id);
@@ -496,10 +503,40 @@ $('heroFile').addEventListener('change', (e) => {
     pendingHeroFile = file;
     savedHeroFilename = null; // will be set after save
     setPendingHeroBlobUrl(file);
+    pendingHeroSize = null;
+    measureHero(file).then(size => {
+        pendingHeroSize = size;
+        renderHeroRow();
+        renderPreview();          // re-render now that we know the true aspect
+    });
     renderHeroRow();
     renderPreview();
     showStatus('Hero image selected. Preview is using the local copy. Click "Save hero image" to write it into /images/email/hero/.', 'info');
 });
+
+// Read a chosen image's natural dimensions without uploading it anywhere.
+function measureHero(file) {
+    return new Promise(resolve => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+            resolve({ w: img.naturalWidth, h: img.naturalHeight });
+            URL.revokeObjectURL(url);
+        };
+        img.onerror = () => { resolve(null); URL.revokeObjectURL(url); };
+        img.src = url;
+    });
+}
+
+// Height the hero should declare at the template's fixed 600px column width.
+// Falls back to the template's authored 315 when we have not measured anything
+// (e.g. an existing filename typed in rather than a fresh upload).
+function heroHeightAttr() {
+    if (pendingHeroSize && pendingHeroSize.w > 0) {
+        return Math.round(600 * pendingHeroSize.h / pendingHeroSize.w);
+    }
+    return 315;
+}
 
 function renderHeroRow() {
     const row = $('heroRow');
@@ -905,6 +942,11 @@ async function buildStitchedHtml(forPreview) {
     // "HALEY YACHTS - GENERAL PURPOSE EMAIL TEMPLATE"). The MSO conditional
     // comments stay - those are required for Outlook rendering.
     out = out.replace(/<!--\s*HALEY YACHTS[\s\S]*?-->/, '<!-- Haley Yachts email -->');
+    // Correct the hero's declared height BEFORE substituting the URL, so the
+    // attribute matches the actual image and Outlook cannot letterbox it.
+    const heroH = heroHeightAttr();
+    out = out.replace(/(<img\s+src="\{\{HERO_IMAGE_URL\}\}"[^>]*?\bwidth=")600("\s+height=")\d+(")/,
+                      '$1600$2' + heroH + '$3');
     out = out.replace(/{{HERO_IMAGE_URL}}/g, escapeAttr(buildHeroUrl(forPreview)));
     out = out.replace(/{{HERO_ALT}}/g, escapeAttr(heroAlt));
     out = out.replace(/{{PREHEADER}}/g, escapeHtml(preheader));
