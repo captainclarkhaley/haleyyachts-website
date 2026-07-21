@@ -64,17 +64,6 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/2023-riviera-64-sports-motor-yacht.png",
-        name: "2023 Riviera 64 Sports Motor Yacht",
-        description: "This exceptional 2023 Riviera 64 Sport Motor Yacht is a highly optioned example that has been thoughtfully equipped for luxury cruising, entertaining, and extended adventures. Twin MAN 1150 hp engines, Seakeeper 18. Call for full details.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/2023-riviera-64-sports-motor-yacht.pdf",
-        kuula: "",
-        youtube: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/2026-hcb-56-suenos-gix.png",
         name: "2026 HCB 56 Suenos GIX $2,985,000 w/Quint Merc 600's",
         description: "This is a new HBC Suenos 56 with 5 Merc 600 engines, custom hul color, Split-Sit Mezzaninie layout, Seakeeper 10, Starlink WiFi, 15KW Fisher Panda generator, upgraded Garmin electronics, helm A/c w 2nd A/C in cockpit. Call for complete information.",
@@ -83,6 +72,17 @@ const featuredYachts = [
         pdf: "documents/yachts/2026-hcb-56-suenos-gix.pdf",
         kuula: "",
         youtube: "asIe1cVN4IE",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
         page: ""
     }
 ];
