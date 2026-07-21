@@ -91,6 +91,17 @@ NOT DONE, needs Clark: Island Girl is not in `js/featured-yachts.js` - all 6 fea
 
 **(4)** ~3MB of byte-identical duplicates left in place by decision - `articles/newsletters/images/` keeping its own copies of site photos is deliberate isolation, so a future site-image cleanup cannot break a sent issue.
 
+### Fortunato email hero, revision 2 (Clark's layout notes) - DONE 2026-07-21 (needs cPanel pull)
+Four changes off Clark's marked-up screenshot, all in `social-media/cta-cards/render-360-cards.py` as reusable options rather than one-off tweaks:
+1. **Title pinned to the top** (`title_at_top=True`). Eyebrow + hull name move to y150/y222; the accent rule stays welded under the headline. Everything below (banner, price, teaser, chip) now flows from the BOTTOM OF THE PHOTO rather than from the headline, otherwise it would land on the boat.
+2. **Inverted top scrim** (`top_scrim=620`). Solid navy at y=0 easing down on an ease-out curve - the mirror of the existing bottom fade. Gives the headline something to sit on and pushes the superyacht behind Fortunato back, which is what Clark wanted it for.
+3. **Bottom fade no longer eats the hull** (`photo_height=1150`, `bottom_fade=110`). The fade was a fixed 220px and was swallowing the bottom of her hull including the red boot stripe; the photo strip is taller and the fade much shorter, so she sits fully in frame.
+4. **Stacked co-brand** (`cobrand=True`, new `place_cobrand_bottom_corner()`). One Water reverse banner ABOVE the Haley mark, One Water slightly the larger of the two (270x76 vs 230x62), both aligned to the same edge, matching the website and email footers. Returns the whole stack's rect so the contact strip centres against the pair.
+
+**Regression-tested, because these options touch shared code that renders the social cards.** Rendered all four existing cards with the new script and compared pixel-by-pixel against the OLD script's output: **identical on all four**. One trap caught in the process - my first pass scaled `bottom_fade` by the canvas ratio, which silently changed both 4:5 renders; the fade was historically a fixed 220px on every aspect, so it is now deliberately NOT scaled and that is commented in the code.
+
+**Pre-existing, NOT caused by this change:** the two committed `fringe-benefits-360-*.png` files no longer match what the script produces from the current `riviera545suv.jpg` - they differ only in the top strip (114px at 9:16, 20px at 4:5), i.e. the baked PRICE REDUCTION banner area. The committed cards predate the last re-bake of that photo. Verified by rendering with the ORIGINAL script straight out of git and diffing against the committed PNGs. Harmless (they are social assets, not served by the site) but they are stale - re-render when Clark next wants those posted.
+
 ### Repo tidiness pass - part 1 (safe renames) - DONE 2026-07-21 (needs cPanel pull)
 Clark: "make sure we're as organized as we can be with folders." Ran a full repo audit (549 tracked files, 426 assets); findings and the open decisions are in the entry below this one. This entry is what was safe to just fix.
 

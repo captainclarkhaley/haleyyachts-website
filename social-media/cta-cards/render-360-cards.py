@@ -30,6 +30,8 @@ OUT_DIR = os.path.join(_REPO_ROOT, "social-media", "cta-cards")
 # email assets because Constant Contact pulls them by absolute URL.
 EMAIL_HERO_DIR = os.path.join(_REPO_ROOT, "images", "email", "hero")
 LOGO_PATH = os.path.join(_REPO_ROOT, "images", "brand", "haleyyachtslogo-reverse.png")
+# One Water reverse banner, for the stacked co-brand lockup.
+OWYG_LOGO_PATH = os.path.join(_REPO_ROOT, "images", "email", "owyg-banner-reverse.png")
 PHOTO_DIR = os.path.join(_REPO_ROOT, "images", "yachts", "featured")
 
 W, H = 1080, 1920
@@ -134,10 +136,19 @@ def fast_gradient():
     return base
 
 
-def composite_photo_top(canvas, photo_filename, photo_height=900, dim_alpha=120):
+def composite_photo_top(canvas, photo_filename, photo_height=900, dim_alpha=120,
+                        bottom_fade=220, top_scrim=0, top_scrim_alpha=255):
     """Paste a hero photo across the top of the canvas with a navy-tinted overlay
     so text stays readable on top of it. Photo bleeds to the edges; a soft
-    gradient mask fades the bottom into the navy base."""
+    gradient mask fades the bottom into the navy base.
+
+    bottom_fade     - depth of that bottom fade. Keep it short when the subject
+                      sits low in the frame, or the fade eats the hull.
+    top_scrim       - depth of an optional fade at the TOP, mirrored: fully navy
+                      at y=0 easing to clear by this depth. Gives headline text
+                      at the top of the card something solid to sit on and pushes
+                      whatever is behind it (a marina, another boat) back.
+    top_scrim_alpha - how opaque that scrim is at y=0. 255 = fully navy."""
     path = os.path.join(PHOTO_DIR, photo_filename)
     if not os.path.exists(path):
         return canvas
@@ -157,16 +168,29 @@ def composite_photo_top(canvas, photo_filename, photo_height=900, dim_alpha=120)
     overlay = Image.new("RGB", photo.size, NAVY_TOP)
     photo = Image.blend(photo, overlay, dim_alpha / 255)
 
-    # Soft fade-out mask along the bottom 200px
+    # Soft fade-out mask along the bottom of the photo strip.
     mask = Image.new("L", photo.size, 255)
     mdraw = ImageDraw.Draw(mask)
-    fade_start = photo_height - 220
-    for y in range(fade_start, photo_height):
-        t = (y - fade_start) / 220
-        alpha = int(255 * (1 - t))
-        mdraw.line([(0, y), (W, y)], fill=alpha)
+    if bottom_fade > 0:
+        fade_start = max(0, photo_height - bottom_fade)
+        for y in range(fade_start, photo_height):
+            t = (y - fade_start) / float(bottom_fade)
+            mdraw.line([(0, y), (W, y)], fill=int(255 * (1 - t)))
 
     canvas.paste(photo, (0, 0), mask)
+
+    # Top scrim: the same idea inverted. Solid navy at the very top easing to
+    # clear, so a headline can sit at the top of the card and stay legible.
+    if top_scrim > 0:
+        scrim = Image.new("RGB", (W, top_scrim), NAVY_TOP)
+        smask = Image.new("L", (W, top_scrim), 0)
+        sdraw = ImageDraw.Draw(smask)
+        for y in range(top_scrim):
+            t = y / float(top_scrim)
+            # ease-out so it holds near-solid at the top, then releases quickly
+            sdraw.line([(0, y), (W, y)], fill=int(top_scrim_alpha * ((1 - t) ** 1.6)))
+        canvas.paste(scrim, (0, 0), smask)
+
     return canvas
 
 
@@ -280,6 +304,39 @@ def place_logo_bottom_corner(canvas, max_width=320, max_height=90, x_pad=60, y_p
     return (x, y, new_w, new_h)
 
 
+def place_cobrand_bottom_corner(canvas, hy_max_w=230, hy_max_h=62,
+                                owyg_max_w=270, owyg_max_h=76,
+                                gap=18, x_pad=60, y_pad=70, corner="right"):
+    """Stacked co-brand lockup: One Water ABOVE Haley Yachts, One Water slightly
+    the larger of the two. Mirrors the website and email footers, where the OWYG
+    reverse banner sits above the Haley mark on the dark band.
+
+    Both marks are right-aligned to each other (or left, per `corner`) so their
+    edges line up rather than floating. Returns the (x, y, w, h) rect of the
+    WHOLE stack so the contact strip can centre against the pair, not one mark."""
+    hy = Image.open(LOGO_PATH).convert("RGBA")
+    owyg = Image.open(OWYG_LOGO_PATH).convert("RGBA")
+
+    def fit(img, max_w, max_h):
+        k = min(max_w / img.width, max_h / img.height)
+        return img.resize((int(img.width * k), int(img.height * k)), Image.LANCZOS)
+
+    hy = fit(hy, hy_max_w, hy_max_h)
+    owyg = fit(owyg, owyg_max_w, owyg_max_h)
+
+    stack_w = max(hy.width, owyg.width)
+    stack_h = owyg.height + gap + hy.height
+    x0 = (W - stack_w - x_pad) if corner == "right" else x_pad
+    y0 = H - stack_h - y_pad
+
+    # Align both marks to the same edge as the corner they sit in.
+    ox = x0 + (stack_w - owyg.width) if corner == "right" else x0
+    hx = x0 + (stack_w - hy.width) if corner == "right" else x0
+    canvas.paste(owyg, (ox, y0), owyg)
+    canvas.paste(hy, (hx, y0 + owyg.height + gap), hy)
+    return (x0, y0, stack_w, stack_h)
+
+
 def draw_contact_strip(draw, x_left, logo_rect, line1="DM CLARK HALEY",
                         line2="+1 561-817-1547"):
     """Two-line uppercase contact strip in brand cyan, vertically centered to
@@ -348,7 +405,8 @@ def draw_full_width_banner(canvas, draw, y_top, text, height=None, fill=REDUCED,
 
 def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
                 cta_label, cta_url, canvas_h=1920, price_reduced=False,
-                banner_text=None, out_dir=None):
+                banner_text=None, out_dir=None, title_at_top=False,
+                photo_height=900, bottom_fade=220, top_scrim=0, cobrand=False):
     """Render a single 1080-wide CTA card. canvas_h controls the aspect:
        - 1920 -> 9:16 portrait (default; FB/IG Reels, Stories)
        - 1350 -> 4:5 portrait (FB/IG in-feed image posts, no scroll-crop)
@@ -363,8 +421,14 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
         scale = H / 1920.0
 
         img = fast_gradient()
+        photo_h = int(photo_height * scale)
         composite_photo_top(img, photo_filename,
-                            photo_height=int(900 * scale), dim_alpha=110)
+                            photo_height=photo_h, dim_alpha=110,
+                            # bottom_fade is deliberately NOT scaled: it was a
+                            # fixed 220px on every aspect before this parameter
+                            # existed, and scaling it changes the 4:5 renders.
+                            bottom_fade=bottom_fade,
+                            top_scrim=int(top_scrim * scale))
         draw = ImageDraw.Draw(img)
 
         # Hard horizontal budget for any text line.
@@ -374,7 +438,7 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
         eyebrow_text = eyebrow.upper()
         ls = 4
         eyebrow_font = autosize_font("semibold", eyebrow_text, text_max_w, 40, 26, letterspacing_px=ls)
-        y_eyebrow = int(740 * scale)
+        y_eyebrow = int((150 if title_at_top else 740) * scale)
         draw_text_centered(
             draw, eyebrow_text, eyebrow_font, y_eyebrow, ACCENT, letterspacing_px=ls
         )
@@ -382,13 +446,24 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
         # ---- Hull name (the big headline) - auto-size to fit width
         name_text = hull_name.upper()
         name_font = autosize_font("bold", name_text, text_max_w, 156, 70, letterspacing_px=4)
-        y_name = int(820 * scale)
+        y_name = int((222 if title_at_top else 820) * scale)
         draw_text_centered(draw, name_text, name_font, y_name, WHITE, letterspacing_px=4)
 
         # Position downstream elements relative to the actual rendered headline.
+        # With the title pinned to the top, the photo runs on below it, so the
+        # rest of the card has to flow from the bottom of the PHOTO instead -
+        # otherwise the accent rule and banner would land on top of the boat.
         name_h = name_font.size
-        accent_y = y_name + name_h + int(38 * scale)
-        draw_accent_line(draw, accent_y, width=60, thickness=3)
+        if title_at_top:
+            # Accent rule stays welded to the headline at the top of the card;
+            # the rest of the content flows from the bottom of the photo so it
+            # never lands on the boat.
+            draw_accent_line(draw, y_name + name_h + int(30 * scale),
+                             width=60, thickness=3)
+            accent_y = photo_h + int(10 * scale)
+        else:
+            accent_y = y_name + name_h + int(38 * scale)
+            draw_accent_line(draw, accent_y, width=60, thickness=3)
 
         # ---- Optional full-width banner, sitting directly under the header
         # block (photo + eyebrow + hull name + accent rule) and immediately
@@ -441,10 +516,15 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
         draw = ImageDraw.Draw(img)
 
         # ---- Brand mark, bottom-right; contact strip on the left in line.
-        logo_rect = place_logo_bottom_corner(
-            img, max_width=240, max_height=64,
-            x_pad=60, y_pad=int(80 * scale), corner="right",
-        )
+        if cobrand:
+            logo_rect = place_cobrand_bottom_corner(
+                img, x_pad=60, y_pad=int(96 * scale), corner="right",
+            )
+        else:
+            logo_rect = place_logo_bottom_corner(
+                img, max_width=240, max_height=64,
+                x_pad=60, y_pad=int(80 * scale), corner="right",
+            )
         draw_contact_strip(
             draw, x_left=MARGIN_X, logo_rect=logo_rect,
             line1="DM CLARK HALEY",
@@ -489,6 +569,13 @@ if __name__ == "__main__":
     # its hero by absolute URL off the live site. NEVER overwrite a hero that has
     # already been sent - a new campaign gets a new filename, so the image in an
     # already-delivered email keeps showing what the recipient originally saw.
+    # Layout notes (Clark, 2026-07-21): title pinned to the TOP over an inverted
+    # scrim - solid navy at y=0 easing down - which both makes the headline
+    # legible and pushes the superyacht behind Fortunato back. The photo runs
+    # taller (1150) with a SHORT bottom fade (110) because the old 220px fade was
+    # swallowing the bottom of her hull. Co-brand lockup stacks One Water above
+    # Haley Yachts, One Water the larger of the two, matching the site + email
+    # footers.
     render_card(
         out_filename="fortunato-major-price-reduction-2026-07-21.png",
         photo_filename="fortunato-alongside.jpg",
@@ -498,6 +585,11 @@ if __name__ == "__main__":
         cta_label="Take the 360 Tour",
         cta_url="360.haleyyachts.com/fortunato",
         banner_text="Major Price Reduction",
+        title_at_top=True,
+        photo_height=1150,
+        bottom_fade=110,
+        top_scrim=620,
+        cobrand=True,
         out_dir=EMAIL_HERO_DIR,
     )
 
