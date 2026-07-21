@@ -236,8 +236,8 @@
     <div class="instructions">
         <strong>How to use:</strong><br>
         (1) Pick the Position to edit, then click <strong>Load Current Values</strong>.<br>
-        (2) Click <strong>Browse</strong> and select an image from your computer. It will be copied into <strong>/images/yachts/featured/</strong> when you save, and the filename will be auto-cleaned (lowercase, hyphens, no spaces). You can also type a filename manually if the image is already in the folder.<br>
-        (3) Enter the Title (max 60 characters) and Description (max 250 characters).<br>
+        (2) Click <strong>Browse</strong> and select an image from your computer. It copies into <strong>/images/yachts/featured/</strong> when you save. The Image Filename box fills itself in and is read-only - it is only the name the file is stored under, not anything a visitor sees. To reuse a picture already on the site, use <em>Use a different image already on the site</em>.<br>
+        (3) Enter the <strong>Featured Yacht Title</strong> - Year Make Length Model Price, e.g. &ldquo;2023 Riviera 64 Sports Motor Yacht $3,539,000&rdquo; (max 60 characters) - and the <strong>Featured Yacht Description</strong> (max 250 characters).<br>
         (4) <em>Optional:</em> attach a Full Details PDF. Browse to a PDF (it copies into <strong>/documents/yachts/</strong> using the file&rsquo;s original filename) or paste an external spec-sheet URL. Leave blank to hide the Full Details button on the card.<br>
         (5) Click <strong>SAVE</strong>.<br>
         <br>
@@ -288,15 +288,23 @@
             <button type="button" id="clearImageBtn" style="float:right; background:none; border:none; color:#1aa8c4; cursor:pointer; font-size:0.85rem; padding:0;">Clear</button>
         </div>
 
-        <label for="imageName">Image Filename: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(auto-filled when you browse, or type manually)</span></label>
-        <input type="text" id="imageName" placeholder="e.g., riviera-68smy.jpg">
-        <div style="font-size:0.75rem; color:#888; margin-top:4px;">Reusing an image already on the site? Open the <a href="image-library.html" target="_blank" rel="noopener" style="color:#1aa8c4;">Image Library</a> to browse and copy a path.</div>
+        <!-- Filename is derived, never typed. It is the name the picture is saved
+             under on the server, not anything a visitor reads, and hand-typing a
+             boat name in here produced files with spaces, a dollar sign and no
+             extension that browsers would not render. Read-only as of 2026-07-21. -->
+        <label for="imageName">Image Filename: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(set automatically - this is just where the picture is stored, not anything anyone sees)</span></label>
+        <input type="text" id="imageName" readonly tabindex="-1"
+               style="background:#f2f4f6; color:#667; cursor:not-allowed;"
+               placeholder="Browse for an image above, or load a slot">
+        <div style="font-size:0.75rem; color:#888; margin-top:4px;">Reusing an image already on the site? Open the <a href="image-library.html" target="_blank" rel="noopener" style="color:#1aa8c4;">Image Library</a>, copy a path, and paste it with the <em>Use a different image</em> button.</div>
+        <button type="button" id="editImageNameBtn"
+                style="margin-top:8px; background:none; border:none; color:#1aa8c4; cursor:pointer; font-size:0.8rem; padding:0; text-decoration:underline;">Use a different image already on the site</button>
 
-        <label for="imageTitle">Featured Image Title: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(max 60 characters)</span></label>
-        <input type="text" id="imageTitle" maxlength="60">
+        <label for="imageTitle">Featured Yacht Title <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(Year Make Length Model Price) - max 60 characters</span></label>
+        <input type="text" id="imageTitle" maxlength="60" placeholder="e.g., 2023 Riviera 64 Sports Motor Yacht $3,539,000">
         <div class="char-count" id="titleCount">0 / 60</div>
 
-        <label for="imageDesc">Featured Image Description: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(max 250 characters)</span></label>
+        <label for="imageDesc">Featured Yacht Description: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(max 250 characters)</span></label>
         <textarea id="imageDesc" maxlength="250"></textarea>
         <div class="char-count" id="descCount">0 / 250</div>
 
@@ -498,6 +506,37 @@
             .replace(/^-+|-+$/g, '');
         return (cleanBase || 'image') + ext.toLowerCase();
     }
+
+    // Strip any pasted directory part, then slugify. Runs on every save so a
+    // filename can never reach the repo with spaces, punctuation or no extension
+    // (an extensionless file is served without an image content-type and can
+    // render broken). Idempotent for names that are already clean.
+    function safeImageName(raw) {
+        const bare = (raw || '').trim().replace(/^.*\//, '');
+        return bare ? sanitizeFilename(bare) : '';
+    }
+
+    // The filename box is read-only so it cannot be mistaken for a caption. This
+    // is the deliberate way to point a card at a picture already on the site
+    // (copy the path out of the Image Library).
+    document.getElementById('editImageNameBtn').addEventListener('click', () => {
+        const typed = window.prompt(
+            'Filename of an image already on the site, or a path copied from the Image Library:',
+            imgInput.value.trim());
+        if (typed === null) return;
+        const clean = safeImageName(typed);
+        if (!clean) { imgInput.value = ''; return; }
+        if (!/\.(jpe?g|png|gif|webp|avif)$/i.test(clean)) {
+            showStatus('That needs to end in .jpg, .png, .gif, .webp or .avif - a file ' +
+                       'with no extension will not display as a picture.', 'error');
+            return;
+        }
+        pendingImageFile = null;          // a typed name means "use the one already on the server"
+        fileInput.value = '';
+        imagePreviewRow.style.display = 'none';
+        imgInput.value = clean;
+        showStatus('Card will point at images/yachts/featured/' + clean + '. Click SAVE to apply.', 'info');
+    });
 
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -1041,7 +1080,7 @@
             showStatus('Please select a Featured Yacht Position (1-' + FEATURED_SLOTS + ').', 'error');
             return;
         }
-        const filename = imgInput.value.trim();
+        const filename = safeImageName(imgInput.value);
         const title = titleInput.value.trim();
         const desc = descInput.value.trim();
         const pdfRaw = pdfPathInput.value.trim();
@@ -1050,6 +1089,17 @@
 
         if (!filename && !title && !desc && !pendingImageFile && !pendingPdfFile && !pdfRaw && !kuulaRaw && !youtubeRaw) {
             showStatus('Please fill in at least one field.', 'error');
+            return;
+        }
+
+        // Hard stop on a filename with no image extension. A server sends an
+        // extensionless file without an image content-type, so the card looks
+        // broken on the live site while looking fine in the editor. Refuse the
+        // save rather than commit a card that cannot render.
+        if (filename && !/\.(jpe?g|png|gif|webp|avif)$/i.test(filename)) {
+            showStatus('"' + filename + '" has no picture extension, so the card would not ' +
+                       'display. Browse for the image again, or use "Use a different image ' +
+                       'already on the site" and include the .jpg or .png.', 'error');
             return;
         }
 
@@ -1272,7 +1322,7 @@
 
         // Pull current form edits into the source entry first, so an unsaved title
         // edit isn't lost when we re-order.
-        const filename = imgInput.value.trim();
+        const filename = safeImageName(imgInput.value);
         const title = titleInput.value.trim();
         const desc = descInput.value.trim();
         const kuulaRawMove = kuulaInput.value.trim();
