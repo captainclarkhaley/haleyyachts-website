@@ -59,6 +59,20 @@ So the hazard was worse than the original diagnosis: it was not only the brochur
 
 Part 3 (the canonical-document convention) is BUILT too - see the next entry.
 
+### Repo tidiness pass - part 1 (safe renames) - DONE 2026-07-21 (needs cPanel pull)
+Clark: "make sure we're as organized as we can be with folders." Ran a full repo audit (549 tracked files, 426 assets); findings and the open decisions are in the entry below this one. This entry is what was safe to just fix.
+
+**Featured hero images renamed off their camera/MLS export filenames.** Three cards were using `screenshot-2026-07-13-at-8-11-40-pm.png` style names, including the hero for a $2.9M listing, and the Manhattan was on a 60-character MLS export string:
+- `screenshot-2026-07-13-at-8-11-40-pm.png` -> `2024-sunseeker-superhawk-55.png`
+- `screenshot-2026-07-13-at-9-06-00-pm.png` -> `2023-riviera-64-sports-motor-yacht.png`
+- `screenshot-2026-07-13-at-8-28-19-pm.png` -> `2026-hcb-56-suenos-gix.png`
+- `2024-sunseeker-manhattan-68-power-10205500-20260710104638123-7.jpg` -> `2024-sunseeker-manhattan-68.jpg`
+Now matching the brochure naming convention, so a boat's hero and her spec sheet share a stem. Two of the four appear in the **already-sent July 2026 Logbook**, so those old URLs got `RedirectPermanent` lines alongside the brochure ones - same rule as the documents: a published URL has to keep resolving.
+
+**Riviera 64 video cleared.** Clark confirmed the video on that card is the HCB's, so `youtube` is now empty on the Riviera 64 and stays only on the HCB 56. Closes the leftover from the brochure fix.
+
+**Verified:** repo-wide scan of every local `href`/`src` asset reference - zero unresolvable, counting redirects. The only hits are `articles/_template.html` and the generated-page template inside `admin/article-manager.html`, which correctly use `../../` because the pages they emit live two levels deep; they are false positives, not broken links.
+
 ### Canonical per-boat brochure convention - DONE 2026-07-21 (needs cPanel pull)
 Clark: "might as well go ahead and get that done." Part 3 of the document-retention work.
 

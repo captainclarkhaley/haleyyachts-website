@@ -42,7 +42,7 @@ const featuredYachts = [
         page: "yachts/fortunato.html"
     },
     {
-        image: "images/yachts/featured/2024-sunseeker-manhattan-68-power-10205500-20260710104638123-7.jpg",
+        image: "images/yachts/featured/2024-sunseeker-manhattan-68.jpg",
         name: "2024 Sunseeker Manhattan 68 *NEW* - $3,995,000",
         description: "This is a NEW Sunseeker 68 Manhattan, built in 2024. Comes with full manufacturer warranty and many upgrades, including twin MAN 1400 hp engines, Joy Stick docking, upgraded interiors, hardtop Flybridge and so much more. Call to get full details.",
         link: "contact.html",
@@ -53,7 +53,7 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/screenshot-2026-07-13-at-8-11-40-pm.png",
+        image: "images/yachts/featured/2024-sunseeker-superhawk-55.png",
         name: "2024 Sunseeker Superhawk 55 - $1,975,000",
         description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
         link: "contact.html",
@@ -64,18 +64,18 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/screenshot-2026-07-13-at-9-06-00-pm.png",
+        image: "images/yachts/featured/2023-riviera-64-sports-motor-yacht.png",
         name: "2023 Riviera 64 Sports Motor Yacht",
         description: "This exceptional 2023 Riviera 64 Sport Motor Yacht is a highly optioned example that has been thoughtfully equipped for luxury cruising, entertaining, and extended adventures. Twin MAN 1150 hp engines, Seakeeper 18. Call for full details.",
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/2023-riviera-64-sports-motor-yacht.pdf",
         kuula: "",
-        youtube: "asIe1cVN4IE",
+        youtube: "",
         page: ""
     },
     {
-        image: "images/yachts/featured/screenshot-2026-07-13-at-8-28-19-pm.png",
+        image: "images/yachts/featured/2026-hcb-56-suenos-gix.png",
         name: "2026 HCB 56 Suenos GIX $2,985,000 w/Quint Merc 600's",
         description: "This is a new HBC Suenos 56 with 5 Merc 600 engines, custom hul color, Split-Sit Mezzaninie layout, Seakeeper 10, Starlink WiFi, 15KW Fisher Panda generator, upgraded Garmin electronics, helm A/c w 2nd A/C in cockpit. Call for complete information.",
         link: "contact.html",

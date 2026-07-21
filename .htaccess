@@ -95,6 +95,12 @@
     # link in the already-sent May 2026 Logbook. The file is recovered from git
     # history and this line repairs that live dead link.
     RedirectPermanent /documents/yachts/featured/2005-manta-42-mkii.pdf                      /documents/yachts/2005-manta-42-mkii-sangaris.pdf
+
+    # 2026-07-21: two featured hero images renamed off their camera/MLS export
+    # filenames. Both appear in the already-sent July 2026 Logbook, so the old
+    # URLs have to keep resolving for the email and its web archive.
+    RedirectPermanent /images/yachts/featured/screenshot-2026-07-13-at-8-28-19-pm.png                        /images/yachts/featured/2026-hcb-56-suenos-gix.png
+    RedirectPermanent /images/yachts/featured/2024-sunseeker-manhattan-68-power-10205500-20260710104638123-7.jpg /images/yachts/featured/2024-sunseeker-manhattan-68.jpg
 </IfModule>
 
 
