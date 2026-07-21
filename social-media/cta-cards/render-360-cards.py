@@ -306,7 +306,8 @@ def place_logo_bottom_corner(canvas, max_width=320, max_height=90, x_pad=60, y_p
 
 def place_cobrand_bottom_corner(canvas, hy_max_w=230, hy_max_h=62,
                                 owyg_max_w=270, owyg_max_h=76,
-                                gap=18, x_pad=60, y_pad=70, corner="right"):
+                                gap=18, x_pad=60, y_pad=70, corner="right",
+                                owyg_dy=0):
     """Stacked co-brand lockup: One Water ABOVE Haley Yachts, One Water slightly
     the larger of the two. Mirrors the website and email footers, where the OWYG
     reverse banner sits above the Haley mark on the dark band.
@@ -332,7 +333,7 @@ def place_cobrand_bottom_corner(canvas, hy_max_w=230, hy_max_h=62,
     # Align both marks to the same edge as the corner they sit in.
     ox = x0 + (stack_w - owyg.width) if corner == "right" else x0
     hx = x0 + (stack_w - hy.width) if corner == "right" else x0
-    canvas.paste(owyg, (ox, y0), owyg)
+    canvas.paste(owyg, (ox, y0 + owyg_dy), owyg)
     canvas.paste(hy, (hx, y0 + owyg.height + gap), hy)
     return (x0, y0, stack_w, stack_h)
 
@@ -519,6 +520,7 @@ def render_card(out_filename, photo_filename, eyebrow, hull_name, sub_line,
         if cobrand:
             logo_rect = place_cobrand_bottom_corner(
                 img, x_pad=60, y_pad=int(96 * scale), corner="right",
+                owyg_dy=int(5 * scale),
             )
         else:
             logo_rect = place_logo_bottom_corner(
