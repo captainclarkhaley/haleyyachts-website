@@ -77,7 +77,7 @@ const featuredYachts = [
     {
         image: "images/yachts/featured/2023 Riviera 64 Sport Motor Yacht",
         name: "Featured Listing",
-        description: "This one-owner 2023 Riviera 64 SMY is the ultimate blend of performance, luxury, and offshore capability. With only 400hours on twin MAN V12 1550s, she’s fully optioned, meticulously maintained, and turnkey ready for her next adventure.",
+        description: "This one-owner 2023 Riviera 64 SMY is the ultimate blend of performance, luxury, and offshore capability. With only 400 hours on twin MAN V12 1550s, she’s fully optioned, meticulously maintained, and turnkey ready for her next adventure.",
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/2023-riviera-64-sports-motor-yacht.pdf",
