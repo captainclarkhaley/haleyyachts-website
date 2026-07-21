@@ -238,7 +238,7 @@
         (1) Pick the Position (1-6) to edit, then click <strong>Load Current Values</strong>.<br>
         (2) Click <strong>Browse</strong> and select an image from your computer. It will be copied into <strong>/images/yachts/featured/</strong> when you save, and the filename will be auto-cleaned (lowercase, hyphens, no spaces). You can also type a filename manually if the image is already in the folder.<br>
         (3) Enter the Title (max 60 characters) and Description (max 250 characters).<br>
-        (4) <em>Optional:</em> attach a Full Details PDF. Browse to a PDF (it copies into <strong>/documents/yachts/featured/</strong> using the file's original filename) or paste an external spec-sheet URL. Leave blank to hide the Full Details button on the card.<br>
+        (4) <em>Optional:</em> attach a Full Details PDF. Browse to a PDF (it copies into <strong>/documents/yachts/</strong> using the file&rsquo;s original filename) or paste an external spec-sheet URL. Leave blank to hide the Full Details button on the card.<br>
         (5) Click <strong>SAVE</strong>.<br>
         <br>
         <strong>Reorder slots:</strong> Load a position, choose a destination from <em>Move to Position</em>, then click <strong>MOVE</strong>. The boat you move takes the new slot and the other slots shift to make room.<br>
@@ -313,7 +313,7 @@
             <button type="button" id="clearPdfBtn" style="float:right; background:none; border:none; color:#1aa8c4; cursor:pointer; font-size:0.85rem; padding:0;">Clear</button>
         </div>
 
-        <label for="pdfPath">PDF Filename or URL: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(auto-filled with the original filename when you browse. Or type a filename already in /documents/yachts/featured/, or paste a full https:// URL. Leave blank to remove.)</span></label>
+        <label for="pdfPath">PDF Filename or URL: <span style="font-weight:400; text-transform:none; letter-spacing:0; color:#888; font-size:0.75rem;">(auto-filled with the original filename when you browse. Or type a filename already in /documents/yachts/, or paste a full https:// URL. Leave blank to remove.)</span></label>
         <input type="text" id="pdfPath" placeholder="e.g., riviera-545suv-spec.pdf or https://example.com/spec.pdf">
         <button type="button" id="removePdfBtn" style="background:none; border:1px solid #d0d0d0; color:#888; padding:4px 12px; font-size:0.75rem; border-radius:3px; cursor:pointer; margin-top:6px;" onclick="removePdfAssociation()">Remove PDF from this slot</button>
 
@@ -945,12 +945,15 @@
         await writable.close();
     }
 
-    async function copyPdfToFeatured(file, filename) {
+    // Brochures live in documents/yachts/ - one canonical document per boat, NOT
+    // under a "featured" folder. A boat's spec sheet is linked by the Logbook and
+    // outlives its time in the featured rotation, so its path must not imply the
+    // featured tool owns it. Moved out of documents/yachts/featured/ 2026-07-21.
+    async function copyPdfToDocuments(file, filename) {
         const root = await getSiteRoot();
         const docsDir = await root.getDirectoryHandle('documents', { create: true });
         const yachtsDir = await docsDir.getDirectoryHandle('yachts', { create: true });
-        const featuredDir = await yachtsDir.getDirectoryHandle('featured', { create: true });
-        const fileHandle = await featuredDir.getFileHandle(filename, { create: true });
+        const fileHandle = await yachtsDir.getFileHandle(filename, { create: true });
         const writable = await fileHandle.createWritable();
         await writable.write(file);
         await writable.close();
@@ -1091,15 +1094,15 @@
             }
         }
 
-        // Step 1b: if a Browse-selected PDF is pending, write it into documents/yachts/featured/.
+        // Step 1b: if a Browse-selected PDF is pending, write it into documents/yachts/.
         if (pendingPdfFile) {
             try {
                 // pdfRaw at this point is the sanitized filename auto-filled at browse time.
                 if (useGitHub) {
-                    await ghUploadBinary(pendingPdfFile, 'documents/yachts/featured/' + pdfRaw,
+                    await ghUploadBinary(pendingPdfFile, 'documents/yachts/' + pdfRaw,
                         'Featured yacht: upload PDF ' + pdfRaw);
                 } else {
-                    await copyPdfToFeatured(pendingPdfFile, pdfRaw);
+                    await copyPdfToDocuments(pendingPdfFile, pdfRaw);
                 }
             } catch (err) {
                 if (err.name === 'AbortError') {
@@ -1140,7 +1143,7 @@
         } else if (/^https?:\/\//i.test(pdfRaw)) {
             pdfValue = pdfRaw;
         } else {
-            pdfValue = 'documents/yachts/featured/' + pdfRaw.replace(/^.*\//, '');
+            pdfValue = 'documents/yachts/' + pdfRaw.replace(/^.*\//, '');
         }
         updates.pdf = pdfValue;
         entry.pdf = pdfValue;
@@ -2031,7 +2034,7 @@
 //   description - body copy under the title
 //   link        - destination URL for the primary "Inquire" button (usually contact.html)
 //   linkText    - label for the primary button
-//   pdf         - optional. Relative path to a Full Details PDF in documents/yachts/featured/
+//   pdf         - optional. Relative path to a Full Details PDF in documents/yachts/
 //                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
 //   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
 //                 kuula.co. Empty/missing = no 360 section, no badge.

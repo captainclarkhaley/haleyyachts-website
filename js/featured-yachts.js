@@ -8,7 +8,7 @@
 //   description - body copy under the title
 //   link        - destination URL for the primary "Inquire" button (usually contact.html)
 //   linkText    - label for the primary button
-//   pdf         - optional. Relative path to a Full Details PDF in documents/yachts/featured/
+//   pdf         - optional. Relative path to a Full Details PDF in documents/yachts/
 //                 OR an absolute URL to an externally hosted spec sheet. Empty/missing = button hidden.
 //   kuula       - optional. Sanitized <iframe> embed code for a Kuula 360 tour. Must point at
 //                 kuula.co. Empty/missing = no 360 section, no badge.
@@ -26,7 +26,7 @@ const featuredYachts = [
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2020-Riviera-545_SUV.pdf",
+        pdf: "documents/yachts/2020-riviera-545-suv-fringe-benefits.pdf",
         kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         youtube: "8Sfu5DoYrBw",
         page: "yachts/fringe-benefits.html"
@@ -37,7 +37,7 @@ const featuredYachts = [
         description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/1991-Southern_Wind-Bruce_Farr_Fast_72.pdf",
+        pdf: "documents/yachts/1991-southern-wind-72-fortunato.pdf",
         kuula: "<iframe src=\"https://kuula.co/share/collection/7MFLp?logo=-1&info=1&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         page: "yachts/fortunato.html"
     },
@@ -47,7 +47,7 @@ const featuredYachts = [
         description: "This is a NEW Sunseeker 68 Manhattan, built in 2024. Comes with full manufacturer warranty and many upgrades, including twin MAN 1400 hp engines, Joy Stick docking, upgraded interiors, hardtop Flybridge and so much more. Call to get full details.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2024-Sunseeker-Manhattan_68.pdf",
+        pdf: "documents/yachts/2024-sunseeker-manhattan-68.pdf",
         kuula: "",
         youtube: "",
         page: ""
@@ -58,7 +58,7 @@ const featuredYachts = [
         description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2024-Sunseeker-Superhawk_55.pdf",
+        pdf: "documents/yachts/2024-sunseeker-superhawk-55.pdf",
         kuula: "",
         youtube: "",
         page: ""
@@ -69,7 +69,7 @@ const featuredYachts = [
         description: "This exceptional 2023 Riviera 64 Sport Motor Yacht is a highly optioned example that has been thoughtfully equipped for luxury cruising, entertaining, and extended adventures. Twin MAN 1150 hp engines, Seakeeper 18. Call for full details.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2023-Riviera-64_Sports_Motor_Yacht.pdf",
+        pdf: "documents/yachts/2023-riviera-64-sports-motor-yacht.pdf",
         kuula: "",
         youtube: "asIe1cVN4IE",
         page: ""
@@ -80,7 +80,7 @@ const featuredYachts = [
         description: "This is a new HBC Suenos 56 with 5 Merc 600 engines, custom hul color, Split-Sit Mezzaninie layout, Seakeeper 10, Starlink WiFi, 15KW Fisher Panda generator, upgraded Garmin electronics, helm A/c w 2nd A/C in cockpit. Call for complete information.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/featured/2026-HCB-56_SUENOS_GIX.pdf",
+        pdf: "documents/yachts/2026-hcb-56-suenos-gix.pdf",
         kuula: "",
         youtube: "asIe1cVN4IE",
         page: ""

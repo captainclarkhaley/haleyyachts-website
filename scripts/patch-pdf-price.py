@@ -11,7 +11,7 @@ Helvetica-Bold, using the ink color sampled from the original glyphs.
     python3 scripts/patch-pdf-price.py <pdf> <old-price> <new-price> [--dry-run]
 
     python3 scripts/patch-pdf-price.py \
-        documents/yachts/featured/1991-Southern_Wind-Bruce_Farr_Fast_72.pdf \
+        documents/yachts/1991-southern-wind-72-fortunato.pdf \
         '$395,000' '$329,000'
 
 Requires PyMuPDF (pip install pymupdf).

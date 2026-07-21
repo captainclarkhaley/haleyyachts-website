@@ -57,7 +57,20 @@ Also corrected the Delete section's on-screen blurb, which claimed "Detail pages
 
 So the hazard was worse than the original diagnosis: it was not only the brochure. **Deleting Fortunato from Featured today would have removed `yachts/fortunato.html` and dangled two published June Logbook pages, while the confirmation dialog reported zero inbound links.** Both are now caught before the delete runs. Inline JS syntax-checked clean.
 
-STILL WORTH DOING (part 3, not built): Clark's single-canonical-document convention, below.
+Part 3 (the canonical-document convention) is BUILT too - see the next entry.
+
+### Canonical per-boat brochure convention - DONE 2026-07-21 (needs cPanel pull)
+Clark: "might as well go ahead and get that done." Part 3 of the document-retention work.
+
+**New layout.** Brochures moved `documents/yachts/featured/` -> `documents/yachts/`, one canonical document per boat, named `<year>-<builder>-<model>-<boat-name>.pdf`, all lowercase and hyphenated (the old set was a mess of underscores, mixed case, and one filename containing a literal space and parentheses). Convention written up in `documents/yachts/README.md`, which is blocked from public serving by the root `.htaccess` `\.md$` rule. The 8 canonical brochures now sit flat in `documents/yachts/`; superseded revisions and secondary documents moved to `documents/yachts/archive/` (never linked, kept so an old revision does not require digging through git).
+
+**Old URLs kept alive with 301s.** New section 3b in the root `.htaccess`. The already-sent Logbook issues cannot be revised, so a brochure's published URL has to resolve forever; the dated archives are therefore NOT edited to point at the new paths, exactly as Clark asked. The two 1991 Southern Wind entries both land on the current Fortunato brochure - the May issue linked an earlier revision, and someone clicking a spec sheet should get the accurate one (both read $329,000 now anyway).
+
+**Admin tool follows the convention.** `admin/featured-yachts.html` uploads to `documents/yachts/` in both GitHub and local-folder modes (`copyPdfToFeatured` renamed to `copyPdfToDocuments`), and the two on-screen help strings and the schema comments were corrected.
+
+**THE HAZARD WAS ALREADY REAL - found the live casualty.** While auditing which old paths needed redirects, one referenced file turned out not to exist at all: `2005-manta-42-mkii.pdf`. Traced it to commit **`3e968ce` (2026-06-08), "Featured yacht: delete asset documents/yachts/featured/2005-manta-42-mkii.pdf"**. Sangaris sold, came out of the featured rotation, and the delete path took her brochure with it - breaking the spec-sheet link in the **already-sent May 2026 Logbook** and in its published web archive. It sat broken for six weeks and nobody noticed, which is the whole problem with this failure mode. Recovered the PDF from git history (`git show 3e968ce^:...`), filed it as `documents/yachts/2005-manta-42-mkii-sangaris.pdf`, and added a redirect for the old path. That live dead link is now repaired.
+
+**Verified:** every `pdf:` in `featured-yachts.js` and every spec-sheet href in `yachts/*.html` resolves to a file that exists; every old path still referenced anywhere on the site has a matching `RedirectPermanent`; every redirect target exists on disk; all moves recorded as git renames (no content churn); admin inline JS parses clean.
 
 **The recommendation as originally written:**
 1. **Never auto-delete PDFs.** Brochures are durable documents that get linked from dated archives; featured cards are ephemeral. Images can stay in the current delete flow (they are card-specific and cheap to re-cut). Cheapest possible change, removes the whole class of bug, and the cost is a few MB of orphan PDFs that a periodic cleanup pass can sweep.

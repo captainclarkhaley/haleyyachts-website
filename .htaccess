@@ -63,6 +63,41 @@
 </IfModule>
 
 
+# ----- 3b. Legacy brochure paths --------------------------------------
+# 2026-07-21: yacht brochures moved from /documents/yachts/featured/ to
+# /documents/yachts/, one canonical document per boat. The old folder
+# name implied the Featured Yacht tool owned the file's lifecycle, but a
+# spec sheet is linked by the Logbook long after the boat leaves the
+# featured rotation.
+#
+# These 301s exist so the already-published Logbook issues and their web
+# archives keep working. Those pages are dated records and are NOT edited
+# to point at the new paths - the redirect carries them instead. Do not
+# remove these; the emails are already in people's inboxes and cannot be
+# revised.
+#
+# The two 1991 Southern Wind lines both land on the current Fortunato
+# brochure: the May issue linked an earlier revision of the same document,
+# and a visitor clicking a spec sheet should get the accurate one. The
+# superseded revisions are kept, unlinked, in documents/yachts/archive/.
+<IfModule mod_alias.c>
+    RedirectPermanent /documents/yachts/featured/1991-Southern_Wind-Bruce_Farr_Fast_72.pdf   /documents/yachts/1991-southern-wind-72-fortunato.pdf
+    RedirectPermanent /documents/yachts/featured/1991-southern-wind-bruce-farr-fast-72.pdf   /documents/yachts/1991-southern-wind-72-fortunato.pdf
+    RedirectPermanent /documents/yachts/featured/2020-Riviera-545_SUV.pdf                    /documents/yachts/2020-riviera-545-suv-fringe-benefits.pdf
+    RedirectPermanent /documents/yachts/featured/2023-Riviera-64_Sports_Motor_Yacht.pdf      /documents/yachts/2023-riviera-64-sports-motor-yacht.pdf
+    RedirectPermanent /documents/yachts/featured/2024-Sunseeker-Manhattan_68.pdf             /documents/yachts/2024-sunseeker-manhattan-68.pdf
+    RedirectPermanent /documents/yachts/featured/2024-Sunseeker-Superhawk_55.pdf             /documents/yachts/2024-sunseeker-superhawk-55.pdf
+    RedirectPermanent /documents/yachts/featured/2024-riviera-465-suv.pdf                    /documents/yachts/2024-riviera-465-suv.pdf
+    RedirectPermanent /documents/yachts/featured/2026-HCB-56_SUENOS_GIX.pdf                  /documents/yachts/2026-hcb-56-suenos-gix.pdf
+
+    # Sangaris sold and left the featured rotation, and the old delete path took
+    # her brochure with it (commit 3e968ce, 2026-06-08) - which broke the spec-sheet
+    # link in the already-sent May 2026 Logbook. The file is recovered from git
+    # history and this line repairs that live dead link.
+    RedirectPermanent /documents/yachts/featured/2005-manta-42-mkii.pdf                      /documents/yachts/2005-manta-42-mkii-sangaris.pdf
+</IfModule>
+
+
 # ----- 4. Hardening --------------------------------------------------
 # No directory listings.
 Options -Indexes
