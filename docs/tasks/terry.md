@@ -59,6 +59,19 @@ So the hazard was worse than the original diagnosis: it was not only the brochur
 
 Part 3 (the canonical-document convention) is BUILT too - see the next entry.
 
+### Featured slots 6 -> 12 - DONE 2026-07-21 (needs cPanel pull)
+Clark: "why don't we just add another 6 slots on the featured listings? Since I still don't have the worldwide search up and running." So the featured grid carries more inventory while search is missing. This also answers the Island Girl question - she no longer has to displace anyone.
+
+**One constant, not fourteen literals.** The count was hardcoded in ~14 spots in `admin/featured-yachts.html` (pad loops, `slice(0, 6)` trims, the compaction re-pad, the data-file writer, an error string) plus two hand-written `<option value="1..6">` lists. Replaced all of it with a single `const FEATURED_SLOTS = 12` at the top of the admin script; both Position dropdowns are now generated from it at load, so the markup carries no slot count at all. Changing the number again is a one-line edit.
+
+**The public grid needed nothing** - `renderFeaturedYachts()` filters on `isFilledYacht` and never had a cap, so empty slots stay hidden and filled ones just render.
+
+**Home page capped at 6, deliberately.** Not asked for, but adding 6 slots would otherwise have doubled the home page's featured section the moment Clark filled them, and that section already ends in a "View All Featured Yachts" button - it was built as a preview. `renderFeaturedYachts(containerId, limit)` now takes an optional cap, and a page opts in with `data-featured-limit` on the grid div. `index.html` sets 6; `buy.html` passes nothing and shows everything. Net effect: the home page looks exactly as it does today no matter how many slots get filled, and the Buy page is the full list. Trivially reversible by deleting one attribute.
+
+**Verified** by running the real `js/featured-yachts.js` under a DOM shim (bun): with today's 6 filled boats, home renders 6 and Buy renders 6; with all 12 filled, home renders 6 and Buy renders 12. Separately simulated the admin pad/trim/compaction against the live data file - 6 entries pad to 12, 6 filled + 6 hidden blanks, compaction keeps filled first and blanks last, and the dropdowns emit 1-12. Admin inline JS parses clean.
+
+Also refreshed the admin version stamp and corrected `admin/index.html`, which still advertised "up to six featured yachts".
+
 ### Island Girl listing page BUILT + tidiness decisions applied - DONE 2026-07-21 (needs cPanel pull)
 Clark's four calls on the audit: (1) build the Island Girl page, (2) delete the test email heroes, (3) commit the brand-archive deletions, (4) leave the newsletter/site image duplicates alone.
 

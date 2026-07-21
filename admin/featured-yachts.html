@@ -235,7 +235,7 @@
 
     <div class="instructions">
         <strong>How to use:</strong><br>
-        (1) Pick the Position (1-6) to edit, then click <strong>Load Current Values</strong>.<br>
+        (1) Pick the Position to edit, then click <strong>Load Current Values</strong>.<br>
         (2) Click <strong>Browse</strong> and select an image from your computer. It will be copied into <strong>/images/yachts/featured/</strong> when you save, and the filename will be auto-cleaned (lowercase, hyphens, no spaces). You can also type a filename manually if the image is already in the folder.<br>
         (3) Enter the Title (max 60 characters) and Description (max 250 characters).<br>
         (4) <em>Optional:</em> attach a Full Details PDF. Browse to a PDF (it copies into <strong>/documents/yachts/</strong> using the file&rsquo;s original filename) or paste an external spec-sheet URL. Leave blank to hide the Full Details button on the card.<br>
@@ -276,15 +276,9 @@
     </div>
 
     <form id="maintForm" onsubmit="event.preventDefault();">
-        <label for="position">Featured Image Position (1-6):</label>
+        <label for="position">Featured Image Position:</label>
         <select id="position" required>
             <option value="">-- Select --</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
         </select>
 
         <label for="imageFile">Browse for Image (from your computer):</label>
@@ -336,12 +330,6 @@
             <label for="movePosition">Move loaded boat to Position:</label>
             <select id="movePosition" style="max-width:160px;">
                 <option value="">-- Select --</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
             </select>
             <button type="button" id="moveBtn" class="btn btn-secondary" onclick="moveToPosition()">MOVE</button>
         </div>
@@ -368,7 +356,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-06-23 - added YouTube video field
+    <div class="admin-version" data-version>v: 2026-07-21 - 12 featured slots; brochures kept on delete
 </div>
 
 <!-- Shared GitHub Contents API layer (token, gh* helpers, 401 handling) -->
@@ -376,11 +364,32 @@
 <!-- Load current data -->
 <script src="../js/featured-yachts.js"></script>
 <script>
+    // How many featured slots the site offers. Raised 6 -> 12 on 2026-07-21
+    // (Clark) while the worldwide search is still not up, so the featured grid
+    // carries more of the inventory. THIS IS THE ONLY PLACE THE COUNT LIVES -
+    // the two Position dropdowns are built from it and every pad/trim below
+    // uses it, so changing this number is the whole change. The public grid in
+    // js/featured-yachts.js renders however many slots are filled and has no
+    // cap of its own, so nothing there needs touching.
+    const FEATURED_SLOTS = 12;
+
+    // Build both Position dropdowns from FEATURED_SLOTS so the count never has
+    // to be maintained in the markup. Runs immediately: these selects ship with
+    // only the "-- Select --" placeholder in the HTML.
+    document.querySelectorAll('#position, #movePosition').forEach(sel => {
+        for (let i = 1; i <= FEATURED_SLOTS; i++) {
+            const o = document.createElement('option');
+            o.value = String(i);
+            o.textContent = String(i);
+            sel.appendChild(o);
+        }
+    });
+
     // Working copy of the current data (so edits don't render on this page)
     let workingData = JSON.parse(JSON.stringify(featuredYachts));
 
-    // Ensure 6 slots exist (empty slots are skipped at render time)
-    while (workingData.length < 6) {
+    // Ensure every slot exists (empty slots are skipped at render time)
+    while (workingData.length < FEATURED_SLOTS) {
         workingData.push({
             image: '',
             name: 'Featured Listing',
@@ -392,8 +401,8 @@
             youtube: ''
         });
     }
-    // If there are more than 6 slots (leftover from older saves), trim down to 6
-    workingData = workingData.slice(0, 6);
+    // If there are more slots than we offer (leftover from older saves), trim down
+    workingData = workingData.slice(0, FEATURED_SLOTS);
     // Backfill fields on entries that pre-date schema changes
     workingData.forEach(y => {
         if (typeof y.pdf === 'undefined') y.pdf = '';
@@ -432,12 +441,12 @@
     // both in the on-disk file (see the patchers) and in this in-memory workingData.
 
     // Reorder workingData so every filled slot precedes every blank one, keeping
-    // relative order within each group, then re-pad/trim to exactly 6 slots.
+    // relative order within each group, then re-pad/trim to exactly FEATURED_SLOTS slots.
     function compactWorkingDataFilledFirst() {
         const filled = [], blanks = [];
         workingData.forEach(y => (isFilledYacht(y) ? filled : blanks).push(y));
-        workingData = filled.concat(blanks).slice(0, 6);
-        while (workingData.length < 6) {
+        workingData = filled.concat(blanks).slice(0, FEATURED_SLOTS);
+        while (workingData.length < FEATURED_SLOTS) {
             workingData.push({
                 image: '', name: 'Featured Listing',
                 description: 'Details about this featured yacht will appear here.',
@@ -1029,7 +1038,7 @@
     async function saveFileImpl() {
         const pos = parseInt(posSel.value);
         if (!pos) {
-            showStatus('Please select a Featured Yacht Position (1-6).', 'error');
+            showStatus('Please select a Featured Yacht Position (1-' + FEATURED_SLOTS + ').', 'error');
             return;
         }
         const filename = imgInput.value.trim();
@@ -1286,14 +1295,14 @@
         workingData.splice(toIdx, 0, moved);
 
         // Re-pad to 6 (splice preserves length, but be defensive)
-        while (workingData.length < 6) {
+        while (workingData.length < FEATURED_SLOTS) {
             workingData.push({
                 image: '', name: 'Featured Listing',
                 description: 'Details about this featured yacht will appear here.',
                 link: 'contact.html', linkText: 'Inquire', pdf: '', kuula: '', youtube: ''
             });
         }
-        workingData = workingData.slice(0, 6);
+        workingData = workingData.slice(0, FEATURED_SLOTS);
         workingData.forEach(y => {
             if (typeof y.pdf === 'undefined') y.pdf = '';
             if (typeof y.kuula === 'undefined') y.kuula = '';
@@ -1693,14 +1702,14 @@
 
             // Step 3: update in-memory working copy so the page reflects the delete.
             workingData.splice(pos - 1, 1);
-            while (workingData.length < 6) {
+            while (workingData.length < FEATURED_SLOTS) {
                 workingData.push({
                     image: '', name: 'Featured Listing',
                     description: 'Details about this featured yacht will appear here.',
                     link: 'contact.html', linkText: 'Inquire', pdf: '', kuula: '', youtube: '', page: ''
                 });
             }
-            workingData = workingData.slice(0, 6);
+            workingData = workingData.slice(0, FEATURED_SLOTS);
             // Mirror the file-side compaction so blanks sink to the end and the
             // two representations stop drifting; refresh the dropdown labels.
             compactWorkingDataFilledFirst();
@@ -1977,7 +1986,7 @@
     }
 
     // Remove the entry at index `idx` from the array region, then re-pad the
-    // array back to 6 slots with a blank placeholder so the position model
+    // array back to FEATURED_SLOTS slots with a blank placeholder so the position model
     // stays fixed. Only the array body is rewritten; the renderer code outside
     // the array is left untouched, same contract as the other patchers.
     function patchFeaturedYachtsDelete(fileText, idx) {
@@ -1990,7 +1999,7 @@
         const entryTexts = entries.map(e => arrText.slice(e.start, e.end + 1));
         entryTexts.splice(idx, 1);
         // Push any remaining blank slots to the end so filled cards stay
-        // contiguous from Position 1, then re-pad to 6 blank slots so positions
+        // contiguous from Position 1, then re-pad to FEATURED_SLOTS blank slots so positions
         // stay stable.
         let compactedTexts = compactEntryTextsFilledFirst(entryTexts);
         const blank = `{
@@ -2004,7 +2013,7 @@
         youtube: "",
         page: ""
     }`;
-        while (compactedTexts.length < 6) compactedTexts.push(blank);
+        while (compactedTexts.length < FEATURED_SLOTS) compactedTexts.push(blank);
         const newArrText = '\n    ' + compactedTexts.join(',\n    ') + '\n';
         return fileText.slice(0, arrRange.start + 1) + newArrText + fileText.slice(arrRange.end);
     }

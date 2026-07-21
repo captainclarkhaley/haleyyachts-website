@@ -431,13 +431,22 @@ function _fyEscapeAttr(s) {
         .replace(/>/g, '&gt;');
 }
 
-function renderFeaturedYachts(containerId) {
+// Render the filled featured slots into containerId.
+// `limit` optionally caps how many cards are shown - used by the HOME PAGE,
+// which is a preview that ends in a "View All Featured Yachts" button. The Buy
+// page passes no limit and shows everything. Added 2026-07-21 alongside the
+// 6 -> 12 slot increase, so filling the new slots grows the Buy page without
+// doubling the length of the home page.
+function renderFeaturedYachts(containerId, limit) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
     _fyInjectKuulaStyles();
 
-    container.innerHTML = featuredYachts.filter(isFilledYacht).map(y => {
+    let shown = featuredYachts.filter(isFilledYacht);
+    if (limit && shown.length > limit) shown = shown.slice(0, limit);
+
+    container.innerHTML = shown.map(y => {
         // Vertically top-anchor the cover-crop. Several featured photos have a
         // "PRICE REDUCTION" banner baked across the TOP of the image; a centered
         // crop in the fixed-height card box (220px) clips that banner in half.
@@ -509,6 +518,10 @@ function renderFeaturedYachts(containerId) {
     }).join('');
 }
 
+// How many cards the HOME PAGE preview shows. The Buy page is the full list.
+// A page opts into the preview by putting data-featured-limit on the grid div.
 document.addEventListener('DOMContentLoaded', () => {
-    renderFeaturedYachts('featured-yachts-grid');
+    const grid = document.getElementById('featured-yachts-grid');
+    const limit = grid ? parseInt(grid.dataset.featuredLimit, 10) : NaN;
+    renderFeaturedYachts('featured-yachts-grid', Number.isFinite(limit) ? limit : undefined);
 });
