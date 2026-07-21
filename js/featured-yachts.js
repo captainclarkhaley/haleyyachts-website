@@ -75,8 +75,8 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/2023-riviera-64-sports-motor-yacht.png",
-        name: "2023 Riviera 64 Sports Motor Yacht",
+        image: "images/yachts/featured/2023 Riviera 64 Sport Motor Yacht",
+        name: "2023 Riviera 64 Sport Motor Yacht $3,539,000",
         description: "This one-owner 2023 Riviera 64 SMY is the ultimate blend of performance, luxury, and offshore capability. With only 400 hours on twin MAN V12 1550s, she’s fully optioned, meticulously maintained, and turnkey ready for her next adventure.",
         link: "contact.html",
         linkText: "Inquire",
