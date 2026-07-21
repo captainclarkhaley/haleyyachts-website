@@ -37,7 +37,29 @@ Clark raised this and he is right; I traced the code. In `admin/featured-yachts.
 
 Net effect: drop a boat from Featured, and any past Logbook that linked its brochure silently gets a dead link. We got lucky so far only because the May 2026 Logbook links the lowercase Southern Wind PDF, which happens to still be on disk.
 
-**Recommended fix (2 parts, not built - awaiting Clark's go-ahead):**
+**BUILT 2026-07-21 (needs cPanel pull)** - Clark approved both parts; he also confirmed he is not in the Featured Yacht editor until next month, so there was no rush and no risk of colliding with a live edit. What shipped, in `admin/featured-yachts.html`:
+
+1. **Brochure PDFs are never auto-deleted.** `entry.pdf` is no longer a deletion candidate at all - it is captured as `keptDoc`, reported in the confirmation as "documents are never auto-deleted", and echoed in the success banner. Images still follow the old unshared/shared rule (card-specific and cheap to re-cut); detail pages still delete as before. Removing a brochure is now a deliberate manual act.
+2. **`scanInboundLinks()` generalized from "the detail page" to "any repo file", and widened.** Three defects fixed at once:
+   - it now runs over the **assets** (image + PDF), not just the detail page, so the dialog can see what `countAssetRefs()` structurally cannot;
+   - it now walks **`articles/**` and `email-templates/**` recursively** (new `LINK_SCAN_DIRS`, depth-capped at 3), not just the top level and `yachts/` - the published Logbook archives live in `articles/newsletters/`, so the old scan was blind to exactly the pages we were worried about;
+   - the href regex now tolerates a trailing **`?query`/`#fragment`**, because every newsletter link carries UTM parameters and the old pattern required a closing quote immediately after the filename, so it would have missed them even if it had looked in the right folder.
+   Results are de-duplicated, per-file, and every deleted file that still has inbound links gets its own warning block in the confirm dialog and in the success banner.
+Also corrected the Delete section's on-screen blurb, which claimed "Detail pages are never deleted" - the code has always deleted them.
+
+**Verified** by extracting the real `scanInboundLinks` out of the page and running it against the actual repo under a `FileSystemDirectoryHandle` shim (bun), old version vs new:
+
+| target | old scan | new scan |
+|---|---|---|
+| `1991-southern-wind-bruce-farr-fast-72.pdf` (May Logbook's brochure) | **(nothing)** | May Logbook archive + May email issue |
+| `yachts/fortunato.html` (detail page) | **(nothing)** | June Logbook archive + June email issue |
+| `images/.../southern-wind.jpg` | fortunato.html | fortunato.html + 4 Logbook/email pages |
+
+So the hazard was worse than the original diagnosis: it was not only the brochure. **Deleting Fortunato from Featured today would have removed `yachts/fortunato.html` and dangled two published June Logbook pages, while the confirmation dialog reported zero inbound links.** Both are now caught before the delete runs. Inline JS syntax-checked clean.
+
+STILL WORTH DOING (part 3, not built): Clark's single-canonical-document convention, below.
+
+**The recommendation as originally written:**
 1. **Never auto-delete PDFs.** Brochures are durable documents that get linked from dated archives; featured cards are ephemeral. Images can stay in the current delete flow (they are card-specific and cheap to re-cut). Cheapest possible change, removes the whole class of bug, and the cost is a few MB of orphan PDFs that a periodic cleanup pass can sweep.
 2. **Make the confirmation dialog tell the truth.** Extend `scanInboundLinks` to run over the image and PDF paths too, not just the detail page, and list any inbound links in the confirmation. Then a delete can never quietly break a link Clark did not know about.
 On top of that, Clark's own proposal - ONE canonical brochure per boat, referenced by both the featured card and the Logbook - is the right convention. Suggested home: `documents/yachts/<boat-slug>.pdf`, promoted out of `featured/` so the directory name stops implying the featured tool owns the file's lifecycle. That plus (1) means the document outlives the featured slot by design instead of by luck.

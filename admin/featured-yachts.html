@@ -349,10 +349,13 @@
         <div style="margin-top:32px; padding-top:24px; border-top:1px solid #e5e5e5;">
             <label>Delete the loaded featured yacht:</label>
             <p style="font-size:0.82rem; color:#666; line-height:1.6; margin:0 0 4px;">
-                Removes the loaded position's card from the listing and deletes its own image and PDF
-                from the repo. Shared files (used by another featured slot) are kept. Detail pages are
-                never deleted. This is permanent. You will get a confirmation listing exactly what
-                will be removed before anything happens.
+                Removes the loaded position's card from the listing, and deletes its own image and its
+                detail page (yachts/*.html) from the repo. <strong>The brochure PDF is always kept</strong> -
+                past Logbooks link a boat's spec sheet long after it leaves the featured list, so
+                documents are never auto-deleted; remove one by hand if you really want it gone.
+                Shared files (used by another featured slot) and external URLs are kept too. Before
+                anything happens you get a confirmation listing exactly what will be removed, plus any
+                other pages on the site that link those files and would be left with a dead link.
             </p>
             <button type="button" id="deleteBtn" class="btn btn-delete" onclick="deleteLoaded()">DELETE THIS YACHT</button>
         </div>
@@ -1355,11 +1358,19 @@
 
     // ===== DELETE a featured yacht =====
     // Removes the loaded position's entry from js/featured-yachts.js and deletes
-    // its OWN unshared assets (its image and its local PDF). An asset that any
-    // other entry still references is kept and reported as skipped. If the entry
-    // has a repo-relative `page:` detail page (yachts/*.html), that page is ALSO
-    // deleted, after scanning the rest of the site for inbound links to it and
-    // surfacing any in the confirm dialog (those other pages are NOT auto-edited).
+    // its OWN unshared image. An asset any other entry still references is kept
+    // and reported as skipped. If the entry has a repo-relative `page:` detail
+    // page (yachts/*.html), that page is ALSO deleted.
+    //
+    // The brochure PDF is DELIBERATELY never deleted here (added 2026-07-21).
+    // countAssetRefs() can only see other featured slots, so a spec sheet linked
+    // from a published Logbook archive used to look unreferenced and get removed,
+    // silently breaking a dated page nobody re-checks. Documents outlive featured
+    // slots by design; the card is ephemeral, the document is not.
+    //
+    // Everything being deleted is first run through scanInboundLinks() and any
+    // pages that link it are surfaced in the confirm dialog (those pages are NOT
+    // auto-edited) so a delete can never quietly break a link.
     function isLocalAsset(p) {
         return !!(p && p.trim() && !/^https?:\/\//i.test(p));
     }
@@ -1382,57 +1393,95 @@
         return !!(p && p.trim() && !/^https?:\/\//i.test(p) && /\.html?$/i.test(p.trim()));
     }
 
-    // Scan other site HTML files for inbound links to a detail page so we can warn
-    // Clark which pages will be left with a dead link after the page is deleted.
-    // Matches on the page's basename inside an href-ish reference, so it catches
-    // both root-relative (yachts/foo.html) and relative (../yachts/foo.html) hrefs.
-    // Returns an array of repo paths that still reference the page (excluding the
-    // detail page itself). Works in GitHub mode (Contents API) and local-folder mode.
-    async function scanInboundLinks(detailPath, useGitHub) {
-        const base = detailPath.split('/').pop();          // e.g. fortunato.html
-        const needle = new RegExp('(href|src)\\s*=\\s*["\'][^"\']*' +
-            base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '["\']', 'i');
+    // Directories scanned for inbound links, beyond the top level. `deep` walks
+    // subfolders, which is what actually matters here: the published Logbook
+    // archives live in articles/newsletters/ and the per-send email copies in
+    // email-templates/issues/, and those are exactly the pages that link a
+    // brochure long after the yacht has left the featured list.
+    const LINK_SCAN_DIRS = [
+        { path: 'yachts',          deep: false },
+        { path: 'articles',        deep: true  },
+        { path: 'email-templates', deep: true  }
+    ];
+    const LINK_SCAN_MAX_DEPTH = 3;
+
+    // Scan the site's HTML for inbound links to a repo file so we can warn Clark
+    // what will be left with a dead link if it is deleted. Used for the entry's
+    // detail page AND for its assets (image, brochure PDF) - an asset can easily
+    // be referenced by a page that is not a featured slot, which is precisely the
+    // case countAssetRefs() cannot see.
+    //
+    // Matches the file's basename inside an href/src, so it catches root-relative
+    // (documents/yachts/x.pdf), relative (../../documents/yachts/x.pdf) and
+    // absolute (https://haleyyachts.com/documents/yachts/x.pdf) forms, and allows
+    // a trailing ?query or #fragment - the newsletters append UTM parameters to
+    // every link, so without that the scan would miss them entirely.
+    //
+    // Returns repo paths that reference the target (excluding the target itself).
+    // Works in GitHub mode (Contents API) and local-folder mode. A listing or read
+    // failure is swallowed: the scan is advisory and must never block a delete.
+    async function scanInboundLinks(targetPath, useGitHub) {
+        const base = targetPath.split('/').pop();
+        const esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const needle = new RegExp('(href|src)\\s*=\\s*["\'][^"\']*' + esc +
+            '(\\?[^"\']*)?(#[^"\']*)?["\']', 'i');
         const hits = [];
 
-        // Build the candidate file list: top-level *.html plus yachts/*.html.
-        // We skip the detail page itself, the admin tool, and non-html assets.
-        const skipSelf = (p) => p.replace(/^\.?\//, '') !== detailPath.replace(/^\.?\//, '');
+        const norm = (p) => p.replace(/^\.?\//, '');
+        const isSelf = (p) => norm(p) === norm(targetPath);
+        const isHtml = (n) => /\.html?$/i.test(n);
 
         if (useGitHub) {
-            let entries = [];
-            try {
-                const root = await ghListDir('');
-                const yachts = await ghListDir('yachts');
-                entries = [].concat(root || [], yachts || []);
-            } catch (e) { return hits; } // listing failed -> skip the scan, don't block delete
-            for (const item of entries) {
-                if (item.type !== 'file' || !/\.html?$/i.test(item.name)) continue;
-                if (!skipSelf(item.path)) continue;
-                try {
-                    const f = await ghGetFile(item.path, true);
-                    if (f && f.text && needle.test(f.text)) hits.push(item.path);
-                } catch (e) { /* unreadable file -> ignore */ }
+            const walk = async (dir, depth) => {
+                let entries;
+                try { entries = await ghListDir(dir); } catch (e) { return; }
+                for (const item of entries || []) {
+                    if (item.type === 'dir') {
+                        if (depth < LINK_SCAN_MAX_DEPTH) await walk(item.path, depth + 1);
+                        continue;
+                    }
+                    if (item.type !== 'file' || !isHtml(item.name)) continue;
+                    if (isSelf(item.path)) continue;
+                    try {
+                        const f = await ghGetFile(item.path, true);
+                        if (f && f.text && needle.test(f.text)) hits.push(item.path);
+                    } catch (e) { /* unreadable file -> ignore */ }
+                }
+            };
+            await walk('', 0);                                  // top level only (no recursion into every dir)
+            for (const d of LINK_SCAN_DIRS) {
+                await walk(d.path, d.deep ? 0 : LINK_SCAN_MAX_DEPTH);
             }
         } else {
             const root = await getSiteRoot();
-            const readDir = async (dirHandle, prefix) => {
+            const walk = async (dirHandle, prefix, depth) => {
                 for await (const [entryName, handle] of dirHandle.entries()) {
-                    if (handle.kind !== 'file' || !/\.html?$/i.test(entryName)) continue;
                     const repoPath = prefix ? (prefix + '/' + entryName) : entryName;
-                    if (!skipSelf(repoPath)) continue;
+                    if (handle.kind === 'directory') {
+                        if (depth < LINK_SCAN_MAX_DEPTH) {
+                            try { await walk(handle, repoPath, depth + 1); } catch (e) { /* ignore */ }
+                        }
+                        continue;
+                    }
+                    if (handle.kind !== 'file' || !isHtml(entryName)) continue;
+                    if (isSelf(repoPath)) continue;
                     try {
                         const text = await (await handle.getFile()).text();
                         if (needle.test(text)) hits.push(repoPath);
                     } catch (e) { /* ignore */ }
                 }
             };
-            try { await readDir(root, ''); } catch (e) { /* ignore */ }
-            try {
-                const yachtsDir = await root.getDirectoryHandle('yachts');
-                await readDir(yachtsDir, 'yachts');
-            } catch (e) { /* yachts dir absent -> nothing */ }
+            // Top level: files only, so we do not crawl images/ and node-ish dirs.
+            try { await walk(root, '', LINK_SCAN_MAX_DEPTH); } catch (e) { /* ignore */ }
+            for (const d of LINK_SCAN_DIRS) {
+                try {
+                    const h = await root.getDirectoryHandle(d.path);
+                    await walk(h, d.path, d.deep ? 0 : LINK_SCAN_MAX_DEPTH);
+                } catch (e) { /* dir absent -> nothing */ }
+            }
         }
-        return hits;
+        // A file can be reached by more than one walk root; keep it listed once.
+        return hits.filter((p, i) => hits.indexOf(p) === i);
     }
 
     // Public entry point: locks the DELETE button and shows in-progress feedback,
@@ -1466,11 +1515,18 @@
 
         const name = (entry.name && entry.name !== 'Featured Listing') ? entry.name : '(empty slot)';
 
-        // Gather this entry's own assets: the image, and the PDF only if it is a
-        // local repo file (external spec-sheet URLs are not ours to delete).
+        // Determine the persistence mode up front: the inbound-link scan reads
+        // other site files the same way (Contents API vs local folder).
+        const useGitHub = hasGhToken();
+        if (!useGitHub && (!('showOpenFilePicker' in window) || !('showDirectoryPicker' in window))) {
+            showStatus('No GitHub token set and this browser does not support the local-folder fallback. Set a token above, or use Chrome or Edge.', 'error');
+            return;
+        }
+
+        // Gather this entry's own assets. The image is a deletion candidate; the
+        // brochure PDF is NOT - see below. External URLs are not ours to delete.
         const candidates = [];
         if (isLocalAsset(entry.image)) candidates.push({ kind: 'Image', path: entry.image });
-        if (isLocalAsset(entry.pdf)) candidates.push({ kind: 'PDF', path: entry.pdf });
 
         // Split into "will delete" (unshared) vs "kept" (shared with another
         // entry). countAssetRefs of 1 means only this entry references it.
@@ -1481,24 +1537,33 @@
             else toDelete.push(c);
         });
 
-        // Determine the persistence mode up front: the inbound-link scan reads
-        // other site files the same way (Contents API vs local folder).
-        const useGitHub = hasGhToken();
-        if (!useGitHub && (!('showOpenFilePicker' in window) || !('showDirectoryPicker' in window))) {
-            showStatus('No GitHub token set and this browser does not support the local-folder fallback. Set a token above, or use Chrome or Edge.', 'error');
-            return;
-        }
+        // A brochure PDF is a DOCUMENT, not card decoration, and it outlives the
+        // featured slot on purpose: the Logbook newsletters and their published
+        // archives link a boat's spec sheet for as long as those issues exist.
+        // Deleting it here would silently 404 a dated archive nobody is watching.
+        // So documents are never auto-deleted - they are reported as kept, and
+        // Clark removes one deliberately if he ever actually wants it gone.
+        const keptDoc = isLocalAsset(entry.pdf) ? entry.pdf.trim() : '';
 
-        // If this entry links to a repo detail page, mark it for deletion and scan
-        // the rest of the site for inbound links so Clark can see what is left dangling.
+        // Scan the site for inbound links to everything this delete touches: the
+        // detail page AND the assets. countAssetRefs() only sees other featured
+        // slots, so without this scan a brochure linked from a past Logbook looks
+        // unreferenced and gets deleted. Assets are scanned too even though the
+        // PDF is now retained, because the image is still deletable and the
+        // dialog should say what is about to break.
         const detailPage = isDeletableDetailPage(entry.page) ? entry.page.trim() : '';
-        let inboundLinks = [];
-        if (detailPage) {
-            showStatus('Scanning the site for links to ' + detailPage + '...', 'info');
+        const scanTargets = [];
+        if (detailPage) scanTargets.push({ label: 'Detail page', path: detailPage, deleting: true });
+        toDelete.forEach(c => scanTargets.push({ label: c.kind, path: c.path, deleting: true }));
+        if (keptDoc) scanTargets.push({ label: 'PDF', path: keptDoc, deleting: false });
+
+        const linksFor = {};
+        for (const t of scanTargets) {
+            showStatus('Scanning the site for links to ' + t.path + '...', 'info');
             try {
-                inboundLinks = await scanInboundLinks(detailPage, useGitHub);
+                linksFor[t.path] = await scanInboundLinks(t.path, useGitHub);
             } catch (e) {
-                inboundLinks = []; // scan failure must not block the delete
+                linksFor[t.path] = []; // scan failure must not block the delete
             }
         }
 
@@ -1512,6 +1577,11 @@
         } else if (!detailPage) {
             summary += '  (none - no files, or all shared/external)\n';
         }
+        if (keptDoc) {
+            summary += '\nKept (documents are never auto-deleted - past Logbooks may ' +
+                       'still link it; delete it by hand if you really want it gone):\n' +
+                       '  - PDF: ' + keptDoc + '\n';
+        }
         if (kept.length) {
             summary += '\nKept (still used by another featured slot, NOT deleted):\n';
             kept.forEach(c => { summary += '  - ' + c.kind + ': ' + c.path + '\n'; });
@@ -1523,11 +1593,23 @@
             summary += '\nNote: this card links to ' + entry.page +
                        ' (external or non-html); that link is NOT deleted.\n';
         }
-        if (detailPage && inboundLinks.length) {
-            summary += '\nHeads-up: ' + detailPage + ' is still linked from ' +
-                       inboundLinks.length + ' other page(s). Those links will dangle ' +
-                       'after deletion (not auto-fixed here - clean up manually):\n';
-            inboundLinks.forEach(p => { summary += '  - ' + p + '\n'; });
+
+        // Dead-link warnings, one block per file actually being deleted.
+        const breaking = scanTargets.filter(t => t.deleting && (linksFor[t.path] || []).length);
+        if (breaking.length) {
+            summary += '\nHeads-up - these are still linked from elsewhere on the site, ' +
+                       'and those links will dangle after deletion (not auto-fixed here):\n';
+            breaking.forEach(t => {
+                summary += '  ' + t.label + ' ' + t.path + ' <- ' +
+                           linksFor[t.path].length + ' page(s):\n';
+                linksFor[t.path].forEach(p => { summary += '      - ' + p + '\n'; });
+            });
+        }
+        // The retained brochure: show WHY keeping it was the right call.
+        if (keptDoc && (linksFor[keptDoc] || []).length) {
+            summary += '\nThe kept PDF is linked from ' + linksFor[keptDoc].length +
+                       ' page(s) - those keep working:\n';
+            linksFor[keptDoc].forEach(p => { summary += '      - ' + p + '\n'; });
         }
         summary += '\nThis is permanent. Continue?';
 
@@ -1635,9 +1717,17 @@
             if (pageDeleted) msg += ', detail page ' + detailPage + ' removed';
             else if (pageAlreadyGone) msg += ', detail page ' + detailPage + ' was already gone';
             if (kept.length) msg += ', ' + kept.length + ' shared file(s) kept';
-            if ((pageDeleted || pageAlreadyGone) && inboundLinks.length) {
-                msg += '. Note: ' + inboundLinks.length + ' page(s) still link to it (' +
-                       inboundLinks.join(', ') + ') - clean up those links manually';
+            if (keptDoc) msg += ', brochure ' + keptDoc + ' kept (documents are never auto-deleted)';
+            // Report every deleted file that other pages still link to, not just
+            // the detail page - a deleted image can dangle the same way.
+            const dangling = scanTargets.filter(t =>
+                t.deleting && (linksFor[t.path] || []).length &&
+                (t.path !== detailPage || pageDeleted || pageAlreadyGone));
+            if (dangling.length) {
+                const total = dangling.reduce((n, t) => n + linksFor[t.path].length, 0);
+                msg += '. Note: ' + total + ' page(s) still link to deleted file(s) (' +
+                       dangling.map(t => t.path + ' <- ' + linksFor[t.path].join(', ')).join('; ') +
+                       ') - clean up those links manually';
             }
             if (failures.length) {
                 msg += '. The card was removed, but some leftover files could not be ' +
