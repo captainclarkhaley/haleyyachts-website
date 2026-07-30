@@ -223,18 +223,47 @@
 
 <script src="js/main.js"></script>
 <script>
-    // Pre-fill from a ?yacht=<name> query param (used by the featured-yacht
-    // "Inquire" buttons) so the contact form arrives tagged with which boat.
-    (function prefillFromYacht() {
-        const yacht = new URLSearchParams(window.location.search).get('yacht');
-        if (!yacht) return;
-        const messageField = document.getElementById('message');
-        if (messageField && !messageField.value) {
-            messageField.value = `I'm interested in the ${yacht}. Please send me more information.`;
+    // Pre-fill the form from query params so an inquiry arrives already tagged.
+    // Supported params (all optional):
+    //   ?yacht=<name>     which boat - used by the Buy page "Inquire" buttons
+    //   ?interest=<opt>   overrides the Interest dropdown; must match an option
+    //                     exactly (new Riviera models pass "Riviera Yachts";
+    //                     brokerage boats fall back to "Buying a Yacht")
+    //   ?topic=<key>      a named conversation starter, see TOPICS below
+    // Add new topics here rather than creating more one-off mailto links.
+    (function prefillFromQuery() {
+        const TOPICS = {
+            'new-build': {
+                interest: 'Riviera Yachts',
+                message: "I'd like to talk about a new Riviera build - current timelines, spec options, and allocation."
+            }
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const topic = TOPICS[params.get('topic')];
+        const yacht = params.get('yacht');
+
+        let interest, message;
+        if (topic) {
+            interest = topic.interest;
+            message = topic.message;
+        } else if (yacht) {
+            interest = params.get('interest') || 'Buying a Yacht';
+            message = `I'm interested in the ${yacht}. Please send me more information.`;
+        } else {
+            return;
         }
+
         const interestField = document.getElementById('interest');
         if (interestField && !interestField.value) {
-            interestField.value = 'Buying a Yacht';
+            // Only set a value that actually exists as an option - assigning an
+            // unknown value to a <select> silently blanks it.
+            const match = Array.from(interestField.options).some(o => o.value === interest);
+            if (match) interestField.value = interest;
+        }
+        const messageField = document.getElementById('message');
+        if (messageField && !messageField.value) {
+            messageField.value = message;
         }
     })();
 
