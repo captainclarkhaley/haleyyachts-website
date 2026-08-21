@@ -26,6 +26,17 @@ const publishedArticles = [
         "keywords": "how to compare marine insurance quotes, boat insurance bids, competitive yacht insurance quotes, marine insurance broker vs agent, named storm deductible comparison, boat insurance binding moratorium Florida, yacht insurance submission packet, boat insurance quote comparison"
     },
     {
+        "type": "how-to",
+        "title": "How to Vet a Marine Insurance Company",
+        "excerpt": "Not every marine insurer is backed the same way. How to check a carrier's rating, licensing, and claims record before you hand over a premium check.",
+        "date": "2026-08-21",
+        "author": "Clark Haley",
+        "slug": "how-to-vet-a-marine-insurance-company",
+        "fileName": "2026-08-21-how-to-vet-a-marine-insurance-company.html",
+        "heroImage": "which-insurance-hero.jpeg",
+        "keywords": "how to research a marine insurance company, boat insurance AM Best rating, surplus lines boat insurance Florida, yacht insurance claims reputation, admitted vs non admitted marine insurance, check insurance agent license Florida, choosing a marine insurer, yacht insurance carrier financial strength"
+    },
+    {
         "type": "industry-news",
         "title": "Is Your Yacht Insurance Policy Just False Security?",
         "excerpt": "You paid the premium, so you assume you are covered. A wave of recent cases says otherwise. Marine insurers are voiding policies over expired fire extinguisher tags, missed surveys, and warranty fine print, sometimes for losses the equipment had nothing to do with. Here is how it happens and what a yacht owner should actually do about it.",
