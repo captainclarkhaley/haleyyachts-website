@@ -37,6 +37,17 @@ const publishedArticles = [
         "keywords": "how to research a marine insurance company, boat insurance AM Best rating, surplus lines boat insurance Florida, yacht insurance claims reputation, admitted vs non admitted marine insurance, check insurance agent license Florida, choosing a marine insurer, yacht insurance carrier financial strength"
     },
     {
+        "type": "newsletters",
+        "title": "The Logbook | August 2026",
+        "excerpt": "The August issue of The Logbook: Clark on his own insurance renewal, four articles on yacht insurance, three featured listings, and recent sales.",
+        "date": "2026-08-21",
+        "author": "Clark Haley",
+        "slug": "the-logbook-august-2026",
+        "fileName": "2026-08-21-the-logbook-august-2026.html",
+        "heroImage": "articles/newsletters/images/logbook-2026-08-hero.jpg",
+        "keywords": "yacht insurance, boat insurance Florida, Haley Yachts newsletter, The Logbook, yacht broker newsletter"
+    },
+    {
         "type": "industry-news",
         "title": "Is Your Yacht Insurance Policy Just False Security?",
         "excerpt": "You paid the premium, so you assume you are covered. A wave of recent cases says otherwise. Marine insurers are voiding policies over expired fire extinguisher tags, missed surveys, and warranty fine print, sometimes for losses the equipment had nothing to do with. Here is how it happens and what a yacht owner should actually do about it.",
