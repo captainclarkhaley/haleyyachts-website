@@ -15,6 +15,17 @@ const publishedArticles = [
         "keywords": "insuring a 20 year old boat, boat insurance age limits, older yacht insurance Florida, marine survey requirements insurance, boat insurance declined older boat, buying an older yacht, out of water survey insurance, hurricane haul out requirement older boat, agreed value older boat"
     },
     {
+        "type": "how-to",
+        "title": "How to Get Competitive Boat Insurance Bids",
+        "excerpt": "Three quotes is not three quotes if the agents worked from different facts. How to run a real marine insurance bid, and what to compare besides premium.",
+        "date": "2026-08-21",
+        "author": "Clark Haley",
+        "slug": "how-to-get-competitive-boat-insurance-bids",
+        "fileName": "2026-08-21-how-to-get-competitive-boat-insurance-bids.html",
+        "heroImage": "insurance-bid-hero.jpeg",
+        "keywords": "how to compare marine insurance quotes, boat insurance bids, competitive yacht insurance quotes, marine insurance broker vs agent, named storm deductible comparison, boat insurance binding moratorium Florida, yacht insurance submission packet, boat insurance quote comparison"
+    },
+    {
         "type": "industry-news",
         "title": "Is Your Yacht Insurance Policy Just False Security?",
         "excerpt": "You paid the premium, so you assume you are covered. A wave of recent cases says otherwise. Marine insurers are voiding policies over expired fire extinguisher tags, missed surveys, and warranty fine print, sometimes for losses the equipment had nothing to do with. Here is how it happens and what a yacht owner should actually do about it.",
