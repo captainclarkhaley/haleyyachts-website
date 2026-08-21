@@ -4,6 +4,28 @@
 
 const publishedArticles = [
     {
+        "type": "industry-news",
+        "title": "Is Your Yacht Insurance Policy Just False Security?",
+        "excerpt": "You paid the premium, so you assume you are covered. A wave of recent cases says otherwise. Marine insurers are voiding policies over expired fire extinguisher tags, missed surveys, and warranty fine print, sometimes for losses the equipment had nothing to do with. Here is how it happens and what a yacht owner should actually do about it.",
+        "date": "2026-07-19",
+        "author": "Clark Haley",
+        "slug": "is-your-yacht-insurance-policy-just-false-security",
+        "fileName": "2026-07-19-is-your-yacht-insurance-policy-just-false-security.html",
+        "heroImage": "insurance-hero.jpeg",
+        "keywords": "yacht insurance claim denied, marine insurance breach of warranty, boat insurance void from inception, fire extinguisher certification insurance, uberrimae fidei marine insurance, seaworthiness warranty, yacht insurance Florida, lay-up warranty, navigation limits boat insurance, Haley Yachts"
+    },
+    {
+        "type": "newsletters",
+        "title": "The Logbook | July 2026",
+        "excerpt": "The July issue of The Logbook: a note from Clark on a stacked summer board, featured listings (Sunseeker Manhattan 68, HCB 56 Suenos, Riviera 545 Fringe Benefits), a buyer-education reading list, and recent sales.",
+        "date": "2026-07-16",
+        "author": "Clark Haley",
+        "slug": "the-logbook-july-2026",
+        "fileName": "2026-07-16-the-logbook-july-2026.html",
+        "heroImage": "logbook-2026-07-hero.jpg",
+        "keywords": "Haley Yachts newsletter, The Logbook, July 2026, yacht broker newsletter, Clark Haley, Florida yacht broker, Sunseeker Manhattan 68, HCB 56 Suenos, Riviera 545 SUV Fringe Benefits, first-time Riviera buyer, how to buy a yacht, yacht insurance Florida, trading up to a bigger yacht, recent yacht sales"
+    },
+    {
         "type": "how-to",
         "title": "Insuring a Yacht in Florida: What to Know",
         "excerpt": "Florida yacht insurance has its own rules, named-storm clauses, agreed value versus actual cash value, and a survey that can make or break your premium. Here is what every buyer should understand before binding a policy.",
@@ -35,17 +57,6 @@ const publishedArticles = [
         "fileName": "2026-06-16-cruising-the-exuma-cays-land-and-sea-park-what-we-get-for-ou.html",
         "heroImage": "dsc02299.jpg",
         "keywords": "Exuma Cays Land and Sea Park, cruising the Exumas, Warderick Wells anchorage, Shroud Cay, Pipe Creek Bahamas, Bahamas cruising with dogs, Exumas by boat, no-take marine reserve Bahamas, Bahamas anchorages, Haley Yachts"
-    },
-    {
-        "type": "newsletters",
-        "title": "The Logbook | July 2026",
-        "excerpt": "The July issue of The Logbook: a note from Clark on a stacked summer board, featured listings (Sunseeker Manhattan 68, HCB 56 Suenos, Riviera 545 Fringe Benefits), a buyer-education reading list, and recent sales.",
-        "date": "2026-07-16",
-        "author": "Clark Haley",
-        "slug": "the-logbook-july-2026",
-        "fileName": "2026-07-16-the-logbook-july-2026.html",
-        "heroImage": "logbook-2026-07-hero.jpg",
-        "keywords": "Haley Yachts newsletter, The Logbook, July 2026, yacht broker newsletter, Clark Haley, Florida yacht broker, Sunseeker Manhattan 68, HCB 56 Suenos, Riviera 545 SUV Fringe Benefits, first-time Riviera buyer, how to buy a yacht, yacht insurance Florida, trading up to a bigger yacht, recent yacht sales"
     },
     {
         "type": "newsletters",
