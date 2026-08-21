@@ -4,6 +4,17 @@
 
 const publishedArticles = [
     {
+        "type": "how-to",
+        "title": "Buying and Insuring an Older Boat",
+        "excerpt": "Age drives boat insurance: survey frequency, haul-out conditions, even whether a carrier will write her at all. What to check before you go under contract.",
+        "date": "2026-08-21",
+        "author": "Clark Haley",
+        "slug": "buying-and-insuring-an-older-boat",
+        "fileName": "2026-08-21-buying-and-insuring-an-older-boat.html",
+        "heroImage": "old-yacht-hero.jpeg",
+        "keywords": "insuring a 20 year old boat, boat insurance age limits, older yacht insurance Florida, marine survey requirements insurance, boat insurance declined older boat, buying an older yacht, out of water survey insurance, hurricane haul out requirement older boat, agreed value older boat"
+    },
+    {
         "type": "industry-news",
         "title": "Is Your Yacht Insurance Policy Just False Security?",
         "excerpt": "You paid the premium, so you assume you are covered. A wave of recent cases says otherwise. Marine insurers are voiding policies over expired fire extinguisher tags, missed surveys, and warranty fine print, sometimes for losses the equipment had nothing to do with. Here is how it happens and what a yacht owner should actually do about it.",
