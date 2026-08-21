@@ -1469,9 +1469,15 @@ async function handleInlineImageInsert(file) {
 // Richer than the email composer: allows headings, figures, images.
 // Rewrites inline-image blob src to the final images/ path.
 // ============================================================
-const ART_ALLOWED_TAGS = new Set(['P','BR','STRONG','B','EM','I','U','A','UL','OL','LI','H2','H3','H4','BLOCKQUOTE','FIGURE','FIGCAPTION','IMG','SPAN']);
+// CITE is here so a pullquote can carry its attribution. Without it the tag
+// was unwrapped on publish and the name ran on as the last line of the quote,
+// which is exactly how seven published articles read until 2026-08-21.
+const ART_ALLOWED_TAGS = new Set(['P','BR','STRONG','B','EM','I','U','A','UL','OL','LI','H2','H3','H4','BLOCKQUOTE','CITE','FIGURE','FIGCAPTION','IMG','SPAN']);
 const ART_ALLOWED_ATTRS = {
     'A': ['href','title','target','rel'],
+    // Without this, class was stripped from every blockquote and the site's
+    // pullquote styling never applied to a single published article.
+    'BLOCKQUOTE': ['class'],
     'IMG': ['src','alt','class','loading','data-inline-src'],
     'FIGURE': ['class','data-inline-src'],
     'FIGCAPTION': []
@@ -1525,7 +1531,16 @@ function sanitizeArticleHtml(rawHtml) {
                 });
                 if (tag === 'A') {
                     const href = child.getAttribute('href') || '';
-                    if (!/^(https?:|mailto:|tel:|#|\.\.?\/)/i.test(href)) child.removeAttribute('href');
+                    // Root-relative links ("/contact.html", "/articles/...") are the
+                    // natural way to link inside this site, and they were being
+                    // silently stripped - which is why the closing call to action on
+                    // seven published articles was an <a> with no href, and why
+                    // every internal cross-link in a draft vanished on publish.
+                    //
+                    // "/" but NOT "//": a protocol-relative "//evil.com" would send
+                    // the reader off-site, so that one stays blocked along with
+                    // javascript: and everything else not named here.
+                    if (!/^(https?:|mailto:|tel:|#|\.\.?\/|\/(?!\/))/i.test(href)) child.removeAttribute('href');
                 }
                 walk(child);
             } else if (child.nodeType === Node.COMMENT_NODE) {
