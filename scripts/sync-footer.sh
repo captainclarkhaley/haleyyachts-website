@@ -80,7 +80,6 @@ articles/how-to/2026-05-05-how-to-choose-a-yacht-broker.html
 articles/how-to/2026-05-09-how-to-plan-your-first-bahamas-cruise.html
 articles/how-to/2026-06-06-how-to-sell-your-yacht.html
 articles/how-to/2026-06-06-what-a-survey-really-covers-and-why-it-protects-you.html
-articles/how-to/2026-06-11-test-trading-up-when-to-move-to-a-bigger-yacht.html
 articles/industry-news/2026-04-03-sunseeker-gets-a-new-permanent-ceo.html
 articles/industry-news/2026-05-05-eight-sunseeker-yachts-find-new-owners-at-fort-lauderdale-in.html
 articles/industry-news/2026-05-05-west-marine-readies-possible-bankruptcy.html

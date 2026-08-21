@@ -8,6 +8,32 @@
 
 ## OPEN
 
+### SEO maintenance: the sitemap is generated now - 2026-08-21
+Clark asked whether the SEO work done for yachtbrokersupport.com had ever been done here. It had,
+and properly: robots.txt, canonical, Open Graph, Twitter cards, JSON-LD and descriptions on every
+core page and every article page. What had NOT held up was maintenance.
+
+Fixed 2026-08-21:
+- `sitemap.xml` had stopped at 2026-06-16. Eight published articles (both Logbooks, the insurance
+  piece, the buying-timeline piece, and more) and both Riviera listing pages were missing. Cause:
+  the Article Manager writes the page and registers it in `articles/articles-data.js`, but never
+  touched the sitemap, so it fell further behind with every publish. Now 39 URLs, was 29, nothing
+  dropped.
+- **`scripts/build-sitemap.py` is the fix that lasts.** It reads `articles-data.js` (the manager's
+  own record of what is published), globs `yachts/*.html`, and keeps the core-page priorities the
+  hand-written file used. `--check` exits non-zero when it is stale. **Run it after publishing
+  articles and commit sitemap.xml with them.** It reads what is registered, not what is on disk, so
+  a draft or a stray test file is never published to Google by accident - it is reported instead.
+- Deleted a live test article, `articles/how-to/2026-06-11-test-trading-up-...`, a near-copy of the
+  real Trading Up piece with "test" in its title, crawlable and self-canonical. Removed from the
+  `scripts/sync-footer.sh` file list too.
+- `articles.html` and `privacy.html` were the only two pages with no canonical or social tags. Added.
+- `robots.txt` now disallows `/articles/_template.html`, the skeleton the Article Manager clones.
+
+**Still worth doing, not done:** teach the Article Manager to run the sitemap step itself when it
+publishes, so nobody has to remember. Until then the generator has to be run by hand.
+
+
 ### Fortunato price reduction: $395,000 -> $329,000 - DONE 2026-07-21 (needs cPanel pull)
 Clark: "lower the price of the 1991 Southern Wind 72 to $329,000, every place on the website." Changed on every live, forward-facing surface. `yachts/fortunato.html` (8 spots: `<title>`, meta description, `og:title`, `product:price:amount`, `twitter:title`, the Product JSON-LD `offers.price`, `.listing-price`, and the Asking spec row - note the prior $435k->$395k pass only caught 5, the machine-readable price fields (og product price, twitter:title, JSON-LD) were left stale then, so they were carrying $395,000 while the visible page said $395,000 too; all 8 are now consistent at $329,000). `js/featured-yachts.js` (Fortunato card `name`, which feeds the homepage + buy.html featured grid). `social-media/cta-cards/render-360-cards.py` (both `sub_line` strings) and the two rendered Fortunato PNGs re-generated with Pillow 11.3.0 - visually verified the 1350 card reads "Bruce Farr Fast 72 | $329,000". The shared render run re-encodes the Fringe Benefits cards byte-wise with identical content, so those two were restored via `git checkout` to keep the diff honest (same handling as the prior pass). DELIBERATELY LEFT UNCHANGED: the dated June 2026 Logbook archives (`email-templates/issues/logbook-2026-06.html` and `articles/newsletters/2026-06-16-the-logbook-june-2026.html`) - sent/published historical records that reflect the price at send time; rewriting them would falsify a dated issue. Repo-wide grep outside `docs/` confirms those two archives are the only remaining `$395,000` strings. No other yacht's price touched.
 

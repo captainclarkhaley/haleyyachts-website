@@ -4,4 +4,8 @@ Disallow: /admin/
 Disallow: /docs/
 Disallow: /drafts/
 
+# The article skeleton the Article Manager clones. Not a page, and it would
+# read as a near-empty duplicate of every article on the site.
+Disallow: /articles/_template.html
+
 Sitemap: https://haleyyachts.com/sitemap.xml
