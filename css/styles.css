@@ -927,6 +927,19 @@ a:hover { color: #1aa8c4; }
     margin: 2em 0;
     font-style: italic;
 }
+/* Attribution under a pullquote. Without this the name runs on as though it
+   were the last line of the quote, which is how seven published articles read
+   until 2026-08-21. Hyphen, not an em dash, per house rule. */
+.article-pullquote cite {
+    display: block;
+    margin-top: 12px;
+    font-size: 0.9rem;
+    font-style: normal;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    color: #5a6b78;
+}
+.article-pullquote cite::before { content: "-\00a0"; }
 .article-author-card {
     display: grid;
     grid-template-columns: 120px 1fr;
