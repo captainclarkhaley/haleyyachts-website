@@ -30,8 +30,25 @@ Fixed 2026-08-21:
 - `articles.html` and `privacy.html` were the only two pages with no canonical or social tags. Added.
 - `robots.txt` now disallows `/articles/_template.html`, the skeleton the Article Manager clones.
 
-**Still worth doing, not done:** teach the Article Manager to run the sitemap step itself when it
-publishes, so nobody has to remember. Until then the generator has to be run by hand.
+**DONE same day (Clark: "just tie that script to the publish process and have it run
+automatically. I don't want to have to remember to do it"):** the Article Manager now updates the
+sitemap itself as part of publishing. `updateSitemapViaGitHub()` in `admin/article-manager.html`
+runs after the manifest patch and commits `sitemap.xml` in the same publish.
+
+Two things to know before touching either generator:
+- The browser owns ONLY the Articles section. Everything above the `<!-- Articles -->` marker (core
+  pages, yacht listings) is copied through untouched, because those dates come from git history and
+  a browser cannot ask git anything. `scripts/build-sitemap.py` owns those, and preserves any
+  lastmod already in the file so the two never fight.
+- **They must produce identical bytes for the Articles section** - same entry shape, same sort
+  (date descending, then path). Change one, change the other, then run
+  `python3 scripts/build-sitemap.py --check`. Verified byte-identical at build time, including
+  after a simulated publish of a new article.
+- The sitemap step is best-effort: it cannot fail a publish. The article is already committed by
+  then, and if the sitemap write fails the manager says so and tells you to run the script.
+- One known, deliberate divergence: the script drops a registered article whose file is missing
+  from disk and warns; the browser cannot check that and will list it. Only happens when something
+  is already wrong, and the script is where you want to hear about it.
 
 
 ### Fortunato price reduction: $395,000 -> $329,000 - DONE 2026-07-21 (needs cPanel pull)

@@ -2715,7 +2715,20 @@ async function publishViaGitHub(meta) {
 
         // Patch articles-data.js
         showStatus('Updating article listings...', 'info');
-        await updateManifestViaGitHub({ type, title, excerpt, date, author, slug, fileName: articleFileName, heroImage: heroLibraryPath || heroFileName, keywords });
+        const allArticles = await updateManifestViaGitHub({ type, title, excerpt, date, author, slug, fileName: articleFileName, heroImage: heroLibraryPath || heroFileName, keywords });
+        showProgress(85);
+
+        // Tell search engines the article exists. Best-effort on purpose: a
+        // sitemap that failed to update is a nuisance, and failing the publish
+        // over it would be worse than the nuisance. The article itself is
+        // already committed by this point.
+        showStatus('Updating sitemap...', 'info');
+        try {
+            await updateSitemapViaGitHub(allArticles);
+        } catch (e) {
+            console.error('sitemap update failed', e);
+            showStatus('Article published. The sitemap did not update - run scripts/build-sitemap.py.', 'info');
+        }
         showProgress(90);
 
         // Remove the draft(s) this article came from. Delete both the title-derived
@@ -2768,6 +2781,60 @@ async function updateManifestViaGitHub(entry) {
         jsContent += newDataLine + '\n';
     }
     await ghPutFile(path, strToBase64(jsContent), 'Update article listings: ' + entry.title, existing ? existing.sha : null);
+    return articles;
+}
+
+// ===== sitemap.xml, kept current automatically =====
+//
+// WHY THIS IS HERE. The sitemap used to be maintained by hand and quietly fell
+// two months behind: publishing wrote the article and registered it in
+// articles-data.js, and nothing ever told Google. Eight articles and two yacht
+// pages went missing from it before anyone looked. Clark's instruction was
+// plain - tie it to publishing, do not make me remember it.
+//
+// This owns ONLY the Articles section. Everything above the "<!-- Articles -->"
+// marker - the core pages and the yacht listings - is copied through untouched,
+// because their dates come from git history and a browser cannot ask git
+// anything. scripts/build-sitemap.py owns those, and produces byte-identical
+// output for this section: same entry shape, same sort (date descending, then
+// path), same trailing newline. If you change one, change the other, and run
+// `python3 scripts/build-sitemap.py --check` to prove they still agree.
+//
+// One known divergence, deliberately left: the script drops a registered
+// article whose file is missing from disk and says so. This cannot check that,
+// so it lists it. That only happens when something is already wrong, and the
+// script is where you want to hear about it.
+async function updateSitemapViaGitHub(articles) {
+    const path = 'sitemap.xml';
+    const existing = await ghGetFile(path, true);
+    if (!existing || !existing.text) return;              // no sitemap: not this job to invent one
+
+    const MARK = '  <!-- Articles -->';
+    const cut = existing.text.indexOf(MARK);
+    if (cut === -1) return;                               // unrecognised shape: leave it alone
+
+    const head = existing.text.slice(0, cut + MARK.length);
+
+    const rows = articles
+        .filter(a => a && a.fileName && a.type)
+        .map(a => ({
+            rel: 'articles/' + a.type + '/' +
+                 (a.fileName.endsWith('.html') ? a.fileName : a.fileName + '.html'),
+            date: a.date || ''
+        }))
+        .sort((a, b) => b.date.localeCompare(a.date) || a.rel.localeCompare(b.rel))
+        .map(r =>
+            '  <url>\n' +
+            '    <loc>https://haleyyachts.com/' + r.rel + '</loc>\n' +
+            '    <lastmod>' + r.date + '</lastmod>\n' +
+            '    <changefreq>yearly</changefreq>\n' +
+            '    <priority>0.6</priority>\n' +
+            '  </url>')
+        .join('\n');
+
+    const xml = head + '\n' + rows + '\n\n</urlset>\n';
+    if (xml === existing.text) return;                    // already current
+    await ghPutFile(path, strToBase64(xml), 'Update sitemap for: ' + (articles[0] && articles[0].title ? articles[0].title : 'article publish'), existing.sha);
 }
 
 // ===== Drafts (GitHub-backed) =====
