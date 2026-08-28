@@ -32,16 +32,6 @@ const featuredYachts = [
         page: "yachts/fringe-benefits.html"
     },
     {
-        image: "images/yachts/featured/southern-wind.jpg",
-        name: "1991 Southern Wind 72, \"Fortunato\" - $329,000",
-        description: "Because of their renowned build quality and Bruce Farr’s exceptional design, the Southern Wind 72 is equally at home crossing oceans, effortlessly clicking off 200‑mile days or competing in long‑distance racing!",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/1991-southern-wind-72-fortunato.pdf",
-        kuula: "<iframe src=\"https://kuula.co/share/collection/7MFLp?logo=-1&info=1&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
-        page: "yachts/fortunato.html"
-    },
-    {
         image: "images/yachts/featured/2024-sunseeker-manhattan-68.jpg",
         name: "2024 Sunseeker Manhattan 68 *NEW* - $3,995,000",
         description: "This is a NEW Sunseeker 68 Manhattan, built in 2024. Comes with full manufacturer warranty and many upgrades, including twin MAN 1400 hp engines, Joy Stick docking, upgraded interiors, hardtop Flybridge and so much more. Call to get full details.",
@@ -83,6 +73,83 @@ const featuredYachts = [
         pdf: "documents/yachts/2023-riviera-64-sports-motor-yacht.pdf",
         kuula: "",
         youtube: "qqorGl21H04",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
         page: ""
     }
 ];
