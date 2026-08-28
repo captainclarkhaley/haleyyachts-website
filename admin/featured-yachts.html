@@ -364,7 +364,7 @@
         <div class="preview-box" id="previewBox"></div>
     </div>
 
-    <div class="admin-version" data-version>v: 2026-07-21 - 12 featured slots; brochures kept on delete
+    <div class="admin-version" data-version>v: 2026-08-28 - delete link-scan: one pass, live progress
 </div>
 
 <!-- Shared GitHub Contents API layer (token, gh* helpers, 401 handling) -->
@@ -748,7 +748,7 @@
     }
 
     let _statusTimer = null;
-    function showStatus(msg, type) {
+    function showStatus(msg, type, sticky) {
         statusEl.textContent = msg;
         statusEl.className = 'status ' + type;
         statusEl.style.display = '';
@@ -756,6 +756,10 @@
         // "Saving...") gets its full display time instead of the earlier timer
         // hiding it early.
         if (_statusTimer) clearTimeout(_statusTimer);
+        // sticky = a long job is in progress. The 4s auto-hide is what made the
+        // delete look dead: the "Scanning..." banner vanished while the scan was
+        // still running, leaving a greyed DELETING... button and nothing else.
+        if (sticky) { _statusTimer = null; return; }
         _statusTimer = setTimeout(() => { statusEl.style.display = 'none'; }, 4000);
     }
 
@@ -1430,7 +1434,7 @@
     // silently breaking a dated page nobody re-checks. Documents outlive featured
     // slots by design; the card is ephemeral, the document is not.
     //
-    // Everything being deleted is first run through scanInboundLinks() and any
+    // Everything being deleted is first run through the site link scan and any
     // pages that link it are surfaced in the confirm dialog (those pages are NOT
     // auto-edited) so a delete can never quietly break a link.
     function isLocalAsset(p) {
@@ -1482,68 +1486,103 @@
     // Returns repo paths that reference the target (excluding the target itself).
     // Works in GitHub mode (Contents API) and local-folder mode. A listing or read
     // failure is swallowed: the scan is advisory and must never block a delete.
-    async function scanInboundLinks(targetPath, useGitHub) {
-        const base = targetPath.split('/').pop();
-        const esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const needle = new RegExp('(href|src)\\s*=\\s*["\'][^"\']*' + esc +
-            '(\\?[^"\']*)?(#[^"\']*)?["\']', 'i');
-        const hits = [];
+    // Read every scannable HTML file on the site ONCE per delete, then match all
+    // targets against that in-memory set.
+    //
+    // The old scanInboundLinks() re-walked the whole site per target and fetched
+    // each file one at a time over the Contents API. With three targets that is
+    // ~150 serial requests before the confirm dialog can appear, so the delete
+    // just sat on a greyed DELETING... button (Clark, 2026-08-28). Now: one walk,
+    // files fetched in parallel batches, a live counter so the press is visibly
+    // working, and a hard request budget so it always terminates.
+    const LINK_SCAN_CONCURRENCY = 8;
+    const LINK_SCAN_MAX_LISTINGS = 120;
+    const LINK_SCAN_MAX_FILES = 400;
 
-        const norm = (p) => p.replace(/^\.?\//, '');
-        const isSelf = (p) => norm(p) === norm(targetPath);
+    async function collectSiteHtml(useGitHub, onProgress) {
         const isHtml = (n) => /\.html?$/i.test(n);
+        const paths = [];
 
         if (useGitHub) {
-            const walk = async (dir, depth) => {
+            let listings = 0;
+            const walkList = async (dir, depth) => {
+                if (listings >= LINK_SCAN_MAX_LISTINGS) return;
+                listings++;
                 let entries;
                 try { entries = await ghListDir(dir); } catch (e) { return; }
                 for (const item of entries || []) {
                     if (item.type === 'dir') {
-                        if (depth < LINK_SCAN_MAX_DEPTH) await walk(item.path, depth + 1);
+                        if (depth < LINK_SCAN_MAX_DEPTH) await walkList(item.path, depth + 1);
                         continue;
                     }
-                    if (item.type !== 'file' || !isHtml(item.name)) continue;
-                    if (isSelf(item.path)) continue;
-                    try {
-                        const f = await ghGetFile(item.path, true);
-                        if (f && f.text && needle.test(f.text)) hits.push(item.path);
-                    } catch (e) { /* unreadable file -> ignore */ }
+                    if (item.type === 'file' && isHtml(item.name)) paths.push(item.path);
                 }
             };
-            await walk('', 0);                                  // top level only (no recursion into every dir)
-            for (const d of LINK_SCAN_DIRS) {
-                await walk(d.path, d.deep ? 0 : LINK_SCAN_MAX_DEPTH);
-            }
-        } else {
-            const root = await getSiteRoot();
-            const walk = async (dirHandle, prefix, depth) => {
-                for await (const [entryName, handle] of dirHandle.entries()) {
-                    const repoPath = prefix ? (prefix + '/' + entryName) : entryName;
-                    if (handle.kind === 'directory') {
-                        if (depth < LINK_SCAN_MAX_DEPTH) {
-                            try { await walk(handle, repoPath, depth + 1); } catch (e) { /* ignore */ }
-                        }
-                        continue;
-                    }
-                    if (handle.kind !== 'file' || !isHtml(entryName)) continue;
-                    if (isSelf(repoPath)) continue;
+            if (onProgress) onProgress(0, 0);
+            await walkList('', 0);
+            for (const d of LINK_SCAN_DIRS) await walkList(d.path, d.deep ? 0 : LINK_SCAN_MAX_DEPTH);
+
+            const unique = paths.filter((p, i) => paths.indexOf(p) === i).slice(0, LINK_SCAN_MAX_FILES);
+            const files = [];
+            for (let i = 0; i < unique.length; i += LINK_SCAN_CONCURRENCY) {
+                const batch = unique.slice(i, i + LINK_SCAN_CONCURRENCY);
+                const read = await Promise.all(batch.map(async (fp) => {
                     try {
-                        const text = await (await handle.getFile()).text();
-                        if (needle.test(text)) hits.push(repoPath);
-                    } catch (e) { /* ignore */ }
-                }
-            };
-            // Top level: files only, so we do not crawl images/ and node-ish dirs.
-            try { await walk(root, '', LINK_SCAN_MAX_DEPTH); } catch (e) { /* ignore */ }
-            for (const d of LINK_SCAN_DIRS) {
-                try {
-                    const h = await root.getDirectoryHandle(d.path);
-                    await walk(h, d.path, d.deep ? 0 : LINK_SCAN_MAX_DEPTH);
-                } catch (e) { /* dir absent -> nothing */ }
+                        const f = await ghGetFile(fp, true);
+                        return (f && f.text) ? { path: fp, text: f.text } : null;
+                    } catch (e) { return null; }   // unreadable file -> ignore
+                }));
+                read.forEach(r => { if (r) files.push(r); });
+                if (onProgress) onProgress(Math.min(i + batch.length, unique.length), unique.length);
             }
+            return files;
         }
-        // A file can be reached by more than one walk root; keep it listed once.
-        return hits.filter((p, i) => hits.indexOf(p) === i);
+
+        // Local-folder mode: disk reads are cheap, so walk and read in one pass.
+        const files = [];
+        const seen = {};
+        const root = await getSiteRoot();
+        const walk = async (dirHandle, prefix, depth) => {
+            for await (const [entryName, handle] of dirHandle.entries()) {
+                const repoPath = prefix ? (prefix + '/' + entryName) : entryName;
+                if (handle.kind === 'directory') {
+                    if (depth < LINK_SCAN_MAX_DEPTH) {
+                        try { await walk(handle, repoPath, depth + 1); } catch (e) { /* ignore */ }
+                    }
+                    continue;
+                }
+                if (handle.kind !== 'file' || !isHtml(entryName)) continue;
+                if (seen[repoPath]) continue;
+                try {
+                    const text = await (await handle.getFile()).text();
+                    seen[repoPath] = true;
+                    files.push({ path: repoPath, text: text });
+                    if (onProgress) onProgress(files.length, 0);
+                } catch (e) { /* ignore */ }
+            }
+        };
+        try { await walk(root, '', LINK_SCAN_MAX_DEPTH); } catch (e) { /* ignore */ }
+        for (const d of LINK_SCAN_DIRS) {
+            try {
+                const h = await root.getDirectoryHandle(d.path);
+                await walk(h, d.path, d.deep ? 0 : LINK_SCAN_MAX_DEPTH);
+            } catch (e) { /* dir absent -> nothing */ }
+        }
+        return files;
+    }
+
+    // Match one target file against the already-read site HTML. No network.
+    // Same rule as before: the file's basename inside an href/src, so it catches
+    // root-relative, relative and absolute forms plus ?query / #hash suffixes.
+    function matchInboundLinks(files, targetPath) {
+        const base = targetPath.split('/').pop();
+        const esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const needle = new RegExp('(href|src)\\s*=\\s*["\'][^"\']*' + esc +
+            '(\\?[^"\']*)?(#[^"\']*)?["\']', 'i');
+        const norm = (p) => p.replace(/^\.?\//, '');
+        return files
+            .filter(f => norm(f.path) !== norm(targetPath) && needle.test(f.text))
+            .map(f => f.path);
     }
 
     // Public entry point: locks the DELETE button and shows in-progress feedback,
@@ -1620,13 +1659,18 @@
         if (keptDoc) scanTargets.push({ label: 'PDF', path: keptDoc, deleting: false });
 
         const linksFor = {};
-        for (const t of scanTargets) {
-            showStatus('Scanning the site for links to ' + t.path + '...', 'info');
+        scanTargets.forEach(t => { linksFor[t.path] = []; });
+        if (scanTargets.length) {
+            let siteHtml = [];
             try {
-                linksFor[t.path] = await scanInboundLinks(t.path, useGitHub);
+                siteHtml = await collectSiteHtml(useGitHub, (done, total) => {
+                    showStatus('Checking the site for links to these files: ' + done +
+                        (total ? ' of ' + total : '') + ' pages read...', 'info', true);
+                });
             } catch (e) {
-                linksFor[t.path] = []; // scan failure must not block the delete
+                siteHtml = []; // scan failure must not block the delete
             }
+            scanTargets.forEach(t => { linksFor[t.path] = matchInboundLinks(siteHtml, t.path); });
         }
 
         // Build the confirmation summary naming the yacht + exact file actions.
