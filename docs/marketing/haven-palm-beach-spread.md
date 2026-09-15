@@ -1,6 +1,13 @@
 # HAVEN | Palm Beach - Two-Page Spread
 
-Owner: Patrick (marketing). Status: draft for Clark's sign-off. Created 2026-09-10.
+Owner: Patrick (marketing). Created 2026-09-10.
+
+**Status, 15 September:** Clark has ruled. **The Riviera 4300 Sports Express runs**, and the portrait
+stays small - both as recommended in sections 1b and 2. Patrick is building the layout as
+`docs/design/haven-spread.html` with placeholders for the photography. **Clark sent section 5's
+production questions to Jake on 15 September** and the answers are outstanding; the materials deadline
+is the one everything else schedules against. Still blocking: a print-resolution hero image, and
+`haleyyachts.com/dock` does not exist.
 
 **Publication name is HAVEN**, published by Haven Lifestyles (havenlifestyles.com). Not "Haven Homes and Lifestyle". Use HAVEN in any correspondence and on any invoice reference.
 
@@ -374,9 +381,11 @@ The arithmetic, so nobody has to redo it: 300 dpi is the standard, a full page w
 
 Same specification whichever boat runs.
 
-- **Subject:** the chosen boat lying alongside a **private residential dock** behind a waterfront home. This is the single most important creative decision in the spread. A boat at a marina says "brokerage." A boat behind a house says "this could be your house." If a residential dock is genuinely unobtainable, the fallback is a clean on-water running or at-anchor shot with no marina furniture in frame. A row of pilings and a fuel dock kills the idea.
+- **Subject: CORRECTED 15 September, after the photography arrived.** An earlier draft of this line called a private residential dock *"the single most important creative decision in the spread."* **There are no dock shots in Riviera's catalogue** (Clark, 15 September), so that sentence named an unobtainable thing as the most important decision and would have left the next reader thinking the ad was compromised. It is not.
+
+  **The picture's job is to be a boat that plausibly fits a residential dock.** A clean on-water frame of a 45-footer does that. What breaks the argument is a bigger boat, or a row of pilings and a fuel dock. **The dock argument lives in the headline and in the draft figure in the navy panel, not in the photograph.** Original intent, kept for the record: the chosen boat alongside a private residential dock behind a waterfront home. A boat at a marina says "brokerage." A boat behind a house says "this could be your house." If a residential dock is genuinely unobtainable, the fallback is a clean on-water running or at-anchor shot with no marina furniture in frame. A row of pilings and a fuel dock kills the idea.
 - **Orientation:** Vertical. The page is portrait, 8.375" x 10.875".
-- **Composition:** Elevated or drone, roughly 40 to 60 feet up, three-quarter view from astern looking forward along the dock. Boat sitting in the **lower two-fifths** of the frame. The upper three-fifths must be sky, or open water, or both, and must be clean and low-detail because the headline is reversed out of the **lower-left quadrant**. Tell the photographer or the library contact this explicitly, it is the constraint that most supplied images will fail.
+- **Composition: ALSO CORRECTED, and this one was geometrically impossible.** *"Boat in the lower two-fifths, clean lower-left quadrant"* cannot be had from any 3:2 source where the boat is more than about a third of the frame width - which is all normal marine photography. **The real constraint, measured by Patrick across eleven frames: a full-bleed vertical page takes exactly 50.9% of a 3:2 frame's width, so the boat must occupy LESS THAN HALF the frame width or the crop clips its bow or transom.** Only two of the eleven cleared it. Elevated or drone, roughly 40 to 60 feet up, three-quarter view from astern. The upper three-fifths must be sky, or open water, or both, and must be clean and low-detail because the headline is reversed out of the **lower-left quadrant**. Tell the photographer or the library contact this explicitly, it is the constraint that most supplied images will fail.
 - **Light:** Late afternoon, sun behind the camera or slightly off one shoulder. Avoid midday. Avoid a dead grey sky, we need tonal separation for reversed white type.
 - **Minimum pixels:** 2550 x 3338. **Target 3000 x 4000.**
 - **If shot horizontal and cropped to vertical:** the original must be at least **5100 x 3400** so the vertical crop still yields 3338 pixels of height. Most library boat photography is horizontal, so expect to need this larger number.
