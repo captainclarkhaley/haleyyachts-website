@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOCK-UP, NOT PRODUCTION ARTWORK. HAVEN Palm Beach two-page spread, Haley Yachts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   HAVEN | Palm Beach two-page spread. LAYOUT MOCK-UP.
+   Source of truth: docs/marketing/haven-palm-beach-spread.md
+   Hero boat: Riviera 4300 Sports Express (Candidate 1), per Clark 2026-09-15.
+   THIS IS NOT PRODUCTION ARTWORK. HAVEN's designer builds the final files.
+
+   Coordinate system: every position below is stated in INCHES and matches
+   section 2 of the brief. X = 0 is the LEFT TRIM EDGE of the left page.
+   Y = 0 is the TOP TRIM EDGE. Bleed elements use negative values.
+   CSS inches are absolute (1in = 96px), so the whole page is drawn 1:1
+   and then scaled for the screen by the zoom control only.
+   ============================================================ */
+
+:root{
+  --navy:#0a1628;
+  --navy-mid:#0d2847;
+  --cyan:#21cbea;
+  --paper:#fdfdfb;
+  --amber:#ff9f1c;
+  --amber-ink:#8a4b00;
+  --danger:#d81e2c;
+  --guide-trim:#ff2fa0;
+  --guide-live:#00b37e;
+  --sans:'Open Sans','Segoe UI','Helvetica Neue',Helvetica,Arial,'Liberation Sans',sans-serif;
+
+  /* ---------- SUPPLIED PHOTOGRAPHY, 15 Sep 2026 ----------------------------
+     Eleven Riviera 4300 Sports Express frames, all 8000x5333 except the aerial
+     at 8000x5328. Riviera press library, supplied by Clark. They live OUTSIDE
+     the repo (they are ~15 MB each and this is a docs folder), so they are
+     linked by absolute file:// URL. Two consequences, both deliberate:
+       1. This page renders with photography ONLY on Clark's Mac. Anyone else
+          sees empty boxes, which is honest: they do not have the files either.
+       2. HAVEN's designer relinks to the originals. Nothing here is artwork.
+     Swap a pick by changing ONE line below. The crop lives on .hero / .panel-photo.
+     Folder (note: misspelled on disk, left as-is, it is Clark's):
+     ~/Dropbox/HaleyYachts/Marketing/riviera-imagaes/
+     ------------------------------------------------------------------------ */
+  --img-hero:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/HaleyYachts/Marketing/riviera-imagaes/Riviera%204300%20Sports%20Express%20Aerial%2003.jpg");
+  --img-shot2:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/HaleyYachts/Marketing/riviera-imagaes/Riviera%204300%20Sports%20Express%20Sea%20Deck%2003.jpg");
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:#4a4f57;
+  font-family:var(--sans);
+  color:#15181d;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- page chrome (screen only, never part of the ad) ---------- */
+.chrome{max-width:1632px;margin:0 auto;padding:22px 20px 0}
+.stamp{
+  background:var(--danger);color:#fff;border-radius:4px;
+  padding:14px 18px;font-weight:700;font-size:15px;letter-spacing:.06em;
+  text-transform:uppercase;line-height:1.45;
+}
+.stamp span{display:block;font-weight:400;text-transform:none;letter-spacing:0;font-size:13px;opacity:.95;margin-top:6px}
+.meta{color:#e9ecef;font-size:13px;line-height:1.6;margin:14px 0 10px}
+.meta strong{color:#fff}
+.controls{
+  display:flex;flex-wrap:wrap;gap:16px;align-items:center;
+  background:#2f343b;border-radius:4px;padding:10px 14px;color:#e9ecef;font-size:13px;margin-bottom:18px;
+}
+.controls label{display:flex;gap:7px;align-items:center;cursor:pointer;user-select:none}
+.controls .sep{width:1px;height:20px;background:#555c66}
+.controls button{
+  font:inherit;font-size:12px;background:#4a525c;color:#fff;border:0;border-radius:3px;
+  padding:5px 11px;cursor:pointer;
+}
+.controls button:hover{background:#5d6771}
+
+/* ---------- the stage ---------- */
+#stagewrap{max-width:1632px;margin:0 auto;padding:0 20px;overflow:hidden}
+#stage{transform-origin:top left;transform:scale(1)}
+
+/* ---------- the spread ---------- */
+/* .spread is the BLEED rectangle: 17.000in x 11.125in. It clips. */
+.spread{
+  position:relative;
+  width:17in;height:11.125in;
+  overflow:hidden;
+  background:var(--paper);
+  box-shadow:0 10px 40px rgba(0,0,0,.5);
+}
+/* .art is the TRIM rectangle: 16.750in x 10.875in, inset by the 0.125in bleed.
+   Its top-left corner is the origin for every coordinate in the brief. */
+.art{position:absolute;left:.125in;top:.125in;width:16.75in;height:10.875in}
+.art > *{position:absolute}
+
+/* ============================================================
+   LEFT PAGE (VERSO). X -0.125 to 8.375
+   ============================================================ */
+/* SHOT 1 / HERO. "Riviera 4300 Sports Express Aerial 03.jpg", 8000 x 5328.
+   CROP REQUESTED (stated, not baked in. The designer crops the original):
+     full height, window X 1880 -> 5951, Y 0 -> 5328.  Result 4071 x 5328.
+     = 8.500" x 11.125" at 478 dpi. Boat bounding box in the ORIGINAL is
+     X 2080-5740, Y 2400-3720, so the crop leaves ~200 px of clear water off
+     the bow and ~210 px off the stern. There is no more slack than that:
+     a vertical crop of a 3:2 frame is 50.9% of its width, and this boat
+     occupies 46% of it. See the crop card on the page.
+   The maths below is just that crop expressed in CSS:
+     scale   = 11.125in / 5328px            -> background-size 16.704in x 11.125in
+     shift X = -1880px * (11.125in/5328px)  -> -3.926in                             */
+.hero{
+  left:-.125in;top:-.125in;width:8.5in;height:11.125in;
+  background-color:var(--navy-mid);
+  background-image:var(--img-hero);
+  background-repeat:no-repeat;
+  background-size:16.704in 11.125in;
+  background-position:-3.926in 0;
+  overflow:hidden;
+}
+/* Bottom-up scrim. In the brief this was insurance. With THIS frame it is
+   structural: the boat's waterline sits at Y 7.2-7.5" in the crop, so every
+   line of type lands on open water, and the water is a mid-value blue-green
+   that will not hold 60pt Light on its own. Deepened and raised accordingly.
+   DESIGNER'S CALL: a gradient, or burn the lower water down in the image.
+   It should be a decision, not a default. */
+.hero-scrim{
+  position:absolute;left:0;right:0;bottom:0;height:5.4in;
+  background:linear-gradient(to top,
+    rgba(10,22,40,.92) 0%,
+    rgba(10,22,40,.86) 35%,
+    rgba(10,22,40,.70) 62%,
+    rgba(10,22,40,.40) 82%,
+    rgba(10,22,40,0) 100%);
+}
+/* TYPE BLOCK MOVED DOWN 1.30" from the brief (kicker 5.83 -> 7.13, head 6.25 ->
+   7.55, caption 9.99 -> 10.28) and leading tightened .82 -> .80.
+   WHY: the supplied set has no frame with an empty lower-left quadrant. A
+   vertical crop is boat-edge-to-edge in all eleven, so at the brief's Y 6.25
+   the headline sets 60pt WHITE type across the boat's own WHITE topsides.
+   Dropping the block puts all three lines plus the kicker on the water below
+   the hull. It is tight: 3.4" of water for a 3.3" stack. See note 9. */
+.verso-kicker{
+  left:.75in;top:7.13in;
+  font-size:10pt;line-height:12pt;font-weight:600;text-transform:uppercase;
+  letter-spacing:.20em;color:var(--cyan);
+}
+.verso-head{
+  left:.75in;top:7.55in;width:5.5in;
+  font-size:60pt;line-height:.80in;font-weight:300;text-transform:uppercase;
+  letter-spacing:.07em;color:#fff;
+}
+.verso-head b{font-weight:700}
+.verso-caption{
+  left:.75in;top:10.28in;width:5.5in;
+  font-size:7pt;line-height:9pt;color:rgba(255,255,255,.7);
+}
+
+/* ============================================================
+   RIGHT PAGE (RECTO). X 8.375 to 16.875
+   ============================================================ */
+.recto-field{left:8.375in;top:-.125in;width:8.5in;height:11.125in;background:var(--paper)}
+
+.recto-kicker{
+  left:8.9in;top:.85in;
+  font-size:9pt;line-height:11pt;font-weight:600;text-transform:uppercase;
+  letter-spacing:.20em;color:var(--navy);
+}
+.deck{
+  left:8.9in;top:1.25in;width:7.6in;
+  font-size:22pt;line-height:28pt;font-weight:300;letter-spacing:.01em;color:var(--navy);
+}
+.accent-rule{left:8.9in;top:2.7in;width:1.2in;height:.04in;background:var(--cyan)}
+.body{
+  left:8.9in;top:2.95in;width:7.6in;height:2.07in;
+  columns:2;column-gap:.3in;column-fill:auto;
+  font-size:9.5pt;line-height:14pt;color:#000;
+}
+.body p{margin:0 0 9pt}
+.body p:last-child{margin-bottom:0}
+.offer{
+  left:8.9in;top:5.18in;width:7.6in;
+  font-size:11pt;line-height:15pt;font-weight:600;color:var(--navy);
+}
+.offer i{font-style:normal;color:#0f8fae}  /* cyan is illegible on white at 11pt; see note 6 */
+
+/* ---- Zone F, the swap zone (navy panel, bleeds off the outer edge) ---- */
+.panel{
+  left:8.9in;top:5.7in;width:7.975in;height:2.1in;   /* right edge = 16.875 bleed */
+  background:var(--navy);
+}
+.panel > *{position:absolute}
+.panel-head{
+  left:.15in;top:.1in;width:7.35in;
+  font-size:11pt;line-height:13pt;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.02em;
+}
+/* SHOT 2 / SECONDARY. "Riviera 4300 Sports Express Sea Deck 03.jpg", 8000 x 5333.
+   CROP REQUESTED (stated, not baked in):
+     window X 400 -> 6800, Y 1150 -> 4287.  Result 6400 x 3137, which is 2.040:1,
+     the panel's letterbox exactly. = 2.850" x 1.397" at 2245 dpi.
+     Top edge cuts the headliner, which is dead beige and eats the frame.
+     Bottom edge keeps the swim platform. Couple lands 27-46% from the left,
+     water fills the left third, settee and set table run off to the right.
+   CSS = that crop:  scale 2.85in/6400px -> size 3.5625in x 2.3749in,
+                     shift -400px, -1150px -> -0.1781in, -0.5121in            */
+.panel-photo{
+  left:.15in;top:.38in;width:2.85in;height:1.4in;
+  background-color:#0d2847;
+  background-image:var(--img-shot2);
+  background-repeat:no-repeat;
+  background-size:3.5625in 2.3749in;
+  background-position:-.1781in -.5121in;
+  overflow:hidden;
+}
+.panel-photo .crop-badge{white-space:nowrap}
+.panel-photo-cap{
+  left:.15in;top:1.81in;width:2.85in;
+  font-size:7pt;line-height:8.5pt;color:rgba(255,255,255,.7);
+}
+.spec{left:3.4in;top:.36in;width:4.1in}
+.spec dl{margin:0;display:grid;grid-template-columns:1.15in 1fr;row-gap:0;align-items:baseline}
+.spec dt{
+  font-size:7.5pt;line-height:12.5pt;font-weight:600;text-transform:uppercase;
+  letter-spacing:.10em;color:var(--cyan);
+}
+.spec dd{margin:0;font-size:8.5pt;line-height:12.5pt;color:#fff}
+.spec dd.unresolved{color:var(--amber);font-weight:600}
+.panel-foot{
+  left:3.4in;top:1.8in;width:4.1in;
+  font-size:7.5pt;line-height:9.5pt;color:rgba(255,255,255,.7);
+}
+
+.showline{
+  left:8.9in;top:7.9in;width:7.6in;
+  font-size:9.5pt;line-height:13pt;font-style:italic;color:var(--navy);
+}
+
+/* ---- Zone H / I, Clark block and contact bar ---- */
+.portrait{left:8.9in;top:8.25in;width:1.7in;height:2.05in}
+.ch-name{
+  left:10.9in;top:8.22in;width:5.6in;
+  font-size:14pt;line-height:17pt;font-weight:600;color:var(--navy);
+}
+.ch-title{
+  left:10.9in;top:8.48in;width:5.6in;
+  font-size:8.5pt;line-height:11.5pt;color:var(--navy);
+}
+.bio{
+  left:10.9in;top:8.86in;width:5.6in;
+  font-size:8.5pt;line-height:11.5pt;color:#000;
+}
+.contact{
+  left:10.9in;top:9.96in;width:3.15in;
+  font-size:8.5pt;line-height:11.5pt;color:#000;
+}
+.qr{left:14.25in;top:9.8in;width:.75in;height:.75in}
+.lockup{left:15.15in;top:9.76in;width:1.35in;height:.79in}
+
+/* ---- the cyan rule: the only element crossing the gutter ---- */
+.cyan-rule{left:-.125in;top:10.785in;width:17in;height:.34in;background:var(--cyan)}
+
+/* ============================================================
+   PLACEHOLDERS. The deliverable, not decoration.
+   ============================================================ */
+/* NOTE: .ph deliberately does NOT set `position`. Every .ph element here is
+   already absolutely positioned by .art > * / .panel > * or by its own rule,
+   and an absolutely positioned box is a containing block for .ph-badge and
+   .ph-mini anyway. Setting position:relative here would silently un-position
+   .hero, .portrait and .panel-photo. */
+.ph{
+  border:2px dashed var(--amber);
+  background:
+    repeating-linear-gradient(45deg,rgba(255,159,28,.16) 0 9px,rgba(255,159,28,0) 9px 18px),
+    rgba(255,255,255,.05);
+  overflow:hidden;
+}
+/* Shots 1 and 2 are FILLED now, so they are no longer .ph. What they carry
+   instead is a crop card: the numbers the designer needs, over the real frame,
+   switchable off with the same checkbox. Shot 3 is still a placeholder. */
+.hero .ph-badge{left:.125in;top:.125in}   /* sit on the trim corner, not the bleed corner */
+.crop-badge{
+  position:absolute;
+  background:var(--guide-live);color:#04231a;
+  font-size:8pt;font-weight:700;line-height:1;
+  padding:5px 8px;letter-spacing:.06em;
+}
+.hero .crop-badge{left:.125in;top:.125in}
+.panel-photo .crop-badge{left:0;top:0;font-size:6pt;padding:3px 5px}
+.crop-card{
+  left:.75in;top:.8in;width:6.1in;
+  border:2px solid var(--guide-live);background:rgba(10,22,40,.88);
+}
+.crop-card .ph-body{padding:.3in .26in .26in}
+.crop-card .ph-title{color:#6ff0c4}
+.crop-card .ph-line.hot{color:#ffd79a}
+body.no-ph-detail .crop-card,
+body.no-ph-detail .crop-badge{display:none}
+.ph-badge{
+  position:absolute;left:0;top:0;
+  background:var(--amber);color:#1a1000;
+  font-size:8pt;font-weight:700;line-height:1;
+  padding:5px 8px;letter-spacing:.06em;
+}
+.ph-body{padding:.28in .2in .2in;color:#fff}
+.ph.on-white .ph-body{color:#5a3400}
+.ph-title{font-size:11pt;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:5pt;color:var(--amber)}
+.ph-line{font-size:8pt;line-height:12pt}
+.ph-line b{font-weight:700}
+.ph-line.hot{color:#ffd79a}
+.ph.on-white .ph-line.hot{color:var(--danger)}
+.ph-mini{
+  position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  text-align:center;font-size:7pt;line-height:10pt;font-weight:600;padding:0 4pt;
+}
+/* the QR is the single most dangerous placeholder on the page */
+.qr{
+  border:3px solid var(--danger);
+  background:repeating-linear-gradient(45deg,rgba(216,30,44,.14) 0 6px,rgba(216,30,44,0) 6px 12px),#fff;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;color:var(--danger);
+}
+.qr b{font-size:8pt;line-height:9pt;letter-spacing:.04em}
+.qr span{font-size:5.5pt;line-height:7pt;margin-top:2pt;font-weight:600}
+.lockup{
+  border:2px dashed var(--amber);background:rgba(255,159,28,.10);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;color:var(--amber-ink);font-size:6pt;line-height:8pt;font-weight:600;gap:2pt;
+}
+.lockup em{font-style:normal;font-weight:400;font-size:5.5pt;opacity:.85}
+
+/* hide the explanatory text, keep the boxes, when Clark wants to read the ad */
+body.no-ph-detail .ph-body,
+body.no-ph-detail .ph-mini,
+body.no-ph-detail .ph-badge{display:none}
+
+/* ============================================================
+   GUIDES. Faint, switchable, for the designer not the reader.
+   ============================================================ */
+.guides{left:0;top:0;width:16.75in;height:10.875in;pointer-events:none}
+.guides > *{position:absolute}
+body.no-guides .guides{display:none}
+.g-bleed{left:-.125in;top:-.125in;width:17in;height:11.125in;outline:1px dashed rgba(255,47,160,.55)}
+.g-trim{left:0;top:0;width:16.75in;height:10.875in;outline:1px solid rgba(255,47,160,.55)}
+.g-live{left:.25in;top:.25in;width:16.25in;height:10.375in;outline:1px dashed rgba(0,179,126,.7)}
+.g-gutter{left:8in;top:0;width:.75in;height:10.875in;background:rgba(255,159,28,.20);border-left:1px dashed rgba(255,159,28,.8);border-right:1px dashed rgba(255,159,28,.8)}
+.g-fold{left:8.375in;top:0;width:0;height:10.875in;border-left:1px dashed rgba(0,0,0,.55)}
+.g-col{top:2.95in;height:2.07in;background:rgba(0,179,126,.10);border:1px dashed rgba(0,179,126,.5)}
+.g-col.a{left:8.9in;width:3.65in}
+.g-col.b{left:12.85in;width:3.65in}
+.g-tag{
+  font-size:6pt;line-height:8pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,255,255,.9);padding:1px 3px;white-space:nowrap;
+}
+.g-tag.trim{left:.04in;top:.04in;color:#c0187c}
+.g-tag.bleed{left:-.12in;top:-.13in;color:#c0187c}
+.g-tag.live{left:.29in;top:.29in;color:#00734f}
+.g-tag.gut{left:8.02in;top:.4in;color:#8a4b00;writing-mode:vertical-rl}
+
+/* ============================================================
+   NOTES BELOW THE SPREAD (screen only)
+   ============================================================ */
+.notes{max-width:1632px;margin:0 auto;padding:26px 20px 70px;color:#e9ecef;font-size:13.5px;line-height:1.62}
+.notes h2{color:#fff;font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin:28px 0 10px;font-weight:600}
+.notes h2:first-child{margin-top:0}
+.notes ul{margin:0 0 12px;padding-left:20px}
+.notes li{margin-bottom:7px}
+.notes code{background:#2f343b;padding:1px 5px;border-radius:3px;font-size:12.5px}
+.notes .key{color:#ffd79a;font-weight:600}
+.notes .red{color:#ff9aa2;font-weight:600}
+.notes table{border-collapse:collapse;width:100%;margin:6px 0 14px;font-size:12.5px}
+.notes th,.notes td{border:1px solid #5c636c;padding:6px 9px;text-align:left;vertical-align:top}
+.notes th{background:#3a4047;color:#fff;font-weight:600}
+.blockwarn{border-left:4px solid var(--danger);background:#3a2b2e;padding:12px 16px;margin:12px 0;border-radius:0 4px 4px 0}
+.blockwarn b{color:#ff9aa2}
+
+@media print{
+  @page{size:17in 11.125in;margin:0}
+  body{background:#fff}
+  .chrome,.notes,.controls{display:none}
+  #stagewrap{padding:0;max-width:none}
+  #stage{transform:none !important}
+  .spread{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<div class="chrome">
+  <div class="stamp">
+    Mock-up only. This is NOT production artwork
+    <span>Layout study for Clark and for HAVEN's designer. Positions, type sizes and copy are specified here; HAVEN's designer builds the final print files from <code style="color:#fff">docs/marketing/haven-palm-beach-spread.md</code>. Nothing on this page is press-ready: it is RGB, screen-rendered, and the photography is <b>linked at a screen crop, not cut</b>. The green cards state the crop the designer should make from the original.</span>
+  </div>
+  <div class="meta">
+    <strong>HAVEN | Palm Beach, two-page spread, $495, FLIBS issue.</strong> Publisher contact Jake Reichenberger, jake@havenlifestyles.com.<br>
+    Hero boat: <strong>Riviera 4300 Sports Express</strong> (Candidate 1), per Clark 15 Sep 2026. Riviera 545 SUV "Fringe Benefits" remains the documented fallback: swap blocks A and B only, nothing else moves.<br>
+    <strong>Photography supplied 15 Sep 2026.</strong> Eleven Riviera press frames, 8000&#215;5333 (aerial 8000&#215;5328). Picked: hero = <strong>Aerial 03</strong>, shot 2 = <strong>Sea Deck 03</strong>. Files are linked by absolute <code style="color:#fff">file://</code> path to <code style="color:#fff">~/Dropbox/HaleyYachts/Marketing/riviera-imagaes/</code> and are <strong>not in this repo</strong>, so the boxes render empty on any other machine.<br>
+    Spread bleed 17.000&#8243; &times; 11.125&#8243; · trim 16.750&#8243; &times; 10.875&#8243; · single page trim 8.375&#8243; &times; 10.875&#8243; · fold at X 8.375&#8243;.
+  </div>
+  <div class="controls">
+    <label><input type="checkbox" id="tGuides" checked> Guides (trim, bleed, live, gutter, columns)</label>
+    <span class="sep"></span>
+    <label><input type="checkbox" id="tPh" checked> Crop cards + placeholder detail</label>
+    <span class="sep"></span>
+    <span>Zoom:</span>
+    <button data-z="fit">Fit</button>
+    <button data-z="0.5">50%</button>
+    <button data-z="0.75">75%</button>
+    <button data-z="1">100% (actual size)</button>
+  </div>
+</div>
+
+<div id="stagewrap">
+<div id="stage">
+<div class="spread">
+<div class="art">
+
+  <!-- ==========================================================
+       LEFT PAGE (VERSO). Full-bleed hero photograph.
+       ========================================================== -->
+  <!-- The hero box is drawn in BLEED coordinates (-0.125in origin). Everything
+       that carries type is a sibling in TRIM coordinates, so section 2's X and Y
+       values can be read straight off the CSS without mentally subtracting 0.125. -->
+  <div class="hero">
+    <div class="hero-scrim"></div>
+    <div class="crop-badge">SHOT 1 / HERO &middot; SUPPLIED &middot; CROP SPEC</div>
+  </div>
+
+    <div class="crop-card">
+      <div class="ph-body">
+        <div class="ph-title">Shot 1, hero. SUPPLIED 15 Sep 2026. Crop instruction, not artwork.</div>
+        <div class="ph-line" style="color:#6ff0c4">
+          <b>File:</b> <code style="color:#fff">Riviera 4300 Sports Express Aerial 03.jpg</code> &middot; 8000 &times; 5328 &middot; Riviera press library.
+        </div>
+        <div class="ph-line" style="margin-top:7pt">
+          <b>Crop:</b> full height. Window <b>X 1880 &rarr; 5951, Y 0 &rarr; 5328</b>. Result <b>4071 &times; 5328</b>, which is 8.500&#8243; &times; 11.125&#8243; at <b>478 dpi</b>, well past the 300 the spec asked for. Bleeds top, bottom and left; butts the fold at X 8.375&#8243; with no bleed on that edge.<br>
+          <b>Why there is no other crop.</b> A vertical crop out of a 3:2 frame is <b>50.9% of its width</b>, and this boat occupies 46% of the frame. The crop above leaves about 200 px of clear water off the bow and 210 px off the stern, and that is the whole budget. Slide it if you must; you cannot widen it. Every other frame in the supplied set has the boat at 50–53% of frame width, which is why this one is the hero.
+        </div>
+        <div class="ph-line hot" style="margin-top:7pt">
+          <b>What this frame fails, stated plainly.</b> <b>(1) Light.</b> Bright midday, sun high, cumulus. The spec said late afternoon and "no midday." This is the one real miss and it is being run anyway: the high sun is what separates a white hull from the water, and the golden-hour frames in the set lose the topsides into the sky. <b>(2) Type position.</b> The boat's waterline sits at Y 7.2–7.5&#8243; in this crop, so the headline block has moved down 1.30&#8243; to clear it; see note 9 below the spread. <b>(3) Water colour.</b> The foreground is a green-brown estuary, not Florida blue, and it will go muddy in CMYK on coated stock. Pull the foreground toward the blue already present mid-frame. Do not regrade the whole image.
+        </div>
+        <div class="ph-line" style="margin-top:7pt">
+          <b>What it clears.</b> Elevated three-quarter from astern, which is the camera position the brief asked for. No marina furniture, no pilings, no fuel dock. Two adults on the foredeck, no children, which is the reader. Open water and a clean horizon, so the boat reads as a boat that lives on water rather than in a slip.
+        </div>
+        <div class="ph-line" style="margin-top:7pt;opacity:.85">
+          <b>Runner-up, if Clark wants the light instead of the angle:</b> <code style="color:#fff">Sunset 06</code>. Best light in the set, boat lowest in frame, cleanest field above it. Cost of the swap: the pale sky will not carry white type, so the scrim flips <b>top-down</b> and the headline goes back up into the sky; and the boat measures wider than the vertical crop, so the bow or the transom gets clipped. Two changes, not one. That is why it is second.
+        </div>
+        <div class="ph-line" style="margin-top:7pt;opacity:.8">
+          A press-library 4300 is a different hull from the one arriving. Fine for a new model, where every hull is the same boat. Still <b>not</b> fine for the 545 fallback: a stock 545 image cannot be captioned as <i>Fringe Benefits</i>.
+        </div>
+      </div>
+    </div>
+
+  <div class="verso-kicker">PALM BEACH / WATERFRONT</div>
+  <div class="verso-head">THE HOUSE<br>CAME WITH<br>A <b>DOCK</b></div>
+  <div class="verso-caption">Riviera 4300 Sports Express. Forty-five feet six, and four feet two of draft.</div>
+
+  <!-- ==========================================================
+       RIGHT PAGE (RECTO). Editorial page on white.
+       ========================================================== -->
+  <div class="recto-field"></div>
+
+  <div class="recto-kicker">A NOTE FROM CLARK HALEY</div>
+
+  <div class="deck">If you have just bought waterfront, or you are about to, the dock behind the house decides more than you think.</div>
+
+  <div class="accent-rule"></div>
+
+  <div class="body">
+    <p>A dock has three numbers: how long it is, how much water sits under it at dead low, and how much clearance the bridges give you between there and the inlet. Those three numbers rule out more boats than a budget ever does, and nobody mentions them at the closing table.</p>
+    <p>Send me the address. I will tell you what will actually lie alongside without hanging into your neighbour's water, what will still be floating at low tide, and what will clear the bridges on the way out. Then we talk about what you want to do with it, and go find that boat.</p>
+    <p>Some of my clients have owned a dozen boats. Some have owned none, and are standing on a new dock working out how much boat is too much. Both conversations start the same way. Twenty minutes on the phone, no questionnaire, no obligation.</p>
+  </div>
+
+  <div class="offer">Send an address, get an honest answer. 561-817-1547 or <i>haleyyachts.com/dock</i></div>
+
+  <!-- Zone F, the SWAP ZONE. Only this panel and the verso caption change with the boat. -->
+  <div class="panel">
+    <div class="panel-head">Forty-five feet six. Four feet two of draft.</div>
+
+    <div class="panel-photo">
+      <div class="crop-badge">SHOT 2 · SEA DECK 03 · CROP X 400&ndash;6800, Y 1150&ndash;4287</div>
+    </div>
+    <div class="panel-photo-cap">Three decks and an open stern, and a boat a couple can dock on the joystick without help.</div>
+
+    <div class="spec">
+      <dl>
+        <dt>Vessel</dt><dd>Riviera 4300 Sports Express, new build</dd>
+        <dt>Length overall</dt><dd>45 ft 6 in</dd>
+        <dt>Beam</dt><dd>14 ft 7 in</dd>
+        <dt>Maximum draft</dt><dd>4 ft 2 in</dd>
+        <dt>Power</dt><dd>Twin Volvo Penta D6 IPS, joystick docking</dd>
+        <dt>Speed</dt><dd>Over 30 knots</dd>
+        <dt>Accommodation</dt><dd>Sleeps five, private master and aft cabin</dd>
+        <dt>Availability</dt><dd class="unresolved">[Build slots available, confirm delivery window]</dd>
+      </dl>
+    </div>
+
+    <div class="panel-foot">Haley Yachts brokers every builder, and represents the new Riviera range from 39 to 72 feet.</div>
+  </div>
+
+  <div class="showline">At the Fort Lauderdale International Boat Show this year? Text me and we will walk the docks together.</div>
+
+  <div class="portrait ph on-white">
+    <div class="ph-badge">SHOT 3</div>
+    <div class="ph-mini" style="color:#5a3400">
+      CLARK'S PORTRAIT<br>
+      1.700&#8243; &times; 2.050&#8243;<br>
+      min <b>510 &times; 615 px</b><br><br>
+      Use Clark's <b>high-res originals</b>, NOT the 1000&#215;1500 web JPEG in the repo (RGB, compressed, artifacts in dark areas on coated stock).<br><br>
+      Prefer an <b>environmental</b> frame, dock or water behind him, over a studio headshot. Vertical crop, waist-up.
+    </div>
+  </div>
+
+  <div class="ch-name">Clark Haley</div>
+  <div class="ch-title">Licensed Florida Yacht Broker, IYBA Member<br>Haley Yachts, part of One Water Yacht Group</div>
+
+  <div class="bio">Clark holds a USCG 100-Ton Master's licence and has logged more than 50,000 nautical miles, most of them aboard ROAM, the Nordhavn 55 he and his wife Michelle cruised full time for over a decade. He grew up in his family's marine centre on the Texas coast, on the maintenance side before the sales side. He has run these systems himself, offshore, which is a different kind of knowledge than reading a spec sheet.</div>
+
+  <div class="contact">
+    561-817-1547<br>
+    clark@haleyyachts.com<br>
+    haleyyachts.com/dock<br>
+    2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410
+  </div>
+
+  <div class="qr">
+    <b>QR<br>PENDING</b>
+    <span>0.75&#8243; &times; 0.75&#8243;<br>0.1&#8243; quiet zone<br>/dock DOES<br>NOT EXIST</span>
+  </div>
+
+  <div class="lockup">
+    HALEY YACHTS MARK<br>
+    <em>"Yacht Broker with"</em>
+    ONE WATER MARK
+    <em>vector EPS required</em>
+  </div>
+
+  <!-- the only element crossing the gutter -->
+  <div class="cyan-rule"></div>
+
+  <!-- ==========================================================
+       GUIDES
+       ========================================================== -->
+  <div class="guides">
+    <div class="g-bleed"></div>
+    <div class="g-trim"></div>
+    <div class="g-live"></div>
+    <div class="g-gutter"></div>
+    <div class="g-fold"></div>
+    <div class="g-col a"></div>
+    <div class="g-col b"></div>
+    <div class="g-tag bleed">Bleed 17.000 &times; 11.125</div>
+    <div class="g-tag trim">Trim 16.750 &times; 10.875</div>
+    <div class="g-tag live">Live area (0.25&#8243; inside trim, CONFIRM WITH JAKE)</div>
+    <div class="g-tag gut">Gutter keep-clear X 8.00–8.75 (widen to 7.875–8.875 if perfect bound)</div>
+  </div>
+
+</div><!-- /art -->
+</div><!-- /spread -->
+</div><!-- /stage -->
+</div><!-- /stagewrap -->
+
+<div class="notes">
+
+  <h2>Read this before anyone builds anything from it</h2>
+  <p><span class="red">This file is a layout study, not production artwork.</span> It is RGB and it is screen-rendered. Two of its three image areas now carry the real supplied photography, <b>positioned by CSS at the crop I am asking for, not cut</b>; the third (Clark's portrait) is still an empty placeholder. HAVEN's designer builds the final print files from the originals. What this page is for: Clark sees the ad, and HAVEN's designer sees the construction and the crop. Every coordinate, size, weight and tracking value is in the CSS, stated in inches and points, matching section 2 of <code>docs/marketing/haven-palm-beach-spread.md</code>.</p>
+
+  <h2>Photography: what was supplied, what was picked, what it costs</h2>
+  <p>Eleven frames arrived on 15 Sep 2026 from Riviera's press library, all 8000&#215;5333 except the aerial at 8000&#215;5328. Against section 4's numbers (min 2550&#215;3338, target 3000&#215;4000, <b>5100&#215;3400 if horizontal</b>) they clear the bar comfortably: a full-height vertical crop yields 5328 px of height. <span class="key">The resolution blocker is closed.</span></p>
+  <table>
+    <tr><th style="width:18%">Frame</th><th style="width:12%">Boat as % of frame width</th><th style="width:70%">Read</th></tr>
+    <tr><td><b>Aerial 03</b></td><td><b>46%</b></td><td><b>HERO.</b> Elevated three-quarter from astern, which is the camera position the brief specified. Clean sky and cumulus above, open water and a horizon, a couple on the foredeck, no marina furniture. The only frame with real slack inside a vertical crop. Fails on light (bright midday) and on water colour (green-brown estuary).</td></tr>
+    <tr><td>Sunset 06</td><td>52%</td><td><b>Runner-up.</b> Best light in the set, boat lowest in frame (44&ndash;78% of height), cleanest gradient above it. Costs two changes instead of one: the pale sky needs a top-down scrim before white type will hold, and the boat is wider than the crop so the bow or transom clips.</td></tr>
+    <tr><td>Anchored 01</td><td>46%</td><td>Golden hour, couple on the aft platform, contrail in a clean sky. Lovely, but the sky is near-white around the sun, so reversed type dies, and the boat is stern-on: it sells the swim platform, not the vessel.</td></tr>
+    <tr><td>Anchored 05</td><td>50%</td><td>Bow-on into a low sun, heavy flare down the right side. The crop is almost exactly the boat's bounding box, no margin at all.</td></tr>
+    <tr><td>Running 03</td><td>55%</td><td>Deep blue, strong wake, handsome. No sky and no horizon, so the "waterfront" idea disappears; and the bow clips in a vertical crop.</td></tr>
+    <tr><td>Running 05</td><td>53%</td><td>The darkest, cleanest water field in the set, which is the best surface for reversed type anywhere here. Boat sits 42&ndash;68% of height, exactly across the type block, and it is wider than the crop.</td></tr>
+    <tr><td>Running 06</td><td>34%</td><td>The only frame with room to spare in the crop, but the sun-glitter trail sits precisely in the lower-left where the headline goes, and there is no horizon.</td></tr>
+    <tr><td><b>Sea Deck 03</b></td><td>&ndash;</td><td><b>SHOT 2.</b> Golden hour on the aft deck: couple, grill, settee, table set for four, water at deck level to the left, open stern to the horizon. Says what the panel caption says. Two adults, no children.</td></tr>
+    <tr><td>Sea Deck 06</td><td>&ndash;</td><td>Family fishing off the swim platform against a sandbar. Charming and wrong: children and rods, and the dune reads Queensland.</td></tr>
+    <tr><td>Sea Deck 07</td><td>&ndash;</td><td>Mis-named. It is a paddleboard shot with the boat small in frame and a blown sun flare top-left. Not a sea-deck frame.</td></tr>
+    <tr><td>Sun Deck 08</td><td>&ndash;</td><td>Forward sun pad, four figures, shot over the bow. Strong image, but it is the foredeck not the sea deck, and at 2.85&#8243; &times; 1.40&#8243; the four figures turn to mush.</td></tr>
+  </table>
+  <div class="blockwarn">
+    <b>The constraint nobody wrote down, and it decided the pick.</b><br>
+    A full-bleed vertical page out of a 3:2 horizontal frame takes <b>50.9% of its width</b>. Every boat in this set occupies 46&ndash;55% of its frame. So <b>a vertical crop is boat-edge-to-edge in all eleven</b>, and there is no frame anywhere in the set with both the whole boat and an empty lower-left quadrant. Section 4 asked for that quadrant. It does not exist and cannot be cropped into existence. The consequence is note 9 below: the headline block moved down 1.30&#8243;. That, not the light, was the real cost of the supplied set.
+  </div>
+
+  <h2>Two things carried forward, not solved</h2>
+  <div class="blockwarn">
+    <b>1. The QR code and the printed short URL point at haleyyachts.com/dock, which does not exist.</b><br>
+    It appears twice in print: in the offer line and in the contact bar, plus the QR destination itself. The QR is the single most dangerous placeholder on this page, because <b>a QR cannot be changed after artwork is submitted.</b> The page has to be live and correct before artwork goes, which means the build is scheduled against the <b>materials deadline, not the on-sale date</b>. This is Terry's build, briefed by William. If the page will not exist in time, the fallback is to drop the QR and the /dock URL entirely and run the phone number alone. Decide that before artwork, never after.
+  </div>
+  <div class="blockwarn">
+    <b>2. CLOSED 15 Sep 2026. The hero image is no longer the blocker.</b><br>
+    Eleven print-resolution frames supplied from Riviera's press library. Hero = <b>Aerial 03</b>, secondary = <b>Sea Deck 03</b>, crops stated on the page. What remains from this item is small and is a designer instruction, not a procurement one: the foreground water in Aerial 03 is a green-brown estuary and needs pulling toward blue in CMYK, and the frame is midday rather than late afternoon.
+  </div>
+  <div class="blockwarn">
+    <b>3. STILL BLOCKING: One Water Yacht Group's vector logo.</b><br>
+    We hold web rasters only (<code>images/email/owyg-banner.jpg</code>). A co-branded print piece needs an EPS or AI, and the lockup at X 15.15&#8243; cannot be built without it. This is now the <b>last outstanding asset</b> on the spread and it should be the next email sent. The Haley Yachts mark is fine: <code>~/Dropbox/HaleyYachts/Logos/logo-haley-yachts-logo (1)/NEW HALEY YACHTS CMYK.eps</code>, vector and already CMYK.
+  </div>
+  <div class="blockwarn">
+    <b>4. STILL BLOCKING: Clark's portrait, shot 3.</b><br>
+    The only image area on the page still hatched amber. It needs Clark's <b>high-res originals</b>, not the 1000&#215;1500 web JPEG in the repo, and preferably an environmental frame with dock or water behind him rather than a studio headshot. Nothing in the Riviera delivery touches this; it is Clark's own file to find.
+  </div>
+
+  <h2>What I changed once the copy was set at size, and why</h2>
+  <p>Nine changes. Seven are layout, two are copy. The first eight came from setting the approved words at the approved sizes and finding they did not fit. <b>The ninth, note 9, came from the photography arriving</b> and is the one Clark should look at hardest.</p>
+  <table>
+    <tr><th style="width:20%">What</th><th style="width:30%">Brief said</th><th style="width:50%">Now, and why</th></tr>
+    <tr>
+      <td><b>Verso headline</b></td>
+      <td>Two lines, 64pt, max line width 5.5&#8243;:<br>THE HOUSE CAME / WITH A <b>DOCK</b></td>
+      <td><b>Three lines at 60pt: THE HOUSE / CAME WITH / A DOCK.</b> "THE HOUSE CAME" measures about 8.5&#8243; at 64pt in Open Sans Light with tracking 70. The maximum line width is 5.5&#8243;. Two lines only fit at roughly 41pt, which is too small to carry a full-bleed page and would leave the headline block half empty. Three lines at 60pt gives a longest line of about 5.3&#8243;, keeps 3.2&#8243; of clearance to the fold (better than the 2.125&#8243; promised) and fills the block. The break also reads as three beats, which suits the line. <span class="key">Clark should look at this one.</span> The alternate headline sets in section 3A are both short enough to run two lines at 64pt if he prefers the original rhythm.</td>
+    </tr>
+    <tr>
+      <td><b>Recto deck</b></td>
+      <td>26pt / 33pt, two lines</td>
+      <td><b>22pt / 28pt, three lines.</b> The deck is 113 characters. At 26pt over the 7.6&#8243; measure it is 2.6 lines, so it was never going to be two, and three lines at 33pt leading runs into the accent rule at Y 2.70&#8243;. Dropping to 22/28 fits three lines inside zone B exactly and <b>keeps every word</b>. The alternative was cutting the deck to about 78 characters to force two lines at 26pt, which costs "or you are about to". That phrase is the second-home buyer, who is a real slice of this readership. I kept the words and shrank the type.</td>
+    </tr>
+    <tr>
+      <td><b>Zone F, the panel</b></td>
+      <td>Y 5.85–7.65 (1.80&#8243;); photo 2.85&#8243;&times;1.55&#8243; at Y 6.00; footer line full width at Y 7.35; panel headline position unstated</td>
+      <td><b>Y 5.70–7.80 (2.10&#8243;).</b> The original zone had two collisions and one gap. The 8 spec lines alone are 1.44&#8243;, which left 0.36&#8243; for a headline and a footer; the footer at Y 7.35 ran straight through the bottom of a photo that occupied 6.00–7.55; and the panel headline was never given a position anywhere. Fixed by: panel headline set full width across the top of the panel (one line at 11pt, measuring 4.4&#8243; in a 7.35&#8243; measure), photo reduced to 2.85&#8243;&times;1.40&#8243;, spec leading 13pt to 12.5pt, and the panel footer moved from a full-width line to the foot of the right column, beside the photo caption. The panel now holds all six elements with 0.04&#8243; to spare.</td>
+    </tr>
+    <tr>
+      <td><b>Secondary photo</b></td>
+      <td>2.85&#8243; &times; 1.55&#8243;, roughly 16:9</td>
+      <td><b>2.85&#8243; &times; 1.40&#8243;, a 2.04:1 letterbox.</b> Consequence of the panel fix. Still request the shot at 16:9 and crop it. The request does not change, only the placement. Minimum pixels drop from 855&#215;465 to 855&#215;420; keep asking for 1600&#215;900 so the designer has crop latitude.</td>
+    </tr>
+    <tr>
+      <td><b>Offer line and body</b></td>
+      <td>Body 2.95–5.10, offer 5.30–5.55</td>
+      <td><b>Body 2.95–5.02, offer 5.18–5.43.</b> Everything above the panel moves up 0.12–0.15&#8243; to pay for the taller panel. The body at 9.5/14 in two 3.65&#8243; columns comes out around 17–18 lines against 20–21 available, so it under-fills slightly rather than over-running. If the designer wants it flush, 10/15pt closes the gap; do not add words.</td>
+    </tr>
+    <tr>
+      <td><b>Clark's bio</b></td>
+      <td>112 words, 8.5/12.5pt</td>
+      <td><b>Cut to 70 words, set 8.5/11.5pt.</b> Two cuts. <b>(a)</b> The opening sentence, "Clark Haley is a licensed Florida yacht broker with One Water Yacht Group, based in Jupiter and working out of the Palm Beach Gardens office", repeated the two title lines sitting directly above it and the address sitting directly below it. Three restatements of the same fact within two inches. It now opens on the credential: "Clark holds a USCG 100-Ton Master's licence..." <b>(b)</b> The software-company clause, which the brief itself nominated as the first cut. The bio had to lose two lines or it collided with the QR's quiet zone. The only loss is the word "Jupiter." <span class="key">Bio hard limit is 5 lines, bottom edge Y 9.66&#8243;.</span> A sixth line touches the QR quiet zone, so if Clark restores anything, something else comes out.</td>
+    </tr>
+    <tr>
+      <td><b>Contact bar</b></td>
+      <td>5 lines at 9/13pt, opening "Clark Haley, Haley Yachts"; QR then logos right-aligned to 16.50&#8243;</td>
+      <td><b>4 lines at 8.5/11.5pt.</b> Dropped the "Clark Haley, Haley Yachts" line, because his name is set at 14pt one and a half inches directly above it, so the line was pure repetition and it was the line that pushed the block past the live area. Phone, email, URL, address. The QR sits at X 14.25–15.00 with the lockup right-aligned to 16.50&#8243;, so the contact text has 3.15&#8243; and the address holds on one line.</td>
+    </tr>
+    <tr>
+      <td><b>Offer-line URL colour</b></td>
+      <td>"haleyyachts.com/dock" in cyan #21cbea</td>
+      <td><b>Set here in a darker cyan for screen legibility only.</b> #21cbea is a 68/0/4/0 build: correct reversed on navy, but as 11pt type on white it is close to invisible and will look worse on uncoated stock. Flagging it for the designer rather than changing the spec: either darken it, or set the URL in navy and keep cyan for the accent rule and the spec labels where it already works. <span class="key">Designer's call, but it should be a call, not an accident.</span></td>
+    </tr>
+    <tr>
+      <td><b>9. Verso type block</b><br><span class="key">NEW, from the photography</span></td>
+      <td>Kicker Y 5.83&#8243;, headline Y 6.25&#8243;, caption Y 9.99&#8243;, leading 0.82&#8243;. Boat to sit in the lower two-fifths with a clean lower-left quadrant to reverse out of.</td>
+      <td><b>Moved down 1.30&#8243;: kicker 7.13&#8243;, headline 7.55&#8243;, caption 10.28&#8243;, leading 0.80&#8243;. Scrim deepened and raised.</b> Not a preference. In the Aerial 03 crop the boat's waterline sits at Y 7.2&ndash;7.5&#8243;, so at the brief's Y 6.25&#8243; the headline sets <b>60pt white type across the boat's own white topsides</b>, which is the kind of thing that only becomes obvious on press. Dropping the block puts the kicker, all three headline lines and the caption on open water under the hull. <span class="red">It is tight.</span> There are 3.4&#8243; of water below the hull and the stack needs about 3.3&#8243;, so the kicker sits close to the bow's shadow line and the caption ends 0.41&#8243; above the cyan rule. <span class="key">Three ways out if Clark does not like it, in the order I would take them:</span> (a) run it, the scrim carries it; (b) headline to two lines at 48pt using one of the shorter alternates in section 3A, which buys 0.8&#8243;; (c) swap the hero to <i>Sunset 06</i>, flip the scrim top-down and put the headline back in the sky, accepting a clipped bow or transom. I would run it.</td>
+    </tr>
+  </table>
+
+  <h2>Two inconsistencies in the source brief, corrected here</h2>
+  <ul>
+    <li>Section 2 says the navy panel bleeds "off the right edge to X 17.0&#8243;." The right bleed edge is <b>X 16.875&#8243;</b> (trim 16.75 + 0.125). 17.000&#8243; is the spread's total bleed <i>width</i>, not an X coordinate. Built to 16.875&#8243;.</li>
+    <li>The recto is headed "X 8.375&#8243; to 16.875&#8243;," which spans trim edge to bleed edge. The recto <b>trim</b> runs 8.375&#8243; to 16.750&#8243;; only bleeding elements reach 16.875&#8243;. Both guides are drawn, so there is nothing to interpret.</li>
+  </ul>
+
+  <h2>What is still blocked, as of 15 Sep 2026</h2>
+  <ul>
+    <li><span class="red">One Water Yacht Group's vector logo (EPS or AI).</span> The lockup at X 15.15&#8243; cannot be built. Now the last outstanding <i>asset</i>, and the next email.</li>
+    <li><span class="red">Clark's portrait, shot 3,</span> high-res original, environmental frame preferred. The only amber box left on the page.</li>
+    <li><span class="red">haleyyachts.com/dock does not exist,</span> and the QR cannot be changed after artwork is submitted. Terry's build, briefed by William, scheduled against the <b>materials deadline</b>, not the on-sale date.</li>
+    <li><span class="red">Jake has not answered.</span> Twelve questions, section 5. Three of them change this layout: the safety margin (0.25&#8243; assumed), the binding (perfect binding widens the gutter keep-clear to X 7.875&ndash;8.875&#8243;, leaving the panel and portrait at 8.90&#8243; only 0.025&#8243; clear), and whether HAVEN sets live type from our copy or wants print-ready artwork supplied. <b>Sending photography does not unblock these.</b></li>
+    <li><span class="red">One Water, and probably Riviera, have not approved a co-branded print ad</span> using their marks and their photography. The photography is now in hand, which makes this more urgent, not less. Ask before artwork.</li>
+  </ul>
+
+  <h2>Still open, unchanged from section 6</h2>
+  <ul>
+    <li><span class="key">The availability line</span> is the one bracket still live in the artwork, shown in amber in the spec panel. Either a delivery window or a from-price Clark will accept seeing in print for months. It is the last word of copy not final.</li>
+    <li><span class="key">Verify the 4300's draft figure</span> against Riviera's current published spec. It was taken from our own listing page, and it is now load-bearing copy: it is the headline of the panel and half the verso caption. One check, one source.</li>
+    <li><span class="key">Is Clark attending FLIBS?</span> If not, delete the show line at Y 7.90&#8243;. Nothing else depends on it.</li>
+    <li><span class="key">Correct section 4 of the brief.</span> It calls a private residential dock "the single most important creative decision in the spread." Clark has confirmed there are <b>no dock shots in the Riviera catalogue</b>, so as written the brief names an unobtainable thing as the most important decision and will mislead whoever reads it next. Recommended replacement: <i>the picture's job is to be a boat that plausibly fits a residential dock. A clean on-water frame of a 45-footer does that. What breaks the argument is a bigger boat, or a row of pilings and a fuel dock. The dock argument itself lives in the headline and in the draft figure in the navy panel, not in the photograph.</i></li>
+    <li><span class="key">The bio's closing line.</span> Set here as written. The punchier alternative from section 3A is still on the table: "He has run these systems himself, offshore, at night, when they fail. It shows in the advice." It runs one line longer, so it needs another cut if Clark wants it.</li>
+  </ul>
+
+</div>
+
+<script>
+(function(){
+  var stage = document.getElementById('stage');
+  var wrap  = document.getElementById('stagewrap');
+  var W = 17 * 96, H = 11.125 * 96;   // CSS inches are absolute: 1in = 96px
+  var mode = 'fit';
+
+  function apply(z){
+    stage.style.transform = 'scale(' + z + ')';
+    wrap.style.height = (H * z) + 'px';
+  }
+  function render(){
+    apply(mode === 'fit' ? Math.min(1, (wrap.clientWidth - 40) / W) : parseFloat(mode));
+  }
+  document.querySelectorAll('.controls button').forEach(function(b){
+    b.addEventListener('click', function(){ mode = b.dataset.z; render(); });
+  });
+  window.addEventListener('resize', render);
+
+  document.getElementById('tGuides').addEventListener('change', function(e){
+    document.body.classList.toggle('no-guides', !e.target.checked);
+  });
+  document.getElementById('tPh').addEventListener('change', function(e){
+    document.body.classList.toggle('no-ph-detail', !e.target.checked);
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
