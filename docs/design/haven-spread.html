@@ -281,7 +281,6 @@ body{
   letter-spacing:.10em;color:var(--cyan);
 }
 .spec dd{margin:0;font-size:8.5pt;line-height:12.5pt;color:#fff}
-.spec dd.unresolved{color:var(--amber);font-weight:600}
 .panel-foot{
   left:3.4in;top:1.8in;width:4in;
   font-size:7.5pt;line-height:9.5pt;color:rgba(255,255,255,.7);
@@ -505,7 +504,7 @@ body.no-guides .guides{display:none}
 <div class="chrome">
   <div class="stamp">
     Mock-up only. This is NOT production artwork
-    <span>Layout study for Clark and for HAVEN's designer. Positions, type sizes and copy are specified here; HAVEN's designer builds the final print files from <code style="color:#fff">docs/marketing/haven-palm-beach-spread.md</code>. Nothing on this page is press-ready: it is RGB, screen-rendered, and the photography is <b>linked at a screen crop, not cut</b>. The green cards state the crop the designer should make from the original.</span>
+    <span>Layout study. Positions, type sizes and copy are specified here, and the guides and crop cards are for whoever reads the construction. <b>Nothing on this page is press-ready:</b> it is RGB, screen-rendered, and the photography is <b>linked at a screen crop, not cut</b>. The press file is built from the clean file by <code style="color:#fff">scripts/build-haven-print.py</code>, which embeds the photography at the crop these cards state; see "The print file, and how it is made" below.</span>
   </div>
   <div class="meta">
     <strong>HAVEN | Palm Beach, two-page spread, $495, FLIBS issue.</strong> Publisher contact Jake Reichenberger, jake@havenlifestyles.com.<br>
@@ -615,7 +614,7 @@ body.no-guides .guides{display:none}
         <dt>Power</dt><dd>Twin Volvo Penta D6 IPS, joystick docking</dd>
         <dt>Speed</dt><dd>Over 30 knots</dd>
         <dt>Accommodation</dt><dd>Sleeps five, private master and aft cabin</dd>
-        <dt>Availability</dt><dd class="unresolved">[AVAILABILITY - CLARK TO CONFIRM]</dd>
+        <dt>Availability</dt><dd>New build. Call for current delivery.</dd>
       </dl>
     </div>
 
@@ -690,7 +689,12 @@ body.no-guides .guides{display:none}
   <p><b>This file, <code>haven-spread.html</code>, is the designer's.</b> The guides, the crop cards and the open items are the deliverable, not clutter. <b>The other file, <code>haven-spread-clean.html</code>, is Clark's:</b> the advertisement and nothing else, with no guides, no crop cards, no notes and deliberately no toggle to turn any of them back on. It exists so he can judge the ad as a reader will see it. <span class="key">This file is the source of truth.</span> Any change to geometry or copy is made here first and then mirrored into the clean one, never the other way round.</p>
 
   <h2>Read this before anyone builds anything from it</h2>
-  <p><span class="red">This file is a layout study, not production artwork.</span> It is RGB and it is screen-rendered. <b>All three image areas now carry the real supplied photography, positioned by CSS at the crop I am asking for, not cut.</b> There are no placeholder boxes left at all: the QR is now the real, decoded artwork (<code>haleyyachts-dock-qr.svg</code>), not a drawn square. HAVEN's designer builds the final print files from the originals. What this page is for: Clark sees the ad, and HAVEN's designer sees the construction and the crop. Every coordinate, size, weight and tracking value is in the CSS, stated in inches and points, matching section 2 of <code>docs/marketing/haven-palm-beach-spread.md</code>.</p>
+  <p><span class="red">This file is a layout study, not production artwork.</span> It is RGB and it is screen-rendered. <b>All three image areas now carry the real supplied photography, positioned by CSS at the crop I am asking for, not cut.</b> There are no placeholder boxes left at all: the QR is now the real, decoded artwork (<code>haleyyachts-dock-qr.svg</code>), not a drawn square. <b>The print file is now built by us, not by HAVEN</b> (Clark, 16 September): see the next section. What this page is for: Clark sees the ad, and HAVEN's designer sees the construction and the crop. Every coordinate, size, weight and tracking value is in the CSS, stated in inches and points, matching section 2 of <code>docs/marketing/haven-palm-beach-spread.md</code>.</p>
+
+  <h2>The print file, and how it is made</h2>
+  <p><b>The deliverable changed on 16 September.</b> HAVEN is no longer setting the type from our copy; we supply finished artwork. It is built by <code>scripts/build-haven-print.py</code>, which reads the clean file, never edits it, and writes <code>docs/design/build/haven-spread-print.pdf</code>. Run it again after any copy change rather than patching the PDF. <code>--marks</code> adds 0.25&#8243; of paper outside the bleed with offset trim marks and a fold mark; without it the page is the bleed size and the trim is carried by the TrimBox.</p>
+  <p>What the script does that a Chrome print cannot: it crops the three photographs from their originals and <b>embeds</b> them, so the file does not depend on Clark's Dropbox; it bakes the hero scrim into the hero image, because Chrome writes a CSS gradient as a 72&nbsp;ppi raster tile; it supplies Open Sans from <code>docs/design/fonts/</code> so a missing network cannot substitute Helvetica; and it sets MediaBox, BleedBox and TrimBox. It then verifies the output rather than trusting it: every font embedded and named Open Sans, every image at or above 300&nbsp;ppi at printed size, no bracketed placeholder left in the live text, the QR decoded back out of the finished PDF, and the trim edges measured off a raster of the page.</p>
+  <p><span class="red">CMYK conversion is deliberately not run.</span> It needs three numbers from Jake: the PDF/X flavour, the destination profile and the total ink limit. They are parameters on the same script (<code>--icc-profile</code>, <code>--pdfx</code>, <code>--ink-limit</code>). One thing will have to be decided when they land: the 70&#37; white captions are <b>live transparency</b>, which PDF/X-1a forbids and which makes Ghostscript rasterise the whole spread. Under PDF/X-4 nothing needs to change. Under X-1a those three text runs have to be set to their opaque equivalents first, which is a colour edit and needs sign-off, so the script refuses to convert instead of making it quietly.</p>
 
   <h2>What Jake answered, 16 September 2026, and what it actually settles</h2>
   <p>Four of the twelve questions in section 5 came back. <b>Two of them close cleanly. Two of them look like answers and are not.</b> Taking them in the order they matter to this layout.</p>
@@ -889,7 +893,7 @@ body.no-guides .guides{display:none}
 
   <h2>Still open, unchanged from section 6</h2>
   <ul>
-    <li><span class="key">The availability line</span> is the one bracket still live in the artwork, shown in amber in the spec panel. Either a delivery window or a from-price Clark will accept seeing in print for months. It is the last word of copy not final.</li>
+    <li><span class="key">CLOSED 16 Sep 2026: the availability line.</span> Clark wrote it: <code>New build. Call for current delivery.</code> It is set in the spec panel in the same white as every other value, and the amber placeholder styling has gone with it. It also puts the words "new build" back in the spread after they left with the <code>VESSEL</code> row, which is deliberate and is recorded in copy sheet v2. There are no brackets left in the artwork.</li>
     <li><span class="key">CLOSED 16 Sep 2026: the 4300's three figures.</span> 45 ft 6 in, 14 ft 7 in and 4 ft 2 in are verified against Riviera's own published page (copy sheet v2). The draft is still load-bearing copy: it is half the verso caption, and in the panel it lives only as <code>MAXIMUM DRAFT</code>, now the third row of a seven-row list. Do not reorder the spec list, do not demote <code>LENGTH OVERALL</code> or <code>MAXIMUM DRAFT</code>, and do not merge them into a generic "specifications" line.</li>
     <li><span class="key">Is Clark attending FLIBS?</span> If not, delete the show line at Y 7.90&#8243;. Nothing else depends on it.</li>
     <li><span class="key">Correct section 4 of the brief.</span> It calls a private residential dock "the single most important creative decision in the spread." Clark has confirmed there are <b>no dock shots in the Riviera catalogue</b>, so as written the brief names an unobtainable thing as the most important decision and will mislead whoever reads it next. Recommended replacement: <i>the picture's job is to be a boat that plausibly fits a residential dock. A clean on-water frame of a 45-footer does that. What breaks the argument is a bigger boat, or a row of pilings and a fuel dock. The dock argument itself lives in the headline and in the draft figure in the navy panel, not in the photograph.</i></li>

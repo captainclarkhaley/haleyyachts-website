@@ -30,3 +30,7 @@ ziuSKY1z
 .env.local
 *.key
 credentials.json
+
+# HAVEN print artwork: regenerate with scripts/build-haven-print.py.
+# The PDF carries ~9 MB of embedded photography and is rebuilt on demand.
+docs/design/build/

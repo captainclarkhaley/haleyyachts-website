@@ -134,7 +134,7 @@ This also drops the words "three decks", which I could not verify on a 45-foot s
 
 **Detail list. The `VESSEL` row is CUT,** per Clark, 16 September 2026. The boat is named once now, by the panel headline, and the list opens on `LENGTH OVERALL`, which is where the ad's argument lives. Every other value is unchanged. The three spec figures are the ones verified against Riviera's published page and must not move.
 
-**The words "new build" left with that row.** They existed nowhere else in the spread and they have not been moved anywhere else. That is deliberate, not an oversight at proofing: Clark is writing the availability line himself and that is where a new build belongs. Do not re-insert them.
+**The words "new build" left with that row, and came back in the AVAILABILITY row.** They went out with `VESSEL` and existed nowhere else in the spread. Clark then wrote the availability line himself and put them back there, on his approval of 16 September 2026: `New build. Call for current delivery.` That is where a new build belongs, and it is deliberate. **This supersedes the earlier instruction not to re-insert them.** They belong in the availability row and nowhere else; do not add them to the panel headline, the caption or the body.
 
 **The seven rows are spaced to fill the run the eight rows had,** per Clark: *"Space everything on the right out a bit to make up for the missing vessel line."* Row pitch goes from 12.5pt to 12.5pt plus a 2.0833pt row gap, which is 0.2025" a row against 0.1736" before. The list occupies 1.389", the same height as the eight-row version, so its last row still sits 0.052" above the panel footer and the footer does not move. Label and value baselines still align on every row.
 
@@ -145,7 +145,7 @@ MAXIMUM DRAFT       4 ft 2 in
 POWER               Twin Volvo Penta D6 IPS, joystick docking
 SPEED               Over 30 knots
 ACCOMMODATION       Sleeps five, private master and aft cabin
-AVAILABILITY        [AVAILABILITY - CLARK TO CONFIRM]
+AVAILABILITY        New build. Call for current delivery.
 ```
 
 **Panel footer.** **FIXED.** 91 characters, identical to v1.
@@ -218,10 +218,11 @@ Phone, URL and address are unchanged. The new address is shorter than the one it
 
 ## Open items for Clark
 
-1. **Availability line.** Still bracketed. His to close.
-2. **"Give me twenty minutes on the phone, or I'll come sit with you at the house."** He said both, then talked himself toward the address. I kept both because the in-person offer is the most generous line in the ad. If he does not want to promise a house call to a magazine readership, cut it back to "Give me twenty minutes on the phone" and the block gets a full line of slack.
-3. **"Twenty minutes" spelled out.** He said "20 minutes". Spelled out is better in 9.5pt running prose and matches how he sets numbers in his own articles. One-word change if he disagrees.
+1. **"Give me twenty minutes on the phone, or I'll come sit with you at the house."** He said both, then talked himself toward the address. I kept both because the in-person offer is the most generous line in the ad. If he does not want to promise a house call to a magazine readership, cut it back to "Give me twenty minutes on the phone" and the block gets a full line of slack.
+2. **"Twenty minutes" spelled out.** He said "20 minutes". Spelled out is better in 9.5pt running prose and matches how he sets numbers in his own articles. One-word change if he disagrees.
 
 ## Closed, do not reopen at proofing
+
+- **Availability line. Written by Clark, 16 September 2026:** `New build. Call for current delivery.` His words and both full stops. It replaces the bracket in the AVAILABILITY row and is set in the same white as every other value in the panel. It is evergreen on purpose, because the issue circulates for months, and it is where the words "new build" came back to the spread after the `VESSEL` row was cut. There are no brackets left in the artwork.
 
 - **ROAM in the bio. Confirmed correct by Clark, 16 September 2026.** I had queried it because his August newsletter note calls his current boat an older Sabre, also named Roam. His answer: "I've had 3 boats with the same name, ROAM." The Nordhavn 55 in the bio is a different boat from the Sabre, and both are Roam. The bio is accurate as written, past tense and all. Leave the wording alone, do not add a qualifier and do not drop the boat name.
