@@ -73,6 +73,7 @@ privacy.html
 sell.html
 services.html
 valuation.html
+dock/index.html
 articles/_template.html
 articles/boat-reviews/2026-05-04-world-premiere-riviera-6200-sport-yacht.html
 articles/boat-reviews/2026-06-06-riviera-4300-sports-express-the-day-boat-that-knows-how-to-s.html

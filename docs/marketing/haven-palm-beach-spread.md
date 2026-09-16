@@ -2,12 +2,17 @@
 
 Owner: Patrick (marketing). Created 2026-09-10.
 
-**Status, 15 September:** Clark has ruled. **The Riviera 4300 Sports Express runs**, and the portrait
-stays small - both as recommended in sections 1b and 2. Patrick is building the layout as
-`docs/design/haven-spread.html` with placeholders for the photography. **Clark sent section 5's
-production questions to Jake on 15 September** and the answers are outstanding; the materials deadline
-is the one everything else schedules against. Still blocking: a print-resolution hero image, and
-`haleyyachts.com/dock` does not exist.
+**Status, 16 September: the materials deadline is 18 September. Two days. This is a delivery now, not a design exercise.**
+
+The layout is done and it is good. The remaining work is assembly and two approvals that are not mine to give. See **section 7** for the exact package.
+
+Settled: the **Riviera 4300 Sports Express runs** and the portrait stays small (Clark, 15 September, as recommended in 1b and 2). Print-resolution photography arrived 15 September, hero and secondary picked with crops stated. One Water's CMYK vector logo arrived 16 September. **Jake answered four of the twelve production questions on 16 September** and the layout has been updated against them.
+
+**The question that now decides the next two days is section 5, question 6: does HAVEN set the type from our copy, or do they want print-ready artwork from us?** Those are two different jobs and only one of them fits in two days. Working assumption until told otherwise: **they set it**, which is the job we are close to finishing. If they want supplied print-ready PDF/X, say so on the 16th rather than the 17th, because two days is tight for it.
+
+**Clark's portrait arrived 16 September** (`BBP_2811-hires-for-haven.jpeg`, 5504 x 8256), cropped hard to head and shoulders; see section 4. **All three image areas on the spread now carry real photography.** There are no placeholder boxes left except the QR, which is artwork still to be made.
+
+Still owned by Clark: **One Water's approval** of a co-branded ad carrying their mark, and **the availability line**, which is the last bracket in live copy. Still ours to make: **the QR artwork**. `haleyyachts.com/dock` does not exist either, but see section 7, it is **not** a blocker for the 18th.
 
 **Publication name is HAVEN**, published by Haven Lifestyles (havenlifestyles.com). Not "Haven Homes and Lifestyle". Use HAVEN in any correspondence and on any invoice reference.
 
@@ -90,11 +95,18 @@ Left page is a single photograph, edge to edge, nothing else on it but a headlin
 | Spread, bleed | 17" x 11.125" |
 | Spread, trim | 16.75" x 10.875" |
 | Single page, trim | 8.375" x 10.875" |
-| Bleed allowance | 0.125" on all four outer edges |
+| Bleed allowance | 0.125" on all four outer edges. **CONFIRMED by Jake, 16 Sep** ("0.125" bleed for outside/runoff colours and edge-to-edge photos"). Verified element by element against the built file: hero, recto field, navy panel and cyan rule all land exactly on the bleed line. Nothing to change. |
 | Fold / gutter centre | X = 8.375" measured from the left trim edge of the left page |
-| Safety margin (assumed) | 0.25" inside trim on all sides. **Confirm with Jake.** |
+| Safety margin | 0.25" inside trim on all sides. **CONFIRMED by Jake, 16 Sep**, which is what we had assumed. |
 | Live area | X 0.25" to 16.5", Y 0.25" to 10.625" |
-| Gutter keep-clear band | X 8.0" to 8.75" (0.375" each side of the fold). If the book is perfect bound rather than saddle stitched, widen to X 7.875" to 8.875". **Confirm binding with Jake.** |
+| Gutter keep-clear band | **Built to the perfect-bound band, X 7.875" to 8.875".** Saddle stitched would be X 8.0" to 8.75". See the note below. |
+| Binding | **Not known.** Jake, 16 Sep: *"perfect bound if over 52 pages."* That is a condition, not an answer, because we do not have the page count. **Built to perfect bound**, which is legal under both. |
+
+**On the gutter, and this is the one place not to take the generous reading.** Question 2 had two parts: the trim safety margin, and *"confirm how much you want kept clear on each side of the fold."* Jake answered *"0.25" safety margin all the way around is good to ensure content stays clear regardless of placement."* That confirms the trim margin. **It does not clearly address the fold.** "All the way around" is the language of a perimeter and a fold is one edge, not a perimeter; "regardless of placement" reads as regardless of where the ad falls in the book. The competing reading is that "all the way around" means all four edges of each page, in which case the inner edge is one of them and the fold number is 0.25 per side. Both readings are available from that sentence and they are 0.125" per side apart, so **the fold question is still open** and goes back to Jake in one line. It costs us nothing today: nothing on this spread is pressed against the band, so there is no element waiting for that 0.125".
+
+**Perfect-bound build, decided 16 September.** Under perfect binding the keep-clear widens to X 7.875 to 8.875 and the book does not open flat, burying roughly 0.125" to 0.25" of each page in the spine. The recto content edge was X 8.900, which left 0.025" of tolerance. It is now **X 9.000**, which clears by 0.125" and is comfortable under saddle stitch too. What moved: measure 7.6" to 7.5", body columns 3.65" to 3.60" (A at 9.00 to 12.60, B at 12.90 to 16.50), navy panel width 7.975" to 7.875" still bleeding to 16.875", spec column 4.10" to 4.00" so it keeps its X 16.400 right edge, panel head 7.35" to 7.25", panel footer 4.10" to 4.00". The portrait, kicker, deck, accent rule, offer line and show line moved with the edge. **No copy changed**, because the body already under-filled. The Clark name, bio, contact bar, QR and logo lockup all start at X 10.9" or beyond and did not move; perfect binding does not reach them. The only side effect is the portrait-to-text gap going 0.30" to 0.20", left alone deliberately because narrowing the bio risks a sixth line into the QR quiet zone.
+
+**Why the spread survives perfect binding at all:** the hero photograph butts the fold and stops, and the only element crossing the gutter is the cyan rule, which carries no information. The sliver of each that disappears into the spine is open water and flat colour. That was a deliberate rule in this section, not luck.
 
 All X coordinates below are measured from the left trim edge of the left page, across the full 16.75" spread. All Y coordinates are measured down from the top trim edge.
 
@@ -127,18 +139,18 @@ No logo on this page. The brand mark appears once, on the recto, at the bottom. 
 
 ### Right page (recto), X 8.375" to 16.875"
 
-Field is white, or a very slightly warm off-white if HAVEN's stock runs cool. Text block runs X 8.9" to 16.5", which is 7.6" wide. Two columns of 3.65" with a 0.30" gap. Column A: X 8.90" to 12.55". Column B: X 12.85" to 16.50".
+Field is white, or a very slightly warm off-white if HAVEN's stock runs cool. **Updated 16 Sep for the perfect-bound build.** Text block runs **X 9.0" to 16.5", which is 7.5" wide**. Two columns of **3.60"** with a 0.30" gap. Column A: X 9.00" to 12.60". Column B: X 12.90" to 16.50".
 
 | Zone | Y range | Contents |
 |---|---|---|
-| A. Kicker | 0.85" to 1.10" | "A NOTE FROM CLARK HALEY", 9pt Open Sans Semibold, tracking 200, navy. |
-| B. Deck | 1.25" to 2.45" | Two lines, full 7.6" width, 26pt / 33pt Open Sans Light, navy. |
-| C. Accent rule | 2.70" | 1.2" wide x 0.04" tall, cyan, left aligned at X 8.9". This is the site's accent-line device. |
-| D. Body copy | 2.95" to 5.10" | Two columns, 9.5pt / 14pt Open Sans Regular, 100% K black. |
-| E. Offer line | 5.30" to 5.55" | One line, full width, 11pt Open Sans Semibold, navy, with the URL in cyan. |
-| F. Boat panel | 5.85" to 7.65" | Solid navy panel, X 8.9" **bleeding off the right edge to X 17.0"**. Contains the secondary photograph and the boat detail list. Inner content stays inside X 16.4". |
+| A. Kicker | 0.85" to 1.10" | "A NOTE FROM CLARK HALEY", 9pt Open Sans Semibold, tracking 200, navy. X 9.0". |
+| B. Deck | 1.25" to 2.45" | **Three lines at 22pt / 28pt** Open Sans Light, navy, full 7.5" width. (Was two lines at 26/33; see the change table in the layout study. It is 113 characters, it was never going to be two lines, and every word is kept.) |
+| C. Accent rule | 2.70" | 1.2" wide x 0.04" tall, cyan, left aligned at **X 9.0"**. This is the site's accent-line device. |
+| D. Body copy | 2.95" to 5.02" | Two columns of 3.60", 9.5pt / 14pt Open Sans Regular, 100% K black. |
+| E. Offer line | 5.18" to 5.43" | One line, full width, 11pt Open Sans Semibold, navy. URL colour is a designer call, see the change table: #21cbea is illegible as 11pt type on white. |
+| F. Boat panel | 5.70" to 7.80" | Solid navy panel, **X 9.0" bleeding off the right edge to X 16.875"** (the right bleed edge; the earlier "17.0" in this brief was the spread's total bleed *width*, not an X coordinate). Contains the secondary photograph and the boat detail list. Inner content stays inside X 16.4". |
 | G. Show line | 7.90" to 8.15" | One line, full width, 9.5pt Open Sans Italic, navy. Cut this line if Clark is not attending FLIBS. |
-| H. Clark block | 8.40" to 10.45" | Portrait 1.7" wide x 2.05" tall at X 8.90", Y 8.40". Name, title and bio to its right, X 10.90" to 16.50". |
+| H. Clark block | 8.25" to 10.30" | Portrait 1.7" wide x 2.05" tall at **X 9.00"**, Y 8.25". Name, title and bio to its right, X 10.90" to 16.50". |
 | I. Contact bar | 9.95" to 10.60" | Sits to the right of and below the portrait. Contact lines at X 10.90". Logo lockup and QR code right-aligned to X 16.5". |
 | Cyan rule | Bleeds off the bottom | See below. |
 
@@ -146,9 +158,11 @@ Zone F is the swap zone. Its dimensions are fixed and its contents change with t
 
 Zone F, inside the navy panel:
 
-- Secondary photograph, 2.85" wide x 1.55" tall, at X 9.05", Y 6.00".
-- Boat detail list, X 12.30" to 16.40", starting Y 5.98". Labels in cyan 7.5pt Semibold with tracking 100, values reversed white 8.5pt Regular.
-- Footer line inside the panel at Y 7.35", 7.5pt, reversed white at 70%.
+- Panel headline across the top of the panel, X 9.15", Y 5.80", one line at 11pt Semibold, 7.25" measure.
+- Secondary photograph, **2.85" wide x 1.40" tall** (a 2.04:1 letterbox), at X 9.15", Y 6.08". Still request the shot at 16:9 and crop it.
+- Photo caption beneath it, X 9.15", Y 7.51", 2.85" measure, 7pt reversed white at 70%.
+- Boat detail list, **X 12.40" to 16.40"**, starting Y 6.06". Labels in cyan 7.5pt Semibold with tracking 100, values reversed white 8.5pt Regular, 12.5pt leading. Eight label-and-value lines.
+- Footer line at the foot of the right column, X 12.40", Y 7.50", 4.00" measure, 7.5pt reversed white at 70%.
 
 Zone I, contact bar detail:
 
@@ -163,7 +177,11 @@ It runs continuously under both pages. It is the reason the two pages read as on
 
 ### Colour
 
-Reference values only. The designer should match to the supplied CMYK EPS logo, which is already in the correct colour space, and should ask Jake for the publication's preferred rich-black build before laying down the large navy areas.
+**CMYK confirmed by Jake, 16 Sep.** That closes the colour space and costs us nothing, because every supplied asset is already there: `OWYG Logo_STACK.eps` is process CMYK with no spot plates, `NEW HALEY YACHTS CMYK.eps` is CMYK, and the Riviera frames convert from their originals.
+
+**Question 5 had four parts and he answered one.** The **profile** (we proposed US Web Coated SWOP v2), the **total ink limit** and the **preferred rich-black build** are all still open, and the last two are not academic. This spread lays down two large navy solids. #0a1628 builds to roughly C92 M79 Y46 K55, which is **272% total ink**, and #0d2847 to about 266%. Coated SWOP allows 300%, so both are legal there. On a lighter or uncoated stock with a 240 to 260% limit, **both navies are over** and the panel and the hero scrim get rebuilt rather than nudged. One line in the same email.
+
+Reference values only. The designer should match to the supplied CMYK EPS logo, which is already in the correct colour space.
 
 | Use | Hex | Approximate CMYK | Reference |
 |---|---|---|---|
@@ -178,18 +196,18 @@ Open Sans throughout. It is the site and email typeface, it is free from Google 
 
 | Element | Size / leading | Weight | Case | Tracking |
 |---|---|---|---|---|
-| Verso headline | 64pt / 62pt | Light 300, last word Bold 700 | Uppercase | 70 |
+| Verso headline | **60pt / 0.80" (57.6pt)**, three lines | Light 300, last word Bold 700 | Uppercase | 70 |
 | Verso kicker | 10pt / 12pt | Semibold 600 | Uppercase | 200 |
 | Recto kicker | 9pt / 11pt | Semibold 600 | Uppercase | 200 |
-| Deck | 26pt / 33pt | Light 300 | Sentence | 10 |
+| Deck | **22pt / 28pt**, three lines | Light 300 | Sentence | 10 |
 | Body | 9.5pt / 14pt | Regular 400 | Sentence | 0 |
 | Offer line | 11pt / 15pt | Semibold 600 | Sentence | 0 |
-| Detail labels | 7.5pt / 13pt | Semibold 600 | Uppercase | 100 |
-| Detail values | 8.5pt / 13pt | Regular 400 | Sentence | 0 |
+| Detail labels | 7.5pt / **12.5pt** | Semibold 600 | Uppercase | 100 |
+| Detail values | 8.5pt / **12.5pt** | Regular 400 | Sentence | 0 |
 | Show line | 9.5pt / 13pt | Italic | Sentence | 0 |
-| Clark's name | 14pt / 18pt | Semibold 600 | Sentence | 0 |
-| Bio | 8.5pt / 12.5pt | Regular 400 | Sentence | 0 |
-| Contact lines | 9pt / 13pt | Regular 400 | Sentence | 0 |
+| Clark's name | 14pt / 17pt | Semibold 600 | Sentence | 0 |
+| Bio | 8.5pt / **11.5pt** | Regular 400 | Sentence | 0 |
+| Contact lines | **8.5pt / 11.5pt** | Regular 400 | Sentence | 0 |
 | Captions | 7pt / 9pt | Regular 400 | Sentence | 0 |
 
 If HAVEN's designer wants a serif body to sit with the rest of the book, a serif is acceptable for zone D body copy and the bio only. The headline, kicker, detail panel and contact block stay in Open Sans.
@@ -214,10 +232,13 @@ PALM BEACH / WATERFRONT
 
 ### Verso, headline
 
-THE HOUSE CAME
-WITH A **DOCK**
+THE HOUSE
+CAME WITH
+A **DOCK**
 
-Set over two lines exactly as broken above. "DOCK" is the bold word. No full stop.
+**Set over three lines exactly as broken above, 60pt.** "DOCK" is the bold word. No full stop.
+
+*(Changed from two lines at 64pt. "THE HOUSE CAME" measures about 8.5" at 64pt in Open Sans Light with tracking 70, against a 5.5" maximum line width. Two lines only fit at roughly 41pt, too small to carry a full-bleed page. Three lines at 60pt gives a longest line of about 5.3" and reads as three beats, which suits the line. The alternate headline sets below are both short enough to run two lines at 64pt if Clark prefers the original rhythm.)*
 
 ### Verso, caption
 
@@ -269,9 +290,11 @@ Haley Yachts, part of One Water Yacht Group
 
 ### Recto, bio
 
-Clark Haley is a licensed Florida yacht broker with One Water Yacht Group, based in Jupiter and working out of the Palm Beach Gardens office. He holds a USCG 100-Ton Master's licence and has logged more than 50,000 nautical miles, most of them aboard ROAM, the Nordhavn 55 he and his wife Michelle cruised full time for over a decade. He grew up in his family's marine centre on the Texas coast, on the maintenance side before the sales side, then built and sold a software company before coming back to the water. He has run these systems himself, offshore, which is a different kind of knowledge than reading a spec sheet.
+Clark holds a USCG 100-Ton Master's licence and has logged more than 50,000 nautical miles, most of them aboard ROAM, the Nordhavn 55 he and his wife Michelle cruised full time for over a decade. He grew up in his family's marine centre on the Texas coast, on the maintenance side before the sales side. He has run these systems himself, offshore, which is a different kind of knowledge than reading a spec sheet.
 
-*(112 words. If it needs to lose a line, cut the software company sentence.)*
+*(70 words, cut from 112, set at 8.5 / 11.5pt. Two cuts. The old opening sentence repeated the two title lines directly above it and the address directly below it, three statements of the same fact within two inches, so the bio now opens on the credential. The software company clause went because the brief itself nominated it as the first cut. The only loss is the word "Jupiter".)*
+
+**Bio hard limit is 5 lines, bottom edge Y 9.66".** A sixth line touches the QR's quiet zone. If Clark restores anything, something else comes out.
 
 Punchier alternative for the final sentence, if Clark likes it: "He has run these systems himself, offshore, at night, when they fail. It shows in the advice."
 
@@ -281,13 +304,16 @@ None. The name block directly beside the portrait does that job. Adding a captio
 
 ### Recto, contact bar
 
-Clark Haley, Haley Yachts
 561-817-1547
 clark@haleyyachts.com
 haleyyachts.com/dock
 2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410
 
-QR code destination: https://haleyyachts.com/dock
+*(Four lines at 8.5 / 11.5pt. The "Clark Haley, Haley Yachts" line was dropped: his name is set at 14pt an inch and a half directly above it, so the line was pure repetition, and it was the line pushing the block past the live area.)*
+
+**QR code destination: `https://haleyyachts.com/dock`**
+
+**Freeze that string exactly as written before artwork goes.** Apex, not www. No trailing slash. HTTPS. The QR cannot be changed after submission, so Terry builds the page to match this string rather than the other way round.
 
 Logo lockup: Haley Yachts mark, then the One Water Yacht Group mark beneath it with the small label "Yacht Broker with" above the One Water mark. That label is how the co-brand is set everywhere else on the site and in email, so keep it.
 
@@ -408,10 +434,15 @@ Same specification whichever boat runs.
 
 ### Shot 3, Clark's portrait. Right page.
 
+**SUPPLIED 16 September 2026.** `~/Dropbox/Clark Haley-HeadShots/BBP_2811-hires-for-haven.jpeg`, **5504 x 8256**, 6.6 MB. Studio portrait on a dark blue-grey seamless: navy blazer, blue check shirt, khakis, hands in pockets, three-quarter length, standing, facing camera.
+
 - **Placement size:** 1.7" x 2.05".
-- **Minimum pixels:** 510 x 615 at 300 dpi. Clark's stated high-resolution files clear this comfortably.
-- **Use the high-resolution originals Clark has, not the web files in the repo.** `images/people/clark-haley-headshot.jpg` is 1000 x 1500 and would technically cover a 1.7" placement, but it is an RGB JPEG compressed for web and may show artifacts in dark areas on coated stock. Since the originals exist, use them and convert to CMYK from the original, not from the web derivative.
-- **Selection guidance:** if there is a choice among the high-resolution frames, pick an environmental one, on a dock or with water behind him, over a studio headshot. An environmental portrait supports the "send me your address and I will tell you what fits" offer in a way a studio headshot cannot. Vertical crop, waist-up or three-quarter length.
+- **Minimum pixels:** 510 x 615 at 300 dpi. The supplied file is over ten times that in each direction. **Resolution closed.**
+- **CROP, and it is not optional.** Window **X 1763 to 4653, Y 900 to 4385**. Result 2890 x 3485, exactly 34:41, so 1.700" x 2.050" at **1700 dpi**. Measured off the original rather than eyeballed: the head runs Y 1164 (crown) to Y 2353 (chin), 1189 px, and the head centre is X 3208. The crop puts the head at 34% of frame height, **0.70" on the page**, with 7.6% headroom and the eyes 27% down, cutting just above the top jacket button. Deliberately tight, because at this size generous headroom reads as a weak, far-away portrait.
+- **Why crop at all.** As supplied he is a full standing figure. Dropped whole into a 1.7" box his head prints at about **0.29"**, which is not a portrait, it is a stamp. That would quietly destroy the reason the portrait is small in the first place: per section 1, at two inches this reads as an **editorial byline** rather than a realtor ad, and a byline portrait is a face.
+- **One instruction on the image, the same kind of note as the hero's water colour.** The seamless is a dark blue-grey and the blazer is navy, so the two sit closer in value than they look on screen, and the shoulder line is the entire silhouette at 1.7". There is also a vignette, so the corners of this crop go toward mud on coated stock. **Lift the background and flatten the vignette inside the crop** so it reads clearly lighter than both the blazer and the navy panel above it. **Do not knock him out to white**: a floating cut-out beside body copy is exactly the realtor-ad register we are avoiding, and the contained rectangle is what makes it read as a byline.
+- **Spec point knowingly missed, recorded rather than buried.** This section asked for an **environmental** frame, dock or water behind him, and this is a studio portrait. **Running it anyway, and it is the right call.** The reason to want environment was to support the "send me your address" offer, but at 1.7" wide a background is illegible and a boat behind him would be mud. At byline size the credential in the bio does that work, not the backdrop. This is the second accepted miss on the spread, alongside the hero's midday light.
+- Convert to CMYK from this original. Do not use `images/people/clark-haley-headshot.jpg`, which is a 1000 x 1500 RGB web derivative.
 
 ### Logos
 
@@ -423,20 +454,30 @@ Same specification whichever boat runs.
 
 ## 5. What to ask Jake
 
-Send these as one email rather than a trickle. Suggested subject: "HAVEN Palm Beach spread, production questions."
+Sent 15 September. **Five answered as of 16 September, seven open.** Status against each below.
 
-1. **Materials deadline.** The date artwork is due, and separately the drop-dead date for swapping a photograph or a price after artwork is submitted.
-2. **Safety margin.** We are assuming 0.25" inside trim. Confirm, and confirm how much you want kept clear on each side of the fold.
-3. **Binding.** Saddle stitched or perfect bound? Perfect binding eats more of the gutter and changes our keep-clear band.
-4. **Is it a true spread?** Confirm the two pages are facing pages in the same signature, so the fold falls where we expect. Also, do we know roughly where in the book it lands?
-5. **Colour.** CMYK, and which profile. US Web Coated SWOP v2? What is your total ink limit, and what rich-black build do you prefer for large solid navy areas?
-6. **Who sets the type.** Do you set live text from our supplied copy, or do you want supplied print-ready artwork? If supplied, which format, PDF/X-1a or PDF/X-4? If you set it, will you install Open Sans, and can we supply the font files?
-7. **Template.** Do you have an InDesign template or a marked PDF showing trim, bleed, gutter and live area for the spread?
-8. **Proof.** Do we get a PDF proof, and what is the window to return corrections?
-9. **Image requirements.** Minimum dpi you will accept, and whether you upscale low-resolution files or reject them. We want them rejected, not upscaled.
-10. **Digital edition.** Is there one, and does it support live hyperlinks? If yes, we want the URL, the email address and the QR destination all hyperlinked.
-11. **Distribution.** Print run, how many copies go to FLIBS versus mailed to the subscriber list, and the on-sale or mail date.
-12. **Editorial.** Is there any opportunity for a short editorial mention or a Q&A alongside a spread of this size, or is it advertising only?
+| # | Question | Status |
+|---|---|---|
+| 1 | **Materials deadline.** | **ANSWERED: 18 September.** The drop-dead date for swapping a photograph or a price after submission was not given and is now moot at two days out. |
+| 2 | **Safety margin,** and how much kept clear each side of the fold. | **HALF ANSWERED.** 0.25" inside trim confirmed. The fold is not addressed; see the note in section 2. **Follow-up sent.** |
+| 3 | **Binding.** | **CONDITIONAL, so effectively open.** "Perfect bound if over 52 pages", and we do not have the page count. **Built to perfect bound**, so this can no longer cost us. **Follow-up sent.** |
+| 4 | **Is it a true facing-page spread,** and where in the book? | **OPEN.** Matters more under perfect binding, because there is no centre spread and the two pages sit on different sheets. |
+| 5 | **Colour:** space, profile, ink limit, rich black. | **QUARTER ANSWERED.** "CMYK" confirms the space. Profile, total ink limit and rich-black build are open, and the ink limit bears on two large navy solids at roughly 272% and 266%. See section 2. |
+| 6 | **Who sets the type.** Live text from our copy, or print-ready artwork from us? | **OPEN, AND IT IS NOW THE ONE THAT MATTERS.** Two different jobs, and only one fits in two days. Working assumption: they set it. See section 7. |
+| 7 | **Template.** InDesign template or marked PDF? | **OPEN.** If one exists it overrides our geometry, so ask again in the same breath as 6. |
+| 8 | **Proof.** PDF proof, and the correction window? | **OPEN.** At two days out, whether there is a proof at all changes how careful the first submission has to be. |
+| 9 | **Image requirements.** Minimum dpi, and do you reject or upscale? | **OPEN.** We want rejection, not upscaling. Our files are far past any plausible minimum, so this is low risk. |
+| 10 | **Digital edition** and live hyperlinks. | **OPEN.** Bears on the `/dock` timing: a digital edition can reach a reader earlier than the printed one. |
+| 11 | **Distribution,** print run, FLIBS versus mailed, on-sale date. | **OPEN, and it sets the real deadline for the `/dock` page.** See section 7. |
+| 12 | **Editorial** opportunity alongside the spread. | **OPEN.** Nice to have, not on the critical path. |
+
+### The follow-ups, one line each
+
+Two short ones, plus a third worth appending to the same mail:
+
+1. **Binding / page count.** "Roughly how many pages will this issue run, so we know whether we are saddle stitched or perfect bound?"
+2. **The fold.** "On the 0.25" safety margin, does that include the inner edge at the fold, or is 0.25" the trim margin and the gutter separate?"
+3. **Ink limit, if you want it in the same mail.** "For the large solid navy areas, what is your total ink limit and preferred rich-black build?"
 
 ---
 
@@ -461,3 +502,66 @@ These need Clark's sign-off. Four of them are numbers I will not invent.
 | haleyyachts.com/dock | The QR code and the printed short URL both point to a page that **does not exist yet**. It needs to be a real page with the "send me your address" form, live before the issue drops. **This is Terry's build**, and it needs to be scheduled against the materials deadline, not the on-sale date, because we cannot change the QR after we submit artwork. | Terry, briefed by William |
 
 Note on Denison: Clark's history there does not appear in this spread, per the house rule. The bio above is drawn from `about.html` and does not mention it.
+
+---
+
+## 7. The delivery package, materials deadline 18 September
+
+Written against the working assumption that **HAVEN sets the type from our copy and images** (section 5, question 6). If Jake comes back wanting print-ready PDF/X from us, this section is void and the job changes; say so on the 16th, not the 17th.
+
+### Do not send this document
+
+This brief is internal. It contains the boat decision and the argument behind it, the 545 fallback, the reasoning about other ads in the book, and Clark's open items. **The publisher gets the copy sheet, the layout PDF and the assets. Nothing else.**
+
+### What goes in the email
+
+| # | File | What it is for | Status |
+|---|---|---|---|
+| 1 | `haven-spread.pdf` | The layout, actual size, with trim, bleed, live area and gutter guides drawn. This is what the designer rebuilds from. Print it from `docs/design/haven-spread.html`. **Label it MOCK-UP in the covering note**, because it is RGB and screen-rendered. | Make it (see below) |
+| 2 | `haven-copy-sheet.md` (or .rtf / .docx) | Every word of live text in reading order with its position and type spec, and nothing else. This is what gets typed or pasted into InDesign. | Written, `docs/marketing/haven-copy-sheet.md` |
+| 3 | `Riviera 4300 Sports Express Aerial 03.jpg` | **Hero, left page, full bleed.** 8000 x 5328. Crop window **X 1880 to 5951, Y 0 to 5328**, which is 4071 x 5328, or 8.500" x 11.125" at 478 dpi. Bleeds top, bottom and left. **Butts the fold at X 8.375 with no bleed on that edge.** | In hand |
+| 4 | `Riviera 4300 Sports Express Sea Deck 03.jpg` | **Secondary, inside the navy panel.** 8000 x 5333. Crop window **X 400 to 6800, Y 1150 to 4287**, which is 6400 x 3137, the panel's 2.04:1 letterbox exactly. Placed at 2.85" x 1.40". | In hand |
+| 5 | `BBP_2811-hires-for-haven.jpeg` | **Shot 3, Clark's portrait.** 5504 x 8256. Crop window **X 1763 to 4653, Y 900 to 4385**, which is 2890 x 3485, exactly 34:41, so 1.700" x 2.050" at 1700 dpi. **The crop is not optional**, see below. | In hand |
+| 6 | `NEW HALEY YACHTS CMYK.eps` | Haley Yachts mark, 1.000" wide in the corner lockup. Vector, already CMYK. From `~/Dropbox/HaleyYachts/Logos/logo-haley-yachts-logo (1)/`. | In hand |
+| 7 | `OWYG Logo_STACK.eps` | One Water mark, 1.350" wide, beneath the Haley mark with the label "Yacht Broker with" between them. **Not `OWYG Logo_WIDE`**, which is a different lockup we have never used, and **not `OWYG Logo_STACK-DKBLUE.pdf`, which is RGB.** | In hand |
+| 8 | QR code artwork | 0.75" x 0.75" placed, 0.1" quiet zone. Vector EPS or PDF preferred, otherwise PNG at 1200 px square minimum. Encodes `https://haleyyachts.com/dock` exactly. Use high error correction so a nick in the print does not kill it. | **MISSING, must be made** |
+| 9 | Open Sans font files | Weights 300 Light, 400 Regular, 400 Italic, 600 Semibold, 700 Bold. Free from Google Fonts under the SIL Open Font License, so we can supply them to the designer without a licensing question. Offer them; most design shops already have it. | Available |
+
+**One practical point on sending it.** Items 3 and 4 are roughly 15 MB each and the whole package will be over 35 MB, which most mail servers bounce. **Send the images and logos as a Dropbox or WeTransfer link and attach only the PDF and the copy sheet.** Name the link clearly enough that a designer opening it in two weeks still knows which file is the hero.
+
+### Two layout files, and which is which
+
+- **`docs/design/haven-spread.html`** is the working file and **the source of truth.** Guides, crop specifications, open items, the change log. This is what HAVEN's designer reads, and it is what the PDF is printed from.
+- **`docs/design/haven-spread-clean.html`** is Clark's view: the advertisement and nothing else. No guides, no crop cards, no notes, and no toggle to turn any of them back on. It exists so he can judge the ad the way a reader will meet it, before signing off on something going to press.
+
+Any change to geometry or copy is made in the working file first, then mirrored into the clean one. Never the reverse.
+
+### Making `haven-spread.pdf`
+
+Open `docs/design/haven-spread.html` in Chrome on Clark's Mac, then Print. Destination **Save as PDF**, paper size **custom 17 x 11.125 in**, margins **None**, and **Background graphics ON** or the whole thing prints blank. The print stylesheet already drops the screen chrome, the notes and the zoom control, so the PDF is the spread alone at actual size.
+
+It has to be Clark's Mac. The photography is linked by absolute `file://` path to his Dropbox and will render as empty boxes anywhere else.
+
+### What is still missing, in the order it will hurt
+
+1. ~~Clark's high-resolution portrait.~~ **CLOSED 16 September.** See the crop note below.
+2. **One Water's approval** of a co-branded print ad carrying their mark, and probably Riviera's nod on their model and their press photography. The item most likely to be slow for reasons that have nothing to do with us. Their **minimum reproduction size** question rides in the same email rather than being a separate ask.
+3. **The QR artwork.** Does not exist. Cheap to make, but it cannot be made until the URL string is frozen, so freeze the string first.
+4. **The availability line is still a bracket in live copy.** The spec panel reads `[Build slots available, confirm delivery window]`. **This is the last unfinished word of copy in the artwork** and it goes to print either way, so it needs Clark either to give a delivery window or to accept a from-price he is happy to see in print for months.
+5. **Verify the 4 ft 2 in draft figure** against Riviera's current published spec. It came off our own listing page and it is now load-bearing: it is half the panel headline and half the verso caption. One check, one source.
+6. **Is Clark attending FLIBS?** If not, the show line at Y 7.90" comes out. Nothing else depends on it.
+7. **The bio's closing line.** Two versions offered in section 3. Clark picks, or the one that is set stands.
+
+### On `haleyyachts.com/dock`, and why it is not a blocker for the 18th
+
+**Confirmed: the page being finished is not a blocker for the 18th.** Two different dates are being run together. The **URL string** must be final on the 18th, because the QR freezes when artwork is submitted and can never be changed. The **page** must exist before a reader can scan it, which is the on-sale or FLIBS distribution date, and that is later. Terry's build schedules against the second date.
+
+**Three caveats, and the first is the one I would act on.**
+
+**You cannot test a QR code against a page that does not exist.** You can verify it decodes to the right string, but you cannot prove the round trip: a redirect that misfires, a trailing-slash rule, a case-sensitivity rule, an apex-versus-www rewrite. **Ask Terry for a stub at `/dock` before the 18th**, even a single static page saying Clark will be in touch, so the scan is proven end to end. It converts the one irreversible risk on this spread to zero for the cost of one file, and he improves the page afterwards.
+
+**Freeze the string before the QR is generated, and make Terry build to it.** `https://haleyyachts.com/dock`: apex not www, no trailing slash, HTTPS. Getting this backwards is how the QR ends up pointing at a page that exists at a slightly different address.
+
+**The date the page must be live is not one we hold.** Question 11, the distribution and on-sale date, is unanswered, and question 10, whether there is a digital edition, matters too, because a digital edition can reach a reader earlier than the printed copy. Until both are answered, the safe assumption is that the page must be live **before 18 September**, which the stub satisfies anyway.
+
+**The fallback, and decide it before artwork rather than after.** If the page will not exist in any form, drop the QR and the `/dock` URL from both places they appear and run the phone number alone. That is a decision made on the 18th at the latest. It is never a decision made afterwards, because afterwards there is no decision left to make.
