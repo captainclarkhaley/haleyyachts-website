@@ -18,18 +18,25 @@ stand:
   - the on-screen viewer script is removed, because the inline margins it
     writes on #stage leak into print and shift the artwork off the page
 
-Geometry (crop windows, placed sizes) is READ OUT of the CSS, so the
-artwork stays the single source of truth. Every derived number is printed
-and the checks at the end fail loudly.
+Geometry is READ OUT of the CSS: the crop windows, the placed sizes, the
+scrim, and every rectangle the checks measure against (hero, panel,
+portrait, lockup, QR, cyan rule). The artwork stays the single source of
+truth for all of it.
+
+The SHEET is the one thing deliberately duplicated here rather than read:
+BLEED_W/BLEED_H, TRIM_W/TRIM_H, BLEED and FOLD_FROM_TRIM_LEFT are the
+printer's numbers, not the designer's, and the CSS does not carry them.
+Every derived number is printed and the checks at the end fail loudly.
 
 CMYK conversion is a separate, parameterised step. It does not run unless
 --icc-profile is given, because the profile and the ink limit are the
-printer's numbers and not ours to guess.
+printer's numbers and not ours to guess. The converted file is plain CMYK
+and carries NO PDF/X conformance claim - see the note that step prints.
 
 Usage:
     scripts/build-haven-print.py
     scripts/build-haven-print.py --marks
-    scripts/build-haven-print.py --icc-profile /path/to.icc --ink-limit 300 --pdfx X-1a
+    scripts/build-haven-print.py --icc-profile /path/to.icc --ink-limit 300
 """
 
 import argparse
@@ -72,6 +79,23 @@ FONT_FACES = [
     ("Open Sans", 700, "normal", "open-sans-latin-700-normal.woff2"),
 ]
 
+# What the output must CONTAIN, stated independently of what the build
+# supplies. Deriving this from FONT_FACES would make the check agree with
+# any mistake made there: drop a face from the list and both sides drop it.
+EXPECTED_BASEFONTS = {
+    "OpenSans-Light", "OpenSans-Regular", "OpenSans-Italic",
+    "OpenSans-SemiBold", "OpenSans-Bold",
+}
+
+# Every box in the artwork that must carry artwork. Key into geometry(),
+# how many images belong inside it, and what they are.
+IMAGE_BOXES = [
+    ("hero", 1, "hero photograph"),
+    ("panel-photo", 1, "panel photograph"),
+    ("portrait", 1, "portrait"),
+    ("lockup", 2, "Haley Yachts mark + One Water mark"),
+]
+
 QR_URL = "https://haleyyachts.com/dock"
 
 
@@ -101,7 +125,8 @@ def inches(token):
 
 
 def decl(block, prop):
-    m = re.search(re.escape(prop) + r"\s*:\s*([^;]+);", block)
+    # the last declaration in a one-line rule has no trailing semicolon
+    m = re.search(re.escape(prop) + r"\s*:\s*([^;]+?)\s*(?:;|$)", block)
     if not m:
         fail("no %s declaration in block %r" % (prop, block[:60]))
     return m.group(1).strip()
@@ -127,6 +152,37 @@ def placement(css, selector, var_name):
         "img_w": inches(size[0]), "img_h": inches(size[1]),
         "pos_x": inches(pos[0]), "pos_y": inches(pos[1]),
         "path": unquote(path),
+    }
+
+
+def rect(css, selector, parent=None):
+    """One CSS box as (x0, y0, x1, y1) in page inches from the bleed corner.
+
+    The artwork positions everything on the TRIM page, so the bleed offset is
+    added here. `parent` is the positioned ancestor: the stylesheet knows the
+    nesting and a stylesheet reader does not, so it is named at the call.
+    """
+    ox = oy = BLEED
+    if parent:
+        pb = read_block(css, parent)
+        ox += inches(decl(pb, "left"))
+        oy += inches(decl(pb, "top"))
+    b = read_block(css, selector)
+    x = ox + inches(decl(b, "left"))
+    y = oy + inches(decl(b, "top"))
+    return (x, y, x + inches(decl(b, "width")), y + inches(decl(b, "height")))
+
+
+def geometry(css):
+    """Every rectangle the checks measure against, read out of the artwork."""
+    return {
+        "hero": rect(css, ".hero"),
+        "panel": rect(css, ".panel"),
+        "panel-photo": rect(css, ".panel-photo", ".panel"),
+        "portrait": rect(css, ".portrait"),
+        "lockup": rect(css, ".lockup"),
+        "qr": rect(css, ".qr"),
+        "cyan-rule": rect(css, ".cyan-rule"),
     }
 
 
@@ -184,7 +240,7 @@ def prepare_image(p, out_path, max_ppi, scrim=None):
 
     want = p["box_w"] / p["box_h"]
     got = cw / ch
-    if abs(want - got) / want > 0.005:
+    if abs(want - got) / want > 0.001:
         fail("crop aspect %.4f does not match the printed box %.4f for %s"
              % (got, want, p["selector"]))
 
@@ -248,7 +304,7 @@ def derive_html(css_paths, build_dir, marks):
         html = fh.read()
 
     # the viewer script writes inline margins on #stage that survive into print
-    html = re.sub(r"<script>.*?</script>", "", html, flags=re.S)
+    html = re.sub(r"<script\b[^>]*>.*?</script>", "", html, flags=re.S)
     # no network fonts: a missing CDN is a silent Helvetica on press
     html = re.sub(r'\s*<link rel="preconnect"[^>]*>', "", html)
     html = re.sub(r'\s*<link href="https://fonts\.googleapis\.com[^>]*>', "", html)
@@ -377,7 +433,7 @@ def draw_marks(page, trim, bleed):
 
 # -------------------------------------------------------------------- checking
 
-def check(pdf_path, marks, expect_cmyk=False):
+def check(pdf_path, marks, geo, expect_cmyk=False):
     doc = fitz.open(pdf_path)
     page = doc[0]
     pad = MARK_MARGIN if marks else 0.0
@@ -411,11 +467,21 @@ def check(pdf_path, marks, expect_cmyk=False):
     fonts = page.get_fonts(full=True)
     if not fonts:
         problems.append("no fonts in the output at all")
+    got_faces = set()
     for xref, ext, ftype, basefont, name, enc in (f[:6] for f in fonts):
         embedded = ext not in ("n/a", "") or ftype == "Type3"
         how = ftype if ftype != "Type3" else "Type3 (vector outlines)"
-        print("  %-28s %-24s %s" % (basefont or "(outlined)", how,
-                                    "embedded" if embedded else "NOT EMBEDDED"))
+        # Type0 wrappers say nothing about the outlines; the descendant does.
+        desc = ""
+        m = re.search(r"/DescendantFonts\s*\[\s*(\d+) 0 R", doc.xref_object(xref))
+        if m:
+            d = re.search(r"/Subtype\s*/(\w+)", doc.xref_object(int(m.group(1))))
+            desc = d.group(1) if d else ""
+        face = re.sub(r"^[A-Z]{6}\+", "", basefont or "")
+        got_faces.add(face)
+        print("  %-28s %-10s %-16s %s" % (face or "(outlined)", ftype,
+                                          desc or ext,
+                                          "embedded" if embedded else "NOT EMBEDDED"))
         if not embedded:
             problems.append("font %s is not embedded" % basefont)
         if basefont and "OpenSans" not in basefont.replace(" ", ""):
@@ -424,18 +490,32 @@ def check(pdf_path, marks, expect_cmyk=False):
             problems.append(
                 "font %s came through as Type3 outlines, which means Chrome "
                 "could not embed the source face" % (name or xref))
+        elif not (ftype == "Type0" and desc == "CIDFontType2"):
+            problems.append("font %s is %s/%s, expected a TrueType subset "
+                            "(Type0 / CIDFontType2)" % (face, ftype, desc or ext))
+    missing = EXPECTED_BASEFONTS - got_faces
+    extra = got_faces - EXPECTED_BASEFONTS
+    print("  %d faces, expected %d" % (len(got_faces), len(EXPECTED_BASEFONTS)))
+    if missing:
+        problems.append("face(s) missing from the output: %s. A weight or an "
+                        "italic that is not embedded is not absent on the page, "
+                        "it is synthesised from a face that is."
+                        % ", ".join(sorted(missing)))
+    if extra:
+        problems.append("face(s) in the output that should not be there: %s"
+                        % ", ".join(sorted(extra)))
 
     print("\n--- images ---------------------------------------------------")
-    infos = page.get_image_info(xrefs=True)
-    seen = 0
-    for i in infos:
+    placed = []
+    for i in page.get_image_info(xrefs=True):
         if i["width"] < 8 or i["height"] < 8:
             continue
-        seen += 1
         w_in = abs(i["transform"][0]) / PT
         h_in = abs(i["transform"][3]) / PT
         ppi_x = i["width"] / w_in if w_in else 0
         ppi_y = i["height"] / h_in if h_in else 0
+        placed.append(((i["bbox"][0] + i["bbox"][2]) / 2 / PT - pad,
+                       (i["bbox"][1] + i["bbox"][3]) / 2 / PT - pad))
         print("  %5dx%-5d px  placed %6.3f x %6.3f in  ->  %6.1f x %6.1f ppi   %s"
               % (i["width"], i["height"], w_in, h_in, ppi_x, ppi_y, i["cs-name"]))
         if min(ppi_x, ppi_y) < MIN_PPI:
@@ -443,27 +523,58 @@ def check(pdf_path, marks, expect_cmyk=False):
                             % (min(ppi_x, ppi_y), MIN_PPI))
         if expect_cmyk and "CMYK" not in i["cs-name"].upper():
             problems.append("image still in %s after conversion" % i["cs-name"])
-    if seen == 0:
-        problems.append("no images found in the output; the photography did "
-                        "not make it into the file")
+
+    # Counting is not enough and neither is "at least one": a logo whose URL
+    # breaks simply stops painting, and Chrome reports nothing. Every box the
+    # artwork places an image in has to be shown carrying one.
+    claimed = 0
+    for key, want, label in IMAGE_BOXES:
+        x0, y0, x1, y1 = geo[key]
+        n = sum(1 for cx, cy in placed
+                if x0 - 0.02 <= cx <= x1 + 0.02 and y0 - 0.02 <= cy <= y1 + 0.02)
+        claimed += n
+        print("  %-36s %d image(s), want %d   %s"
+              % (label, n, want, "ok" if n == want else "WRONG"))
+        if n != want:
+            problems.append("%s: %d image(s) inside the %s box at %.3f,%.3f - "
+                            "%.3f,%.3f in, expected %d"
+                            % (label, n, key, x0, y0, x1, y1, want))
+    want_total = sum(w for _, w, _ in IMAGE_BOXES)
+    print("  %d images in the output, expected %d" % (len(placed), want_total))
+    if len(placed) != want_total:
+        problems.append("%d images in the output, expected %d"
+                        % (len(placed), want_total))
+    elif claimed != want_total:
+        problems.append("%d of %d images do not sit in any expected box"
+                        % (want_total - claimed, want_total))
 
     print("\n--- copy -----------------------------------------------------")
     text = page.get_text("text")
     for line in text.splitlines():
         if "delivery" in line or "availability" in line.lower():
             print("  availability row: %r" % line.strip())
-    stray = re.findall(r"\[[^\]\n]{3,}\]", text)
+    # re.S because a placeholder in a narrow column WRAPS, and the whole
+    # reason this check exists is the availability row, which is a long
+    # string in a 4in <dd>. {2,} because [TK] is two characters.
+    stray = [" ".join(m.split())
+             for m in re.findall(r"\[[^\]]{2,}\]", text, re.S)]
+    # <TBC> as well. A bare one in the HTML never reaches the page (the
+    # parser eats it as an unknown tag); the escaped form does, and that is
+    # the form this catches. Single line and bounded, so a stray "<" in real
+    # copy cannot swallow a paragraph.
+    stray += re.findall(r"<[^<>\n]{2,60}>", text)
     print("  %d characters of live text, %d bracketed placeholders"
           % (len(text), len(stray)))
-    for s in stray:
-        problems.append("placeholder still in the artwork: %s" % s)
+    for m in stray:
+        problems.append("placeholder still in the artwork: %s" % m)
     if len(text) < 1500:
         problems.append("only %d characters of live text; the type has been "
                         "rasterised" % len(text))
 
     print("\n--- QR -------------------------------------------------------")
-    qr = fitz.Rect((pad + BLEED + 14.25 - 0.06) * PT, (pad + BLEED + 9.8 - 0.06) * PT,
-                   (pad + BLEED + 15.0 + 0.06) * PT, (pad + BLEED + 10.55 + 0.06) * PT)
+    qx0, qy0, qx1, qy1 = geo["qr"]
+    qr = fitz.Rect((pad + qx0 - 0.06) * PT, (pad + qy0 - 0.06) * PT,
+                   (pad + qx1 + 0.06) * PT, (pad + qy1 + 0.06) * PT)
     decoded = None
     for dpi in (600, 1200, 300):
         pix = page.get_pixmap(dpi=dpi, clip=qr, colorspace=fitz.csGRAY)
@@ -482,9 +593,6 @@ def check(pdf_path, marks, expect_cmyk=False):
     arr = np.frombuffer(pm.samples, dtype=np.uint8).reshape(pm.height, pm.stride // 3, 3)
     arr = arr[:, :pm.width, :]
 
-    def at(x_in, y_in):
-        return tuple(int(v) for v in arr[int((pad + y_in) * dpi), int((pad + x_in) * dpi)])
-
     # after conversion the brand colours move on purpose, so the colour
     # identification loosens while the EDGE POSITIONS stay exact
     slack = 70 if expect_cmyk else 20
@@ -496,17 +604,51 @@ def check(pdf_path, marks, expect_cmyk=False):
     cyan = (33, 203, 234)
     navy = (10, 22, 40)
 
-    checks = [
-        ("top-left bleed carries the hero", at(0.02, 0.02), lambda c: not close(c, paper)),
-        ("right bleed carries the navy panel", at(16.98, 6.5), lambda c: close(c, navy, slack)),
-        ("bottom bleed carries the cyan rule", at(8.5, 11.10), lambda c: close(c, cyan, slack)),
-        ("left bleed carries the hero", at(0.02, 5.0), lambda c: not close(c, paper)),
+    def near_mask(a, want, tol):
+        return np.abs(a.astype(np.int16)
+                      - np.array(want, np.int16)).max(axis=-1) <= tol
+
+    def px(v):
+        return int(round((pad + v) * dpi))
+
+    def strip(r):
+        """Pixels inside an inch rectangle, inset one pixel all round so the
+        renderer's own edge antialiasing is not the thing under test."""
+        x0, y0, x1, y1 = r
+        return arr[px(y0) + 1:px(y1) - 1, px(x0) + 1:px(x1) - 1, :]
+
+    # A bleed fails as a GAP, not as a point: the rule runs 1/8in short into a
+    # corner, or the hero stops at the trim. Four samples over a 56in perimeter
+    # miss all of that, so each strip is scanned whole.
+    hx0, hy0, hx1, hy1 = geo["hero"]
+    px0, py0, px1, py1 = geo["panel"]
+    rules = [
+        ("bottom bleed is cyan, all %.2f in of it" % BLEED_W,
+         (0.0, BLEED_H - BLEED, BLEED_W, BLEED_H),
+         lambda a: ~near_mask(a, cyan, slack)),
+        ("left bleed carries the hero, all %.3f in" % BLEED_H,
+         (0.0, 0.0, BLEED, BLEED_H),
+         lambda a: near_mask(a, paper, 14)),
+        ("top bleed carries the hero, x 0 to %.2f in" % hx1,
+         (0.0, 0.0, hx1, BLEED),
+         lambda a: near_mask(a, paper, 14)),
+        ("right bleed is navy, y %.3f to %.3f in" % (py0, py1),
+         (BLEED_W - BLEED, py0, BLEED_W, py1),
+         lambda a: ~near_mask(a, navy, slack)),
     ]
-    for label, colour, ok in checks:
-        good = ok(colour)
-        print("  %-38s %-16s %s" % (label, colour, "ok" if good else "WRONG"))
-        if not good:
-            problems.append(label + " -> got " + str(colour))
+    for label, r, bad_mask in rules:
+        a = strip(r)
+        bad = bad_mask(a)
+        frac = float(bad.mean()) * 100.0
+        where = ""
+        if frac:
+            ys, xs = np.nonzero(bad)
+            where = "  first bad px at %.3f, %.3f in" % (
+                r[0] + (xs[0] + 1) / dpi, r[1] + (ys[0] + 1) / dpi)
+        print("  %-44s %8.3f%% wrong%s" % (label, frac, where))
+        if frac:
+            problems.append("%s -> %.3f%% of the strip is wrong,%s"
+                            % (label, frac, where))
 
     row = arr[int((pad + 10.85) * dpi), :, :]
     edge = None
@@ -526,7 +668,7 @@ def check(pdf_path, marks, expect_cmyk=False):
         if close(tuple(int(v) for v in col[y]), cyan, slack):
             top = (y / dpi) - pad
             break
-    want_rule = 10.785 + BLEED
+    want_rule = geo["cyan-rule"][1]
     print("  cyan rule top edge at %s in (want %.3f)"
           % ("%.3f" % top if top else "not found", want_rule))
     if top is None or not near(top, want_rule, 0.012):
@@ -539,9 +681,16 @@ def check(pdf_path, marks, expect_cmyk=False):
 # ------------------------------------------------------------------ CMYK step
 
 def live_transparency(pdf_path):
-    """Any ExtGState with constant alpha below 1. Ghostscript answers one of
-    these by flattening the WHOLE page to a raster, which turns 60pt vector
-    headline type into pixels. PDF/X-1a forbids it outright."""
+    """Everything in the file that is not opaque, in both of its forms.
+
+    Ghostscript answers live transparency by flattening the WHOLE page to a
+    raster, which turns 60pt vector headline type into pixels.
+
+    Two kinds, and the second is the one that hides: a constant alpha in an
+    ExtGState (/ca, /CA), and a soft mask (/SMask), which is how an RGBA PNG
+    arrives. Grepping only for the alphas names the 70% captions and lets two
+    masked logos walk straight through, so this reports both.
+    """
     doc = fitz.open(pdf_path)
     found = []
     for x in range(1, doc.xref_length()):
@@ -552,7 +701,11 @@ def live_transparency(pdf_path):
         for key in ("ca", "CA"):
             m = re.search(r"/%s\s+([\d.]+)" % key, obj)
             if m and float(m.group(1)) < 1.0:
-                found.append((x, key, float(m.group(1))))
+                found.append((x, "constant alpha /%s %.3f" % (key, float(m.group(1)))))
+        m = re.search(r"/SMask\s+(\d+ 0 R|/\w+)", obj)
+        if m and m.group(1) != "/None":
+            what = "image soft mask" if "/Image" in obj else "soft mask"
+            found.append((x, "%s /SMask %s" % (what, m.group(1))))
     doc.close()
     return found
 
@@ -561,8 +714,9 @@ def convert_cmyk(src_pdf, out_pdf, profile):
     """Deferred step. Runs only when the printer's profile is supplied.
 
     Deliberately NOT -dPDFX=true: Ghostscript 10.08 answers that flag by
-    rasterising the entire page. The PDF/X identification is stamped on
-    afterwards instead, which leaves the type vector.
+    rasterising the entire page. The result is therefore a plain CMYK PDF and
+    nothing stamps a PDF/X claim onto it afterwards, because it would not be
+    true: the header is PDF 1.7, /Trapped is absent and soft masks survive.
     """
     cmd = ["gs", "-dBATCH", "-dNOPAUSE", "-dSAFER", "-dNOOUTERSAVE",
            "--permit-file-read=" + src_pdf,
@@ -581,34 +735,6 @@ def convert_cmyk(src_pdf, out_pdf, profile):
     if r.returncode != 0 or not os.path.exists(out_pdf):
         fail("Ghostscript conversion failed:\n" + (r.stderr or r.stdout)[-3000:])
     return r.stdout
-
-
-def stamp_pdfx(pdf_path, profile, pdfx, condition):
-    """OutputIntent plus the PDF/X version key. Boxes are set already."""
-    doc = fitz.open(pdf_path)
-    with open(profile, "rb") as fh:
-        icc = fh.read()
-    icc_xref = doc.get_new_xref()
-    doc.update_object(icc_xref, "<< /N 4 >>")
-    doc.update_stream(icc_xref, icc, compress=True)
-
-    oi = doc.get_new_xref()
-    doc.update_object(oi,
-                      "<< /Type /OutputIntent /S /GTS_PDFX "
-                      "/OutputConditionIdentifier (%s) /Info (%s) "
-                      "/RegistryName (http://www.color.org) "
-                      "/DestOutputProfile %d 0 R >>" % (condition, condition, icc_xref))
-    root = doc.pdf_catalog()
-    doc.xref_set_key(root, "OutputIntents", "[ %d 0 R ]" % oi)
-
-    info = doc.xref_get_key(-1, "Info")
-    if info[0] == "xref":
-        doc.xref_set_key(int(info[1].split()[0]), "GTS_PDFXVersion",
-                         "(PDF/%s)" % pdfx)
-    tmp = pdf_path + ".stamped"
-    doc.save(tmp, deflate=True)
-    doc.close()
-    os.replace(tmp, pdf_path)
 
 
 def measure_tac(pdf_path, limit, dpi=100):
@@ -647,7 +773,6 @@ def main():
     ap.add_argument("--ink-limit", type=float,
                     help="total area coverage the printer allows, checked after "
                          "conversion")
-    ap.add_argument("--pdfx", default="X-1a:2001", help="PDF/X flavour string")
     ap.add_argument("--keep-build", action="store_true")
     args = ap.parse_args()
 
@@ -659,9 +784,16 @@ def main():
 
     with open(SRC_HTML, encoding="utf-8") as fh:
         css = fh.read()
+    geo = geometry(css)
 
     build_dir = os.path.join(os.path.dirname(os.path.abspath(args.out)), "work")
+    marker = os.path.join(build_dir, ".haven-build")
+    if os.path.isdir(build_dir) and not os.path.exists(marker):
+        fail("%s already exists and this script did not create it. The build "
+             "directory is deleted at the end of every run, so point --out "
+             "somewhere else." % build_dir)
     os.makedirs(build_dir, exist_ok=True)
+    open(marker, "w").close()
 
     print("=== HAVEN print build ===")
     print("source     %s" % SRC_HTML)
@@ -701,7 +833,7 @@ def main():
     finish(raw, args.out, args.marks)
     print("\nwrote %s (%.1f MB)" % (args.out, os.path.getsize(args.out) / 1e6))
 
-    problems = check(args.out, args.marks)
+    problems = check(args.out, args.marks, geo)
 
     if args.icc_profile:
         if not os.path.exists(args.icc_profile):
@@ -709,27 +841,34 @@ def main():
         cmyk_out = re.sub(r"\.pdf$", "-cmyk.pdf", args.out)
         print("\n--- CMYK conversion ------------------------------------------")
         print("  profile   %s" % args.icc_profile)
-        print("  flavour   PDF/%s" % args.pdfx)
         alpha = live_transparency(args.out)
         if alpha:
-            for xref, key, val in alpha:
-                print("  live transparency: object %d has /%s %.3f" % (xref, key, val))
+            for xref, what in alpha:
+                print("  live transparency: object %d, %s" % (xref, what))
             fail("the artwork still carries live transparency, and Ghostscript "
-                 "answers that by rasterising the whole spread. The 70%% white "
-                 "captions are the source. Either the job is PDF/X-4, which "
-                 "allows transparency, or those three text runs are set to "
-                 "their opaque equivalents first. That is a colour edit and it "
-                 "needs sign-off, so this script will not make it.")
+                 "answers that by rasterising the whole spread. Every source in "
+                 "the file is listed above, not just the first kind: the 70% "
+                 "white captions are constant alpha, and an RGBA logo arrives "
+                 "as an image soft mask. All of them have to go, or the job "
+                 "runs as PDF/X-4, which allows transparency. Setting the "
+                 "captions opaque is a colour edit and needs sign-off, so this "
+                 "script will not make it.")
         convert_cmyk(args.out, cmyk_out, args.icc_profile)
-        stamp_pdfx(cmyk_out, args.icc_profile, args.pdfx,
-                   os.path.splitext(os.path.basename(args.icc_profile))[0])
         print("  wrote %s (%.1f MB)" % (cmyk_out, os.path.getsize(cmyk_out) / 1e6))
+        print("\n  This file is NOT certified PDF/X and does not claim to be.")
+        print("  No GTS_PDFXVersion, no GTS_PDFX OutputIntent, no conformance")
+        print("  claim of any kind. What it IS: CMYK through the supplied")
+        print("  profile, fonts embedded and subset, TrimBox and BleedBox set.")
+        print("  What it is NOT: preflighted. A stamped claim makes a preflight")
+        print("  SKIP the checks this file has not passed, which is worse than")
+        print("  no claim at all. If the printer requires certified PDF/X, say")
+        print("  so and we do it properly, with a real preflight.")
         if args.ink_limit:
             peak, over = measure_tac(cmyk_out, args.ink_limit)
             if peak > args.ink_limit + 0.5:
                 problems.append("peak total ink %.1f%% exceeds the %.0f%% limit"
                                 % (peak, args.ink_limit))
-        problems += check(cmyk_out, args.marks, expect_cmyk=True)
+        problems += check(cmyk_out, args.marks, geo, expect_cmyk=True)
     else:
         print("\n--- CMYK conversion ------------------------------------------")
         print("  SKIPPED. No --icc-profile given, so the file stays RGB.")

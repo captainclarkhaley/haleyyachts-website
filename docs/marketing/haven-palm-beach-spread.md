@@ -179,15 +179,15 @@ It runs continuously under both pages. It is the reason the two pages read as on
 
 **CMYK confirmed by Jake, 16 Sep.** That closes the colour space and costs us nothing, because every supplied asset is already there: `OWYG Logo_STACK.eps` is process CMYK with no spot plates, `NEW HALEY YACHTS CMYK.eps` is CMYK, and the Riviera frames convert from their originals.
 
-**Question 5 had four parts and he answered one.** The **profile** (we proposed US Web Coated SWOP v2), the **total ink limit** and the **preferred rich-black build** are all still open, and the last two are not academic. This spread lays down two large navy solids. #0a1628 builds to roughly C92 M79 Y46 K55, which is **272% total ink**, and #0d2847 to about 266%. Coated SWOP allows 300%, so both are legal there. On a lighter or uncoated stock with a 240 to 260% limit, **both navies are over** and the panel and the hero scrim get rebuilt rather than nudged. One line in the same email.
+**Question 5 had four parts and he answered one.** The **profile** (we proposed US Web Coated SWOP v2), the **total ink limit** and the **preferred rich-black build** are all still open, and the last two are not academic. This spread lays down two large navy solids. Measured, not estimated, through the only CMYK profile on this machine (Apple Generic CMYK): #0a1628 builds to C87 M74 Y39 K65, which is **265% total ink**, and #0d2847 builds to C92 M73 Y24 K47, which is **236%**. Coated SWOP allows 300%, so both are legal there. Under a 240% limit the deep navy is over and **the mid navy is not**, so the panel and the hero scrim get rebuilt and the alternate panel does not. The flat solids are also not the worst of it: the hero's shadows push the sheet's peak to **295.7%**. See section 7. One line in the same email.
 
-Reference values only. The designer should match to the supplied CMYK EPS logo, which is already in the correct colour space.
+Reference values only, and profile-dependent: these are Apple Generic CMYK, and Jake's profile will move them. The designer should match to the supplied CMYK EPS logo, which is already in the correct colour space.
 
-| Use | Hex | Approximate CMYK | Reference |
+| Use | Hex | Measured CMYK | Reference |
 |---|---|---|---|
-| Deep navy (panel, headline type where on white) | #0a1628 | C92 M79 Y46 K55 | Match to logo EPS |
-| Mid navy (alternate panel) | #0d2847 | C100 M84 Y44 K38 | |
-| Cyan accent | #21cbea | C68 M0 Y4 K0 | Nearest reference PANTONE 305 C |
+| Deep navy (panel, headline type where on white) | #0a1628 | C87 M74 Y39 K65, 265% | Match to logo EPS |
+| Mid navy (alternate panel) | #0d2847 | C92 M73 Y24 K47, 236% | |
+| Cyan accent | #21cbea | C58 M0 Y5 K0 | Nearest reference PANTONE 305 C |
 | Body text | 100% K | K100 | Never build small text in four colours |
 
 ### Type
@@ -535,14 +535,16 @@ The previous plan - HAVEN sets the type from our copy sheet, and Clark prints a 
 
 Output is `docs/design/build/haven-spread-print.pdf`, about 9 MB, **gitignored on purpose** because it is rebuilt on demand from 34 MB of source photography that does not belong in a website repo. Re-run it after any copy change; it has already been regenerated twice for two different versions of the availability line.
 
-What the build asserts on every run: box geometry, font embedding and identity, per-image effective ppi against a 300 ppi floor, no bracketed placeholders left in live text, the QR decoding out of the finished PDF, and bleed coverage at four samples plus two measured trim edges. Two of those checks have been shown red on deliberately broken input. The registration measurement has only ever been seen green and Sam has been asked to try to break it.
+What the build asserts on every run: box geometry; that the five expected Open Sans faces are all present, embedded and TrueType, not merely that whatever is present is Open Sans; that **every box that should carry an image carries one**, counted per box, which is what catches a logo whose path has broken; per-image effective ppi against a 300 ppi floor; no bracketed placeholder left in live text, including one that wraps across lines; the QR decoding out of the finished PDF; and bleed coverage scanned as four complete 0.125 in strips rather than sampled at four points.
+
+Sam reviewed the build on 16 September and broke five of its checks by injecting real defects. Each of the five is now an assertion about the **expected set** rather than about something being present, and **every fixed check has been shown red on the exact input that broke it** and green on the real file. The registration measurement survived everything he threw at it, including a 1/64 in shift on both axes.
 
 ### What is in the file
 
 | Item | State |
 |---|---|
 | Three photographs | **Embedded**, not linked. The Dropbox dependency is gone from the output. Hero 479 ppi, sea deck 600, portrait 600, no upsampling anywhere. |
-| Both logos | Embedded raster at 980 and 1065 ppi. Vector EPS available in Dropbox if wanted. |
+| Both logos | Embedded raster at 980 and 1065 ppi. Vector EPS available in Dropbox if wanted. The One Water mark is now committed to the repo at `images/brand/owyg/owyg-lockup.png` and both logos resolve to **one path with no CSS fallback**: a fallback layer hides a broken path instead of reporting it, and CSS drops a failed background layer silently. |
 | Fonts | Five Open Sans static subsets embedded as TrueType. **Static faces are committed to `docs/design/fonts/` with the OFL licence** because Google Fonts now serves a variable font, which Chrome converts to Type3 outlines that many prepress preflights reject, and because the build must not depend on the network. |
 | QR | Real vector artwork, `haleyyachts-dock-qr.svg`, 29x29 modules, error correction Q, 0.75 in including a 0.1 in quiet zone. **Decoded out of the finished PDF at 600 dpi and asserted to equal `https://haleyyachts.com/dock`** on every build, and it survives a CMYK dry run. |
 | Bleed and boxes | MediaBox and BleedBox 17 x 11.125 in, TrimBox 16.75 x 10.875 in centred, 0.125 in all four outer edges, fold at 8.375 in. Measured, not assumed. |
@@ -552,10 +554,12 @@ What the build asserts on every run: box geometry, font embedding and identity, 
 
 **Nothing has been converted to CMYK and nothing converted has been committed.** The estimates below use the only profile on this machine (Apple Generic CMYK) and are indicative, not press-accurate. That is precisely why we are waiting on Jake.
 
-- **The cyan is the only badly out-of-gamut colour on the spread.** #21cbea returns as roughly #58c1da, dE76 **10.3**, visibly lighter and duller. Everything else is dE 5 or under. Holding it properly means a spot ink, a fifth plate on a $495 ad. **Recommendation: accept the shift.** It appears in three places and only as flat rule colour and one 10pt kicker.
-- **Ink limit is a fork.** The deep navy runs about 266%. Under a 300% limit nothing is over. **Under a 240% limit, 23.9% of the spread exceeds it** and the navy panel, the hero scrim and the hero's shadows all get rebuilt. That is not a nudge.
-- **PDF/X flavour is the other fork, and it is a colour edit we will not make unasked.** Three text runs at 70% white (verso caption, panel photo caption, panel footer) are the only live transparency left. **X-4 and nothing changes. X-1a forbids live transparency**, and Ghostscript answers it by rasterising the whole spread to a single 720 ppi image, which turns the 60pt headline into pixels and strips every font. The fix is setting those three runs to their opaque equivalents first - exact and invisible on the navy panel, approximate on the verso caption because it sits over a photograph. **The script refuses to convert and says why.**
-- Separately: `-dPDFX=true` in Ghostscript 10.08 rasterises the page regardless. The build stamps the OutputIntent afterwards instead, which is structurally conformant but **not validated by a preflight engine**. If HAVEN requires certified PDF/X, Ghostscript is not enough and we need Acrobat Pro or their preflight.
+- **The cyan is the only badly out-of-gamut colour on the spread.** #21cbea returns as roughly #58c1da, dE76 **10.3**, visibly lighter and duller. But dE76 overstates saturated colours, and the same pair is **dE2000 4.0**; the deep navy is dE76 5.0 and dE2000 3.3. That argues harder for accepting the shift, not less. Holding the cyan properly means a spot ink, a fifth plate on a $495 ad. **Recommendation: accept the shift.** It appears in three places and only as flat rule colour and one 10pt kicker.
+- **Rendering intent is not stated anywhere, and it changes the answer.** Perceptual and relative colorimetric agree exactly on all three brand colours. Absolute colorimetric does not: the cyan comes back **#70b1c0, dE76 20.9**, which is a different and much worse conversation. Whoever answers the profile question answers the intent question in the same line.
+- **Ink limit is a fork, and the number nobody has been quoting is the peak.** The flat navy runs 265% and the mid navy 236%, so under a 240% limit one of them is over and one is not. But the sheet's **actual peak total ink is 295.7%**, produced by the hero's shadows rather than by any solid. Under a 300% limit that is **4.3 points of headroom**, which is a very different message from "nothing is over". Under a 240% limit, 24.5% of the spread exceeds it and the navy panel, the hero scrim and the hero's shadows all get rebuilt. That is not a nudge.
+- **We have stopped claiming PDF/X, deliberately.** An earlier build stamped `GTS_PDFXVersion` and an OutputIntent onto the converted file. That claim was false four ways at once: the header is PDF 1.7 where X-1a:2001 requires 1.3, `/Trapped` is absent, `/GTS_PDFXConformance` is absent, and image soft masks survive the conversion. **A printer who sees the version key skips checking**, so a false claim is worse than either honest alternative. The build now delivers plain CMYK with correct Trim and Bleed boxes and states in its own output that the file is **not certified PDF/X**. If Jake requires certified PDF/X we solve it properly, with a real preflight engine; Ghostscript is not one.
+- **Live transparency is still a fork, and there is more of it than we said.** Three text runs at 70% white (verso caption, panel photo caption, panel footer) are constant alpha. **Both logos are RGBA PNGs and arrive as image soft masks** - the old check grepped `/ca` and `/CA` only, so it named the captions as the source and could not see two masks. X-4 allows all of it and nothing changes. X-1a forbids all of it. The fix for the captions is setting those three runs to their opaque equivalents, exact and invisible on the navy panel, approximate on the verso caption because it sits over a photograph; the fix for the logos is flat artwork with no alpha. That is a colour and asset edit, so **the script refuses to convert and now lists every source rather than the first kind**.
+- Separately: `-dPDFX=true` in Ghostscript 10.08 rasterises the page regardless, which is why the build does not use it. Without the flag the type stays vector and the soft masks survive, which is exactly the combination the stamped claim used to paper over.
 
 ### The five questions now with Jake
 
@@ -565,7 +569,7 @@ Put to Clark on 16 September, and the print file cannot be finished without them
 2. **Which destination profile**, and can he send the ICC? We hold neither SWOP v2 nor GRACoL.
 3. **Total ink limit**, 240% or 300%?
 4. **Does he want trim marks?**
-5. **Does he require certified PDF/X**, or is structurally correct enough?
+5. **Does he require certified PDF/X?** We deliver plain CMYK with no conformance claim of any kind. Certifying it needs a real preflight engine, which we do not have.
 
 ### Do not send this document
 

@@ -63,17 +63,13 @@
      It is NOT "OWYG Logo_WIDE" despite the name. WIDE is 531.01 x 90
      (5.900:1) and is a different lockup: ONEWATER [compass] YACHT GROUP set
      on one line with the compass in the middle. We have never used it.
-     TWO LAYERS BELOW, DELIBERATELY. CSS silently drops a background layer
-     whose URL fails and paints the next one down, so this self-heals:
-       layer 1 = the repo copy, live the moment images/brand/owyg/ exists.
-                 Delete layer 2 on that day.
-       layer 2 = the Dropbox original, which is what renders today, on
-                 Clark's Mac only. That folder name is a selective-sync
-                 artefact and WILL change. It is quarantined to this one
-                 line on purpose; nothing else in the file refers to it.
+     ONE LAYER, ONE PATH. The repo copy is committed at
+     images/brand/owyg/owyg-lockup.png. There is deliberately NO fallback
+     layer: CSS drops a failed background layer silently, so a fallback
+     hides a missing file instead of reporting it. If this path breaks the
+     mark disappears and the print build's image check convicts.
      ------------------------------------------------------------------- */
   --img-owyg:url("../../images/brand/owyg/owyg-lockup.png");
-  --img-owyg-fallback:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/OWYG%20(Selective%20Sync%20Conflict)/marketing/logos/Compass%20Logos_All/OWYG%20Logo_STACK.png");
 }
 
 *{box-sizing:border-box}
@@ -366,7 +362,7 @@ body{
 }
 .lockup-owyg{
   top:.386in;width:1.35in;height:.35in;
-  background-image:var(--img-owyg),var(--img-owyg-fallback);
+  background-image:var(--img-owyg);
   background-repeat:no-repeat;
   background-position:right center;
   background-size:contain;
