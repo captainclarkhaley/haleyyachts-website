@@ -4,9 +4,11 @@
 
 The recto body is now built directly on Clark's own dictated version of this conversation, including his three questions in his order and most of his wording. Nothing else about the ad changes. The geometry, type, colour, photography, crop and production sections of v1 still govern and must be re-attached to this sheet before it goes to HAVEN. No HTML has been touched.
 
-Blocks marked **STANDS** were already right and are unchanged. Blocks marked **FIXED** are a correction, not a voice change. One block is **CUT** entirely, the headline on the inset photograph in the navy panel.
+Blocks marked **STANDS** were already right and are unchanged. Blocks marked **FIXED** are a correction, not a voice change. One block is **CUT** entirely, the `VESSEL` row of the spec list in the navy panel.
 
-**Two things to reconcile when the v1 sections are re-attached.** V1's type table carries a `Panel headline` row, and v1's layout notes position the navy panel's contents with a head in place. Neither applies any more. Drop the `Panel headline` row from the type table, and take the panel's element positions from the table in the navy panel section below, which supersedes them.
+**Superseded within this sheet, 16 September 2026.** This revision originally recorded the navy panel's headline as CUT. Clark reversed that the same day and the panel headline is back, with different words and at a larger size, while the `VESSEL` spec row went in its place. The navy panel section below is rewritten accordingly and is the current instruction.
+
+**One thing to reconcile when the v1 sections are re-attached.** V1's type table carries a `Panel headline` row at 11pt. Keep the row, change the size to 16pt, and take the panel's element positions from the table in the navy panel section below, which supersedes v1's.
 
 ---
 
@@ -94,26 +96,33 @@ Send me the address. Let's see what is possible. 561-817-1547 or haleyyachts.com
 
 ### Navy detail panel
 
-**Panel headline. CUT.** Per Clark. The block that read "FORTY-FIVE FEET SIX. FOUR FEET TWO OF DRAFT." in v1 is deleted. There is no replacement.
+**Panel headline. RESTORED, with different words, and larger.** Clark's instruction of 16 September 2026: *"On the inset on the top line where we took out the length & draft, add in 'Riviera 4300 Sports Express'."* Then, the same day: *"Take Vessel line out and add that as a larger header across the top."*
 
-His reason is correct: it is the title sitting on the inset photograph, and it only lands once you have already read the body copy. Before then it is two numbers with nothing to be measured against, competing with the photograph underneath it.
+```
+Riviera 4300 Sports Express
+```
 
-**The panel goes headless. That is my recommendation, not a default.** It now reads photo, caption, specs, footer, which is how a spec block normally runs, and the numbers survive in `LENGTH OVERALL` and `MAXIMUM DRAFT` a couple of inches below. The reason not to write a plain replacement is that any honest one would be the boat's name, and the boat's name is already the first row of the spec list. A heading that duplicates the row beneath it is worse than no heading.
+The head is back in the position the cut one occupied, 0.10" below the panel's top edge, running the full content width of the panel (0.15" to 7.25" local, X 9.150 to 16.400 absolute, the same right edge the spec list holds). It sets to ONE line.
 
-The panel does not read decapitated, because the `VESSEL` row becomes its de facto title. But it does need the space closing up, or the gap where the head was will read as a hole.
+**It is set in caps by the rule, as the old head was:** RIVIERA 4300 SPORTS EXPRESS, 16pt semibold, 0.02em tracking, white on the navy. If Clark wants it in title case as he typed it, that is one property and no geometry changes.
 
-**Setting note for the designer.** Delete the head block and shift the panel's four remaining elements up by **0.20"** as a single uniform delta. Panel height stays 2.10" and nothing outside the panel moves.
+**Why 16pt and not the 11pt it replaces.** The old head shared the boat's identity with the `VESSEL` row six lines below it. That row is gone, so the head now carries the name on its own and has to read as the panel's title rather than as a caption over a photograph. At 16pt it is nearly twice the largest other type in the panel (8.5pt spec values) and a shade over twice the 7.5pt labels. Nothing else in the panel comes close, which is the point.
 
-| Element | Was, local to panel | Now |
-|---|---|---|
-| Photograph, top | 0.38" | 0.18" |
-| Spec list, top | 0.36" | 0.16" |
-| Photo caption, top | 1.81" | 1.61" |
-| Panel footer, top | 1.80" | 1.60" |
+**One consequence, flagged and not decided.** At 16pt the panel title is now the second-largest type on the recto, above Clark's name at 14pt and below the deck at 22pt, and reversed white on navy it reads larger still. That is defensible, the panel is the boat and the boat is the offer. If Clark would rather his name stayed the recto's second voice, 14pt is a one-line change and nothing else moves.
 
-The existing 0.02" offset between the photograph and the spec list is left alone deliberately; it is an optical call that was made with the head in place and it still holds. The 0.20" that comes free lands as clear navy along the panel's bottom edge, below two blocks of 70% small type that benefit from the air. **Do not spend it on copy.**
+**Setting note for the designer. This supersedes the "shift the panel up 0.20"" table in the previous revision of this sheet.** The four elements below the head go back to exactly the positions they held before the head was ever cut. The larger head is paid for out of the space the old head already occupied, not out of the panel, so nothing below it moves and nothing is pushed past the panel's bottom edge.
 
-**One instruction carried forward.** v1 told the designer not to soften the two numbers into a model name. With the head gone, `LENGTH OVERALL 45 ft 6 in` and `MAXIMUM DRAFT 4 ft 2 in` are the only place in the panel that argument lives. Do not reorder the spec list, do not demote those two rows, and do not merge them into a single "specifications" line.
+| Element | Local top | Local bottom | Note |
+|---|---|---|---|
+| Panel headline | 0.10" | 0.306" (baseline) | 16/18pt, one line. Caps start 0.147" down |
+| Photograph | 0.38" | 1.78" | 2.85" x 1.40", unchanged |
+| Spec list | 0.36" | 1.748" | seven rows now, same overall height as eight |
+| Photo caption | 1.81" | 2.046" | three lines |
+| Panel footer | 1.80" | 2.064" | two lines |
+
+**Measured in the render, not eyeballed.** Panel height stays 2.10". Clear navy above the headline's caps 0.147", between the headline baseline and the top of the photograph 0.074", and along the bottom edge 0.036" under the footer and 0.054" under the caption. The 0.02" optical offset between the photograph and the spec list is untouched. Nothing outside the panel moved.
+
+**One instruction carried forward.** v1 told the designer not to soften the two numbers into a model name. `LENGTH OVERALL 45 ft 6 in` and `MAXIMUM DRAFT 4 ft 2 in` are now the top of the list and the only place in the panel that argument lives. Do not reorder the spec list, do not demote those two rows, and do not merge them into a single "specifications" line.
 
 **Photo caption.** Revised. 81 characters against 88.
 
@@ -123,10 +132,13 @@ Room for everybody aft, and a boat a couple can dock on the joystick with no hel
 
 This also drops the words "three decks", which I could not verify on a 45-foot sports express and which we should not put in print unverified. The joystick point is the one that matters to a new waterfront owner anyway.
 
-**Detail list.** Values unchanged except availability. The three spec figures are the ones verified against Riviera's published page and must not move.
+**Detail list. The `VESSEL` row is CUT,** per Clark, 16 September 2026. The boat is named once now, by the panel headline, and the list opens on `LENGTH OVERALL`, which is where the ad's argument lives. Every other value is unchanged. The three spec figures are the ones verified against Riviera's published page and must not move.
+
+**The words "new build" left with that row.** They existed nowhere else in the spread and they have not been moved anywhere else. That is deliberate, not an oversight at proofing: Clark is writing the availability line himself and that is where a new build belongs. Do not re-insert them.
+
+**The seven rows are spaced to fill the run the eight rows had,** per Clark: *"Space everything on the right out a bit to make up for the missing vessel line."* Row pitch goes from 12.5pt to 12.5pt plus a 2.0833pt row gap, which is 0.2025" a row against 0.1736" before. The list occupies 1.389", the same height as the eight-row version, so its last row still sits 0.052" above the panel footer and the footer does not move. Label and value baselines still align on every row.
 
 ```
-VESSEL              Riviera 4300 Sports Express, new build
 LENGTH OVERALL      45 ft 6 in
 BEAM                14 ft 7 in
 MAXIMUM DRAFT       4 ft 2 in
@@ -192,7 +204,15 @@ Phone, URL and address are unchanged. The new address is shorter than the one it
 **On the mixed domains, a note and not a change.** The block now carries an `owyg.com` email next to two `haleyyachts.com` references. I do not think it weakens it. The spread is co-branded, the One Water lockup sits two inches away in the same corner, and the title line directly above already says "Haley Yachts, part of One Water Yacht Group", so the reader has been told the two names belong together before they reach the email. A working mailbox beats a tidy one. The only thing I would genuinely defend is the QR and the URL, which must both stay on `haleyyachts.com/dock` because that is where the campaign lands.
 
 ### QR code
-**STANDS.** Encodes exactly `https://haleyyachts.com/dock`. Supplied as artwork, do not regenerate.
+**ARTWORK NOW EXISTS, and it has been decoded.** It is no longer the black placeholder square this sheet was written against.
+
+- File: `docs/design/haleyyachts-dock-qr.svg`. **Vector**, so it is resolution-independent and cannot be supplied at the wrong size.
+- Encodes exactly `https://haleyyachts.com/dock`, and nothing else. No tracking parameters, no shortener. It agrees with the printed URL in the offer line and the contact bar, which both read `haleyyachts.com/dock`.
+- 29 x 29 modules, error correction **Q (25%)**, pure black on white. Not branded, not rounded, no logo in the middle.
+- Printed size 0.750" square **including a 0.100" white quiet zone on all four sides**, so the 0.750" box IS the artwork and nothing needs to be added around it. Module size 0.019". On the page it also has 0.20" of clear paper to its left before the contact block.
+- **Proved, not assumed.** Both spread files were rendered at 300ppi, the 0.750" square was cropped out of the render at its printed pixel size (225 x 225 px) and decoded with OpenCV's QR reader. It returned `https://haleyyachts.com/dock` character for character from both. The artwork file on its own decodes down to a 113 px capture, about half the printed resolution, which is the margin a phone camera at arm's length needs.
+
+**Supplied as artwork, do not regenerate.** Both spread files reference that one SVG, so the two cannot drift apart.
 
 ---
 

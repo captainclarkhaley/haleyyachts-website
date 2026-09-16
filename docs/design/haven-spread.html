@@ -238,6 +238,15 @@ body{
   background:var(--navy);
 }
 .panel > *{position:absolute}
+/* Restored 16 Sep 2026 at Clark's instruction, and set LARGER than the 11pt
+   line it replaces: it is now the panel's title and carries the boat's name
+   on its own, the VESSEL spec row having been deleted the same day. Full
+   content width, .15 -> 7.25in local = X 9.150 -> 16.400 absolute, the same
+   right edge the spec column holds. One line at 16pt. */
+.panel-head{
+  left:.15in;top:.1in;width:7.25in;
+  font-size:16pt;line-height:18pt;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.02em;
+}
 /* SHOT 2 / SECONDARY. "Riviera 4300 Sports Express Sea Deck 03.jpg", 8000 x 5333.
    CROP REQUESTED (stated, not baked in):
      window X 400 -> 6800, Y 1150 -> 4287.  Result 6400 x 3137, which is 2.040:1,
@@ -248,7 +257,7 @@ body{
    CSS = that crop:  scale 2.85in/6400px -> size 3.5625in x 2.3749in,
                      shift -400px, -1150px -> -0.1781in, -0.5121in            */
 .panel-photo{
-  left:.15in;top:.18in;width:2.85in;height:1.4in;
+  left:.15in;top:.38in;width:2.85in;height:1.4in;
   background-color:#0d2847;
   background-image:var(--img-shot2);
   background-repeat:no-repeat;
@@ -258,13 +267,15 @@ body{
 }
 .panel-photo .crop-badge{white-space:nowrap}
 .panel-photo-cap{
-  left:.15in;top:1.61in;width:2.85in;
+  left:.15in;top:1.81in;width:2.85in;
   font-size:7pt;line-height:8.5pt;color:rgba(255,255,255,.7);
 }
 /* 4.000 not 4.100 since the panel moved: local 3.400 + 4.000 = 7.400, which is
    absolute X 16.400, the same right edge the spec column had before. */
-.spec{left:3.4in;top:.16in;width:4in}
-.spec dl{margin:0;display:grid;grid-template-columns:1.15in 1fr;row-gap:0;align-items:baseline}
+.spec{left:3.4in;top:.36in;width:4in}
+/* row-gap = the 12.5pt row the VESSEL line gave back, split over the six
+   gaps between the seven that are left, so the list still occupies 1.389in */
+.spec dl{margin:0;display:grid;grid-template-columns:1.15in 1fr;row-gap:2.0833pt;align-items:baseline}
 .spec dt{
   font-size:7.5pt;line-height:12.5pt;font-weight:600;text-transform:uppercase;
   letter-spacing:.10em;color:var(--cyan);
@@ -272,7 +283,7 @@ body{
 .spec dd{margin:0;font-size:8.5pt;line-height:12.5pt;color:#fff}
 .spec dd.unresolved{color:var(--amber);font-weight:600}
 .panel-foot{
-  left:3.4in;top:1.6in;width:4in;
+  left:3.4in;top:1.8in;width:4in;
   font-size:7.5pt;line-height:9.5pt;color:rgba(255,255,255,.7);
 }
 
@@ -418,15 +429,15 @@ body.no-ph-detail .crop-badge{display:none}
   position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
   text-align:center;font-size:7pt;line-height:10pt;font-weight:600;padding:0 4pt;
 }
-/* the QR is the single most dangerous placeholder on the page */
-.qr{
-  border:3px solid var(--danger);
-  background:repeating-linear-gradient(45deg,rgba(216,30,44,.14) 0 6px,rgba(216,30,44,0) 6px 12px),#fff;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;color:var(--danger);
-}
-.qr b{font-size:8pt;line-height:9pt;letter-spacing:.04em}
-.qr span{font-size:5.5pt;line-height:7pt;margin-top:2pt;font-weight:600}
+/* REAL ARTWORK as of 16 Sep 2026. Not a placeholder any more.
+   haleyyachts-dock-qr.svg is vector, pure black on white, unbranded, and
+   encodes https://haleyyachts.com/dock and nothing else. 29 x 29 modules,
+   error correction Q, with a 0.100in white quiet zone built into the file,
+   so the 0.750in box IS the artwork. Supplied to HAVEN as that same file.
+   DECODED, not eyeballed: cropped out of a 300ppi render of this page and
+   read back with OpenCV, which returned the string character for character.
+   Both spread files point at this one file so they cannot drift apart. */
+.qr{background:#fff url("haleyyachts-dock-qr.svg") no-repeat center/contain}
 /* hide the explanatory text, keep the boxes, when Clark wants to read the ad */
 body.no-ph-detail .ph-body,
 body.no-ph-detail .ph-mini,
@@ -589,6 +600,8 @@ body.no-guides .guides{display:none}
 
   <!-- Zone F, the SWAP ZONE. Only this panel and the verso caption change with the boat. -->
   <div class="panel">
+    <div class="panel-head">Riviera 4300 Sports Express</div>
+
     <div class="panel-photo">
       <div class="crop-badge">SHOT 2 · SEA DECK 03 · CROP X 400&ndash;6800, Y 1150&ndash;4287</div>
     </div>
@@ -596,7 +609,6 @@ body.no-guides .guides{display:none}
 
     <div class="spec">
       <dl>
-        <dt>Vessel</dt><dd>Riviera 4300 Sports Express, new build</dd>
         <dt>Length overall</dt><dd>45 ft 6 in</dd>
         <dt>Beam</dt><dd>14 ft 7 in</dd>
         <dt>Maximum draft</dt><dd>4 ft 2 in</dd>
@@ -628,10 +640,7 @@ body.no-guides .guides{display:none}
     2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410
   </div>
 
-  <div class="qr">
-    <b>QR<br>PENDING</b>
-    <span>0.75&#8243; &times; 0.75&#8243;<br>0.1&#8243; quiet zone<br>/dock DOES<br>NOT EXIST</span>
-  </div>
+  <div class="qr"></div>
 
   <!-- Zone I, co-brand lockup. REAL MARKS, no longer a placeholder.
        The rasters here are screen stand-ins for this mock-up only. For print
@@ -681,7 +690,7 @@ body.no-guides .guides{display:none}
   <p><b>This file, <code>haven-spread.html</code>, is the designer's.</b> The guides, the crop cards and the open items are the deliverable, not clutter. <b>The other file, <code>haven-spread-clean.html</code>, is Clark's:</b> the advertisement and nothing else, with no guides, no crop cards, no notes and deliberately no toggle to turn any of them back on. It exists so he can judge the ad as a reader will see it. <span class="key">This file is the source of truth.</span> Any change to geometry or copy is made here first and then mirrored into the clean one, never the other way round.</p>
 
   <h2>Read this before anyone builds anything from it</h2>
-  <p><span class="red">This file is a layout study, not production artwork.</span> It is RGB and it is screen-rendered. <b>All three image areas now carry the real supplied photography, positioned by CSS at the crop I am asking for, not cut.</b> There are no placeholder boxes left except the QR, which is artwork still to be made. HAVEN's designer builds the final print files from the originals. What this page is for: Clark sees the ad, and HAVEN's designer sees the construction and the crop. Every coordinate, size, weight and tracking value is in the CSS, stated in inches and points, matching section 2 of <code>docs/marketing/haven-palm-beach-spread.md</code>.</p>
+  <p><span class="red">This file is a layout study, not production artwork.</span> It is RGB and it is screen-rendered. <b>All three image areas now carry the real supplied photography, positioned by CSS at the crop I am asking for, not cut.</b> There are no placeholder boxes left at all: the QR is now the real, decoded artwork (<code>haleyyachts-dock-qr.svg</code>), not a drawn square. HAVEN's designer builds the final print files from the originals. What this page is for: Clark sees the ad, and HAVEN's designer sees the construction and the crop. Every coordinate, size, weight and tracking value is in the CSS, stated in inches and points, matching section 2 of <code>docs/marketing/haven-palm-beach-spread.md</code>.</p>
 
   <h2>What Jake answered, 16 September 2026, and what it actually settles</h2>
   <p>Four of the twelve questions in section 5 came back. <b>Two of them close cleanly. Two of them look like answers and are not.</b> Taking them in the order they matter to this layout.</p>
@@ -776,8 +785,8 @@ body.no-guides .guides{display:none}
 
   <h2>Two things carried forward, not solved</h2>
   <div class="blockwarn">
-    <b>1. The QR code and the printed short URL point at haleyyachts.com/dock, which does not exist.</b><br>
-    It appears twice in print: in the offer line and in the contact bar, plus the QR destination itself. The QR is the single most dangerous placeholder on this page, because <b>a QR cannot be changed after artwork is submitted.</b> The page has to be live and correct before artwork goes, which means the build is scheduled against the <b>materials deadline, not the on-sale date</b>. This is Terry's build, briefed by William. If the page will not exist in time, the fallback is to drop the QR and the /dock URL entirely and run the phone number alone. Decide that before artwork, never after.
+    <b>1. The QR and the printed short URL are now frozen on haleyyachts.com/dock. The page is built; it is not live yet.</b><br>
+    The string appears three times: the offer line, the contact bar and the QR's payload, and all three now agree on <code>haleyyachts.com/dock</code> with no parameters and no trailing slash. <b>A QR cannot be changed after artwork is submitted</b>, so that string is final from here. The page itself exists in this repo at <code>dock/index.html</code> and resolves at that URL <b>once Clark runs the cPanel pull</b>, which has not happened yet. That pull is the remaining action, and it is scheduled against the reader, not the printer: the artwork can go to HAVEN now, the page has to be up before the issue is on sale. The old fallback (drop the QR and run the phone number alone) is off the table and should not be revived.
   </div>
   <div class="blockwarn">
     <b>2. CLOSED 15 Sep 2026. The hero image is no longer the blocker.</b><br>
@@ -822,7 +831,7 @@ body.no-guides .guides{display:none}
     <tr>
       <td><b>Zone F, the panel</b></td>
       <td>Y 5.85–7.65 (1.80&#8243;); photo 2.85&#8243;&times;1.55&#8243; at Y 6.00; footer line full width at Y 7.35; panel headline position unstated</td>
-      <td><b>Y 5.70–7.80 (2.10&#8243;).</b> The original zone had two collisions and one gap. The 8 spec lines alone are 1.44&#8243;, which left 0.36&#8243; for a headline and a footer; the footer at Y 7.35 ran straight through the bottom of a photo that occupied 6.00–7.55; and the panel headline was never given a position anywhere. Fixed by: panel headline set full width across the top of the panel (one line at 11pt, measuring 4.4&#8243; in a 7.35&#8243; measure), photo reduced to 2.85&#8243;&times;1.40&#8243;, spec leading 13pt to 12.5pt, and the panel footer moved from a full-width line to the foot of the right column, beside the photo caption. The panel now holds all six elements with 0.04&#8243; to spare.<br><br><span class="key">UPDATE, 16 Sep 2026, and it supersedes the paragraph above.</span> <b>The panel headline is CUT, per Clark.</b> On the inset photograph it only lands once you have already read the body copy, and before then it is two numbers competing with the picture underneath them. The panel now runs <b>photo, caption, specs, footer</b> and opens on the photograph. Deleting the head left 0.38&#8243; of empty navy above the photo, which reads worse than the title did, so the four remaining elements move <b>up 0.20&#8243; as one uniform delta</b>: photo 0.38 &rarr; 0.18, spec list 0.36 &rarr; 0.16, photo caption 1.81 &rarr; 1.61, footer 1.80 &rarr; 1.60, all local to the panel. <b>Panel height stays 2.10&#8243; and nothing outside the panel moves.</b> The 0.02&#8243; optical offset between the photo top and the spec top is left alone deliberately; it was an optical call made with the head in place and it still holds. The 0.20&#8243; that comes free lands as clear navy along the panel's bottom edge, measured at 0.236&#8243;. <b>Do not spend it on copy.</b></td>
+      <td><b>Y 5.70–7.80 (2.10&#8243;).</b> The original zone had two collisions and one gap. The 8 spec lines alone are 1.44&#8243;, which left 0.36&#8243; for a headline and a footer; the footer at Y 7.35 ran straight through the bottom of a photo that occupied 6.00–7.55; and the panel headline was never given a position anywhere. Fixed by: panel headline set full width across the top of the panel (one line at 11pt, measuring 4.4&#8243; in a 7.35&#8243; measure), photo reduced to 2.85&#8243;&times;1.40&#8243;, spec leading 13pt to 12.5pt, and the panel footer moved from a full-width line to the foot of the right column, beside the photo caption. The panel now holds all six elements with 0.04&#8243; to spare.<br><br><span class="key">UPDATE, 16 Sep 2026, and it supersedes the paragraph above. This is the second instruction of the day and it reverses the first.</span> The headline was cut in the morning and is <b>RESTORED</b>, with different words and larger, per Clark: <i>"on the top line where we took out the length &amp; draft, add in 'Riviera 4300 Sports Express'"</i>, then <i>"take Vessel line out and add that as a larger header across the top."</i> So the panel is titled by the boat's name at <b>16/18pt</b> instead of by two numbers at 11pt, and the <code>VESSEL</code> spec row that used to carry the name is deleted. The four elements below the head are back at the positions they held before the cut: photo 0.38, spec list 0.36, photo caption 1.81, footer 1.80, local to the panel. <b>The larger head is paid for out of the space the old head already occupied, not out of the panel</b>, so nothing below it moved and nothing crosses the bottom edge. <b>Panel height stays 2.10&#8243;</b> and nothing outside the panel moves. Measured in the render: clear navy above the caps 0.147&#8243;, headline baseline to photo top 0.074&#8243;, bottom edge 0.036&#8243; under the footer and 0.054&#8243; under the caption. The 0.02&#8243; optical offset between the photo top and the spec top is untouched. The freed spec row is spent <b>inside the list</b>, per Clark ("space everything on the right out a bit"): a 2.0833pt row gap takes the row pitch from 0.1736&#8243; to 0.2025&#8243;, so seven rows occupy the 1.389&#8243; the eight rows did and the footer stays where it was.</td>
     </tr>
     <tr>
       <td><b>Secondary photo</b></td>
@@ -870,8 +879,8 @@ body.no-guides .guides{display:none}
   <ul>
     <li><span class="key">CLOSED 16 Sep 2026: Clark's portrait, shot 3.</span> <code>BBP_2811-hires-for-haven.jpeg</code>, 5504 &times; 8256. <b>There are no amber placeholder boxes left on this page.</b> All three image areas now carry the real supplied photography at the crop being requested. See the portrait note below for the crop and the one instruction that goes with it.</li>
     <li><span class="red">MUST CLEAR BY THE 18th: One Water approval</span> of a co-branded print ad carrying their mark, and probably Riviera's nod on their model and their press photography. Ask now. This is the item most likely to be slow for reasons that have nothing to do with us, and it is the one that cannot be fixed by working harder.</li>
-    <li><span class="red">MUST BE MADE BY THE 18th: the QR code artwork.</span> <b>It does not exist.</b> Nothing in the repo matches <code>*qr*</code>. It is a package deliverable, not a page: vector EPS or PDF preferred, or a PNG at 1200px square minimum, encoding <code>https://haleyyachts.com/dock</code> exactly, with the 0.1&#8243; quiet zone built in. High error correction, so a nick in the print does not kill it.</li>
-    <li><span class="key">NOT a blocker for the 18th: haleyyachts.com/dock being finished.</span> The URL string must be final on the 18th because the QR freezes with the artwork. The page must exist before a reader scans it, which is the on-sale or FLIBS date, and that is a different and later date. <span class="red">One caveat that is not pedantry:</span> you cannot test a QR against a page that 404s, only that it decodes to the right string. <b>Get a stub live at /dock before the 18th</b> so the round trip is proven, then Terry improves it before the issue drops. Also freeze the exact string now: apex or www, trailing slash or not, and make Terry build to that string rather than the reverse. See the expanded note above.</li>
+    <li><span class="key">DONE, 16 Sep 2026: the QR code artwork.</span> <code>docs/design/haleyyachts-dock-qr.svg</code>. <b>Vector</b>, 29 &times; 29 modules, error correction <b>Q</b>, pure black on white, unbranded, encoding <code>https://haleyyachts.com/dock</code> and nothing else. 0.750&#8243; square <b>including a 0.100&#8243; quiet zone on all four sides</b>, so the box is the artwork. Both spread files reference that one file, so they cannot drift. <b>Decoded, not eyeballed:</b> cropped out of a 300ppi render of each spread at its printed pixel size, 225 &times; 225, and read back with OpenCV, which returned the string character for character; the artwork alone still decodes at half that resolution. Supply this file to HAVEN as artwork and tell them not to regenerate it.</li>
+    <li><span class="key">NOT a blocker for the 18th: haleyyachts.com/dock being finished.</span> The URL string must be final on the 18th because the QR freezes with the artwork. The page must exist before a reader scans it, which is the on-sale or FLIBS date, and that is a different and later date. <span class="red">One caveat that is not pedantry:</span> you cannot test a QR against a page that 404s, only that it decodes to the right string. That half is now done and proven: the artwork decodes to <code>https://haleyyachts.com/dock</code> exactly. The page is built at <code>dock/index.html</code> but the live round trip is still untested, because the cPanel pull has not been run. <b>Run the pull, then scan the printed proof once with a real phone.</b> See the expanded note above.</li>
     <li><span class="key">Q6 is now the question that decides the next two days:</span> does HAVEN set the type from our copy, or do they want print-ready artwork from us? Those are different jobs, and only one of them fits in two days. Working assumption is that they set it. See the package list in the brief, section 7.</li>
     <li><span class="key">Binding: no longer blocking.</span> Built to perfect bound, which is legal under both. The page count is still worth asking but can now only confirm us.</li>
     <li><span class="key">One Water's minimum reproduction size.</span> At the 1.350&#8243; this corner allows, the compass ring is roughly 0.126pt and below press hairline. See note 3b. It rides along in the approval email rather than being a separate ask, and it is answered by One Water, not solved by us in a redraw.</li>
@@ -881,7 +890,7 @@ body.no-guides .guides{display:none}
   <h2>Still open, unchanged from section 6</h2>
   <ul>
     <li><span class="key">The availability line</span> is the one bracket still live in the artwork, shown in amber in the spec panel. Either a delivery window or a from-price Clark will accept seeing in print for months. It is the last word of copy not final.</li>
-    <li><span class="key">CLOSED 16 Sep 2026: the 4300's three figures.</span> 45 ft 6 in, 14 ft 7 in and 4 ft 2 in are verified against Riviera's own published page (copy sheet v2). The draft is still load-bearing copy: it is half the verso caption, and with the panel head cut it now lives in the panel only as <code>MAXIMUM DRAFT</code>. Do not reorder the spec list, do not demote <code>LENGTH OVERALL</code> or <code>MAXIMUM DRAFT</code>, and do not merge them into a generic "specifications" line.</li>
+    <li><span class="key">CLOSED 16 Sep 2026: the 4300's three figures.</span> 45 ft 6 in, 14 ft 7 in and 4 ft 2 in are verified against Riviera's own published page (copy sheet v2). The draft is still load-bearing copy: it is half the verso caption, and in the panel it lives only as <code>MAXIMUM DRAFT</code>, now the third row of a seven-row list. Do not reorder the spec list, do not demote <code>LENGTH OVERALL</code> or <code>MAXIMUM DRAFT</code>, and do not merge them into a generic "specifications" line.</li>
     <li><span class="key">Is Clark attending FLIBS?</span> If not, delete the show line at Y 7.90&#8243;. Nothing else depends on it.</li>
     <li><span class="key">Correct section 4 of the brief.</span> It calls a private residential dock "the single most important creative decision in the spread." Clark has confirmed there are <b>no dock shots in the Riviera catalogue</b>, so as written the brief names an unobtainable thing as the most important decision and will mislead whoever reads it next. Recommended replacement: <i>the picture's job is to be a boat that plausibly fits a residential dock. A clean on-water frame of a 45-footer does that. What breaks the argument is a bigger boat, or a row of pilings and a fuel dock. The dock argument itself lives in the headline and in the draft figure in the navy panel, not in the photograph.</i></li>
     <li><span class="key">The bio's closing line.</span> Set here as written. The punchier alternative from section 3A is still on the table: "He has run these systems himself, offshore, at night, when they fail. It shows in the advice." It runs one line longer, so it needs another cut if Clark wants it.</li>

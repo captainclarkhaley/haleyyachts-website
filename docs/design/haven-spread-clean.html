@@ -140,8 +140,14 @@ body{
   background:var(--navy);
 }
 .panel > *{position:absolute}
+/* the panel's title: Clark's instruction of 16 Sep, and the only place the
+   boat is named in the panel since the VESSEL spec row came out */
+.panel-head{
+  left:.15in;top:.1in;width:7.25in;
+  font-size:16pt;line-height:18pt;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.02em;
+}
 .panel-photo{
-  left:.15in;top:.18in;width:2.85in;height:1.4in;
+  left:.15in;top:.38in;width:2.85in;height:1.4in;
   background-color:var(--navy-mid);
   background-image:var(--img-shot2);
   background-repeat:no-repeat;
@@ -150,18 +156,20 @@ body{
   overflow:hidden;
 }
 .panel-photo-cap{
-  left:.15in;top:1.61in;width:2.85in;
+  left:.15in;top:1.81in;width:2.85in;
   font-size:7pt;line-height:8.5pt;color:rgba(255,255,255,.7);
 }
-.spec{left:3.4in;top:.16in;width:4in}
-.spec dl{margin:0;display:grid;grid-template-columns:1.15in 1fr;row-gap:0;align-items:baseline}
+.spec{left:3.4in;top:.36in;width:4in}
+/* row-gap = the 12.5pt row the VESSEL line gave back, split over the six
+   gaps between the seven that are left, so the list still occupies 1.389in */
+.spec dl{margin:0;display:grid;grid-template-columns:1.15in 1fr;row-gap:2.0833pt;align-items:baseline}
 .spec dt{
   font-size:7.5pt;line-height:12.5pt;font-weight:600;text-transform:uppercase;
   letter-spacing:.10em;color:var(--cyan);
 }
 .spec dd{margin:0;font-size:8.5pt;line-height:12.5pt;color:#fff}
 .panel-foot{
-  left:3.4in;top:1.6in;width:4in;
+  left:3.4in;top:1.8in;width:4in;
   font-size:7.5pt;line-height:9.5pt;color:rgba(255,255,255,.7);
 }
 
@@ -196,9 +204,12 @@ body{
   left:10.9in;top:9.96in;width:3.15in;
   font-size:8.5pt;line-height:11.5pt;color:#000;
 }
-/* The QR is drawn at its printed size and weight so the corner composes
-   correctly. It is NOT a working code and is not meant to be scanned. */
-.qr{left:14.25in;top:9.8in;width:.75in;height:.75in;background:#0d0f12}
+/* Real, scannable artwork: haleyyachts-dock-qr.svg, vector, encoding
+   https://haleyyachts.com/dock with its 0.1in quiet zone built in. */
+.qr{
+  left:14.25in;top:9.8in;width:.75in;height:.75in;
+  background:#fff url("haleyyachts-dock-qr.svg") no-repeat center/contain;
+}
 
 /* ---- the co-brand lockup ---- */
 .lockup{left:15.15in;top:9.76in;width:1.35in;height:.74in}
@@ -285,12 +296,13 @@ body{
   <div class="offer">Send me the address. Let's see what is possible. 561-817-1547 or <i>haleyyachts.com/dock</i></div>
 
   <div class="panel">
+    <div class="panel-head">Riviera 4300 Sports Express</div>
+
     <div class="panel-photo"></div>
     <div class="panel-photo-cap">Room for everybody aft, and a boat a couple can dock on the joystick with no help.</div>
 
     <div class="spec">
       <dl>
-        <dt>Vessel</dt><dd>Riviera 4300 Sports Express, new build</dd>
         <dt>Length overall</dt><dd>45 ft 6 in</dd>
         <dt>Beam</dt><dd>14 ft 7 in</dd>
         <dt>Maximum draft</dt><dd>4 ft 2 in</dd>
