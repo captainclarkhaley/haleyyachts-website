@@ -47,6 +47,33 @@
      ------------------------------------------------------------------------ */
   --img-hero:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/HaleyYachts/Marketing/riviera-imagaes/Riviera%204300%20Sports%20Express%20Aerial%2003.jpg");
   --img-shot2:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/HaleyYachts/Marketing/riviera-imagaes/Riviera%204300%20Sports%20Express%20Sea%20Deck%2003.jpg");
+
+  /* ---------- SHOT 3, CLARK'S PORTRAIT, supplied 16 Sep 2026 ---------------
+     BBP_2811-hires-for-haven.jpeg, 5504 x 8256, 6.6 MB. Studio, dark blue-grey
+     seamless, navy blazer, three-quarter length standing, hands in pockets.
+     Same arrangement as the Riviera frames: linked from Dropbox, outside the
+     repo, renders on Clark's Mac only. The designer relinks to this original.
+     ------------------------------------------------------------------- */
+  --img-portrait:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/Clark%20Haley-HeadShots/BBP_2811-hires-for-haven.jpeg");
+
+  /* ---------- OWYG CO-BRAND MARK, supplied 16 Sep 2026 ---------------------
+     One Water's pack, 33 files. The one we use is OWYG Logo_STACK:
+     347.20 x 90 units, 3.858:1, compass LEFT, ONEWATER over YACHT GROUP.
+     That is the mark already on the site and in both email templates.
+     It is NOT "OWYG Logo_WIDE" despite the name. WIDE is 531.01 x 90
+     (5.900:1) and is a different lockup: ONEWATER [compass] YACHT GROUP set
+     on one line with the compass in the middle. We have never used it.
+     TWO LAYERS BELOW, DELIBERATELY. CSS silently drops a background layer
+     whose URL fails and paints the next one down, so this self-heals:
+       layer 1 = the repo copy, live the moment images/brand/owyg/ exists.
+                 Delete layer 2 on that day.
+       layer 2 = the Dropbox original, which is what renders today, on
+                 Clark's Mac only. That folder name is a selective-sync
+                 artefact and WILL change. It is quarantined to this one
+                 line on purpose; nothing else in the file refers to it.
+     ------------------------------------------------------------------- */
+  --img-owyg:url("../../images/brand/owyg/owyg-lockup.png");
+  --img-owyg-fallback:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/OWYG%20(Selective%20Sync%20Conflict)/marketing/logos/Compass%20Logos_All/OWYG%20Logo_STACK.png");
 }
 
 *{box-sizing:border-box}
@@ -164,39 +191,53 @@ body{
    ============================================================ */
 .recto-field{left:8.375in;top:-.125in;width:8.5in;height:11.125in;background:var(--paper)}
 
+/* ---- PERFECT-BOUND MOVE, 16 Sep 2026. -----------------------------------
+   Every element whose LEFT edge was X 8.900 is now X 9.000, and the measure
+   is 7.500 rather than 7.600. WHY: Jake's binding answer was conditional
+   ("perfect bound if over 52 pages") and we do not have the page count, so
+   we build to the tighter of the two. Under perfect binding the keep-clear
+   band is X 7.875-8.875 and an 8.900 edge had 0.025 of tolerance. 9.000 has
+   0.125, and is legal under saddle stitch too. Cost: 0.100 of measure, which
+   the body absorbs because it already under-filled. No copy changed.
+   NOT moved, deliberately: the Clark name/title/bio, the contact bar, the QR
+   and the lockup all start at X 10.900 or beyond, which is 2.0"+ off the fold.
+   Perfect binding does not reach them. The only knock-on is that the gap from
+   the portrait's right edge to the name column goes 0.300 -> 0.200. Designer
+   may reclaim it by moving the text to 11.000, but the bio is on a 5-line
+   limit at 5.600 wide and a narrower measure risks a 6th line into the QR
+   quiet zone. Left alone on purpose.
+   -------------------------------------------------------------------- */
 .recto-kicker{
-  left:8.9in;top:.85in;
+  left:9in;top:.85in;
   font-size:9pt;line-height:11pt;font-weight:600;text-transform:uppercase;
   letter-spacing:.20em;color:var(--navy);
 }
 .deck{
-  left:8.9in;top:1.25in;width:7.6in;
+  left:9in;top:1.25in;width:7.5in;
   font-size:22pt;line-height:28pt;font-weight:300;letter-spacing:.01em;color:var(--navy);
 }
-.accent-rule{left:8.9in;top:2.7in;width:1.2in;height:.04in;background:var(--cyan)}
+.accent-rule{left:9in;top:2.7in;width:1.2in;height:.04in;background:var(--cyan)}
 .body{
-  left:8.9in;top:2.95in;width:7.6in;height:2.07in;
+  left:9in;top:2.95in;width:7.5in;height:2.07in;
   columns:2;column-gap:.3in;column-fill:auto;
   font-size:9.5pt;line-height:14pt;color:#000;
 }
 .body p{margin:0 0 9pt}
 .body p:last-child{margin-bottom:0}
+.body ol{margin:0 0 9pt;padding-left:.17in;break-inside:avoid;page-break-inside:avoid}
+.body li{margin:0}
 .offer{
-  left:8.9in;top:5.18in;width:7.6in;
+  left:9in;top:5.18in;width:7.5in;
   font-size:11pt;line-height:15pt;font-weight:600;color:var(--navy);
 }
 .offer i{font-style:normal;color:#0f8fae}  /* cyan is illegible on white at 11pt; see note 6 */
 
 /* ---- Zone F, the swap zone (navy panel, bleeds off the outer edge) ---- */
 .panel{
-  left:8.9in;top:5.7in;width:7.975in;height:2.1in;   /* right edge = 16.875 bleed */
+  left:9in;top:5.7in;width:7.875in;height:2.1in;   /* right edge = 16.875 bleed */
   background:var(--navy);
 }
 .panel > *{position:absolute}
-.panel-head{
-  left:.15in;top:.1in;width:7.35in;
-  font-size:11pt;line-height:13pt;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.02em;
-}
 /* SHOT 2 / SECONDARY. "Riviera 4300 Sports Express Sea Deck 03.jpg", 8000 x 5333.
    CROP REQUESTED (stated, not baked in):
      window X 400 -> 6800, Y 1150 -> 4287.  Result 6400 x 3137, which is 2.040:1,
@@ -207,7 +248,7 @@ body{
    CSS = that crop:  scale 2.85in/6400px -> size 3.5625in x 2.3749in,
                      shift -400px, -1150px -> -0.1781in, -0.5121in            */
 .panel-photo{
-  left:.15in;top:.38in;width:2.85in;height:1.4in;
+  left:.15in;top:.18in;width:2.85in;height:1.4in;
   background-color:#0d2847;
   background-image:var(--img-shot2);
   background-repeat:no-repeat;
@@ -217,10 +258,12 @@ body{
 }
 .panel-photo .crop-badge{white-space:nowrap}
 .panel-photo-cap{
-  left:.15in;top:1.81in;width:2.85in;
+  left:.15in;top:1.61in;width:2.85in;
   font-size:7pt;line-height:8.5pt;color:rgba(255,255,255,.7);
 }
-.spec{left:3.4in;top:.36in;width:4.1in}
+/* 4.000 not 4.100 since the panel moved: local 3.400 + 4.000 = 7.400, which is
+   absolute X 16.400, the same right edge the spec column had before. */
+.spec{left:3.4in;top:.16in;width:4in}
 .spec dl{margin:0;display:grid;grid-template-columns:1.15in 1fr;row-gap:0;align-items:baseline}
 .spec dt{
   font-size:7.5pt;line-height:12.5pt;font-weight:600;text-transform:uppercase;
@@ -229,17 +272,40 @@ body{
 .spec dd{margin:0;font-size:8.5pt;line-height:12.5pt;color:#fff}
 .spec dd.unresolved{color:var(--amber);font-weight:600}
 .panel-foot{
-  left:3.4in;top:1.8in;width:4.1in;
+  left:3.4in;top:1.6in;width:4in;
   font-size:7.5pt;line-height:9.5pt;color:rgba(255,255,255,.7);
 }
 
 .showline{
-  left:8.9in;top:7.9in;width:7.6in;
+  left:9in;top:7.9in;width:7.5in;
   font-size:9.5pt;line-height:13pt;font-style:italic;color:var(--navy);
 }
 
 /* ---- Zone H / I, Clark block and contact bar ---- */
-.portrait{left:8.9in;top:8.25in;width:1.7in;height:2.05in}
+/* SHOT 3 / PORTRAIT. "BBP_2811-hires-for-haven.jpeg", 5504 x 8256. SUPPLIED.
+   CROP REQUESTED (stated, not baked in. The designer crops the original):
+     window X 1763 -> 4653, Y 900 -> 4385.  Result 2890 x 3485.
+     That is exactly 34:41, which is 1.700" x 2.050" at 1700 dpi.
+   MEASURED, not eyeballed. In the original the head runs Y 1164 (crown) to
+   Y 2353 (chin), so 1189 px, and the head centre is X 3208. The crop puts the
+   head at 34% of frame height, i.e. 0.70" on the printed page, with 7.6% of
+   headroom and the eyes 27% down. It cuts just above the top jacket button.
+   WHY CROP AT ALL: as supplied he is a full standing figure. Dropped whole
+   into a 1.7" box his head prints about 0.29" and it stops being a portrait.
+   The whole argument for a small portrait was that it reads as an editorial
+   byline rather than a realtor ad, and a byline portrait is a FACE.
+   CSS = that crop:  scale 1.7in/2890px -> size 3.2377in x 4.8565in,
+                     shift -1763px, -900px -> -1.0371in, -0.5294in          */
+.portrait{
+  left:9in;top:8.25in;width:1.7in;height:2.05in;
+  background-color:#3f4855;
+  background-image:var(--img-portrait);
+  background-repeat:no-repeat;
+  background-size:3.2377in 4.8565in;
+  background-position:-1.0371in -.5294in;
+  overflow:hidden;
+}
+.portrait .crop-badge{left:0;top:0;font-size:6pt;padding:3px 5px}
 .ch-name{
   left:10.9in;top:8.22in;width:5.6in;
   font-size:14pt;line-height:17pt;font-weight:600;color:var(--navy);
@@ -257,7 +323,44 @@ body{
   font-size:8.5pt;line-height:11.5pt;color:#000;
 }
 .qr{left:14.25in;top:9.8in;width:.75in;height:.75in}
-.lockup{left:15.15in;top:9.76in;width:1.35in;height:.79in}
+
+/* ---- Zone I, the co-brand lockup. REAL MARKS as of 16 Sep 2026. ----------
+   Both marks are right-aligned to X 16.500in, the same margin the QR block
+   and the contact bar are set against, so the corner has one edge not three.
+   Sizes are stated the way the photography crops are: measured, not guessed.
+     Haley Yachts  1.000in wide. Source raster is 970 x 174 (5.575:1),
+                   so the box is 1.000 x 0.179in.
+     One Water     1.350in wide. OWYG Logo_STACK is 347.20 x 90 (3.858:1),
+                   so the box is 1.350 x 0.350in.
+   One Water sits LARGER than Haley. Deliberate, and it matches the site
+   header, the site footer and both email templates, where OWYG is sized up
+   because its cap height is only ~23% of its overall height (the compass
+   owns the rest). At these sizes the Haley wordmark still sets optically
+   larger than One Water's, which is right for a Haley advertisement.
+   Stack height 0.736in, so the block runs Y 9.760 to 10.496in: 0.129in clear
+   of the live-area floor at 10.625in, 0.289in clear of the cyan rule.
+   SEE THE MINIMUM-SIZE WARNING IN THE NOTES. At 1.350in the compass ring's
+   radiating detail is below press hairline. That is a question for One
+   Water, not something to solve by nudging this box.                       */
+.lockup{left:15.15in;top:9.76in;width:1.35in;height:.74in}
+.lockup > *{position:absolute;right:0}
+.lockup-hy{
+  top:0;width:1in;height:.179in;
+  background:url("../../images/brand/haleyyachtslogo.png") no-repeat right center;
+  background-size:contain;
+}
+.lockup-label{
+  top:.254in;width:1.35in;
+  font-size:5.5pt;line-height:7pt;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--navy);text-align:right;
+}
+.lockup-owyg{
+  top:.386in;width:1.35in;height:.35in;
+  background-image:var(--img-owyg),var(--img-owyg-fallback);
+  background-repeat:no-repeat;
+  background-position:right center;
+  background-size:contain;
+}
 
 /* ---- the cyan rule: the only element crossing the gutter ---- */
 .cyan-rule{left:-.125in;top:10.785in;width:17in;height:.34in;background:var(--cyan)}
@@ -324,13 +427,6 @@ body.no-ph-detail .crop-badge{display:none}
 }
 .qr b{font-size:8pt;line-height:9pt;letter-spacing:.04em}
 .qr span{font-size:5.5pt;line-height:7pt;margin-top:2pt;font-weight:600}
-.lockup{
-  border:2px dashed var(--amber);background:rgba(255,159,28,.10);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;color:var(--amber-ink);font-size:6pt;line-height:8pt;font-weight:600;gap:2pt;
-}
-.lockup em{font-style:normal;font-weight:400;font-size:5.5pt;opacity:.85}
-
 /* hide the explanatory text, keep the boxes, when Clark wants to read the ad */
 body.no-ph-detail .ph-body,
 body.no-ph-detail .ph-mini,
@@ -346,10 +442,16 @@ body.no-guides .guides{display:none}
 .g-trim{left:0;top:0;width:16.75in;height:10.875in;outline:1px solid rgba(255,47,160,.55)}
 .g-live{left:.25in;top:.25in;width:16.25in;height:10.375in;outline:1px dashed rgba(0,179,126,.7)}
 .g-gutter{left:8in;top:0;width:.75in;height:10.875in;background:rgba(255,159,28,.20);border-left:1px dashed rgba(255,159,28,.8);border-right:1px dashed rgba(255,159,28,.8)}
+/* The PERFECT-BOUND band, drawn since 16 Sep 2026. Jake's answer was conditional
+   ("perfect bound if over 52 pages") and we do not have the page count, so BOTH
+   bands are now on the page at once. Outer dotted red = perfect bound, X 7.875
+   to 8.875. Inner amber = saddle stitched, X 8.00 to 8.75. The recto content
+   edge at X 8.900 clears the amber band by 0.150 and the red band by 0.025. */
+.g-gutter-pb{left:7.875in;top:0;width:1in;height:10.875in;border-left:1.5px dotted rgba(216,30,44,.9);border-right:1.5px dotted rgba(216,30,44,.9)}
 .g-fold{left:8.375in;top:0;width:0;height:10.875in;border-left:1px dashed rgba(0,0,0,.55)}
 .g-col{top:2.95in;height:2.07in;background:rgba(0,179,126,.10);border:1px dashed rgba(0,179,126,.5)}
-.g-col.a{left:8.9in;width:3.65in}
-.g-col.b{left:12.85in;width:3.65in}
+.g-col.a{left:9in;width:3.6in}
+.g-col.b{left:12.9in;width:3.6in}
 .g-tag{
   font-size:6pt;line-height:8pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
   background:rgba(255,255,255,.9);padding:1px 3px;white-space:nowrap;
@@ -358,6 +460,7 @@ body.no-guides .guides{display:none}
 .g-tag.bleed{left:-.12in;top:-.13in;color:#c0187c}
 .g-tag.live{left:.29in;top:.29in;color:#00734f}
 .g-tag.gut{left:8.02in;top:.4in;color:#8a4b00;writing-mode:vertical-rl}
+.g-tag.gutpb{left:7.60in;top:.4in;color:#b3121f;writing-mode:vertical-rl}
 
 /* ============================================================
    NOTES BELOW THE SPREAD (screen only)
@@ -396,8 +499,10 @@ body.no-guides .guides{display:none}
   <div class="meta">
     <strong>HAVEN | Palm Beach, two-page spread, $495, FLIBS issue.</strong> Publisher contact Jake Reichenberger, jake@havenlifestyles.com.<br>
     Hero boat: <strong>Riviera 4300 Sports Express</strong> (Candidate 1), per Clark 15 Sep 2026. Riviera 545 SUV "Fringe Benefits" remains the documented fallback: swap blocks A and B only, nothing else moves.<br>
-    <strong>Photography supplied 15 Sep 2026.</strong> Eleven Riviera press frames, 8000&#215;5333 (aerial 8000&#215;5328). Picked: hero = <strong>Aerial 03</strong>, shot 2 = <strong>Sea Deck 03</strong>. Files are linked by absolute <code style="color:#fff">file://</code> path to <code style="color:#fff">~/Dropbox/HaleyYachts/Marketing/riviera-imagaes/</code> and are <strong>not in this repo</strong>, so the boxes render empty on any other machine.<br>
-    Spread bleed 17.000&#8243; &times; 11.125&#8243; · trim 16.750&#8243; &times; 10.875&#8243; · single page trim 8.375&#8243; &times; 10.875&#8243; · fold at X 8.375&#8243;.
+    <strong>Photography supplied 15 Sep 2026.</strong> Eleven Riviera press frames, 8000&#215;5333 (aerial 8000&#215;5328). Picked: hero = <strong>Aerial 03</strong>, shot 2 = <strong>Sea Deck 03</strong>. <strong>Clark's portrait supplied 16 Sep 2026</strong>, <code style="color:#fff">BBP_2811-hires-for-haven.jpeg</code>, 5504&#215;8256, cropped hard to head and shoulders; see note 4. Files are linked by absolute <code style="color:#fff">file://</code> path to <code style="color:#fff">~/Dropbox/HaleyYachts/Marketing/riviera-imagaes/</code> and are <strong>not in this repo</strong>, so the boxes render empty on any other machine.<br>
+    <strong>One Water logo pack supplied 16 Sep 2026.</strong> The lockup at X 15.15&#8243; is now the real mark. The file is <code style="color:#fff">OWYG Logo_STACK.eps</code> (CMYK, 347.20&#215;90, 3.858:1), <b>not</b> <code style="color:#fff">OWYG Logo_WIDE</code>, which is a different lockup at 5.900:1 that we have never used. Screen stand-in renders from Clark's Dropbox until the repo copy lands; see note 3 and note 3b.<br>
+    <strong>Jake answered four of the twelve production questions, 16 Sep 2026.</strong> Binding <i>"perfect bound if over 52 pages"</i>, colour <i>"CMYK"</i>, bleed <i>"0.125&#8243; for outside/runoff colours and edge-to-edge photos"</i>, margin <i>"0.25&#8243; safety margin all the way around"</i>. Two of the four are conditions rather than answers: <b>we still do not know the binding, because we do not know the page count</b>, and <b>"all the way around" reads as trim safety, not as the gutter number we asked for</b>. See "What Jake answered" below the spread.<br>
+    Spread bleed 17.000&#8243; &times; 11.125&#8243; · trim 16.750&#8243; &times; 10.875&#8243; · single page trim 8.375&#8243; &times; 10.875&#8243; · fold at X 8.375&#8243; · bleed <b>0.125&#8243; all four outer edges, confirmed and verified against the file</b>.
   </div>
   <div class="controls">
     <label><input type="checkbox" id="tGuides" checked> Guides (trim, bleed, live, gutter, columns)</label>
@@ -455,7 +560,7 @@ body.no-guides .guides{display:none}
 
   <div class="verso-kicker">PALM BEACH / WATERFRONT</div>
   <div class="verso-head">THE HOUSE<br>CAME WITH<br>A <b>DOCK</b></div>
-  <div class="verso-caption">Riviera 4300 Sports Express. Forty-five feet six, and four feet two of draft.</div>
+  <div class="verso-caption">Riviera 4300 Sports Express. Forty-five feet six, and she draws four two.</div>
 
   <!-- ==========================================================
        RIGHT PAGE (RECTO). Editorial page on white.
@@ -464,26 +569,30 @@ body.no-guides .guides{display:none}
 
   <div class="recto-kicker">A NOTE FROM CLARK HALEY</div>
 
-  <div class="deck">If you have just bought waterfront, or you are about to, the dock behind the house decides more than you think.</div>
+  <div class="deck">If you just bought a house on the water, or you are about to, the first question is what will fit behind it.</div>
 
   <div class="accent-rule"></div>
 
   <div class="body">
-    <p>A dock has three numbers: how long it is, how much water sits under it at dead low, and how much clearance the bridges give you between there and the inlet. Those three numbers rule out more boats than a budget ever does, and nobody mentions them at the closing table.</p>
-    <p>Send me the address. I will tell you what will actually lie alongside without hanging into your neighbour's water, what will still be floating at low tide, and what will clear the bridges on the way out. Then we talk about what you want to do with it, and go find that boat.</p>
-    <p>Some of my clients have owned a dozen boats. Some have owned none, and are standing on a new dock working out how much boat is too much. Both conversations start the same way. Twenty minutes on the phone, no questionnaire, no obligation.</p>
+    <p>There are three things we have to know before we can recommend a boat that will fit behind your new house.</p>
+    <ol>
+      <li>How long is the dock?</li>
+      <li>How deep is the water at the dock?</li>
+      <li>Are there any bridges between your dock and the inlet, and how much clearance?</li>
+    </ol>
+    <p>Send me the address and I'll help you figure out what is possible at the house you own. Give me twenty minutes on the phone, or I'll come sit with you at the house. No questionnaire, no pressure.</p>
+    <p>Then we figure out what you need a boat to do, and find the one that does it and fits behind your house.</p>
+    <p>Some of my clients have owned a dozen boats. Some have never owned one and are standing on a new dock wondering how much boat is too much. Both conversations start with the same three questions.</p>
   </div>
 
-  <div class="offer">Send an address, get an honest answer. 561-817-1547 or <i>haleyyachts.com/dock</i></div>
+  <div class="offer">Send me the address. Let's see what is possible. 561-817-1547 or <i>haleyyachts.com/dock</i></div>
 
   <!-- Zone F, the SWAP ZONE. Only this panel and the verso caption change with the boat. -->
   <div class="panel">
-    <div class="panel-head">Forty-five feet six. Four feet two of draft.</div>
-
     <div class="panel-photo">
       <div class="crop-badge">SHOT 2 · SEA DECK 03 · CROP X 400&ndash;6800, Y 1150&ndash;4287</div>
     </div>
-    <div class="panel-photo-cap">Three decks and an open stern, and a boat a couple can dock on the joystick without help.</div>
+    <div class="panel-photo-cap">Room for everybody aft, and a boat a couple can dock on the joystick with no help.</div>
 
     <div class="spec">
       <dl>
@@ -494,34 +603,27 @@ body.no-guides .guides{display:none}
         <dt>Power</dt><dd>Twin Volvo Penta D6 IPS, joystick docking</dd>
         <dt>Speed</dt><dd>Over 30 knots</dd>
         <dt>Accommodation</dt><dd>Sleeps five, private master and aft cabin</dd>
-        <dt>Availability</dt><dd class="unresolved">[Build slots available, confirm delivery window]</dd>
+        <dt>Availability</dt><dd class="unresolved">[AVAILABILITY - CLARK TO CONFIRM]</dd>
       </dl>
     </div>
 
-    <div class="panel-foot">Haley Yachts brokers every builder, and represents the new Riviera range from 39 to 72 feet.</div>
+    <div class="panel-foot">One Water Yacht Group represents Riviera Yachts, with models ranging from 43 to 78 feet.</div>
   </div>
 
-  <div class="showline">At the Fort Lauderdale International Boat Show this year? Text me and we will walk the docks together.</div>
+  <div class="showline">Going to the Fort Lauderdale International Boat Show this year? Text me and we will walk the docks together.</div>
 
-  <div class="portrait ph on-white">
-    <div class="ph-badge">SHOT 3</div>
-    <div class="ph-mini" style="color:#5a3400">
-      CLARK'S PORTRAIT<br>
-      1.700&#8243; &times; 2.050&#8243;<br>
-      min <b>510 &times; 615 px</b><br><br>
-      Use Clark's <b>high-res originals</b>, NOT the 1000&#215;1500 web JPEG in the repo (RGB, compressed, artifacts in dark areas on coated stock).<br><br>
-      Prefer an <b>environmental</b> frame, dock or water behind him, over a studio headshot. Vertical crop, waist-up.
-    </div>
+  <div class="portrait">
+    <div class="crop-badge">SHOT 3 &middot; SUPPLIED &middot; CROP X 1763&ndash;4653, Y 900&ndash;4385</div>
   </div>
 
   <div class="ch-name">Clark Haley</div>
   <div class="ch-title">Licensed Florida Yacht Broker, IYBA Member<br>Haley Yachts, part of One Water Yacht Group</div>
 
-  <div class="bio">Clark holds a USCG 100-Ton Master's licence and has logged more than 50,000 nautical miles, most of them aboard ROAM, the Nordhavn 55 he and his wife Michelle cruised full time for over a decade. He grew up in his family's marine centre on the Texas coast, on the maintenance side before the sales side. He has run these systems himself, offshore, which is a different kind of knowledge than reading a spec sheet.</div>
+  <div class="bio">Clark holds a USCG 100-Ton Master's license and has logged more than 50,000 nautical miles, most of them aboard ROAM, the Nordhavn 55 he and his wife Michelle cruised full time for over a decade. He grew up in his family's marine center on the Texas coast, on the maintenance side before the sales side. He has run these systems himself, offshore, which is a different kind of knowledge than reading a spec sheet.</div>
 
   <div class="contact">
     561-817-1547<br>
-    clark@haleyyachts.com<br>
+    clarkh@owyg.com<br>
     haleyyachts.com/dock<br>
     2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410
   </div>
@@ -531,11 +633,19 @@ body.no-guides .guides{display:none}
     <span>0.75&#8243; &times; 0.75&#8243;<br>0.1&#8243; quiet zone<br>/dock DOES<br>NOT EXIST</span>
   </div>
 
+  <!-- Zone I, co-brand lockup. REAL MARKS, no longer a placeholder.
+       The rasters here are screen stand-ins for this mock-up only. For print
+       the designer places the VECTORS:
+         Haley Yachts  ~/Dropbox/HaleyYachts/Logos/logo-haley-yachts-logo (1)/
+                       NEW HALEY YACHTS CMYK.eps
+         One Water     OWYG Logo_STACK.eps  (CMYK process, 347.20 x 90,
+                       Illustrator 25.2, no spot colours)
+       Do NOT let anyone substitute OWYG Logo_STACK-DKBLUE.pdf. It is an RGB
+       PDF. The CMYK files in that pack are the four .eps and the two *-1C.pdf. -->
   <div class="lockup">
-    HALEY YACHTS MARK<br>
-    <em>"Yacht Broker with"</em>
-    ONE WATER MARK
-    <em>vector EPS required</em>
+    <div class="lockup-hy"></div>
+    <div class="lockup-label">Yacht Broker with</div>
+    <div class="lockup-owyg"></div>
   </div>
 
   <!-- the only element crossing the gutter -->
@@ -548,14 +658,16 @@ body.no-guides .guides{display:none}
     <div class="g-bleed"></div>
     <div class="g-trim"></div>
     <div class="g-live"></div>
+    <div class="g-gutter-pb"></div>
     <div class="g-gutter"></div>
     <div class="g-fold"></div>
     <div class="g-col a"></div>
     <div class="g-col b"></div>
-    <div class="g-tag bleed">Bleed 17.000 &times; 11.125</div>
+    <div class="g-tag bleed">Bleed 17.000 &times; 11.125 &middot; 0.125 per edge &middot; CONFIRMED</div>
     <div class="g-tag trim">Trim 16.750 &times; 10.875</div>
-    <div class="g-tag live">Live area (0.25&#8243; inside trim, CONFIRM WITH JAKE)</div>
-    <div class="g-tag gut">Gutter keep-clear X 8.00–8.75 (widen to 7.875–8.875 if perfect bound)</div>
+    <div class="g-tag live">Live area 0.25&#8243; inside trim &middot; CONFIRMED by Jake 16 Sep</div>
+    <div class="g-tag gut">If SADDLE STITCHED: keep-clear X 8.00–8.75 (our 0.375/side, not Jake's)</div>
+    <div class="g-tag gutpb">BUILT TO THIS. Perfect bound: keep-clear X 7.875–8.875 &middot; recto edge X 9.00 = 0.125 clear</div>
   </div>
 
 </div><!-- /art -->
@@ -565,8 +677,81 @@ body.no-guides .guides{display:none}
 
 <div class="notes">
 
+  <h2>There are two files. This is the working one</h2>
+  <p><b>This file, <code>haven-spread.html</code>, is the designer's.</b> The guides, the crop cards and the open items are the deliverable, not clutter. <b>The other file, <code>haven-spread-clean.html</code>, is Clark's:</b> the advertisement and nothing else, with no guides, no crop cards, no notes and deliberately no toggle to turn any of them back on. It exists so he can judge the ad as a reader will see it. <span class="key">This file is the source of truth.</span> Any change to geometry or copy is made here first and then mirrored into the clean one, never the other way round.</p>
+
   <h2>Read this before anyone builds anything from it</h2>
-  <p><span class="red">This file is a layout study, not production artwork.</span> It is RGB and it is screen-rendered. Two of its three image areas now carry the real supplied photography, <b>positioned by CSS at the crop I am asking for, not cut</b>; the third (Clark's portrait) is still an empty placeholder. HAVEN's designer builds the final print files from the originals. What this page is for: Clark sees the ad, and HAVEN's designer sees the construction and the crop. Every coordinate, size, weight and tracking value is in the CSS, stated in inches and points, matching section 2 of <code>docs/marketing/haven-palm-beach-spread.md</code>.</p>
+  <p><span class="red">This file is a layout study, not production artwork.</span> It is RGB and it is screen-rendered. <b>All three image areas now carry the real supplied photography, positioned by CSS at the crop I am asking for, not cut.</b> There are no placeholder boxes left except the QR, which is artwork still to be made. HAVEN's designer builds the final print files from the originals. What this page is for: Clark sees the ad, and HAVEN's designer sees the construction and the crop. Every coordinate, size, weight and tracking value is in the CSS, stated in inches and points, matching section 2 of <code>docs/marketing/haven-palm-beach-spread.md</code>.</p>
+
+  <h2>What Jake answered, 16 September 2026, and what it actually settles</h2>
+  <p>Four of the twelve questions in section 5 came back. <b>Two of them close cleanly. Two of them look like answers and are not.</b> Taking them in the order they matter to this layout.</p>
+  <table>
+    <tr><th style="width:15%">Question</th><th style="width:26%">Jake said</th><th style="width:59%">What that settles, and what it does not</th></tr>
+    <tr>
+      <td><b>Q5. Colour</b></td>
+      <td>"CMYK."</td>
+      <td><span class="key">Colour space settled.</span> It was never really in doubt and it costs us nothing, because every supplied asset is already there: <code>OWYG Logo_STACK.eps</code> is process CMYK with an empty custom-colour list, <code>NEW HALEY YACHTS CMYK.eps</code> is CMYK by name and by content, and the Riviera frames convert from their originals. <span class="red">But Q5 had four parts and he answered one.</span> The <b>profile</b> (we proposed US Web Coated SWOP v2), the <b>total ink limit</b> and the <b>preferred rich-black build</b> are all still open, and the last two are not academic here. This spread lays down two large navy solids: #0a1628 builds to roughly C92 M79 Y46 K55 = <b>272% total ink</b>, and #0d2847 to about 266%. Coated SWOP allows 300%, so both are legal there. A lighter or uncoated stock at a 240–260% limit and <b>both navies are over</b>, which means the panel and the scrim get rebuilt, not nudged. This stays on the open list.</td>
+    </tr>
+    <tr>
+      <td><b>Q(bleed)</b></td>
+      <td>"0.125&#8243; bleed for outside/runoff colours and edge-to-edge photos."</td>
+      <td><span class="key">Settled, and the file already matches. Verified, not assumed.</span> The bleed rectangle is 17.000 &times; 11.125 against a 16.750 &times; 10.875 trim: 0.250 on each axis, <b>0.125 per edge</b>. Checked element by element rather than off the label, because the last time a name was trusted on this project it was <code>OWYG Logo_WIDE</code> and the filename was lying. Every box that runs off lands exactly on the bleed line: <code>.hero</code> at left and top &minus;0.125 and bottom 11.000, <code>.recto-field</code> at right 16.875 and bottom 11.000, the navy <code>.panel</code> at right 16.875, and <code>.cyan-rule</code> from &minus;0.125 across 17.000 to 16.875 with its lower edge clipped at the bleed. <b>Nothing to change.</b> One thing worth saying out loud to the designer: his phrasing is "outside/runoff colours and edge-to-edge photos," which is exactly our four bleeding elements and no others. The hero deliberately does <b>not</b> bleed at the fold, it butts X 8.375 and stops.</td>
+    </tr>
+    <tr>
+      <td><b>Q3. Binding</b></td>
+      <td>"Perfect bound if over 52 pages."</td>
+      <td><span class="red">This is a condition, not an answer. We do not know the page count, so we still do not know the binding.</span> That matters because perfect binding was the thing that changes this layout, not a detail. See the two-state comparison directly below; both bands are now drawn on the spread at once, amber for saddle stitched, dotted red for perfect bound.</td>
+    </tr>
+    <tr>
+      <td><b>Q2. Safety margin</b></td>
+      <td>"0.25&#8243; safety margin all the way around is good to ensure content stays clear regardless of placement."</td>
+      <td><b>Half answered.</b> Q2 had two parts. Part one, the trim safety margin, is <span class="key">confirmed at 0.25&#8243; inside trim</span>, which is exactly what we had assumed, so the live area X 0.25–16.5 / Y 0.25–10.625 stands and the guide label has lost its "CONFIRM WITH JAKE." Part two was the one we actually needed: <i>"confirm how much you want kept clear on each side of the fold."</i> <span class="red">Read it again and he does not address the fold.</span> "All the way around" is the language of a perimeter, and a fold is one edge, not a perimeter. "Regardless of placement" reads as regardless of where the ad lands in the book, which is a trim-safety idea. The competing reading is that "all the way around" means all four edges of each page, in which case the inner edge is one of them and the fold number is 0.25 per side. <b>Both readings are available from that sentence, and they are 0.125&#8243; per side apart.</b> We do not get to pick the convenient one. It goes back to Jake in one line.</td>
+    </tr>
+  </table>
+
+  <div class="blockwarn">
+    <b>What the fold ambiguity actually costs us today: nothing. Say so rather than trading on it.</b><br>
+    Our band is X 8.00–8.75, which is <b>0.375&#8243; each side of the fold</b> and wider than either reading of Jake's 0.25. So yes, if his number is the fold number we are holding room we are not using. <b>Check what we would do with it, and the answer is nothing.</b> The nearest recto element sits at X 8.900 and the nearest verso element is the longest headline line ending near X 6.05 against a 6.25 allowance. Neither is pressed against the band; the recto starts 0.150&#8243; outside it and the verso is over two inches clear. There is no element on this spread waiting for that 0.125&#8243;, and nothing improves by moving toward the fold. <span class="key">The fold number is worth confirming for correctness, not for space.</span> The number that genuinely moves furniture is the binding, and that is below.
+  </div>
+
+  <h2>What the spread looks like under each binding, so the decision can be made without the answer</h2>
+  <table>
+    <tr><th style="width:22%"></th><th style="width:39%">Saddle stitched (52 pages or fewer)</th><th style="width:39%">Perfect bound (over 52 pages)</th></tr>
+    <tr>
+      <td><b>Gutter keep-clear</b></td>
+      <td>X 8.00–8.75. The recto edge, now at X 9.000, clears it by <b>0.250&#8243;</b> and sits 0.625&#8243; off the fold. Comfortable.</td>
+      <td>X 7.875–8.875. At the old X 8.900 the clearance was <b>0.025&#8243;</b>, which is not a margin but a rounding error. At X 9.000 it is <b>0.125&#8243;</b>. This is what the spread is now built to.</td>
+    </tr>
+    <tr>
+      <td><b>Does the book open flat</b></td>
+      <td>Yes. The verso photograph running to the fold survives the fold intact.</td>
+      <td>No. Perfect binding buries roughly 0.125–0.25&#8243; of each page into the spine glue. Content near the fold is physically not visible unless the reader cracks the spine.</td>
+    </tr>
+    <tr>
+      <td><b>The hero photograph</b></td>
+      <td>Unaffected. Butts X 8.375 and stops.</td>
+      <td><b>Survives, and by design rather than by luck.</b> The sliver nearest the gutter goes into the spine, and at the fold that sliver is open water carrying no information. This is the payoff for the rule in section 2 that nothing readable approaches the fold.</td>
+    </tr>
+    <tr>
+      <td><b>The cyan rule</b></td>
+      <td>Unaffected.</td>
+      <td>Loses a sliver into the spine. It is a solid bar with no content, so the loss is invisible. Same payoff.</td>
+    </tr>
+    <tr>
+      <td><b>What has to move</b></td>
+      <td><b>Nothing. It was already legal, and it still is at X 9.000.</b></td>
+      <td><b>DONE, 16 Sep 2026.</b> Recto content edge X 8.900 &rarr; 9.000; measure 7.60&#8243; &rarr; 7.50&#8243;; body columns 3.65&#8243; &rarr; 3.60&#8243; (A at 9.00–12.60, B at 12.90–16.50); navy panel width 7.975&#8243; &rarr; 7.875&#8243;, still bleeding to 16.875. Portrait, kicker, deck, accent rule, offer line and show line all moved with the edge. <span class="key">The knock-on, caught and fixed:</span> the spec list sits 3.40&#8243; into the panel and was 4.10&#8243; wide, which at a 9.000 panel origin would have put its right edge on X 16.500, exactly the live line with zero slack. Narrowed to 4.00&#8243;, so it holds the X 16.400 right edge it always had. Panel head 7.35&#8243; &rarr; 7.25&#8243; and panel footer 4.10&#8243; &rarr; 4.00&#8243; for the same reason.</td>
+    </tr>
+    <tr>
+      <td><b>Cost in copy</b></td>
+      <td>None.</td>
+      <td><b>None.</b> The body already under-fills, roughly 17–18 lines against 20–21 available, so a 1.3% narrower measure is absorbed without cutting a word. The deck stays three lines at 22/28.</td>
+    </tr>
+  </table>
+  <div class="blockwarn">
+    <b>Decision taken 16 Sep 2026: built to perfect bound. We are no longer waiting for the page count.</b><br>
+    A layout at X 9.000 is <b>legal under both bindings</b>. It costs 0.100&#8243; of measure, the body absorbs it without losing a word, and no reader will be able to tell. A layout at X 8.900 is legal under one binding and has 0.025&#8243; of tolerance under the other. That asymmetry is the whole argument: building for the worse case costs a tenth of an inch, and guessing wrong costs a reflow of the entire recto <i>after</i> artwork is under way. With the materials deadline now at <b>18 September</b>, there is no version of this where we hold the build for a page count. <span class="key">Still ask Jake the page count</span>, because it is one line and it also bears on Q4, where in the book we land. But the answer can now only confirm us, never cost us.
+  </div>
 
   <h2>Photography: what was supplied, what was picked, what it costs</h2>
   <p>Eleven frames arrived on 15 Sep 2026 from Riviera's press library, all 8000&#215;5333 except the aerial at 8000&#215;5328. Against section 4's numbers (min 2550&#215;3338, target 3000&#215;4000, <b>5100&#215;3400 if horizontal</b>) they clear the bar comfortably: a full-height vertical crop yields 5328 px of height. <span class="key">The resolution blocker is closed.</span></p>
@@ -599,12 +784,25 @@ body.no-guides .guides{display:none}
     Eleven print-resolution frames supplied from Riviera's press library. Hero = <b>Aerial 03</b>, secondary = <b>Sea Deck 03</b>, crops stated on the page. What remains from this item is small and is a designer instruction, not a procurement one: the foreground water in Aerial 03 is a green-brown estuary and needs pulling toward blue in CMYK, and the frame is midday rather than late afternoon.
   </div>
   <div class="blockwarn">
-    <b>3. STILL BLOCKING: One Water Yacht Group's vector logo.</b><br>
-    We hold web rasters only (<code>images/email/owyg-banner.jpg</code>). A co-branded print piece needs an EPS or AI, and the lockup at X 15.15&#8243; cannot be built without it. This is now the <b>last outstanding asset</b> on the spread and it should be the next email sent. The Haley Yachts mark is fine: <code>~/Dropbox/HaleyYachts/Logos/logo-haley-yachts-logo (1)/NEW HALEY YACHTS CMYK.eps</code>, vector and already CMYK.
+    <b>3. CLOSED 16 Sep 2026. One Water's vector logo is here, and the file we needed is not the one the filename pointed at.</b><br>
+    Thirty-three files arrived. The obvious pick was <code>OWYG Logo_WIDE.eps</code>, because we asked for the horizontal lockup and that one is called WIDE. <b>It is the wrong artwork.</b> WIDE measures <b>531.01 &times; 90 (5.900:1)</b> and is a different lockup: <i>ONEWATER</i>, then the compass, then <i>YACHT GROUP</i>, all on one line with the rose in the middle. We have never used it anywhere.<br>
+    The mark we actually use is the one One Water calls <b>STACK</b>, because in their naming it is the <i>wordmark</i> that stacks, not the logo. <code>OWYG Logo_STACK.eps</code> measures <b>347.20 &times; 90 (3.858:1)</b>: compass left, ONEWATER over YACHT GROUP right. That is pixel-for-pixel the thing in <code>images/email/owyg-banner.jpg</code>, and it is what <code>css/styles.css</code> already records as "OWYG ~3.85:1".<br>
+    <b>It is a genuine press file.</b> Illustrator 25.2, 22 Feb 2021, <code>%%DocumentProcessColors: Cyan Magenta Yellow Black</code> with an empty <code>%%DocumentCustomColors</code>: process CMYK, no spot plates, no RGB. Same for <code>STACK WHITE</code>, <code>WIDE</code> and <code>WIDE WHITE</code>. <span class="red">The PDFs in the pack are mixed:</span> <code>STACK-DKBLUE-1C.pdf</code> is DeviceCMYK, but <code>STACK-DKBLUE.pdf</code> is <b>DeviceRGB</b>. If anyone reaches past the EPS for a PDF, that is the one that reprints.<br>
+    <b>Placed here:</b> positive full-colour, on the white recto, 1.350&#8243; wide, right edge on X 16.500&#8243;. The reverse (<code>STACK WHITE</code>) is not used on this spread; nothing in the lockup sits on navy.
   </div>
   <div class="blockwarn">
-    <b>4. STILL BLOCKING: Clark's portrait, shot 3.</b><br>
-    The only image area on the page still hatched amber. It needs Clark's <b>high-res originals</b>, not the 1000&#215;1500 web JPEG in the repo, and preferably an environmental frame with dock or water behind him rather than a studio headshot. Nothing in the Riviera delivery touches this; it is Clark's own file to find.
+    <b>3b. NEW, and it is a question for One Water, not for us. The compass will not hold at this size.</b><br>
+    At 1.350&#8243; wide the One Water mark is 0.350&#8243; tall. The finest features in the artwork are the radiating lines in the compass ring, which measure <b>0.45 of the mark's 90 units, i.e. 0.5% of its height</b>. At 0.350&#8243; tall that is <b>0.0017&#8243;, about 0.126pt</b>. Offset wants roughly <b>0.25pt</b> minimum on coated and 0.5pt on uncoated, so the ring detail is about <b>four times below the floor</b>. It will not print as drawn: the ring will fill to a flat pale disc, and on uncoated it will plug. For those lines to reach 0.25pt the mark would have to run <b>2.68&#8243; wide</b>, which is twice the space the corner has and would put One Water's mark above Clark's in the hierarchy. There is no in-between.<br>
+    <b>Checked, and the pack does not solve it:</b> the 1C files are not simplified small-use artwork, they are the same drawing rendered in black and 50% grey. There is no reduced-detail variant anywhere in the 33.<br>
+    <b>The ask, and it belongs in the same email as the co-brand approval Clark is already sending:</b> (1) One Water's minimum reproduction size for this lockup, and (2) whether they hold a small-use or simplified variant. If the answer is that 1.350&#8243; is acceptable to them, we run it as-is and the responsibility sits where it should. <span class="key">Do not fix this by quietly shrinking or redrawing their mark.</span>
+  </div>
+  <div class="blockwarn">
+    <b>4. CLOSED 16 Sep 2026. Clark's portrait, and the crop is the whole decision.</b><br>
+    <code>BBP_2811-hires-for-haven.jpeg</code>, <b>5504 &times; 8256</b>, 6.6 MB. Against the 510 &times; 615 the placement needs, that is over ten times the pixels in each direction. Resolution closed and never in doubt.<br>
+    <b>The crop is the decision, and it is not optional.</b> As supplied he is a <i>full standing figure</i>, three-quarter length, hands in pockets, on a dark blue-grey studio seamless. Drop that whole into a 1.7&#8243; box and his head prints at about <b>0.29&#8243;</b>. That is not a portrait, it is a stamp, and it would quietly destroy the reason the portrait is small in the first place: at two inches this is supposed to read as an <b>editorial byline</b> rather than a realtor ad, and a byline portrait is a face. So it crops to head and shoulders.<br>
+    <b>The crop, measured off the original rather than eyeballed.</b> The head runs Y 1164 (crown) to Y 2353 (chin), which is 1189 px, and the head centre is X 3208. <b>Window X 1763 &rarr; 4653, Y 900 &rarr; 4385. Result 2890 &times; 3485</b>, which is exactly 34:41, which is 1.700&#8243; &times; 2.050&#8243; at <b>1700 dpi</b>. That puts the head at 34% of frame height, so <b>0.70&#8243; on the page</b>, with 7.6% headroom and the eyes 27% down. It cuts just above the top jacket button. Deliberately tight: at this size generous headroom reads as a weak, far-away portrait.<br>
+    <b>ONE INSTRUCTION, and it is the same kind of note as the hero's water colour. Lift the background.</b> The seamless is a dark blue-grey and the blazer is navy, so the two are closer in value than they look on screen, and the shoulder line is the whole silhouette at 1.7&#8243;. There is also a vignette, so the corners of this crop go toward mud on coated stock. <b>Raise the background overall and flatten the vignette inside the crop</b> so the background sits clearly lighter than both the blazer and the navy panel above it. Do not knock him out to white: a floating cut-out beside body copy is exactly the realtor-ad register we are avoiding, and the contained rectangle is what makes it read as a byline.<br>
+    <span class="key">Spec point knowingly missed, stated rather than buried:</span> section 4 asked for an <b>environmental</b> frame, dock or water behind him, and this is a studio portrait. <b>Running it anyway, and it is the right call.</b> The reason to want environment was to support the "send me your address" offer, but at 1.7&#8243; wide a background is illegible and a boat behind him would be mud. At byline size the credential in the bio does that work, not the backdrop, and a studio portrait at byline size reads as precisely what it is. This is the second accepted miss on the page, alongside the hero's midday light.
   </div>
 
   <h2>What I changed once the copy was set at size, and why</h2>
@@ -624,7 +822,7 @@ body.no-guides .guides{display:none}
     <tr>
       <td><b>Zone F, the panel</b></td>
       <td>Y 5.85–7.65 (1.80&#8243;); photo 2.85&#8243;&times;1.55&#8243; at Y 6.00; footer line full width at Y 7.35; panel headline position unstated</td>
-      <td><b>Y 5.70–7.80 (2.10&#8243;).</b> The original zone had two collisions and one gap. The 8 spec lines alone are 1.44&#8243;, which left 0.36&#8243; for a headline and a footer; the footer at Y 7.35 ran straight through the bottom of a photo that occupied 6.00–7.55; and the panel headline was never given a position anywhere. Fixed by: panel headline set full width across the top of the panel (one line at 11pt, measuring 4.4&#8243; in a 7.35&#8243; measure), photo reduced to 2.85&#8243;&times;1.40&#8243;, spec leading 13pt to 12.5pt, and the panel footer moved from a full-width line to the foot of the right column, beside the photo caption. The panel now holds all six elements with 0.04&#8243; to spare.</td>
+      <td><b>Y 5.70–7.80 (2.10&#8243;).</b> The original zone had two collisions and one gap. The 8 spec lines alone are 1.44&#8243;, which left 0.36&#8243; for a headline and a footer; the footer at Y 7.35 ran straight through the bottom of a photo that occupied 6.00–7.55; and the panel headline was never given a position anywhere. Fixed by: panel headline set full width across the top of the panel (one line at 11pt, measuring 4.4&#8243; in a 7.35&#8243; measure), photo reduced to 2.85&#8243;&times;1.40&#8243;, spec leading 13pt to 12.5pt, and the panel footer moved from a full-width line to the foot of the right column, beside the photo caption. The panel now holds all six elements with 0.04&#8243; to spare.<br><br><span class="key">UPDATE, 16 Sep 2026, and it supersedes the paragraph above.</span> <b>The panel headline is CUT, per Clark.</b> On the inset photograph it only lands once you have already read the body copy, and before then it is two numbers competing with the picture underneath them. The panel now runs <b>photo, caption, specs, footer</b> and opens on the photograph. Deleting the head left 0.38&#8243; of empty navy above the photo, which reads worse than the title did, so the four remaining elements move <b>up 0.20&#8243; as one uniform delta</b>: photo 0.38 &rarr; 0.18, spec list 0.36 &rarr; 0.16, photo caption 1.81 &rarr; 1.61, footer 1.80 &rarr; 1.60, all local to the panel. <b>Panel height stays 2.10&#8243; and nothing outside the panel moves.</b> The 0.02&#8243; optical offset between the photo top and the spec top is left alone deliberately; it was an optical call made with the head in place and it still holds. The 0.20&#8243; that comes free lands as clear navy along the panel's bottom edge, measured at 0.236&#8243;. <b>Do not spend it on copy.</b></td>
     </tr>
     <tr>
       <td><b>Secondary photo</b></td>
@@ -664,19 +862,26 @@ body.no-guides .guides{display:none}
     <li>The recto is headed "X 8.375&#8243; to 16.875&#8243;," which spans trim edge to bleed edge. The recto <b>trim</b> runs 8.375&#8243; to 16.750&#8243;; only bleeding elements reach 16.875&#8243;. Both guides are drawn, so there is nothing to interpret.</li>
   </ul>
 
-  <h2>What is still blocked, as of 15 Sep 2026</h2>
+  <h2>What is still blocked, as of 16 Sep 2026. MATERIALS DEADLINE IS 18 SEPTEMBER.</h2>
+  <div class="blockwarn">
+    <b>Two days. This stopped being a design exercise on 16 September and became a delivery.</b><br>
+    Jake's materials deadline is <b>18 September</b>. Everything below is now sorted by whether it can miss that date. The layout is done and it is good; the remaining work is assembly and two approvals that are not mine to give.
+  </div>
   <ul>
-    <li><span class="red">One Water Yacht Group's vector logo (EPS or AI).</span> The lockup at X 15.15&#8243; cannot be built. Now the last outstanding <i>asset</i>, and the next email.</li>
-    <li><span class="red">Clark's portrait, shot 3,</span> high-res original, environmental frame preferred. The only amber box left on the page.</li>
-    <li><span class="red">haleyyachts.com/dock does not exist,</span> and the QR cannot be changed after artwork is submitted. Terry's build, briefed by William, scheduled against the <b>materials deadline</b>, not the on-sale date.</li>
-    <li><span class="red">Jake has not answered.</span> Twelve questions, section 5. Three of them change this layout: the safety margin (0.25&#8243; assumed), the binding (perfect binding widens the gutter keep-clear to X 7.875&ndash;8.875&#8243;, leaving the panel and portrait at 8.90&#8243; only 0.025&#8243; clear), and whether HAVEN sets live type from our copy or wants print-ready artwork supplied. <b>Sending photography does not unblock these.</b></li>
-    <li><span class="red">One Water, and probably Riviera, have not approved a co-branded print ad</span> using their marks and their photography. The photography is now in hand, which makes this more urgent, not less. Ask before artwork.</li>
+    <li><span class="key">CLOSED 16 Sep 2026: Clark's portrait, shot 3.</span> <code>BBP_2811-hires-for-haven.jpeg</code>, 5504 &times; 8256. <b>There are no amber placeholder boxes left on this page.</b> All three image areas now carry the real supplied photography at the crop being requested. See the portrait note below for the crop and the one instruction that goes with it.</li>
+    <li><span class="red">MUST CLEAR BY THE 18th: One Water approval</span> of a co-branded print ad carrying their mark, and probably Riviera's nod on their model and their press photography. Ask now. This is the item most likely to be slow for reasons that have nothing to do with us, and it is the one that cannot be fixed by working harder.</li>
+    <li><span class="red">MUST BE MADE BY THE 18th: the QR code artwork.</span> <b>It does not exist.</b> Nothing in the repo matches <code>*qr*</code>. It is a package deliverable, not a page: vector EPS or PDF preferred, or a PNG at 1200px square minimum, encoding <code>https://haleyyachts.com/dock</code> exactly, with the 0.1&#8243; quiet zone built in. High error correction, so a nick in the print does not kill it.</li>
+    <li><span class="key">NOT a blocker for the 18th: haleyyachts.com/dock being finished.</span> The URL string must be final on the 18th because the QR freezes with the artwork. The page must exist before a reader scans it, which is the on-sale or FLIBS date, and that is a different and later date. <span class="red">One caveat that is not pedantry:</span> you cannot test a QR against a page that 404s, only that it decodes to the right string. <b>Get a stub live at /dock before the 18th</b> so the round trip is proven, then Terry improves it before the issue drops. Also freeze the exact string now: apex or www, trailing slash or not, and make Terry build to that string rather than the reverse. See the expanded note above.</li>
+    <li><span class="key">Q6 is now the question that decides the next two days:</span> does HAVEN set the type from our copy, or do they want print-ready artwork from us? Those are different jobs, and only one of them fits in two days. Working assumption is that they set it. See the package list in the brief, section 7.</li>
+    <li><span class="key">Binding: no longer blocking.</span> Built to perfect bound, which is legal under both. The page count is still worth asking but can now only confirm us.</li>
+    <li><span class="key">One Water's minimum reproduction size.</span> At the 1.350&#8243; this corner allows, the compass ring is roughly 0.126pt and below press hairline. See note 3b. It rides along in the approval email rather than being a separate ask, and it is answered by One Water, not solved by us in a redraw.</li>
+    <li><span class="key">Q5 is only a quarter answered.</span> "CMYK" is the colour space. The profile, the total ink limit and the rich-black build are open, and the last two bear on two large navy solids that build to about 272% and 266% total ink. Legal on coated SWOP at 300%, over the line on a 240&ndash;260% stock. Worth one line in the same email.</li>
   </ul>
 
   <h2>Still open, unchanged from section 6</h2>
   <ul>
     <li><span class="key">The availability line</span> is the one bracket still live in the artwork, shown in amber in the spec panel. Either a delivery window or a from-price Clark will accept seeing in print for months. It is the last word of copy not final.</li>
-    <li><span class="key">Verify the 4300's draft figure</span> against Riviera's current published spec. It was taken from our own listing page, and it is now load-bearing copy: it is the headline of the panel and half the verso caption. One check, one source.</li>
+    <li><span class="key">CLOSED 16 Sep 2026: the 4300's three figures.</span> 45 ft 6 in, 14 ft 7 in and 4 ft 2 in are verified against Riviera's own published page (copy sheet v2). The draft is still load-bearing copy: it is half the verso caption, and with the panel head cut it now lives in the panel only as <code>MAXIMUM DRAFT</code>. Do not reorder the spec list, do not demote <code>LENGTH OVERALL</code> or <code>MAXIMUM DRAFT</code>, and do not merge them into a generic "specifications" line.</li>
     <li><span class="key">Is Clark attending FLIBS?</span> If not, delete the show line at Y 7.90&#8243;. Nothing else depends on it.</li>
     <li><span class="key">Correct section 4 of the brief.</span> It calls a private residential dock "the single most important creative decision in the spread." Clark has confirmed there are <b>no dock shots in the Riviera catalogue</b>, so as written the brief names an unobtainable thing as the most important decision and will mislead whoever reads it next. Recommended replacement: <i>the picture's job is to be a boat that plausibly fits a residential dock. A clean on-water frame of a 45-footer does that. What breaks the argument is a bigger boat, or a row of pilings and a fuel dock. The dock argument itself lives in the headline and in the draft figure in the navy panel, not in the photograph.</i></li>
     <li><span class="key">The bio's closing line.</span> Set here as written. The punchier alternative from section 3A is still on the table: "He has run these systems himself, offshore, at night, when they fail. It shows in the advice." It runs one line longer, so it needs another cut if Clark wants it.</li>

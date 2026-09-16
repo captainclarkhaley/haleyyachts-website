@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HAVEN Palm Beach spread, Haley Yachts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   HAVEN | Palm Beach two-page spread. CLEAN VIEW.
+   This file is Clark's. It is the advertisement and nothing else:
+   no guides, no crop cards, no placeholder detail, no notes, no
+   toggles. There is deliberately no way to switch guides on, so
+   there is no way to spoil the view by hitting one.
+
+   The WORKING file is docs/design/haven-spread.html. That one keeps
+   the guides, the crop specifications and the open items, because
+   that is how HAVEN's designer reads it. Two files on purpose.
+   Any change to geometry or copy is made THERE first, then mirrored
+   here. This file must never be the source of truth.
+
+   Geometry is identical to the working file, in inches, 1:1.
+   CSS inches are absolute (1in = 96px), so the spread is drawn at
+   actual size and scaled to the window only for viewing.
+   ============================================================ */
+
+:root{
+  --navy:#0a1628;
+  --navy-mid:#0d2847;
+  --cyan:#21cbea;
+  --paper:#fdfdfb;
+  --sans:'Open Sans','Segoe UI','Helvetica Neue',Helvetica,Arial,'Liberation Sans',sans-serif;
+
+  --img-hero:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/HaleyYachts/Marketing/riviera-imagaes/Riviera%204300%20Sports%20Express%20Aerial%2003.jpg");
+  --img-shot2:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/HaleyYachts/Marketing/riviera-imagaes/Riviera%204300%20Sports%20Express%20Sea%20Deck%2003.jpg");
+  --img-portrait:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/Clark%20Haley-HeadShots/BBP_2811-hires-for-haven.jpeg");
+  --img-owyg:url("../../images/brand/owyg/owyg-lockup.png");
+  --img-owyg-fallback:url("file:///Users/remoteshop/Library/CloudStorage/Dropbox/OWYG%20(Selective%20Sync%20Conflict)/marketing/logos/Compass%20Logos_All/OWYG%20Logo_STACK.png");
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:#54585e;
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100%;
+  padding:26px 20px 14px;
+}
+
+#stagewrap{display:flex;align-items:center;justify-content:center}
+#stage{transform-origin:center center}
+
+/* ---------- the spread ---------- */
+/* .spread is the BLEED rectangle, 17.000in x 11.125in. It clips. */
+.spread{
+  position:relative;
+  width:17in;height:11.125in;
+  overflow:hidden;
+  background:var(--paper);
+  box-shadow:0 14px 50px rgba(0,0,0,.55);
+}
+/* .art is the TRIM rectangle, 16.750in x 10.875in, inset by the 0.125in bleed. */
+.art{position:absolute;left:.125in;top:.125in;width:16.75in;height:10.875in}
+.art > *{position:absolute}
+
+/* ============================================================
+   LEFT PAGE (VERSO)
+   ============================================================ */
+.hero{
+  left:-.125in;top:-.125in;width:8.5in;height:11.125in;
+  background-color:var(--navy-mid);
+  background-image:var(--img-hero);
+  background-repeat:no-repeat;
+  background-size:16.704in 11.125in;
+  background-position:-3.926in 0;
+  overflow:hidden;
+}
+.hero-scrim{
+  position:absolute;left:0;right:0;bottom:0;height:5.4in;
+  background:linear-gradient(to top,
+    rgba(10,22,40,.92) 0%,
+    rgba(10,22,40,.86) 35%,
+    rgba(10,22,40,.70) 62%,
+    rgba(10,22,40,.40) 82%,
+    rgba(10,22,40,0) 100%);
+}
+.verso-kicker{
+  left:.75in;top:7.13in;
+  font-size:10pt;line-height:12pt;font-weight:600;text-transform:uppercase;
+  letter-spacing:.20em;color:var(--cyan);
+}
+.verso-head{
+  left:.75in;top:7.55in;width:5.5in;
+  font-size:60pt;line-height:.80in;font-weight:300;text-transform:uppercase;
+  letter-spacing:.07em;color:#fff;
+}
+.verso-head b{font-weight:700}
+.verso-caption{
+  left:.75in;top:10.28in;width:5.5in;
+  font-size:7pt;line-height:9pt;color:rgba(255,255,255,.7);
+}
+
+/* ============================================================
+   RIGHT PAGE (RECTO)
+   ============================================================ */
+.recto-field{left:8.375in;top:-.125in;width:8.5in;height:11.125in;background:var(--paper)}
+
+.recto-kicker{
+  left:9in;top:.85in;
+  font-size:9pt;line-height:11pt;font-weight:600;text-transform:uppercase;
+  letter-spacing:.20em;color:var(--navy);
+}
+.deck{
+  left:9in;top:1.25in;width:7.5in;
+  font-size:22pt;line-height:28pt;font-weight:300;letter-spacing:.01em;color:var(--navy);
+}
+.accent-rule{left:9in;top:2.7in;width:1.2in;height:.04in;background:var(--cyan)}
+.body{
+  left:9in;top:2.95in;width:7.5in;height:2.07in;
+  columns:2;column-gap:.3in;column-fill:auto;
+  font-size:9.5pt;line-height:14pt;color:#000;
+}
+.body p{margin:0 0 9pt}
+.body p:last-child{margin-bottom:0}
+.body ol{margin:0 0 9pt;padding-left:.17in;break-inside:avoid;page-break-inside:avoid}
+.body li{margin:0}
+.offer{
+  left:9in;top:5.18in;width:7.5in;
+  font-size:11pt;line-height:15pt;font-weight:600;color:var(--navy);
+}
+.offer i{font-style:normal;color:#0f8fae}
+
+/* ---- the navy detail panel, bleeds off the outer edge ---- */
+.panel{
+  left:9in;top:5.7in;width:7.875in;height:2.1in;   /* right edge = 16.875 bleed */
+  background:var(--navy);
+}
+.panel > *{position:absolute}
+.panel-photo{
+  left:.15in;top:.18in;width:2.85in;height:1.4in;
+  background-color:var(--navy-mid);
+  background-image:var(--img-shot2);
+  background-repeat:no-repeat;
+  background-size:3.5625in 2.3749in;
+  background-position:-.1781in -.5121in;
+  overflow:hidden;
+}
+.panel-photo-cap{
+  left:.15in;top:1.61in;width:2.85in;
+  font-size:7pt;line-height:8.5pt;color:rgba(255,255,255,.7);
+}
+.spec{left:3.4in;top:.16in;width:4in}
+.spec dl{margin:0;display:grid;grid-template-columns:1.15in 1fr;row-gap:0;align-items:baseline}
+.spec dt{
+  font-size:7.5pt;line-height:12.5pt;font-weight:600;text-transform:uppercase;
+  letter-spacing:.10em;color:var(--cyan);
+}
+.spec dd{margin:0;font-size:8.5pt;line-height:12.5pt;color:#fff}
+.panel-foot{
+  left:3.4in;top:1.6in;width:4in;
+  font-size:7.5pt;line-height:9.5pt;color:rgba(255,255,255,.7);
+}
+
+.showline{
+  left:9in;top:7.9in;width:7.5in;
+  font-size:9.5pt;line-height:13pt;font-style:italic;color:var(--navy);
+}
+
+/* ---- Clark block and contact bar ---- */
+.portrait{
+  left:9in;top:8.25in;width:1.7in;height:2.05in;
+  background-color:#3f4855;
+  background-image:var(--img-portrait);
+  background-repeat:no-repeat;
+  background-size:3.2377in 4.8565in;
+  background-position:-1.0371in -.5294in;
+  overflow:hidden;
+}
+.ch-name{
+  left:10.9in;top:8.22in;width:5.6in;
+  font-size:14pt;line-height:17pt;font-weight:600;color:var(--navy);
+}
+.ch-title{
+  left:10.9in;top:8.48in;width:5.6in;
+  font-size:8.5pt;line-height:11.5pt;color:var(--navy);
+}
+.bio{
+  left:10.9in;top:8.86in;width:5.6in;
+  font-size:8.5pt;line-height:11.5pt;color:#000;
+}
+.contact{
+  left:10.9in;top:9.96in;width:3.15in;
+  font-size:8.5pt;line-height:11.5pt;color:#000;
+}
+/* The QR is drawn at its printed size and weight so the corner composes
+   correctly. It is NOT a working code and is not meant to be scanned. */
+.qr{left:14.25in;top:9.8in;width:.75in;height:.75in;background:#0d0f12}
+
+/* ---- the co-brand lockup ---- */
+.lockup{left:15.15in;top:9.76in;width:1.35in;height:.74in}
+.lockup > *{position:absolute;right:0}
+.lockup-hy{
+  top:0;width:1in;height:.179in;
+  background:url("../../images/brand/haleyyachtslogo.png") no-repeat right center;
+  background-size:contain;
+}
+.lockup-label{
+  top:.254in;width:1.35in;
+  font-size:5.5pt;line-height:7pt;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--navy);text-align:right;
+}
+.lockup-owyg{
+  top:.386in;width:1.35in;height:.35in;
+  background-image:var(--img-owyg),var(--img-owyg-fallback);
+  background-repeat:no-repeat;
+  background-position:right center;
+  background-size:contain;
+}
+
+/* ---- the cyan rule, the only element crossing the gutter ---- */
+.cyan-rule{left:-.125in;top:10.785in;width:17in;height:.34in;background:var(--cyan)}
+
+/* ---------- the one line of screen furniture ---------- */
+.footnote{
+  color:#c3c8ce;font-size:11px;line-height:1.5;text-align:center;
+  margin-top:16px;letter-spacing:.01em;
+}
+
+@media print{
+  @page{size:17in 11.125in;margin:0}
+  html,body{height:auto}
+  body{background:#fff;display:block;padding:0}
+  #stagewrap{display:block}
+  #stage{transform:none !important}
+  .spread{box-shadow:none}
+  .footnote{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="stagewrap">
+<div id="stage">
+<div class="spread">
+<div class="art">
+
+  <!-- ==========================================================
+       LEFT PAGE (VERSO)
+       ========================================================== -->
+  <div class="hero">
+    <div class="hero-scrim"></div>
+  </div>
+
+  <div class="verso-kicker">PALM BEACH / WATERFRONT</div>
+  <div class="verso-head">THE HOUSE<br>CAME WITH<br>A <b>DOCK</b></div>
+  <div class="verso-caption">Riviera 4300 Sports Express. Forty-five feet six, and she draws four two.</div>
+
+  <!-- ==========================================================
+       RIGHT PAGE (RECTO)
+       ========================================================== -->
+  <div class="recto-field"></div>
+
+  <div class="recto-kicker">A NOTE FROM CLARK HALEY</div>
+
+  <div class="deck">If you just bought a house on the water, or you are about to, the first question is what will fit behind it.</div>
+
+  <div class="accent-rule"></div>
+
+  <div class="body">
+    <p>There are three things we have to know before we can recommend a boat that will fit behind your new house.</p>
+    <ol>
+      <li>How long is the dock?</li>
+      <li>How deep is the water at the dock?</li>
+      <li>Are there any bridges between your dock and the inlet, and how much clearance?</li>
+    </ol>
+    <p>Send me the address and I'll help you figure out what is possible at the house you own. Give me twenty minutes on the phone, or I'll come sit with you at the house. No questionnaire, no pressure.</p>
+    <p>Then we figure out what you need a boat to do, and find the one that does it and fits behind your house.</p>
+    <p>Some of my clients have owned a dozen boats. Some have never owned one and are standing on a new dock wondering how much boat is too much. Both conversations start with the same three questions.</p>
+  </div>
+
+  <div class="offer">Send me the address. Let's see what is possible. 561-817-1547 or <i>haleyyachts.com/dock</i></div>
+
+  <div class="panel">
+    <div class="panel-photo"></div>
+    <div class="panel-photo-cap">Room for everybody aft, and a boat a couple can dock on the joystick with no help.</div>
+
+    <div class="spec">
+      <dl>
+        <dt>Vessel</dt><dd>Riviera 4300 Sports Express, new build</dd>
+        <dt>Length overall</dt><dd>45 ft 6 in</dd>
+        <dt>Beam</dt><dd>14 ft 7 in</dd>
+        <dt>Maximum draft</dt><dd>4 ft 2 in</dd>
+        <dt>Power</dt><dd>Twin Volvo Penta D6 IPS, joystick docking</dd>
+        <dt>Speed</dt><dd>Over 30 knots</dd>
+        <dt>Accommodation</dt><dd>Sleeps five, private master and aft cabin</dd>
+        <dt>Availability</dt><dd>[AVAILABILITY - CLARK TO CONFIRM]</dd>
+      </dl>
+    </div>
+
+    <div class="panel-foot">One Water Yacht Group represents Riviera Yachts, with models ranging from 43 to 78 feet.</div>
+  </div>
+
+  <div class="showline">Going to the Fort Lauderdale International Boat Show this year? Text me and we will walk the docks together.</div>
+
+  <div class="portrait"></div>
+
+  <div class="ch-name">Clark Haley</div>
+  <div class="ch-title">Licensed Florida Yacht Broker, IYBA Member<br>Haley Yachts, part of One Water Yacht Group</div>
+
+  <div class="bio">Clark holds a USCG 100-Ton Master's license and has logged more than 50,000 nautical miles, most of them aboard ROAM, the Nordhavn 55 he and his wife Michelle cruised full time for over a decade. He grew up in his family's marine center on the Texas coast, on the maintenance side before the sales side. He has run these systems himself, offshore, which is a different kind of knowledge than reading a spec sheet.</div>
+
+  <div class="contact">
+    561-817-1547<br>
+    clarkh@owyg.com<br>
+    haleyyachts.com/dock<br>
+    2401 PGA Blvd, Suite 164, Palm Beach Gardens, FL 33410
+  </div>
+
+  <div class="qr"></div>
+
+  <div class="lockup">
+    <div class="lockup-hy"></div>
+    <div class="lockup-label">Yacht Broker with</div>
+    <div class="lockup-owyg"></div>
+  </div>
+
+  <div class="cyan-rule"></div>
+
+</div><!-- /art -->
+</div><!-- /spread -->
+</div><!-- /stage -->
+</div><!-- /stagewrap -->
+
+<div class="footnote">
+  The three photographs are linked from Clark's Dropbox, not stored in this repo. On any other machine they will show as empty boxes. That is expected, not a fault.
+  The black square is where the QR code goes, drawn at its printed size; it is not a working code. Screen colour is RGB and will shift slightly in CMYK on press.
+</div>
+
+<script>
+(function(){
+  var stage = document.getElementById('stage');
+  var W = 17 * 96, H = 11.125 * 96;   // CSS inches are absolute: 1in = 96px
+
+  function render(){
+    var availW = window.innerWidth  - 40;
+    var availH = window.innerHeight - 78;   // room for the footnote
+    var z = Math.min(availW / W, availH / H);
+    stage.style.transform = 'scale(' + z + ')';
+    // reserve the SCALED footprint so flex centring stays honest
+    stage.style.width  = W + 'px';
+    stage.style.height = H + 'px';
+    stage.style.margin = ((H * z - H) / 2) + 'px ' + ((W * z - W) / 2) + 'px';
+  }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+
+</body>
+</html>
