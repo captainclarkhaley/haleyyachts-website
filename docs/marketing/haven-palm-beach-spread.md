@@ -499,85 +499,79 @@ Two short ones, plus a third worth appending to the same mail:
 
 ## 6. Facts to confirm before this prints
 
-These need Clark's sign-off. Four of them are numbers I will not invent.
+**Most of this section closed on 16 September.** What remains is two items, and only one of them is ours.
 
 | Item | Status | Who resolves |
 |---|---|---|
-| **Which boat runs** | My recommendation is the 4300 Sports Express, argued in section 1b. This is the decision that unblocks the photography request, so it should be made first. | Clark |
-| 4300 SE availability line | The listing page carries no public price, by intention. We need either a delivery window ("build slots for 2027 delivery") or a from-price Clark is willing to see in print for months. | Clark |
-| 4300 SE specs | LOA 45 ft 6 in, beam 14 ft 7 in, max draft 4 ft 2 in, twin Volvo Penta D6 IPS, over 30 knots, sleeps five. Taken from `yachts/riviera-4300-sports-express.html`. Worth one check against Riviera's current published spec, since the draft figure is now load-bearing copy. | Clark |
-| 545 asking price, $1,295,000 | Only matters if the 545 runs. The listing page and the June Logbook both say $1,295,000, reduced $200,000 from $1,495,000. The co-brokerage email in `email-templates/issues/` still says $1,495,000 and is **stale**. | Clark |
-| 545 LOA, 54 ft or 55 ft | `yachts/fringe-benefits.html` says 55 ft. `email-templates/issues/logbook-2026-06.html` says 54' LOA. Two different numbers in our own material. Pick one and fix the other regardless of what runs in HAVEN. | Clark |
-| 545 beam and draft | Not recorded anywhere in the repo. Pull from the spec sheet PDF at `documents/yachts/2020-riviera-545-suv-fringe-benefits.pdf`. Only needed if the 545 runs. | Clark |
-| Shelf-life contingency | If the 545 runs and goes under contract before the on-sale date, we cannot recall the magazine. This is the main argument for the 4300 and it is why the boat lives in swap blocks. | Clark |
-| Is Clark attending FLIBS? | The show line in section 3A depends on it. Cut the line if not. | Clark |
-| One Water Yacht Group approval | A co-branded print ad using the One Water mark probably needs their marketing sign-off. If the 4300 runs, Riviera may want a look too, since it is their model and their photography. Ask before artwork, not after. | Clark |
-| One Water vector logo | We only hold web rasters. Request an EPS or AI in the same email as the Riviera press pack. | Clark, via One Water marketing |
-| Print-resolution hero image | The one genuine blocker. Nothing on disk is usable at full-page size. See section 4 for exactly what to ask for and from whom. | Clark |
-| The bio's closing line | Two versions offered in section 3. Clark picks. | Clark |
-| haleyyachts.com/dock | The QR code and the printed short URL both point to a page that **does not exist yet**. It needs to be a real page with the "send me your address" form, live before the issue drops. **This is Terry's build**, and it needs to be scheduled against the materials deadline, not the on-sale date, because we cannot change the QR after we submit artwork. | Terry, briefed by William |
+| **Which boat runs** | **CLOSED 15 September.** The 4300 Sports Express. | Clark, done |
+| **Availability line** | **CLOSED 16 September.** Reads *"New build. Call for current delivery."* Deliberately evergreen: the magazine circulates for months and a printed delivery date would be stale by December. It also carries "new build" back into the panel after that phrase left with the deleted VESSEL row. | Clark, done |
+| **4300 SE specs** | **VERIFIED 16 September against Riviera's own published page**, not a listing site. LOA 45 ft 6 in, beam 14 ft 7 in, maximum draft 4 ft 2 in. Riviera's 4 ft 2 in is the **maximum draft including props**, which is the honest figure for the low-tide argument the ad makes. Aggregator sites print 4 ft 0 in and are the ones that are wrong. | Done |
+| **Riviera range figures** | **CLOSED 16 September.** Footer reads *"One Water Yacht Group represents Riviera Yachts, with models ranging from 43 to 78 feet."* Clark's wording and Clark's numbers: *"Go with 43 to 78. The 395 is being discontinued."* Do not "correct" these to length-overall figures. | Clark, done |
+| **Print-resolution photography** | **CLOSED.** All three images in hand and embedded in the print file. Measured effective resolution at printed size: hero 479 ppi, sea deck 600, portrait 600. Nothing under 300. | Done |
+| **One Water vector logo** | **ARRIVED 16 September.** Note the print file currently embeds the **raster** lockup at 1065 ppi, which will print cleanly. Substituting the vector EPS is a build-time option if wanted. | Done |
+| **`haleyyachts.com/dock`** | **LIVE AND PROVEN END TO END, 16 September.** Clark scanned the printed QR, filled in the form and confirmed the email arrived. Verified independently from outside his machine: 200, three questions, form endpoint, four tap-to-call links. | Done |
+| **One Water Yacht Group approval** | **STILL OPEN, and it matters more than it did.** The panel footer now makes the representation claim **in One Water's name** rather than Haley Yachts', Clark's email on the ad is `clarkh@owyg.com`, and "Haley Yachts," has come out of his title block. Over the course of 16 September the spread moved from *Haley Yachts with One Water behind it* to *One Water with Clark in front of it*. That is a defensible direction but it should be a decision, and it raises rather than lowers the need for their sign-off. Riviera's nod on their model and their press photography rides in the same email. | **Clark** |
+| **Is Clark attending FLIBS?** | Assumed yes; the show line is set and the `/dock` page carries it too. If not, the line comes out of both. | Clark |
+| Portrait retouch | Section 4 asks for the background lifted and the vignette flattened inside the crop so the shoulder line reads against the blazer. **Not done.** Visual judgement, not an engineering task. | Patrick or Clark |
+| 545 LOA, 54 ft or 55 ft | Moot for HAVEN, the 4300 runs. **But our own material still disagrees with itself** - `yachts/fringe-benefits.html` says 55 ft, `email-templates/issues/logbook-2026-06.html` says 54 ft. Worth fixing regardless. | Clark, separately |
+| 545 asking price | Moot for HAVEN. The co-brokerage email in `email-templates/issues/` still says $1,495,000 and is stale against $1,295,000. Fix regardless. | Clark, separately |
 
-Note on Denison: Clark's history there does not appear in this spread, per the house rule. The bio above is drawn from `about.html` and does not mention it.
+Note on Denison: Clark's history there does not appear in this spread, per the house rule.
 
 ---
 
 ## 7. The delivery package, materials deadline 18 September
 
-Written against the working assumption that **HAVEN sets the type from our copy and images** (section 5, question 6). If Jake comes back wanting print-ready PDF/X from us, this section is void and the job changes; say so on the 16th, not the 17th.
+**THE DELIVERY CHANGED ON 16 SEPTEMBER. We supply print-ready artwork.** Clark: *"Let's give them print ready artwork. Jake tells me the gutter-band you're allowing will be just fine."*
+
+The previous plan - HAVEN sets the type from our copy sheet, and Clark prints a mock-up from Chrome on his Mac - is **void**. Do not follow it. Two consequences worth stating plainly, because both were live instructions in this document an hour before it was rewritten:
+
+- **Nobody prints anything from Chrome.** That path also turned out to be broken: the viewer script writes inline negative margins on `#stage` and the print stylesheet resets `transform` but not `margin`, so a Chrome print of the clean file comes out shifted up and left, partly off the sheet. It has been left alone rather than fixed, because nothing depends on it any more.
+- **The copy sheet is no longer the thing that gets typed.** It stays as the record of every word and why, and as what a proofreader checks against. It is not an instruction to set type.
+
+### How the print file is built
+
+`scripts/build-haven-print.py`. One command, repeatable, and it verifies itself and exits non-zero on failure. It reads `docs/design/haven-spread-clean.html` and never writes to it.
+
+Output is `docs/design/build/haven-spread-print.pdf`, about 9 MB, **gitignored on purpose** because it is rebuilt on demand from 34 MB of source photography that does not belong in a website repo. Re-run it after any copy change; it has already been regenerated twice for two different versions of the availability line.
+
+What the build asserts on every run: box geometry, font embedding and identity, per-image effective ppi against a 300 ppi floor, no bracketed placeholders left in live text, the QR decoding out of the finished PDF, and bleed coverage at four samples plus two measured trim edges. Two of those checks have been shown red on deliberately broken input. The registration measurement has only ever been seen green and Sam has been asked to try to break it.
+
+### What is in the file
+
+| Item | State |
+|---|---|
+| Three photographs | **Embedded**, not linked. The Dropbox dependency is gone from the output. Hero 479 ppi, sea deck 600, portrait 600, no upsampling anywhere. |
+| Both logos | Embedded raster at 980 and 1065 ppi. Vector EPS available in Dropbox if wanted. |
+| Fonts | Five Open Sans static subsets embedded as TrueType. **Static faces are committed to `docs/design/fonts/` with the OFL licence** because Google Fonts now serves a variable font, which Chrome converts to Type3 outlines that many prepress preflights reject, and because the build must not depend on the network. |
+| QR | Real vector artwork, `haleyyachts-dock-qr.svg`, 29x29 modules, error correction Q, 0.75 in including a 0.1 in quiet zone. **Decoded out of the finished PDF at 600 dpi and asserted to equal `https://haleyyachts.com/dock`** on every build, and it survives a CMYK dry run. |
+| Bleed and boxes | MediaBox and BleedBox 17 x 11.125 in, TrimBox 16.75 x 10.875 in centred, 0.125 in all four outer edges, fold at 8.375 in. Measured, not assumed. |
+| Trim marks | **Not included, deliberately.** At bleed size there is no paper outside the bleed to carry them, and marks drawn inside the bleed would print in the ad. The TrimBox is machine-readable and is what a modern RIP uses. `--marks` adds 0.25 in of paper and offset corner marks if Jake wants them. |
+
+### The colour work, which is what is left
+
+**Nothing has been converted to CMYK and nothing converted has been committed.** The estimates below use the only profile on this machine (Apple Generic CMYK) and are indicative, not press-accurate. That is precisely why we are waiting on Jake.
+
+- **The cyan is the only badly out-of-gamut colour on the spread.** #21cbea returns as roughly #58c1da, dE76 **10.3**, visibly lighter and duller. Everything else is dE 5 or under. Holding it properly means a spot ink, a fifth plate on a $495 ad. **Recommendation: accept the shift.** It appears in three places and only as flat rule colour and one 10pt kicker.
+- **Ink limit is a fork.** The deep navy runs about 266%. Under a 300% limit nothing is over. **Under a 240% limit, 23.9% of the spread exceeds it** and the navy panel, the hero scrim and the hero's shadows all get rebuilt. That is not a nudge.
+- **PDF/X flavour is the other fork, and it is a colour edit we will not make unasked.** Three text runs at 70% white (verso caption, panel photo caption, panel footer) are the only live transparency left. **X-4 and nothing changes. X-1a forbids live transparency**, and Ghostscript answers it by rasterising the whole spread to a single 720 ppi image, which turns the 60pt headline into pixels and strips every font. The fix is setting those three runs to their opaque equivalents first - exact and invisible on the navy panel, approximate on the verso caption because it sits over a photograph. **The script refuses to convert and says why.**
+- Separately: `-dPDFX=true` in Ghostscript 10.08 rasterises the page regardless. The build stamps the OutputIntent afterwards instead, which is structurally conformant but **not validated by a preflight engine**. If HAVEN requires certified PDF/X, Ghostscript is not enough and we need Acrobat Pro or their preflight.
+
+### The five questions now with Jake
+
+Put to Clark on 16 September, and the print file cannot be finished without them:
+
+1. **PDF/X-1a or X-4?**
+2. **Which destination profile**, and can he send the ICC? We hold neither SWOP v2 nor GRACoL.
+3. **Total ink limit**, 240% or 300%?
+4. **Does he want trim marks?**
+5. **Does he require certified PDF/X**, or is structurally correct enough?
 
 ### Do not send this document
 
-This brief is internal. It contains the boat decision and the argument behind it, the 545 fallback, the reasoning about other ads in the book, and Clark's open items. **The publisher gets the copy sheet, the layout PDF and the assets. Nothing else.**
-
-### What goes in the email
-
-| # | File | What it is for | Status |
-|---|---|---|---|
-| 1 | `haven-spread.pdf` | The layout, actual size, with trim, bleed, live area and gutter guides drawn. This is what the designer rebuilds from. Print it from `docs/design/haven-spread.html`. **Label it MOCK-UP in the covering note**, because it is RGB and screen-rendered. | Make it (see below) |
-| 2 | `haven-copy-sheet.md` (or .rtf / .docx) | Every word of live text in reading order with its position and type spec, and nothing else. This is what gets typed or pasted into InDesign. | Written, `docs/marketing/haven-copy-sheet.md` |
-| 3 | `Riviera 4300 Sports Express Aerial 03.jpg` | **Hero, left page, full bleed.** 8000 x 5328. Crop window **X 1880 to 5951, Y 0 to 5328**, which is 4071 x 5328, or 8.500" x 11.125" at 478 dpi. Bleeds top, bottom and left. **Butts the fold at X 8.375 with no bleed on that edge.** | In hand |
-| 4 | `Riviera 4300 Sports Express Sea Deck 03.jpg` | **Secondary, inside the navy panel.** 8000 x 5333. Crop window **X 400 to 6800, Y 1150 to 4287**, which is 6400 x 3137, the panel's 2.04:1 letterbox exactly. Placed at 2.85" x 1.40". | In hand |
-| 5 | `BBP_2811-hires-for-haven.jpeg` | **Shot 3, Clark's portrait.** 5504 x 8256. Crop window **X 1763 to 4653, Y 900 to 4385**, which is 2890 x 3485, exactly 34:41, so 1.700" x 2.050" at 1700 dpi. **The crop is not optional**, see below. | In hand |
-| 6 | `NEW HALEY YACHTS CMYK.eps` | Haley Yachts mark, 1.000" wide in the corner lockup. Vector, already CMYK. From `~/Dropbox/HaleyYachts/Logos/logo-haley-yachts-logo (1)/`. | In hand |
-| 7 | `OWYG Logo_STACK.eps` | One Water mark, 1.350" wide, beneath the Haley mark with the label "Yacht Broker with" between them. **Not `OWYG Logo_WIDE`**, which is a different lockup we have never used, and **not `OWYG Logo_STACK-DKBLUE.pdf`, which is RGB.** | In hand |
-| 8 | QR code artwork | 0.75" x 0.75" placed, 0.1" quiet zone. Vector EPS or PDF preferred, otherwise PNG at 1200 px square minimum. Encodes `https://haleyyachts.com/dock` exactly. Use high error correction so a nick in the print does not kill it. | **MISSING, must be made** |
-| 9 | Open Sans font files | Weights 300 Light, 400 Regular, 400 Italic, 600 Semibold, 700 Bold. Free from Google Fonts under the SIL Open Font License, so we can supply them to the designer without a licensing question. Offer them; most design shops already have it. | Available |
-
-**One practical point on sending it.** Items 3 and 4 are roughly 15 MB each and the whole package will be over 35 MB, which most mail servers bounce. **Send the images and logos as a Dropbox or WeTransfer link and attach only the PDF and the copy sheet.** Name the link clearly enough that a designer opening it in two weeks still knows which file is the hero.
+This brief is internal. It carries the boat decision and the argument behind it, the 545 fallback, the reasoning about other ads in the book, and Clark's open items. **The publisher gets the print file. Nothing else.**
 
 ### Two layout files, and which is which
 
-- **`docs/design/haven-spread.html`** is the working file and **the source of truth.** Guides, crop specifications, open items, the change log. This is what HAVEN's designer reads, and it is what the PDF is printed from.
-- **`docs/design/haven-spread-clean.html`** is Clark's view: the advertisement and nothing else. No guides, no crop cards, no notes, and no toggle to turn any of them back on. It exists so he can judge the ad the way a reader will meet it, before signing off on something going to press.
-
-Any change to geometry or copy is made in the working file first, then mirrored into the clean one. Never the reverse.
-
-### Making `haven-spread.pdf`
-
-Open `docs/design/haven-spread.html` in Chrome on Clark's Mac, then Print. Destination **Save as PDF**, paper size **custom 17 x 11.125 in**, margins **None**, and **Background graphics ON** or the whole thing prints blank. The print stylesheet already drops the screen chrome, the notes and the zoom control, so the PDF is the spread alone at actual size.
-
-It has to be Clark's Mac. The photography is linked by absolute `file://` path to his Dropbox and will render as empty boxes anywhere else.
-
-### What is still missing, in the order it will hurt
-
-1. ~~Clark's high-resolution portrait.~~ **CLOSED 16 September.** See the crop note below.
-2. **One Water's approval** of a co-branded print ad carrying their mark, and probably Riviera's nod on their model and their press photography. The item most likely to be slow for reasons that have nothing to do with us. Their **minimum reproduction size** question rides in the same email rather than being a separate ask.
-3. **The QR artwork.** Does not exist. Cheap to make, but it cannot be made until the URL string is frozen, so freeze the string first.
-4. **The availability line is still a bracket in live copy.** The spec panel reads `[Build slots available, confirm delivery window]`. **This is the last unfinished word of copy in the artwork** and it goes to print either way, so it needs Clark either to give a delivery window or to accept a from-price he is happy to see in print for months.
-5. **Verify the 4 ft 2 in draft figure** against Riviera's current published spec. It came off our own listing page and it is now load-bearing: it is half the panel headline and half the verso caption. One check, one source.
-6. **Is Clark attending FLIBS?** If not, the show line at Y 7.90" comes out. Nothing else depends on it.
-7. **The bio's closing line.** Two versions offered in section 3. Clark picks, or the one that is set stands.
-
-### On `haleyyachts.com/dock`, and why it is not a blocker for the 18th
-
-**Confirmed: the page being finished is not a blocker for the 18th.** Two different dates are being run together. The **URL string** must be final on the 18th, because the QR freezes when artwork is submitted and can never be changed. The **page** must exist before a reader can scan it, which is the on-sale or FLIBS distribution date, and that is later. Terry's build schedules against the second date.
-
-**Three caveats, and the first is the one I would act on.**
-
-**You cannot test a QR code against a page that does not exist.** You can verify it decodes to the right string, but you cannot prove the round trip: a redirect that misfires, a trailing-slash rule, a case-sensitivity rule, an apex-versus-www rewrite. **Ask Terry for a stub at `/dock` before the 18th**, even a single static page saying Clark will be in touch, so the scan is proven end to end. It converts the one irreversible risk on this spread to zero for the cost of one file, and he improves the page afterwards.
-
-**Freeze the string before the QR is generated, and make Terry build to it.** `https://haleyyachts.com/dock`: apex not www, no trailing slash, HTTPS. Getting this backwards is how the QR ends up pointing at a page that exists at a slightly different address.
-
-**The date the page must be live is not one we hold.** Question 11, the distribution and on-sale date, is unanswered, and question 10, whether there is a digital edition, matters too, because a digital edition can reach a reader earlier than the printed copy. Until both are answered, the safe assumption is that the page must be live **before 18 September**, which the stub satisfies anyway.
-
-**The fallback, and decide it before artwork rather than after.** If the page will not exist in any form, drop the QR and the `/dock` URL from both places they appear and run the phone number alone. That is a decision made on the 18th at the latest. It is never a decision made afterwards, because afterwards there is no decision left to make.
+- **`docs/design/haven-spread.html`** is the working file and the source of truth: guides, crop specifications, open items, change log.
+- **`docs/design/haven-spread-clean.html`** is Clark's view, the advertisement alone, and it is also **what the print build reads**. Any change to geometry or copy is made in the working file first and mirrored into the clean one, never the reverse, and the two are proved identical by a rendered-geometry diff rather than a text diff.
