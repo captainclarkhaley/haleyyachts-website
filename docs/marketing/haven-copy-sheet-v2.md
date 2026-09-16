@@ -177,7 +177,7 @@ This block was already close to him. He opens with a question and closes with an
 ```
 Clark Haley
 Licensed Florida Yacht Broker, IYBA Member
-Haley Yachts, part of One Water Yacht Group
+part of One Water Yacht Group
 ```
 
 ### Bio
@@ -201,7 +201,7 @@ haleyyachts.com/dock
 
 Phone, URL and address are unchanged. The new address is shorter than the one it replaces, so there is no fit consequence.
 
-**On the mixed domains, a note and not a change.** The block now carries an `owyg.com` email next to two `haleyyachts.com` references. I do not think it weakens it. The spread is co-branded, the One Water lockup sits two inches away in the same corner, and the title line directly above already says "Haley Yachts, part of One Water Yacht Group", so the reader has been told the two names belong together before they reach the email. A working mailbox beats a tidy one. The only thing I would genuinely defend is the QR and the URL, which must both stay on `haleyyachts.com/dock` because that is where the campaign lands.
+**On the mixed domains, a note and not a change.** The block now carries an `owyg.com` email next to two `haleyyachts.com` references. I do not think it weakens it. The spread is co-branded, the One Water lockup sits two inches away in the same corner, and the title line directly above already says "part of One Water Yacht Group", so the reader has been told the two names belong together before they reach the email. A working mailbox beats a tidy one. The only thing I would genuinely defend is the QR and the URL, which must both stay on `haleyyachts.com/dock` because that is where the campaign lands.
 
 ### QR code
 **ARTWORK NOW EXISTS, and it has been decoded.** It is no longer the black placeholder square this sheet was written against.

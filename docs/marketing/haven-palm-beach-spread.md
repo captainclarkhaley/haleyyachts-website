@@ -214,7 +214,23 @@ If HAVEN's designer wants a serif body to sit with the rest of the book, a serif
 
 ---
 
-## 3. Copy, final and ready to set
+## 3. Copy - SUPERSEDED, see `haven-copy-sheet-v2.md`
+
+> **STOP. Every word below this line is the 15 September draft and is NOT what is in the artwork.**
+> Clark rejected that copy on 16 September - *"It's not in my writing style and feels uncomfortable"* -
+> and dictated his own version. The body copy, deck, caption, offer line, panel head, panel footer,
+> title block and bio were all rewritten from it. The authoritative copy is
+> **`docs/marketing/haven-copy-sheet-v2.md`**, which is what HAVEN's designer gets and what the artwork
+> was built from.
+>
+> This section is kept because section 2's geometry refers to it, and because the character counts
+> below are what the new copy was measured against. **Do not set type from it and do not restore a
+> phrase from it at proofing.** The traps it still contains: "Haley Yachts, part of One Water Yacht
+> Group" in the title block (Clark removed "Haley Yachts," on 16 September), the British spellings
+> "licence" and "centre" in the bio, the 39-to-72 panel footer, and a panel head that no longer exists
+> in that form.
+
+## 3-OLD. Copy, final and ready to set
 
 Everything below is final. Set it as written. Square brackets mark values I do not hold and will not invent, all listed in section 6.
 
