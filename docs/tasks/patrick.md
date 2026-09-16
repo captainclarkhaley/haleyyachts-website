@@ -4,9 +4,29 @@
 > William rolls this up into `docs/TASK-LIST.md` (master). Do not edit the master directly.
 > **Scope: Haley Yachts brokerage marketing ONLY.** Per Clark's 2026-07-17 project-separation rule, Yacht Broker Support (YBS) marketing now lives in the YBS repo (`yacht-broker-support/docs/tasks/patrick.md`). Keep the two projects from commingling here.
 
-*Last updated: July 18, 2026*
+*Last updated: 16 September 2026*
 
 ## OPEN
+
+### HAVEN spread and the /dock landing page (September 2026)
+- [ ] **DATED CONTENT, must come down after FLIBS.** `/dock` carries the ad's show line: *"Going to the
+      Fort Lauderdale International Boat Show this year? Text me and we will walk the docks together."*
+      The **magazine stays in circulation long after the show ends**, so anyone reading the spread in
+      December scans the QR and lands on an invitation to an event that has passed. Remove or reword
+      that line once FLIBS is over. This is the only thing outstanding on the page; everything else is
+      live and proven.
+- [x] **`/dock` is LIVE and proven end to end, 16 September 2026.** Clark scanned the printed QR,
+      filled in the form and confirmed the email arrived. Verified independently from outside his
+      machine: `haleyyachts.com/dock` returns 200, carries the three questions, the form endpoint and
+      four tap-to-call links. Page content is the ad's promise and nothing else.
+- [ ] **If delivery ever moves to `clarkh@owyg.com` as primary**, the FormSubmit activation link must be
+      clicked FIRST. Submissions made before that click are dropped silently. Today the form posts to
+      the long-activated `clark@HaleyYachts.com` with a cc to `clarkh@owyg.com`, which is why it worked
+      first time.
+- [ ] **Site-wide email split.** `/dock` shows `clarkh@owyg.com`; the rest of the site still shows
+      `clark@haleyyachts.com`, including the footer's structured data. One page differing from the rest
+      is a decision for Clark, not something to harmonise quietly.
+
 
 ### Off-site SEO / Visibility (June 10 batch - complements Terry's on-site technical-SEO push)
 > Off-site complement to Terry's on-site technical-SEO work. Goal: build Haley Yachts' external authority, local-search presence, and listing distribution.
