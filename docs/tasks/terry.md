@@ -589,3 +589,23 @@ The prior reconciliation (commit `fb5cb25`) used **2601 PGA Blvd** with no suite
 - Deploy workflow: edit -> GitHub Desktop commit + push -> cPanel Git Version Control Pull or Deploy tab -> Update from Remote
 - GitHub repo is public; keep secrets out of the repo (use .gitignore for any API keys or credentials)
 - DecapCMS available at /admin/content-manager.html but current workflow is Clark-sends-Claude-places
+
+## `scripts/sync-footer.sh` has a stale PAGES list, found 2026-09-16
+
+**A footer change pushed through the script today would silently skip about a third of the site, and
+`--check` would report OK.** Found by Patrick while inventorying the OWYG marks, before the script
+became the mechanism for a logo swap rather than after.
+
+- The list names **32** pages. **47** files carry the footer co-brand.
+- Missing: `yachts/riviera-645-suv.html`, `yachts/riviera-6200-sport-yacht.html`, the July and August
+  Logbook archives, and eight articles from 2026-06 to 2026-08.
+- It still targets `yachts/fortunato.html`, which no longer carries the markup.
+
+**Derive the list rather than maintaining it** - the pages that carry the footer are discoverable by
+grep, and a hand-kept list of files is the thing that goes stale silently. If it must stay a list, make
+`--check` fail when a file carries the markup and is not named.
+
+**Context for when this gets picked up:** new OWYG logos are coming and this script is how a footer
+change reaches 47 pages. There is **no equivalent script for the header**, which carries the positive
+mark on the same 47 pages - so a stacked new logo would be a 47-file hand edit. Worth knowing before
+the files arrive rather than during.
