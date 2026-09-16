@@ -132,6 +132,23 @@ def decl(block, prop):
     return m.group(1).strip()
 
 
+def resolve_url(url):
+    """A CSS url() as a path on disk, relative ones against the artwork."""
+    from urllib.parse import unquote
+    path = url[len("file://"):] if url.startswith("file://") else os.path.join(
+        os.path.dirname(SRC_HTML), url)
+    return unquote(path)
+
+
+def paper_colour(css):
+    """The flat stock colour the co-brand marks sit on, read out of the CSS."""
+    m = re.search(r"--paper:\s*#([0-9a-fA-F]{6})", css)
+    if not m:
+        fail("could not read --paper out of the CSS")
+    h = m.group(1)
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+
+
 def placement(css, selector, var_name):
     """Everything needed to crop one background image, read out of the CSS."""
     block = read_block(css, selector)
@@ -142,16 +159,12 @@ def placement(css, selector, var_name):
     m = re.search(re.escape(var_name) + r'\s*:\s*url\("([^"]+)"\)', css)
     if not m:
         fail("no url for %s" % var_name)
-    url = m.group(1)
-    path = url[len("file://"):] if url.startswith("file://") else os.path.join(
-        os.path.dirname(SRC_HTML), url)
-    from urllib.parse import unquote
     return {
         "selector": selector,
         "box_w": box_w, "box_h": box_h,
         "img_w": inches(size[0]), "img_h": inches(size[1]),
         "pos_x": inches(pos[0]), "pos_y": inches(pos[1]),
-        "path": unquote(path),
+        "path": resolve_url(m.group(1)),
     }
 
 
@@ -294,7 +307,7 @@ def bake_scrim(crop, p, scrim, icc):
     tail = arr[crop.height - band:, :, :]
     navy_arr = np.array(navy, dtype=np.float64)[None, None, :]
     arr[crop.height - band:, :, :] = tail * (1.0 - alpha) + navy_arr * alpha
-    return Image.fromarray(np.clip(arr + 0.5, 0, 255).astype(np.uint8), "RGB")
+    return Image.fromarray(np.clip(arr + 0.5, 0, 255).astype(np.uint8))
 
 
 # ------------------------------------------------------------- derived markup
@@ -409,6 +422,58 @@ def finish(raw_pdf, out_pdf, marks):
     doc.save(out_pdf, deflate=True, garbage=3)
     doc.close()
     src.close()
+
+
+def flatten_masks(pdf_path, box, paper, pad):
+    """Composite every image soft mask onto the paper behind it.
+
+    Chrome writes an RGBA PNG as an image plus an /SMask, which is live
+    transparency and which PDF/X-1a forbids. Both co-brand marks sit on flat
+    paper, so compositing the mask away is the same picture.
+
+    It happens HERE, on the finished PDF, and not on the source PNG, and the
+    difference is measurable: flattening the source first makes Chrome
+    re-encode the mark on a different pixel grid and composite in a different
+    colour space, which moved ink by up to 199 levels at the mark's own
+    resolution. Done here, against the pixels and the mask Chrome actually
+    embedded, the same render differs by at most 2 levels, which is 8-bit
+    rounding.
+    """
+    doc = fitz.open(pdf_path)
+    page = doc[0]
+    masks = {i[0]: i[1] for i in page.get_images(full=True) if i[1]}
+    done = []
+    for info in page.get_image_info(xrefs=True):
+        smask = masks.get(info["xref"])
+        if not smask:
+            continue
+        x = (info["bbox"][0] + info["bbox"][2]) / 2 / PT - pad
+        y = (info["bbox"][1] + info["bbox"][3]) / 2 / PT - pad
+        if not (box[0] <= x <= box[2] and box[1] <= y <= box[3]):
+            fail("an image soft mask sits at %.3f, %.3f in, outside the "
+                 "co-brand lockup. This step composites onto the paper "
+                 "colour, which is only the right answer for something "
+                 "sitting on paper. Look at it before widening this." % (x, y))
+        base = Image.open(io.BytesIO(doc.extract_image(info["xref"])["image"]))
+        alpha = Image.open(io.BytesIO(doc.extract_image(smask)["image"]))
+        base = base.convert("RGB")
+        alpha = alpha.convert("L")
+        if alpha.size != base.size:
+            alpha = alpha.resize(base.size, Image.LANCZOS)
+        flat = Image.new("RGB", base.size, paper)
+        flat.paste(base, mask=alpha)
+        buf = io.BytesIO()
+        flat.save(buf, "PNG", optimize=True)
+        page.replace_image(info["xref"], stream=buf.getvalue())
+        done.append((base.size, x, y))
+    if done:
+        tmp = pdf_path + ".flat"
+        doc.save(tmp, deflate=True, garbage=3)
+        doc.close()
+        os.replace(tmp, pdf_path)
+    else:
+        doc.close()
+    return done
 
 
 def draw_marks(page, trim, bleed):
@@ -565,6 +630,11 @@ def check(pdf_path, marks, geo, expect_cmyk=False):
     stray += re.findall(r"<[^<>\n]{2,60}>", text)
     print("  %d characters of live text, %d bracketed placeholders"
           % (len(text), len(stray)))
+    print("  read out of the FINISHED PDF, so what counts is what reaches the")
+    print("  page: a BARE <TBC> in the HTML never appears here, the parser")
+    print("  eats it as an unknown tag. Escaped, &lt;TBC&gt;, it does reach")
+    print("  the page and it is caught. [Brackets] are caught either way,")
+    print("  including ones that wrap across lines.")
     for m in stray:
         problems.append("placeholder still in the artwork: %s" % m)
     if len(text) < 1500:
@@ -650,6 +720,22 @@ def check(pdf_path, marks, geo, expect_cmyk=False):
             problems.append("%s -> %.3f%% of the strip is wrong,%s"
                             % (label, frac, where))
 
+    # the marks are flattened onto the paper colour, which is exact only
+    # while they sit on paper. Assert the field they sit in, not the mark.
+    lx0, ly0, lx1, ly1 = geo["lockup"]
+    ring = np.concatenate([
+        strip((lx0 - 0.05, ly0 - 0.05, lx1 + 0.05, ly0 - 0.01)).reshape(-1, 3),
+        strip((lx0 - 0.05, ly1 + 0.01, lx1 + 0.05, ly1 + 0.05)).reshape(-1, 3),
+    ])
+    off = float((~near_mask(ring, paper, 14)).mean()) * 100.0
+    print("  co-brand marks sit on paper                    %8.3f%% not paper"
+          % off)
+    if off:
+        problems.append("the co-brand lockup is not sitting on paper (%.3f%% "
+                        "of the field around it is another colour). The build "
+                        "flattens both marks onto the paper colour, which is "
+                        "only exact while that is what is behind them." % off)
+
     row = arr[int((pad + 10.85) * dpi), :, :]
     edge = None
     for x in range(int((pad + 7.5) * dpi), int((pad + 9.5) * dpi)):
@@ -716,7 +802,8 @@ def convert_cmyk(src_pdf, out_pdf, profile):
     Deliberately NOT -dPDFX=true: Ghostscript 10.08 answers that flag by
     rasterising the entire page. The result is therefore a plain CMYK PDF and
     nothing stamps a PDF/X claim onto it afterwards, because it would not be
-    true: the header is PDF 1.7, /Trapped is absent and soft masks survive.
+    true: the header is PDF 1.7 where X-1a:2001 requires 1.3, and /Trapped and
+    /GTS_PDFXConformance are both absent.
     """
     cmd = ["gs", "-dBATCH", "-dNOPAUSE", "-dSAFER", "-dNOOUTERSAVE",
            "--permit-file-read=" + src_pdf,
@@ -773,6 +860,10 @@ def main():
     ap.add_argument("--ink-limit", type=float,
                     help="total area coverage the printer allows, checked after "
                          "conversion")
+    ap.add_argument("--x1a", action="store_true",
+                    help="target PDF/X-1a rules: refuse to convert while any "
+                         "live transparency remains. The output still carries "
+                         "no conformance claim either way.")
     ap.add_argument("--keep-build", action="store_true")
     args = ap.parse_args()
 
@@ -831,6 +922,18 @@ def main():
     raw = os.path.join(build_dir, "chrome.pdf")
     render(html, raw)
     finish(raw, args.out, args.marks)
+
+    paper = paper_colour(css)
+    print("\n--- co-brand marks -------------------------------------------")
+    flattened = flatten_masks(args.out, geo["lockup"], paper,
+                              MARK_MARGIN if args.marks else 0.0)
+    for (w, h), x, y in flattened:
+        print("  %dx%d px at %.3f, %.3f in: soft mask composited onto "
+              "#%02x%02x%02x, the paper behind it"
+              % (w, h, x, y, paper[0], paper[1], paper[2]))
+    if not flattened:
+        print("  none: no image soft masks in the output")
+
     print("\nwrote %s (%.1f MB)" % (args.out, os.path.getsize(args.out) / 1e6))
 
     problems = check(args.out, args.marks, geo)
@@ -842,17 +945,22 @@ def main():
         print("\n--- CMYK conversion ------------------------------------------")
         print("  profile   %s" % args.icc_profile)
         alpha = live_transparency(args.out)
-        if alpha:
-            for xref, what in alpha:
-                print("  live transparency: object %d, %s" % (xref, what))
-            fail("the artwork still carries live transparency, and Ghostscript "
-                 "answers that by rasterising the whole spread. Every source in "
-                 "the file is listed above, not just the first kind: the 70% "
-                 "white captions are constant alpha, and an RGBA logo arrives "
-                 "as an image soft mask. All of them have to go, or the job "
-                 "runs as PDF/X-4, which allows transparency. Setting the "
-                 "captions opaque is a colour edit and needs sign-off, so this "
-                 "script will not make it.")
+        for xref, what in alpha:
+            print("  live transparency: object %d, %s" % (xref, what))
+        if alpha and args.x1a:
+            fail("--x1a was asked for and the artwork carries the live "
+                 "transparency listed above, which PDF/X-1a forbids outright. "
+                 "That is the whole reason and it is a CONFORMANCE rule, not a "
+                 "rendering one: Ghostscript without -dPDFX converts this file "
+                 "with the type left vector, so nothing is rasterised either "
+                 "way. The remaining source is the three 70% white captions, "
+                 "and setting them to their opaque equivalents is a colour "
+                 "edit that needs sign-off, so this script will not make it. "
+                 "Drop --x1a and the same file converts, carrying it.")
+        elif alpha:
+            print("  WARNING: that is live transparency and it is carried into")
+            print("  the CMYK file. A plain CMYK PDF may carry it; PDF/X-1a may")
+            print("  not. Pass --x1a to turn this warning into a refusal.")
         convert_cmyk(args.out, cmyk_out, args.icc_profile)
         print("  wrote %s (%.1f MB)" % (cmyk_out, os.path.getsize(cmyk_out) / 1e6))
         print("\n  This file is NOT certified PDF/X and does not claim to be.")
