@@ -69,6 +69,13 @@ BLEED = 0.125             # per outer edge
 FOLD_FROM_TRIM_LEFT = 8.375
 MARK_MARGIN = 0.25        # paper outside the bleed, used only for marks
 MIN_PPI = 300.0
+# How far a rendered pixel may sit from the stock colour and still count as
+# paper. This deliberately does NOT follow the `slack` the brand solids get
+# under CMYK: a saturated cyan or navy moves a long way through a conversion
+# and paper does not (measured: #fdfdfb renders 253,253,250 in RGB and
+# 253,253,251 in CMYK). Loosening it would make "no paper here" pass on a
+# pale photograph and "paper here" pass on a tint.
+PAPER_TOL = 14
 
 # Faces we supply locally. font-family / weight / style / file.
 FONT_FACES = [
@@ -442,11 +449,12 @@ def flatten_masks(pdf_path, box, paper, pad):
     doc = fitz.open(pdf_path)
     page = doc[0]
     masks = {i[0]: i[1] for i in page.get_images(full=True) if i[1]}
-    done = []
+    done, seen = [], set()
     for info in page.get_image_info(xrefs=True):
         smask = masks.get(info["xref"])
-        if not smask:
+        if not smask or info["xref"] in seen:
             continue
+        seen.add(info["xref"])
         x = (info["bbox"][0] + info["bbox"][2]) / 2 / PT - pad
         y = (info["bbox"][1] + info["bbox"][3]) / 2 / PT - pad
         if not (box[0] <= x <= box[2] and box[1] <= y <= box[3]):
@@ -465,10 +473,19 @@ def flatten_masks(pdf_path, box, paper, pad):
         buf = io.BytesIO()
         flat.save(buf, "PNG", optimize=True)
         page.replace_image(info["xref"], stream=buf.getvalue())
+        # replace_image leaves "/SMask null" in the dictionary. That is not
+        # untidiness worth risking a file for: PDF 32000-1 7.3.9 makes a null
+        # value identical to an absent key, and the only way to drop the key
+        # outright is to rewrite the object dictionary, which detaches the
+        # stream from it. Left as null on purpose.
         done.append((base.size, x, y))
     if done:
         tmp = pdf_path + ".flat"
-        doc.save(tmp, deflate=True, garbage=3)
+        # clean=True as well as garbage: replace_image leaves the pre-flatten
+        # image in the page resources, unreferenced by the content stream and
+        # so not collected as garbage. 80 KB of masked artwork in a print file
+        # that claims to have none.
+        doc.save(tmp, deflate=True, garbage=4, clean=True)
         doc.close()
         os.replace(tmp, pdf_path)
     else:
@@ -579,8 +596,8 @@ def check(pdf_path, marks, geo, expect_cmyk=False):
         h_in = abs(i["transform"][3]) / PT
         ppi_x = i["width"] / w_in if w_in else 0
         ppi_y = i["height"] / h_in if h_in else 0
-        placed.append(((i["bbox"][0] + i["bbox"][2]) / 2 / PT - pad,
-                       (i["bbox"][1] + i["bbox"][3]) / 2 / PT - pad))
+        bbox = tuple(v / PT - pad for v in i["bbox"])
+        placed.append(((bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2, bbox))
         print("  %5dx%-5d px  placed %6.3f x %6.3f in  ->  %6.1f x %6.1f ppi   %s"
               % (i["width"], i["height"], w_in, h_in, ppi_x, ppi_y, i["cs-name"]))
         if min(ppi_x, ppi_y) < MIN_PPI:
@@ -595,7 +612,7 @@ def check(pdf_path, marks, geo, expect_cmyk=False):
     claimed = 0
     for key, want, label in IMAGE_BOXES:
         x0, y0, x1, y1 = geo[key]
-        n = sum(1 for cx, cy in placed
+        n = sum(1 for cx, cy, _ in placed
                 if x0 - 0.02 <= cx <= x1 + 0.02 and y0 - 0.02 <= cy <= y1 + 0.02)
         claimed += n
         print("  %-36s %d image(s), want %d   %s"
@@ -674,7 +691,7 @@ def check(pdf_path, marks, geo, expect_cmyk=False):
     cyan = (33, 203, 234)
     navy = (10, 22, 40)
 
-    def near_mask(a, want, tol):
+    def near_mask(a, want, tol=PAPER_TOL):
         return np.abs(a.astype(np.int16)
                       - np.array(want, np.int16)).max(axis=-1) <= tol
 
@@ -698,10 +715,10 @@ def check(pdf_path, marks, geo, expect_cmyk=False):
          lambda a: ~near_mask(a, cyan, slack)),
         ("left bleed carries the hero, all %.3f in" % BLEED_H,
          (0.0, 0.0, BLEED, BLEED_H),
-         lambda a: near_mask(a, paper, 14)),
+         lambda a: near_mask(a, paper)),
         ("top bleed carries the hero, x 0 to %.2f in" % hx1,
          (0.0, 0.0, hx1, BLEED),
-         lambda a: near_mask(a, paper, 14)),
+         lambda a: near_mask(a, paper)),
         ("right bleed is navy, y %.3f to %.3f in" % (py0, py1),
          (BLEED_W - BLEED, py0, BLEED_W, py1),
          lambda a: ~near_mask(a, navy, slack)),
@@ -720,21 +737,47 @@ def check(pdf_path, marks, geo, expect_cmyk=False):
             problems.append("%s -> %.3f%% of the strip is wrong,%s"
                             % (label, frac, where))
 
-    # the marks are flattened onto the paper colour, which is exact only
-    # while they sit on paper. Assert the field they sit in, not the mark.
+    # The marks are flattened onto the paper colour, which is exact only while
+    # they sit on paper. Watch the WHOLE field they sit in, minus the marks
+    # themselves. A ring of two bands above and below leaves the 0.2in gap
+    # BETWEEN the marks unwatched, and that is exactly where something can be
+    # moved to: a rule laid across the middle of the lockup reads 0% on a ring
+    # and is blanked out by the flatten.
     lx0, ly0, lx1, ly1 = geo["lockup"]
-    ring = np.concatenate([
-        strip((lx0 - 0.05, ly0 - 0.05, lx1 + 0.05, ly0 - 0.01)).reshape(-1, 3),
-        strip((lx0 - 0.05, ly1 + 0.01, lx1 + 0.05, ly1 + 0.05)).reshape(-1, 3),
-    ])
-    off = float((~near_mask(ring, paper, 14)).mean()) * 100.0
-    print("  co-brand marks sit on paper                    %8.3f%% not paper"
-          % off)
+    ox, oy = px(lx0 - 0.05), px(ly0 - 0.05)
+    a = arr[oy:px(ly1 + 0.05), ox:px(lx1 + 0.05), :]
+    watch = np.ones(a.shape[:2], dtype=bool)
+
+    def unwatch(bx0, by0, bx1, by1, grow=1):
+        watch[max(0, px(by0) - oy - grow):px(by1) - oy + grow,
+              max(0, px(bx0) - ox - grow):px(bx1) - ox + grow] = False
+
+    for cx, cy, (bx0, by0, bx1, by1) in placed:
+        if lx0 <= cx <= lx1 and ly0 <= cy <= ly1:
+            unwatch(bx0, by0, bx1, by1)
+    # the lockup label is set between the two marks, so the type in the field
+    # comes out of the watch as well. What is left is background, which is
+    # what the flatten composites against.
+    for w in page.get_text("words", clip=fitz.Rect(
+            (pad + lx0 - 0.05) * PT, (pad + ly0 - 0.05) * PT,
+            (pad + lx1 + 0.05) * PT, (pad + ly1 + 0.05) * PT)):
+        unwatch(w[0] / PT - pad, w[1] / PT - pad,
+                w[2] / PT - pad, w[3] / PT - pad, grow=2)
+    bad = (~near_mask(a, paper)) & watch
+    off = float(bad.sum()) / max(1, int(watch.sum())) * 100.0
+    where = ""
+    if bad.any():
+        ys, xs = np.nonzero(bad)
+        where = "  first at %.3f, %.3f in" % (lx0 - 0.05 + xs[0] / dpi,
+                                              ly0 - 0.05 + ys[0] / dpi)
+    print("  co-brand marks sit on paper                    %8.3f%% not paper "
+          "(%d px watched)%s" % (off, int(watch.sum()), where))
     if off:
         problems.append("the co-brand lockup is not sitting on paper (%.3f%% "
-                        "of the field around it is another colour). The build "
-                        "flattens both marks onto the paper colour, which is "
-                        "only exact while that is what is behind them." % off)
+                        "of the field around and between the marks is another "
+                        "colour).%s The build flattens both marks onto the "
+                        "paper colour, which is only exact while that is what "
+                        "is behind them." % (off, where))
 
     row = arr[int((pad + 10.85) * dpi), :, :]
     edge = None
@@ -788,10 +831,11 @@ def live_transparency(pdf_path):
             m = re.search(r"/%s\s+([\d.]+)" % key, obj)
             if m and float(m.group(1)) < 1.0:
                 found.append((x, "constant alpha /%s %.3f" % (key, float(m.group(1)))))
-        m = re.search(r"/SMask\s+(\d+ 0 R|/\w+)", obj)
-        if m and m.group(1) != "/None":
-            what = "image soft mask" if "/Image" in obj else "soft mask"
-            found.append((x, "%s /SMask %s" % (what, m.group(1))))
+        for key in ("SMask", "Mask"):
+            m = re.search(r"/%s\s+(\d+ 0 R|\[[^\]]*\]|/\w+)" % key, obj)
+            if m and m.group(1) not in ("/None", "null"):
+                what = "image" if "/Image" in obj else "graphics state"
+                found.append((x, "%s /%s %s" % (what, key, m.group(1))))
     doc.close()
     return found
 
@@ -824,8 +868,15 @@ def convert_cmyk(src_pdf, out_pdf, profile):
     return r.stdout
 
 
-def measure_tac(pdf_path, limit, dpi=100):
-    """Total area coverage, measured on a CMYK raster of the converted file."""
+def measure_tac(pdf_path, limit, dpi=600):
+    """Total area coverage, measured on a CMYK raster of the converted file.
+
+    The resolution is part of the measurement, not a detail. A coarse raster
+    averages neighbouring pixels and reports a peak that is not on the sheet:
+    this file reads 295.69% at 100 dpi, 298.04% at 300, and 300.00% at both
+    600 and 1200. 600 is the floor at which the number stops moving, and it
+    is the number the press sees.
+    """
     tif = pdf_path + ".tac.tif"
     cmd = ["gs", "-dBATCH", "-dNOPAUSE", "-dSAFER",
            "--permit-file-read=" + pdf_path, "-sDEVICE=tiff32nc",
@@ -839,8 +890,8 @@ def measure_tac(pdf_path, limit, dpi=100):
     peak = float(tac.max())
     over = float((tac > limit).mean() * 100.0) if limit else 0.0
     os.unlink(tif)
-    print("  peak total ink %.1f%%   area over %.0f%%: %.3f%% of the sheet"
-          % (peak, limit or 0, over))
+    print("  peak total ink %.2f%% at %d dpi   area over %.0f%%: %.3f%% of "
+          "the sheet" % (peak, dpi, limit or 0, over))
     return peak, over
 
 
@@ -953,9 +1004,10 @@ def main():
                  "That is the whole reason and it is a CONFORMANCE rule, not a "
                  "rendering one: Ghostscript without -dPDFX converts this file "
                  "with the type left vector, so nothing is rasterised either "
-                 "way. The remaining source is the three 70% white captions, "
-                 "and setting them to their opaque equivalents is a colour "
-                 "edit that needs sign-off, so this script will not make it. "
+                 "way. What is left is white text set below full opacity, "
+                 "listed above by object; setting it to its opaque equivalent "
+                 "is a colour edit that needs sign-off, so this script will "
+                 "not make it. "
                  "Drop --x1a and the same file converts, carrying it.")
         elif alpha:
             print("  WARNING: that is live transparency and it is carried into")
@@ -973,9 +1025,15 @@ def main():
         print("  so and we do it properly, with a real preflight.")
         if args.ink_limit:
             peak, over = measure_tac(cmyk_out, args.ink_limit)
+            print("  NOTE: a destination profile enforces its own ink limit, so")
+            print("  this reading cannot exceed it. Apple Generic CMYK stops at")
+            print("  300%, which means a 300% check run against that profile")
+            print("  can never go red and proves nothing. The reading is only")
+            print("  evidence with the printer's own profile, or below the")
+            print("  profile's ceiling: at --ink-limit 240 this sheet fails.")
             if peak > args.ink_limit + 0.5:
-                problems.append("peak total ink %.1f%% exceeds the %.0f%% limit"
-                                % (peak, args.ink_limit))
+                problems.append("peak total ink %.2f%% exceeds the %.0f%% "
+                                "limit" % (peak, args.ink_limit))
         problems += check(cmyk_out, args.marks, geo, expect_cmyk=True)
     else:
         print("\n--- CMYK conversion ------------------------------------------")
