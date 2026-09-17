@@ -34,3 +34,6 @@ credentials.json
 # HAVEN print artwork: regenerate with scripts/build-haven-print.py.
 # The PDF carries ~9 MB of embedded photography and is rebuilt on demand.
 docs/design/build/
+# Where the finished CMYK file for the publisher lands. 43 MB of lossless
+# photography, rebuilt by the same script; it is a deliverable, not source.
+docs/design/print-ready/
