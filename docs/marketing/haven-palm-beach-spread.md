@@ -520,6 +520,29 @@ Note on Denison: Clark's history there does not appear in this spread, per the h
 
 ---
 
+## 0. DELIVERED AND ACCEPTED - 17 September 2026
+
+**Jake has the file and it is done.** Clark, 18 September: *"Jake has the file for
+the HAVEN ad so that's all. He got back to me and said it looked great, it's going
+to work fine, and we're done."*
+
+Sent a day inside the 18 September materials deadline. What went: the print file
+and the spec sheet beside it, from
+`~/Dropbox/HaleyYachts/Marketing/HAVEN-2026/`.
+
+`Haley-Yachts-HAVEN-spread-CMYK.pdf`, 43.3 MB, sha256 `2ae83910...13e715`.
+U.S. Web Coated (SWOP) v2, peak total ink 296.9% against a 300% limit, bleed
+0.125in on all four edges, five fonts embedded and subset, every image above
+300 ppi at placed size, and the QR decoded back out of the finished CMYK file
+and checked character for character against `https://haleyyachts.com/dock`.
+
+**Nothing further is owed on the advertisement.** The one dated item that
+outlives it is on Patrick's list rather than here: `/dock` carries the Fort
+Lauderdale show line, and the magazine stays in circulation long after the show
+does.
+
+---
+
 ## 7. The delivery package, materials deadline 18 September
 
 **THE DELIVERY CHANGED ON 16 SEPTEMBER. We supply print-ready artwork.** Clark: *"Let's give them print ready artwork. Jake tells me the gutter-band you're allowing will be just fine."*
