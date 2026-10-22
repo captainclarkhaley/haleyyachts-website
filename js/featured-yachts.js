@@ -66,7 +66,7 @@ const featuredYachts = [
     },
     {
         image: "images/yachts/featured/001.jpg",
-        name: "1991 Hatteras 70 Cockpit Motor Yacht - SUGAR BEAR",
+        name: "1991 Hatteras 70 Cockpit Motor Yacht  \"SUGAR BEAR\" $389,000",
         description: "Loved and Cared for by the current owner for over for 20 years. \"Sugar Bear\" is a beautiful example of the Hatteras Cockpit Motor Yacht. Designed and Built for an Owner Operator, Sugar Bear includes adequate accommodations for a Captain and Crew.",
         link: "contact.html",
         linkText: "Inquire",
