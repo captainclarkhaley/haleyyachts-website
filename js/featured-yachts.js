@@ -32,7 +32,7 @@ const featuredYachts = [
         page: "yachts/fringe-benefits.html"
     },
     {
-        image: "images/yachts/featured/003.jpg",
+        image: "images/yachts/featured/img-9891.jpg",
         name: "2007 Manta 42 Mark IV",
         description: "Purchased by lifelong boaters new with most factory options, this 2007 one owner boat has been meticulously maintained to factory standards with multiple upgrades. Conscious Sedation offers an infrequent opportunity to own a Manta Mk IV.",
         link: "contact.html",
