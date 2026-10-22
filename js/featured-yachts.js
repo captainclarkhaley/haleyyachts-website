@@ -33,11 +33,11 @@ const featuredYachts = [
     },
     {
         image: "images/yachts/featured/2024-sunseeker-manhattan-68.jpg",
-        name: "2024 Sunseeker Manhattan 68 *NEW* - $3,995,000",
-        description: "This is a NEW Sunseeker 68 Manhattan, built in 2024. Comes with full manufacturer warranty and many upgrades, including twin MAN 1400 hp engines, Joy Stick docking, upgraded interiors, hardtop Flybridge and so much more. Call to get full details.",
+        name: "2007 Manta 42 Mark IV",
+        description: "Purchased by lifelong boaters new with most factory options, this 2007 one owner boat has been meticulously maintained to factory standards with multiple upgrades. Conscious Sedation offers an infrequent opportunity to own a Manta Mk IV.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "documents/yachts/2024-sunseeker-manhattan-68.pdf",
+        pdf: "documents/yachts/2007-Manta-42_MK_IV.pdf",
         kuula: "",
         youtube: "",
         page: ""
