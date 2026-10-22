@@ -43,6 +43,17 @@ const featuredYachts = [
         page: ""
     },
     {
+        image: "images/yachts/featured/001.jpg",
+        name: "1991 Hatteras 70 Cockpit Motor Yacht  \"SUGAR BEAR\" $389,000",
+        description: "Loved and Cared for by the current owner for over for 20 years. \"Sugar Bear\" is a beautiful example of the Hatteras Cockpit Motor Yacht. Designed and Built for an Owner Operator, Sugar Bear includes adequate accommodations for a Captain and Crew.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
         image: "images/yachts/featured/riviera545suv.jpg",
         name: "2020 Riviera 545 SUV, \"Fringe Benefits\" $1,295,000",
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
@@ -60,17 +71,6 @@ const featuredYachts = [
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/2024-sunseeker-superhawk-55.pdf",
-        kuula: "",
-        youtube: "",
-        page: ""
-    },
-    {
-        image: "images/yachts/featured/001.jpg",
-        name: "1991 Hatteras 70 Cockpit Motor Yacht  \"SUGAR BEAR\" $389,000",
-        description: "Loved and Cared for by the current owner for over for 20 years. \"Sugar Bear\" is a beautiful example of the Hatteras Cockpit Motor Yacht. Designed and Built for an Owner Operator, Sugar Bear includes adequate accommodations for a Captain and Crew.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "",
         kuula: "",
         youtube: "",
         page: ""
