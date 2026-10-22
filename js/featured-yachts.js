@@ -43,17 +43,6 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/2024-sunseeker-superhawk-55.png",
-        name: "2024 Sunseeker Superhawk 55 - $1,975,000",
-        description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/2024-sunseeker-superhawk-55.pdf",
-        kuula: "",
-        youtube: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/2026-hcb-56-suenos-gix.png",
         name: "2026 HCB 56 Suenos GIX $2,985,000 w/Quint Merc 600's",
         description: "This is a new HBC Suenos 56 with 5 Merc 600 engines, custom hul color, Split-Sit Mezzaninie layout, Seakeeper 10, Starlink WiFi, 15KW Fisher Panda generator, upgraded Garmin electronics, helm A/c w 2nd A/C in cockpit. Call for complete information.",
@@ -73,6 +62,17 @@ const featuredYachts = [
         pdf: "documents/yachts/2023-riviera-64-sports-motor-yacht.pdf",
         kuula: "",
         youtube: "qqorGl21H04",
+        page: ""
+    },
+    {
+        image: "images/yachts/featured/2024-sunseeker-superhawk-55.png",
+        name: "2024 Sunseeker Superhawk 55 - $1,975,000",
+        description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/2024-sunseeker-superhawk-55.pdf",
+        kuula: "",
+        youtube: "",
         page: ""
     },
     {
