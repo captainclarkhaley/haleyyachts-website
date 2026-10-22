@@ -21,17 +21,6 @@
 
 const featuredYachts = [
     {
-        image: "images/yachts/featured/riviera545suv.jpg",
-        name: "2020 Riviera 545 SUV, \"Fringe Benefits\" $1,295,000",
-        description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/2020-riviera-545-suv-fringe-benefits.pdf",
-        kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
-        youtube: "8Sfu5DoYrBw",
-        page: "yachts/fringe-benefits.html"
-    },
-    {
         image: "images/yachts/featured/img-9891.jpg",
         name: "2007 Manta 42 Mark IV",
         description: "Purchased by lifelong boaters new with most factory options, this 2007 one owner boat has been meticulously maintained to factory standards with multiple upgrades. Conscious Sedation offers an infrequent opportunity to own a Manta Mk IV.",
@@ -63,6 +52,17 @@ const featuredYachts = [
         kuula: "",
         youtube: "",
         page: ""
+    },
+    {
+        image: "images/yachts/featured/riviera545suv.jpg",
+        name: "2020 Riviera 545 SUV, \"Fringe Benefits\" $1,295,000",
+        description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/2020-riviera-545-suv-fringe-benefits.pdf",
+        kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
+        youtube: "8Sfu5DoYrBw",
+        page: "yachts/fringe-benefits.html"
     },
     {
         image: "",
