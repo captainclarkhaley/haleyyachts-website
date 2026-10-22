@@ -43,17 +43,6 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/2024-sunseeker-superhawk-55.png",
-        name: "2024 Sunseeker Superhawk 55 - $1,975,000",
-        description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/2024-sunseeker-superhawk-55.pdf",
-        kuula: "",
-        youtube: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/riviera545suv.jpg",
         name: "2020 Riviera 545 SUV, \"Fringe Benefits\" $1,295,000",
         description: "The Riviera 545 SUV blends luxury cruising with adventure-ready capability. Three staterooms, a full-beam master, an expansive cockpit, and the signature Riviera build quality make her ideal for extended family voyages and weekend getaways alike.",
@@ -63,6 +52,17 @@ const featuredYachts = [
         kuula: "<iframe src=\"https://kuula.co/share/collection/7MBqZ?logo=1&info=0&fs=1&vr=0&gyro=0&thumbs=1&keys=0\" width=\"100%\" height=\"640\" frameborder=\"0\" allow=\"xr-spatial-tracking; gyroscope; accelerometer\" allowfullscreen ></iframe>",
         youtube: "8Sfu5DoYrBw",
         page: "yachts/fringe-benefits.html"
+    },
+    {
+        image: "images/yachts/featured/2024-sunseeker-superhawk-55.png",
+        name: "2024 Sunseeker Superhawk 55 - $1,975,000",
+        description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/2024-sunseeker-superhawk-55.pdf",
+        kuula: "",
+        youtube: "",
+        page: ""
     },
     {
         image: "",
