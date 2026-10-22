@@ -54,23 +54,23 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/2023-riviera-64-sports-motor-yacht.png",
-        name: "2023 Riviera 64 Sport Motor Yacht $3,539,000",
-        description: "This one-owner 2023 Riviera 64 SMY is the ultimate blend of performance, luxury, and offshore capability. With only 400 hours on twin MAN V12 1550s, she’s fully optioned, meticulously maintained, and turnkey ready for her next adventure.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/2023-riviera-64-sports-motor-yacht.pdf",
-        kuula: "",
-        youtube: "qqorGl21H04",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/2024-sunseeker-superhawk-55.png",
         name: "2024 Sunseeker Superhawk 55 - $1,975,000",
         description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/2024-sunseeker-superhawk-55.pdf",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
         kuula: "",
         youtube: "",
         page: ""
