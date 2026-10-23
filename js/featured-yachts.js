@@ -48,7 +48,7 @@ const featuredYachts = [
         description: "Loved and Cared for by the current owner for over for 20 years. \"Sugar Bear\" is a beautiful example of the Hatteras Cockpit Motor Yacht. Designed and Built for an Owner Operator, Sugar Bear includes adequate accommodations for a Captain and Crew.",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "",
+        pdf: "documents/yachts/1991-Hatteras-70_Cockpit_Motor_Yacht.pdf",
         kuula: "",
         youtube: "",
         page: ""
