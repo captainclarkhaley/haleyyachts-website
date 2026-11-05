@@ -76,7 +76,7 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "",
+        image: "images/yachts/featured/101-hargrave-dunia-profiles-01.jpg",
         name: "2008 Hargrave 101 - $2,345,000",
         description: "MISS DUNIA is maintained under continuous professional care and remains in turnkey operational condition. This yacht is one of the best maintained 101' Hargraves on the market. Her interior woodwork is museum quality joinery. You have to see her!",
         link: "contact.html",
