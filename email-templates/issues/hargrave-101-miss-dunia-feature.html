@@ -27,22 +27,10 @@
       Authored width=600 height=400 on the assumption the source is 3:2 (looks 2000x1333).
       VERIFY the real pixel size before sending; if it is not 3:2, set
       height = round(600 * h / w) or Outlook for Windows will squash it.
-    - GALLERY: three marked placeholders in the body, each an HTML comment that starts
-      PHOTO: (salon, master stateroom, flybridge). Clark's extra photos are in Dropbox,
-      not on this Mac. For each one: upload to the live site (e.g. images/email/hargrave-101/),
-      then paste this block in place of the placeholder and swap src, height and alt.
-      Set height = round(520 * h / w) from the real image.
-
-        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:6px 0 22px 0;">
-          <tr>
-            <td align="center" style="font-size:0; line-height:0; padding:0;">
-              <img src="https://haleyyachts.com/images/email/hargrave-101/FILENAME.jpg"
-                   width="520" height="347" alt="MISS DUNIA DESCRIPTION"
-                   class="stack-img"
-                   style="display:block; width:100%; max-width:520px; height:auto; border:0; outline:none; border-radius:4px;" />
-            </td>
-          </tr>
-        </table>
+    - Hero size verified: 2000x1333, so 600x400 is correct.
+    - GALLERY: six 600x400 photos taken from the spec sheet PDF (p18-25), in
+      images/email/hargrave-101/: salon, galley, master, master-bath, flybridge, pilothouse.
+      They load from the live site, so the site must be pulled in cPanel before sending.
 -->
 
 <!--[if mso]>
@@ -196,15 +184,64 @@
 
               <p>Step inside and the first thing you notice is the woodwork. Hargrave's joinery here is museum quality: high-gloss sapele throughout, and curved doorway frames in rare tiger wood. Every guest stateroom has its own ensuite in granite and marble, and the master has a four-poster king and a his-and-hers bath with a Jacuzzi tub to port and a shower to starboard.</p>
 
-              <!-- PHOTO: salon (main salon, wide, leather seating and compass-rose carpet; see brochure p17-18) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:6px 0 22px 0;">
+                <tr>
+                  <td align="center" style="font-size:0; line-height:0; padding:0;">
+                    <img src="https://haleyyachts.com/images/email/hargrave-101/salon.jpg"
+                         width="520" height="347" alt="MISS DUNIA main salon with leather seating and compass rose carpet"
+                         class="stack-img"
+                         style="display:block; width:100%; max-width:520px; height:auto; border:0; outline:none; border-radius:4px;" />
+                  </td>
+                </tr>
+              </table>
 
               <p>There are four guest staterooms: the master, a forward VIP, an aft VIP with a queen, and a twin cabin that converts to a queen, with a Pullman. The galley is Hargrave's signature country kitchen, with Green Butterfly granite and a dinette for six. Crew live separately, with a captain's cabin and private head plus two crew cabins.</p>
 
-              <!-- PHOTO: master stateroom (four-poster king; see brochure p19) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:6px 0 22px 0;">
+                <tr>
+                  <td align="center" style="font-size:0; line-height:0; padding:0;">
+                    <img src="https://haleyyachts.com/images/email/hargrave-101/galley.jpg"
+                         width="520" height="347" alt="MISS DUNIA country kitchen galley with granite island"
+                         class="stack-img"
+                         style="display:block; width:100%; max-width:520px; height:auto; border:0; outline:none; border-radius:4px;" />
+                  </td>
+                </tr>
+              </table>
+
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:6px 0 22px 0;">
+                <tr>
+                  <td align="center" style="font-size:0; line-height:0; padding:0;">
+                    <img src="https://haleyyachts.com/images/email/hargrave-101/master.jpg"
+                         width="520" height="347" alt="MISS DUNIA master stateroom with king berth"
+                         class="stack-img"
+                         style="display:block; width:100%; max-width:520px; height:auto; border:0; outline:none; border-radius:4px;" />
+                  </td>
+                </tr>
+              </table>
+
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:6px 0 22px 0;">
+                <tr>
+                  <td align="center" style="font-size:0; line-height:0; padding:0;">
+                    <img src="https://haleyyachts.com/images/email/hargrave-101/master-bath.jpg"
+                         width="520" height="347" alt="MISS DUNIA master bath in marble with Jacuzzi tub"
+                         class="stack-img"
+                         style="display:block; width:100%; max-width:520px; height:auto; border:0; outline:none; border-radius:4px;" />
+                  </td>
+                </tr>
+              </table>
 
               <p>Outside, she is built for entertaining. The aft deck seats 8 to 10 around a teak table, with a wet bar and a drop-down 42-inch TV. Up top, the hardtop flybridge has a built-in hot tub, a wet bar with four stools, two large settees and a grill. A Nautica RIB17 Widebody tender with a 90hp Yamaha rides aboard, handled by a 2,000 lb hydraulic crane.</p>
 
-              <!-- PHOTO: flybridge (settees and bar, or hot tub and sun pad; see brochure p25-26) -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:6px 0 22px 0;">
+                <tr>
+                  <td align="center" style="font-size:0; line-height:0; padding:0;">
+                    <img src="https://haleyyachts.com/images/email/hargrave-101/flybridge.jpg"
+                         width="520" height="347" alt="MISS DUNIA flybridge settees and wet bar"
+                         class="stack-img"
+                         style="display:block; width:100%; max-width:520px; height:auto; border:0; outline:none; border-radius:4px;" />
+                  </td>
+                </tr>
+              </table>
 
               <h3>The work is already done</h3>
               <ul>
@@ -215,6 +252,17 @@
                 <li>New TVs throughout (2023 to 2025), new aft deck and bow cushions, all batteries replaced 2022</li>
                 <li>Life rafts and fire system recertified 2024; hull and house detailed, buffed and waxed March 2026</li>
               </ul>
+
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin:6px 0 22px 0;">
+                <tr>
+                  <td align="center" style="font-size:0; line-height:0; padding:0;">
+                    <img src="https://haleyyachts.com/images/email/hargrave-101/pilothouse.jpg"
+                         width="520" height="347" alt="MISS DUNIA pilothouse helm"
+                         class="stack-img"
+                         style="display:block; width:100%; max-width:520px; height:auto; border:0; outline:none; border-radius:4px;" />
+                  </td>
+                </tr>
+              </table>
 
               <p>Twin Caterpillar C32s at 1,675 hp each cruise her at 15 knots with 21 on tap. She carries 3,800 gallons of fuel and 800 of fresh water, with an 800 GPD Bluewater watermaker and Naiad stabilizers.</p>
 
@@ -321,7 +369,7 @@
                     <a href="tel:5618171547" style="color:#333333; text-decoration:none;">561-817-1547</a>
                   </p>
                   <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:14px; line-height:22px; color:#333333; margin:0 0 2px 0;">
-                    <a href="mailto:clark@haleyyachts.com" style="color:#333333; text-decoration:none;">clark@haleyyachts.com</a>
+                    <a href="mailto:clarkh@owyg.com" style="color:#333333; text-decoration:none;">clarkh@owyg.com</a>
                   </p>
                   <p class="ff" style="font-family:'Open Sans', Arial, Helvetica, sans-serif; font-size:14px; line-height:22px; margin:0;">
                     <a href="https://haleyyachts.com?utm_source=email&utm_medium=email&utm_campaign=hargrave-101-miss-dunia-feature&utm_content=sig-site-link" target="_blank" rel="noopener" style="color:#21cbea; text-decoration:none; font-weight:600;">haleyyachts.com</a>
