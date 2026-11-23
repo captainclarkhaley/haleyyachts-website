@@ -54,23 +54,23 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/2024-sunseeker-superhawk-55.png",
-        name: "2024 Sunseeker Superhawk 55 - $1,975,000",
-        description: "This Exclusive 55 Superhawk is the most customized brokerage model available in the USA. Twin Volvo IPS 950 engines with low hours and Dock Assist, New Teak throughout (over $100K), Upgraded electronics & interior features. Call for complete info.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/2024-sunseeker-superhawk-55.pdf",
-        kuula: "",
-        youtube: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/101-hargrave-dunia-profiles-01.jpg",
         name: "2008 Hargrave 101 - $2,345,000",
         description: "MISS DUNIA is maintained under continuous professional care and remains in turnkey operational condition. This yacht is one of the best maintained 101' Hargraves on the market. Her interior woodwork is museum quality joinery. You have to see her!",
         link: "contact.html",
         linkText: "Inquire",
         pdf: "documents/yachts/2008-Hargrave-Raised_Pilothouse.pdf",
+        kuula: "",
+        youtube: "",
+        page: ""
+    },
+    {
+        image: "",
+        name: "Featured Listing",
+        description: "Details about this featured yacht will appear here.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "",
         kuula: "",
         youtube: "",
         page: ""
