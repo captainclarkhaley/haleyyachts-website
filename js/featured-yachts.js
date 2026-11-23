@@ -32,17 +32,6 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "images/yachts/featured/2026-hcb-56-suenos-gix.png",
-        name: "2026 HCB 56 Suenos GIX $2,985,000 w/Quint Merc 600's",
-        description: "This is a new HBC Suenos 56 with 5 Merc 600 engines, custom hul color, Split-Sit Mezzaninie layout, Seakeeper 10, Starlink WiFi, 15KW Fisher Panda generator, upgraded Garmin electronics, helm A/c w 2nd A/C in cockpit. Call for complete information.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/2026-hcb-56-suenos-gix.pdf",
-        kuula: "",
-        youtube: "asIe1cVN4IE",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/001.jpg",
         name: "1991 Hatteras 70 Cockpit Motor Yacht  \"SUGAR BEAR\" $489,000",
         description: "Loved and Cared for by the current owner for over for 20 years. \"Sugar Bear\" is a beautiful example of the Hatteras Cockpit Motor Yacht. Designed and Built for an Owner Operator, Sugar Bear includes adequate accommodations for a Captain and Crew.",
@@ -73,6 +62,17 @@ const featuredYachts = [
         pdf: "documents/yachts/2024-Hatteras-GT70.pdf",
         kuula: "",
         youtube: "ja2pwlCHTHg",
+        page: ""
+    },
+    {
+        image: "images/yachts/featured/2026-hcb-56-suenos-gix.png",
+        name: "2026 HCB 56 Suenos GIX $2,985,000 w/Quint Merc 600's",
+        description: "This is a new HBC Suenos 56 with 5 Merc 600 engines, custom hul color, Split-Sit Mezzaninie layout, Seakeeper 10, Starlink WiFi, 15KW Fisher Panda generator, upgraded Garmin electronics, helm A/c w 2nd A/C in cockpit. Call for complete information.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/2026-hcb-56-suenos-gix.pdf",
+        kuula: "",
+        youtube: "asIe1cVN4IE",
         page: ""
     },
     {
