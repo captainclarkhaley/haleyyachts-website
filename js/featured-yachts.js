@@ -65,14 +65,14 @@ const featuredYachts = [
         page: ""
     },
     {
-        image: "",
-        name: "Featured Listing",
-        description: "Details about this featured yacht will appear here.",
+        image: "images/yachts/featured/70-hatteras-morgan-bertam-9.jpg",
+        name: "2024 Hatteras GT70",
+        description: "The GT 70 is built with a resin-infused hull for good strength-to-weight ratio. With her Caterpillar C-32 B power, CJR props, and twisted rudders, she can run at nearly 40k and cruises easily at 34. SeaKeeper stabilization offers 1st Class Boating!",
         link: "contact.html",
         linkText: "Inquire",
-        pdf: "",
+        pdf: "documents/yachts/2024-Hatteras-GT70.pdf",
         kuula: "",
-        youtube: "",
+        youtube: "ja2pwlCHTHg",
         page: ""
     },
     {
