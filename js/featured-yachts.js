@@ -21,17 +21,6 @@
 
 const featuredYachts = [
     {
-        image: "images/yachts/featured/img-9891.jpg",
-        name: "2007 Manta 42 Mark IV",
-        description: "Purchased by lifelong boaters new with most factory options, this 2007 one owner boat has been meticulously maintained to factory standards with multiple upgrades. Conscious Sedation offers an infrequent opportunity to own a Manta Mk IV.",
-        link: "contact.html",
-        linkText: "Inquire",
-        pdf: "documents/yachts/2007-Manta-42_MK_IV.pdf",
-        kuula: "",
-        youtube: "",
-        page: ""
-    },
-    {
         image: "images/yachts/featured/001.jpg",
         name: "1991 Hatteras 70 Cockpit Motor Yacht  \"SUGAR BEAR\" $489,000",
         description: "Loved and Cared for by the current owner for over for 20 years. \"Sugar Bear\" is a beautiful example of the Hatteras Cockpit Motor Yacht. Designed and Built for an Owner Operator, Sugar Bear includes adequate accommodations for a Captain and Crew.",
@@ -73,6 +62,17 @@ const featuredYachts = [
         pdf: "documents/yachts/2026-hcb-56-suenos-gix.pdf",
         kuula: "",
         youtube: "asIe1cVN4IE",
+        page: ""
+    },
+    {
+        image: "images/yachts/featured/img-9891.jpg",
+        name: "2007 Manta 42 Mark IV",
+        description: "Purchased by lifelong boaters new with most factory options, this 2007 one owner boat has been meticulously maintained to factory standards with multiple upgrades. Conscious Sedation offers an infrequent opportunity to own a Manta Mk IV.",
+        link: "contact.html",
+        linkText: "Inquire",
+        pdf: "documents/yachts/2007-Manta-42_MK_IV.pdf",
+        kuula: "",
+        youtube: "",
         page: ""
     },
     {
